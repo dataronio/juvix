@@ -18,4 +18,3 @@ import Juvix.Library
 
 op :: [Initial.TopLevel] -> [Target.TopLevel]
 op = fmap ML.op . Desugar.op . fmap SexpTrans.transTopLevel
-

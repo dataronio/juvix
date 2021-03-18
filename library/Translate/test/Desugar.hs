@@ -89,7 +89,7 @@ viaTest =
   shouldDesugar
     "viaTest"
     "let foo = a via b" -- translated into `let foo = b a`
-    [ (AST.Name "a" :| [])
+    [(AST.Name "a" :| [])
         |> AST.App (AST.Name "b")
         |> AST.Application
         |> AST.Like []
