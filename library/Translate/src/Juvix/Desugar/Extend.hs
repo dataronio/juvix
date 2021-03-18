@@ -99,7 +99,7 @@ extendExpression =
     |> removeModuleE
 
 extendTopLevel :: ExtTopLevel
-extendTopLevel = defaultExtTopLevel {typeModule = Nothing}
+extendTopLevel = defaultExtTopLevel {typeModule = Nothing, typeHandler = Nothing}
 
 extendLet :: Extension.TypeQ -> ExtLet
 extendLet = removeLetName

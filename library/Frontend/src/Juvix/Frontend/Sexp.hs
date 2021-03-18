@@ -14,6 +14,7 @@ transTopLevel Types.TypeClassInstance = Sexp.atom ":instance"
 transTopLevel (Types.Declaration i) = Sexp.atom "declare" Sexp.:> transDeclaration i
 transTopLevel (Types.Signature sig) = Sexp.atom ":defsig" Sexp.:> transSig sig
 transTopLevel (Types.Function f) = transDefun f
+transTopLevel (Types.Handler h) = transLetHand h
 transTopLevel (Types.Module m) = transModule m
 transTopLevel Types.TypeClass = Sexp.atom ":type-class"
 transTopLevel (Types.Type t) = transType t
@@ -143,6 +144,11 @@ transModule (Types.Mod like) = listF body [Sexp.atom ":defmodule", name, args, b
 
 transDefun :: Types.Function -> Sexp.T
 transDefun (Types.Func like) = Sexp.list [Sexp.atom ":defun", name, args, body]
+  where
+    (name, args, body) = transLike False transExpr like
+
+transLetHand :: Types.Handler -> Sexp.T
+transLetHand (Types.Hand like) = Sexp.list [Sexp.atom ":defhandler", name, args, body]
   where
     (name, args, body) = transLike False transExpr like
 
