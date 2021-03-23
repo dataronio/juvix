@@ -1431,22 +1431,6 @@ Can be added to via core translation
 ** Setup <<Translate/Setup>>
 ** src
 *** Juvix
-**** FrontendDesugar
-- Order of Passes
-  1. =RemoveModule=
-  2. =RemoveGuard=
-  3. =RemoveCond=
-  4. =CombineMultiple=
-  5. =RemoveSignature=
-  6. =RemovePunned=
-  7. =RemoveDo=
-- _Relies on_
-  + [[Juvix/Conversion/ML]]
-  + [[Juvix/Desugar]]
-  + [[Desugar/Types]]
-  + [[Frontend/Sexp]]
-  + [[Frontend/Types]]
-  + [[Library]]
 **** Contextify <<Juvix/Contextify>>
 - _Relies on_
   + [[Contextify/Environment]]
@@ -1849,6 +1833,22 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[Frontend/Types/Base]]
   + [[ModuleOpen/Extend]]
+  + [[Library]]
+**** FrontendDesugar
+- Order of Passes
+  1. =RemoveModule=
+  2. =RemoveGuard=
+  3. =RemoveCond=
+  4. =CombineMultiple=
+  5. =RemoveSignature=
+  6. =RemovePunned=
+  7. =RemoveDo=
+- _Relies on_
+  + [[Juvix/Conversion/ML]]
+  + [[Juvix/Desugar]]
+  + [[Desugar/Types]]
+  + [[Frontend/Sexp]]
+  + [[Frontend/Types]]
   + [[Library]]
 ** test
 *** Contextify <<test/Contextify>>
