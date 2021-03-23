@@ -23,6 +23,7 @@ allParserTests =
       sigTest2,
       fun1,
       fun2,
+      handler,
       sumTypeTest,
       superArrowCase,
       typeTest,
@@ -332,6 +333,22 @@ fun2 =
             [AST.ConcreteA (AST.MatchLogic (AST.MatchName "foo") Nothing)]
           |> AST.Func
           |> AST.Function
+      ]
+
+handler :: T.TestTree
+handler =
+  shouldParseAs
+    "handler"
+    Parser.parse
+    "handler foo y = y"
+    $ AST.NoHeader
+      [ AST.Name "y"
+          |> AST.Body
+          |> AST.Like
+            "foo"
+            [ AST.ConcreteA (AST.MatchLogic (AST.MatchName "y") Nothing) ]
+          |> AST.Hand
+          |> AST.Handler
       ]
 
 --------------------------------------------------------------------------------

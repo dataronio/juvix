@@ -94,6 +94,7 @@ topLevel =
   P.try (Types.Type <$> typeP)
     <|> P.try fun
     <|> P.try modT
+    <|> P.try hand
     <|> P.try (Types.ModuleOpen <$> moduleOpen)
     <|> P.try (Types.Signature <$> signature')
     <|> P.try (Types.Declaration <$> declaration)
@@ -198,15 +199,6 @@ functionModGen :: Parser a -> Parser (Types.FunctionLike a)
 functionModGen p =
   functionModStartReserved
     "let"
-    ( \name args -> do
-        guard <- guard p
-        pure (Types.Like name args guard)
-    )
-
-handlerModGen :: Parser a -> Parser (Types.FunctionLike a)
-handlerModGen p =
-  functionModStartReserved
-    "handler"
     ( \name args -> do
         guard <- guard p
         pure (Types.Like name args guard)
@@ -355,6 +347,13 @@ fun = functionModStartReserved "let" func
     func n a =
       genGuard n a expression
         >>| Types.Function . Types.Func
+
+hand ::  Parser Types.TopLevel
+hand = functionModStartReserved "handler" func
+  where
+    func n a =
+      genGuard n a expression
+        >>| Types.Handler . Types.Hand
 
 modT :: Parser Types.TopLevel
 modT = functionModStartReserved "mod" mod

@@ -36,7 +36,8 @@ top =
       blockTest,
       primitiveTest,
       condTest,
-      caseTest
+      caseTest,
+      handlerTest
     ]
 
 --------------------------------------------------------------------------------
@@ -393,6 +394,21 @@ caseTest =
         \  (case x \
         \    ((A (B (:record (a) (b)))) (:infix + a b)) \
         \    ((A (B c) (C d))           (:infix + c d))))"
+
+handlerTest :: T.TestTree
+handlerTest =
+  T.testGroup
+    "handler parser"
+    [ T.testCase "basic" (basic T.@=? basicExpected)
+    ]
+  where
+    basic =
+      Parser.parse
+        "handler foo y = y "
+        |> singleEleErr
+    basicExpected =
+      Sexp.parse
+        "(:defhandler foo (y) y)"
 
 --------------------------------------------------------------------------------
 -- Helpers

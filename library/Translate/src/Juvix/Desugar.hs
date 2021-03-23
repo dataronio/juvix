@@ -27,5 +27,4 @@ op syn =
     |> Pass.combineSig
     >>| Pass.removePunnedRecords
     >>| Pass.translateDo
-    >>| Pass.handlerTransform
 

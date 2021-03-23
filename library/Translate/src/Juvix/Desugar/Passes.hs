@@ -17,7 +17,6 @@ module Juvix.Desugar.Passes
     translateDo,
     removePunnedRecords,
     moduleLetTransform,
-    handlerTransform,
   )
 where
 
@@ -364,7 +363,6 @@ combine (form Sexp.:> name Sexp.:> args Sexp.:> body Sexp.:> Sexp.Nil) expressio
     Sexp.list [Sexp.atom "let", name, args, body, expression]
 combine (form Sexp.:> name Sexp.:> args Sexp.:> body Sexp.:> Sexp.Nil) expression
   | Sexp.isAtomNamed form ":defhandler" =
-    -- we crunch the xs in a list
     Sexp.list [Sexp.atom "let", name, args, body, expression]
 combine (form Sexp.:> name Sexp.:> xs) expression
   | Sexp.isAtomNamed form "type" =
@@ -414,8 +412,8 @@ names body = Sexp.foldr grabNames [] body |> Set.fromList |> Set.toList
 grabNames :: Sexp.T -> [Sexp.Atom] -> [Sexp.Atom]
 grabNames (form Sexp.:> name Sexp.:> _) acc
   | Sexp.isAtomNamed form ":defun"
-      || Sexp.isAtomNamed form "type"
       || Sexp.isAtomNamed form ":defhandler"
+      || Sexp.isAtomNamed form "type"
       || Sexp.isAtomNamed form ":defmodule"
       || Sexp.isAtomNamed form ":defsig",
     Just name <- Sexp.atomFromT name =
@@ -424,17 +422,3 @@ grabNames (form Sexp.:> name Sexp.:> _) acc
     Just name <- Sexp.atomFromT (Sexp.car name) =
     name : acc
 grabNames _ acc = acc
-
--- | @handlerTransform@ - same principle as @moduleLetTransform@
-handlerTransform :: Sexp.T -> Sexp.T
-handlerTransform xs = Sexp.foldPred xs (== ":defhandler") handToFun
-  where
-    handToFun atom (name Sexp.:> args Sexp.:> body) =
-      Sexp.list
-        [ Sexp.atom "let",
-          name,
-          args,
-          ignoreCond body (\b -> Sexp.foldr combine (generatedRecord b) b)
-        ]
-        |> Sexp.addMetaToCar atom
-    handToFun _ _ = error "malformed handler"
