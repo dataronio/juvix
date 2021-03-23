@@ -29,8 +29,8 @@ Contextualization
 Desugaring
 ```
 
-We should avoid prefixes in module names as much as possible, this is what sub
-directories are for, i.e. `Frontend.Contextualize` instead of
+We should avoid prefixes in module names as much as possible, this is what
+sub-directories are for, i.e. `Frontend.Contextualize` instead of
 `FrontendContextualize`.
 
 Directory names should start with a small letter, unless they match with a
@@ -131,7 +131,7 @@ op ::
 
 Note that the comments are not pointing to any argument, as there are placed
 after the `->`. To fix this, the `->` should be placed at the beginning of the
-lines, and the code formatter will correctly work.
+lines, and the code formatter will work correctly.
 
 Imports
 -------
