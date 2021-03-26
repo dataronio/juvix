@@ -37,9 +37,17 @@
 
   ;; Match-logic could just be a name, and so is thus fine
   ;; # is for implicit
+  ;; : is for named symbols... AKA Keywords
   ;; Should we have implicit pattern matching like here?
-  args ::= <match-logic>
-         | #<match-logic>
+  args ::= <args-bare>
+         | #<args-no-#>
+         | :<args-no-:>
+
+  args-no-: ::= #<args-bare> | <args-bare>
+
+  args-no-# ::= :<args-bare> | <args-bare>
+
+  args-bare ::= <match-logic>
 
   ;; sig only here while indent sensitivity is not here
   ;; if we only have usage in arrows, we should allow a way to have
@@ -133,8 +141,7 @@
 
 
   ;; we use mod here to disambiguate it for parsing speed
-  moduleE ::= mod <name> <args>+ = <top-level>* end in <expression>
-            | mod <name> <args>+ <cond-top>* end in <expression>
+  moduleE ::= <module> in <expression>
 
   ;; what should we allow in a module signature?
   ;; begin and end are only here while we aren't indent sensitive
@@ -184,6 +191,7 @@
                  | <list>
                  | <parens>
                  | <symbol>
+                 | <keyword>
                  ; This is useful for having nested do's or matchs
                  | <block>
                  | <do>
@@ -212,6 +220,8 @@
   lambda ::= \\ <match-logic>* -\> <expression>
 
   symbol ::= <name>
+
+  keyword ::= :<symbol>
 
   ;; useful for match, and nested do's!
   block ::= begin <expression> end
