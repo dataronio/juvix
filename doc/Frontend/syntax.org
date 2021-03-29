@@ -37,6 +37,7 @@
   ;; Match-logic could just be a name, and so is thus fine
   ;; # is for implicit
   ;; : is for named symbols... AKA Keywords
+  ;; the symbol will be introduced without the : and #
   ;; Should we have implicit pattern matching like here?
   args ::= <args-bare>
          | #<args-no-#>
