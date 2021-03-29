@@ -1,7 +1,6 @@
 * Syntax
 #+BEGIN_SRC bnf
-  header ::= mod <symbol> where <top-level>*
-           | <top-level>*
+  header ::= <top-level>*
 
   top-level ::= <type>
               | <module-open>
@@ -30,7 +29,7 @@
   ;;;; Functions ======================================================
 
   ;; let until indent sensitivity is gone
-  function ::= let  <function-body>
+  function ::= let <function-body>
 
   function-body ::= <name> <args>+ = <expression>
                   | <name> <args>+ <cond-logic>*
@@ -261,12 +260,24 @@
   name-set-creation ::= <name> = <expression>
                       | <name>
 
-
   ;;; Matching ===================================
 
-  match ::= case <expression> of <match-l>*
+  match ::= case <expression> of <match-l>+ <match-l-end>*
 
-  match-l ::= \| <match-logic> -\> <expression>
+  match-l-end ::= <match-l-or>* <guards-with-end>+ = <expression>
+
+  ;; or pattenrs
+  match-l-or ::= \| <match-logic>
+  match-l    ::= <match-l-or>* <guards-with>+ = <expression>
+
+  ;; indent sensitivity makes the end here unneeded, fusing with the end version
+  guards-with ::= <if>
+                | <with>
+
+  with ::= with <match-l>+ <match-l-end>*
+
+  ;; indent sensitivity removes this
+  guards-with-end ::= <guards-with> end
 
   match-logic ::= <name>@<match-logic'>
                 | <match-logic'>
