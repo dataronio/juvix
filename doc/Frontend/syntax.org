@@ -138,6 +138,8 @@
   ;; let and end are there until indent sensitivity is in
   module ::= mod <name> <args>+ = <top-level>* end
            | mod <name> <args>+ <cond-top>* end
+           ;; this scopes the files, basically like in-module
+           | mod <name> <args>+
 
 
   ;; we use mod here to disambiguate it for parsing speed
