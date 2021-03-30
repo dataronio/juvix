@@ -193,7 +193,7 @@
                  | <list>
                  | <parens>
                  | <symbol>
-                 | <keyword>
+                 | <argument-cases>
                  ; This is useful for having nested do's or matchs
                  | <block>
                  | <do>
@@ -209,6 +209,7 @@
   expression ::= <application>
               | <expression''>
 
+
   usage ::= <expression>
 
   usage-f ::= <constant> | ( <expression> )
@@ -222,6 +223,18 @@
   lambda ::= \\ <match-logic>* -\> <expression>
 
   symbol ::= <name>
+
+  ;; implicit and keyword need 1 more after it
+  ;; for applications to continue
+
+  argument-cases ::= <keyword>
+                   | <implicit>
+                   | <punned>
+
+  ;; punned
+  punned ::= !<symbol>
+
+  implicit ::= #<symbol>
 
   keyword ::= :<symbol>
 
