@@ -31,21 +31,28 @@
   ;; let until indent sensitivity is gone
   function ::= let <function-body>
 
-  function-body ::= <name> <args>+ = <expression>
-                  | <name> <args>+ <cond-logic>*
+  function-body-end ::= <name> <args>+ = <expression>
+                      | <name> <args>+ <guards-with>
+
+  function-body-start ::= <name> <args>+                   \| <function-body-start>
+                        | <name> <args>+ <guards-with> end \| <function-body-start>
+                        | <name> <args>+ = <expression>    \| <function-body-start>
+                        | <function-body-end>
+
+  function-body ::= <function-body-start>
 
   ;; Match-logic could just be a name, and so is thus fine
   ;; # is for implicit
+  ;;   - they can have default values, and thus can be assigned
   ;; : is for named symbols... AKA Keywords
+  ;;   - we can assign different names to keywords if we want
   ;; the symbol will be introduced without the : and #
   ;; Should we have implicit pattern matching like here?
   args ::= <args-bare>
-         | #<args-no-#>
-         | :<args-no-:>
-
-  args-no-: ::= #<args-bare> | <args-bare>
-
-  args-no-# ::= :<args-bare> | <args-bare>
+         | #<symbol>
+         | #(<symbol> = <expression>)
+         | :<symbol>
+         | :(<symbol> = <args-bare>)
 
   args-bare ::= <match-logic>
 
@@ -134,6 +141,9 @@
   ;; Interestingly enough module "functors" can take more than just modules
   ;; they can take any value, however for examples, we will encourage the use
   ;; of taking (and thus parameterizing) modules
+
+  module-end ::= mod <name> <args>+ = <top-level>* end
+               | mod <name> <args>+ <cond-top>* end
 
   ;; let and end are there until indent sensitivity is in
   module ::= mod <name> <args>+ = <top-level>* end
@@ -286,6 +296,10 @@
   match-l-or ::= \| <match-logic>
   match-l    ::= <match-l-or>* <guards-with>+ = <expression>
 
+
+  guard-with-top ::= if <cond-logc>*
+                  | with <match-l-or>* <guards-with-end>+ = <top-level
+
   ;; indent sensitivity makes the end here unneeded, fusing with the end version
   guards-with ::= <if>
                 | <with>
@@ -348,6 +362,8 @@
   ;; and thus not some expression
 
   ;; note in stdlib else and otherwise will both be true
+
+  cond-logic-top ::= \| <expression> = <top-level>
 
   cond-logic ::= \| <expression> = <expression>
 
