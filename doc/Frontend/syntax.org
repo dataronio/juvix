@@ -1,18 +1,48 @@
 * Syntax
 #+BEGIN_SRC bnf
-  header ::= <top-level>*
+  header ::= <expression>*
 
-  top-level ::= <type>
-              | <module-open>
-              | <type-class>
-              | <type-class-instance>
-              ; These four last, due to lack of words before
-              | <module-signature>
-              | <infix-declare>
-              | <module>
-              | <module-open>
-              | <signature>
-              | <function>
+  ;;;; Expressions ====================================================
+
+  expression ::= <application>
+               | <expression''>
+
+  ;; See comments about which to keep and which to maybe remove
+  expression'' ::=
+                 ;; global definers
+                   <function>
+                 | <type>
+                 | <signature>
+                 | <module>
+                 | <declarations>
+                 ;; localfier
+                 | <let>
+                 ;;
+                 | <end>
+                 | <match>
+                 | <if>
+                 | <record-access>
+                 | <module-lookup>
+                 | <module-open-expression>
+                 | <string>
+                 | <number>
+                 | <lambda>
+                 | <tuple>
+                 | <list>
+                 | <parens>
+                 | <symbol>
+                 | <argument-cases>
+                 ; This is useful for having nested do's or matchs
+                 | <block>
+                 | <do>
+                 | <comments>
+                 | <arrow>
+                 | <infix>
+                 | <record-creation>
+                 | <type-refine>
+                 ; TODO
+                 | <record-update>
+                 | <declaration-expression>
 
   ;;;; Declarations ======================================================
 
@@ -29,7 +59,7 @@
   ;;;; Functions ======================================================
 
   ;; let until indent sensitivity is gone
-  function ::= let <function-body>
+  function ::= def <function-body>
 
   function-body-end ::= <name> <args>+ = <expression>
                       | <name> <args>+ <guards-with>
@@ -183,42 +213,7 @@
   ;; Need end if we are indent sensitive!
   type-class-instance ::= instance <type-name> where
 
-  ;;;; Expressions ====================================================
-
-  ;; See comments about which to keep and which to maybe remove
-  expression'' ::= <match>
-                 | <if>
-                 | <cond>
-                 | <record-access>
-                 | <module-lookup>
-                 | <let>
-                 | <moduleE>
-                 | <let-type>
-                 | <module-open-expression>
-                 | <where>
-                 | <string>
-                 | <number>
-                 | <lambda>
-                 | <tuple>
-                 | <list>
-                 | <parens>
-                 | <symbol>
-                 | <argument-cases>
-                 ; This is useful for having nested do's or matchs
-                 | <block>
-                 | <do>
-                 | <comments>
-                 | <arrow>
-                 | <infix>
-                 | <record-creation>
-                 | <type-refine>
-                 ; TODO
-                 | <record-update>
-                 | <declaration-expression>
-
-  expression ::= <application>
-              | <expression''>
-
+  end ::= .
 
   usage ::= <expression>
 
@@ -342,10 +337,14 @@
 
   ;;; Bindings ===================================
 
+  ;; this let simply replaces the default global handler for functions
+  ;; that have global allocating effects, into closure effects.
+  let ::= let <expression>+ in <expression>
+
   ;; Due to trying to be less indent sensitive,
   ;; we only look for the in alternative,
   ;; is that we only have a single binding per let.
-  let ::= let <function-body> in <expression>
+  let' ::= let <function-body> in <expression>
 
   type-let ::= let <type> in <expression>
 
