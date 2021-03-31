@@ -881,7 +881,6 @@ Quantitative type implementation inspired by
 ******* Base <<IR/Types/Base>>
 - _Relies on_
   + [[Library]]
-  + [[HashMap]]
   + [[NameSymbol]]
   + [[Usage]]
 ******* Globals
