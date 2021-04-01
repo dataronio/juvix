@@ -108,6 +108,15 @@ contextualizeFoo byte =
         :| [("Foo", parseDesugarSexp byte)]
     )
 
+contextualizeFoo' ::
+  ByteString -> IO (Either Contextify.ResolveErr (Context.T Sexp.T Sexp.T Sexp.T))
+contextualizeFoo' byte =
+  Contextify.op
+    ( ("Foo", parseDesugarSexp byte) :| []
+    )
+
+
+
 contextualizeFooAmbi ::
   ByteString -> IO (Either Contextify.ResolveErr (Context.T Sexp.T Sexp.T Sexp.T))
 contextualizeFooAmbi byte =

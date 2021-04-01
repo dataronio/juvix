@@ -33,7 +33,7 @@ import Juvix.Library hiding (show)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 
-data NoExt deriving (Data)
+data NoExt deriving (Data, Show)
 
 extendTerm "Term" [] [t|NoExt|] $ \_ _ -> defaultExtTerm
 
@@ -76,6 +76,8 @@ type RawGlobal = RawGlobal' NoExt
 type Globals primTy primVal = Globals' NoExt NoExt primTy primVal
 
 type RawGlobals primTy primVal = RawGlobals' NoExt primTy primVal
+
+
 
 -- Quotation: takes a value back to a term
 quote0 :: Value primTy primVal -> Term primTy primVal

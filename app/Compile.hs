@@ -72,7 +72,8 @@ typecheck Michelson ctx = do
                 newGlobals = HM.map (unsafeEvalGlobal convGlobals) convGlobals
                 lookupGlobal = IR.rawLookupFun' globalDefs
                 inlinedTerm = IR.inlineAllGlobals term lookupGlobal
-            (res, _) <-
+            (res, _) <- do
+              traceShowM "going into res"
               liftIO $
                 exec
                   (CorePipeline.coreToAnn inlinedTerm (IR.globalToUsage usage) ty)
@@ -82,6 +83,7 @@ typecheck Michelson ctx = do
               Right r -> do
                 pure r
               Left err -> do
+                traceShowM "we fail here"
                 print term
                 Feedback.fail $ show err
         somethingElse -> do

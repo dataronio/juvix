@@ -49,6 +49,9 @@ type CompConstraints primTy primVal compErr m =
   ( CompConstraints' primTy primVal compErr m,
     Eq primTy,
     Eq primVal,
+    Show primTy,
+    Show primVal,
+
     Types.CanApply primTy,
     Types.CanApply (Types.TypedPrim primTy primVal),
     TC.PrimSubstValue primTy primVal,
@@ -97,7 +100,9 @@ coreToAnn ::
   MichelsonComp (ErasedAnn.AnnTerm Michelson.PrimTy Michelson.PrimValHR)
 coreToAnn term usage ty = do
   -- FIXME: allow any universe!
+  traceShowM "start term"
   (term, _) <- typecheckErase' term usage ty
+  traceShowM "term gotten"
   pure $ ErasedAnn.convertTerm term usage
 
 coreToMichelson :: MichelsonComp (Either Michelson.CompErr Michelson.EmptyInstr)
@@ -206,6 +211,7 @@ typecheckEval term usage ty = do
   let irTerm = Translate.hrToIR term
   tell @"log" [Types.LogHRtoIR term irTerm]
   -- Typecheck & return accordingly.
+  traceShowM "start Ir.typeTerm"
   case IR.typeTerm param irTerm (IR.Annotation usage ty)
     >>= IR.evalTC
     |> IR.execTC globals
@@ -224,8 +230,11 @@ typecheckErase' ::
       IR.Value primTy (Types.TypedPrim primTy primVal)
     )
 typecheckErase' term usage ty = do
+  traceShowM "typecheckErase': ty started"
   ty <- typecheckEval (Translate.irToHR ty) (Usage.SNat 0) (IR.VStar 0)
+  traceShowM "typecheckErase': term started"
   term <- typecheckErase term usage ty
+  traceShowM "typecheckErase': finished"
   pure (term, ty)
 
 -- For standard evaluation, no elementary affine check, no MonadIO required.

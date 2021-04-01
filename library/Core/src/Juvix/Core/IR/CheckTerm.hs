@@ -29,6 +29,27 @@ data Leftovers a
       }
   deriving (Eq, Show, Generic)
 
+type ShowExt ext primTy primVal =
+  ( Show (IR.XAnn ext primTy primVal),
+    Show (IR.ElimX ext primTy primVal),
+   Show (IR.ElimX ext primTy primVal),
+   Show (IR.XApp ext primTy primVal),
+   Show (IR.XBound ext primTy primVal),
+   Show (IR.XFree ext primTy primVal),
+   Show (IR.TermX ext primTy primVal),
+   Show (IR.XElim ext primTy primVal),
+   Show (IR.XLam ext primTy primVal),
+   Show (IR.XLet ext primTy primVal),
+   Show (IR.XPair ext primTy primVal),
+   Show (IR.XPi ext primTy primVal),
+   Show (IR.XPrim ext primTy primVal),
+   Show (IR.XPrimTy ext primTy primVal),
+   Show (IR.XSig ext primTy primVal),
+   Show (IR.XStar ext primTy primVal),
+   Show (IR.XUnit ext primTy primVal),
+   Show (IR.XUnitTy ext primTy primVal)
+  )
+
 leftoversOk :: Leftovers a -> Bool
 leftoversOk (Leftovers {loLocals, loPatVars}) =
   all leftoverOk loLocals && all leftoverOk loPatVars
@@ -41,6 +62,8 @@ leftoverOk ρ = ρ == Usage.Omega || ρ == mempty
 typeTerm ::
   ( Eq primTy,
     Eq primVal,
+    Show primTy,
+    Show primVal, Show ext, ShowExt ext primTy primVal,
     CanTC' ext primTy primVal m,
     Param.CanApply primTy,
     Param.CanApply (TypedPrim primTy primVal)
@@ -54,6 +77,8 @@ typeTerm param t ann = loValue <$> typeTermWith param IntMap.empty [] t ann
 typeTermWith ::
   ( Eq primTy,
     Eq primVal,
+    Show primTy,
+    Show primVal, Show ext, ShowExt ext primTy primVal,
     CanTC' ext primTy primVal m,
     Param.CanApply primTy,
     Param.CanApply (TypedPrim primTy primVal)
@@ -72,6 +97,8 @@ typeTermWith param pats ctx t ann =
 typeElim ::
   ( Eq primTy,
     Eq primVal,
+    Show primTy,
+    Show primVal, Show ext, ShowExt ext primTy primVal,
     CanTC' ext primTy primVal m,
     Param.CanApply primTy,
     Param.CanApply (TypedPrim primTy primVal)
@@ -86,6 +113,8 @@ typeElim param e σ =
 typeElimWith ::
   ( Eq primTy,
     Eq primVal,
+    Show primTy,
+    Show primVal, Show ext, ShowExt ext primTy primVal,
     CanTC' ext primTy primVal m,
     Param.CanApply primTy,
     Param.CanApply (TypedPrim primTy primVal)
@@ -111,6 +140,9 @@ withLeftovers m =
 typeTerm' ::
   ( Eq primTy,
     Eq primVal,
+    Show primVal, Show ext, ShowExt ext primTy primVal, (Show (IR.XAnn ext primTy primVal)),
+    Show primTy,
+    (Show (IR.ElimX ext primTy primVal)),
     CanInnerTC' ext primTy primVal m,
     Param.CanApply primTy,
     Param.CanApply (TypedPrim primTy primVal)
@@ -118,7 +150,9 @@ typeTerm' ::
   IR.Term' ext primTy primVal ->
   AnnotationT primTy primVal ->
   m (Typed.Term primTy primVal)
-typeTerm' term ann@(Annotation σ ty) =
+typeTerm' term ann@(Annotation σ ty) = do
+  traceShowM "in typeTerm' :-----"
+  traceShowM term
   case term of
     IR.Star' i _ -> do
       requireZero σ
@@ -173,9 +207,11 @@ typeTerm' term ann@(Annotation σ ty) =
       let anns = BindAnnotation {baBindAnn = bAnn, baResAnn = ann}
       pure $ Typed.Let σb b' t' anns
     IR.Elim' e _ -> do
+      traceShowM "call into elim"
       e' <- typeElim' e σ
       let ty' = annType $ getElimAnn e'
       requireSubtype e ty ty'
+      traceShowM "finished elim"
       pure $ Typed.Elim e' ann
     IR.TermX x ->
       throwTC $ UnsupportedTermExt x
@@ -183,6 +219,8 @@ typeTerm' term ann@(Annotation σ ty) =
 typeElim' ::
   ( Eq primTy,
     Eq primVal,
+    Show primTy,
+    Show primVal, Show ext, ShowExt ext primTy primVal,
     CanInnerTC' ext primTy primVal m,
     Param.CanApply primTy,
     Param.CanApply (TypedPrim primTy primVal)
@@ -190,24 +228,33 @@ typeElim' ::
   IR.Elim' ext primTy primVal ->
   Usage.T ->
   m (Typed.Elim primTy primVal)
-typeElim' elim σ =
+typeElim' elim σ = do
+  traceShowM "start elim"
   case elim of
     IR.Bound' i _ -> do
+      traceShowM "in a bound variables"
+      traceShowM ("bound var is ")
+      traceShowM i
       ty <- useLocal σ i
+      traceShowM "got past using local"
       pure $ Typed.Bound i $ Annotation σ ty
     IR.Free' px@(IR.Pattern x) _ -> do
       ty <- usePatVar σ x
       pure $ Typed.Free px $ Annotation σ ty
     IR.Free' gx@(IR.Global x) _ -> do
+      traceShowM "in a global"
       (ty, π') <- lookupGlobal x
       when (π' == IR.GZero) $ requireZero σ
+      traceShowM "Out of the global freely!"
       pure $ Typed.Free gx $ Annotation σ ty
     IR.App' s t _ -> do
+      traceShowM "in application("
       s' <- typeElim' s σ
       (π, a, b) <- requirePi $ annType $ getElimAnn s'
       let tAnn = Annotation (σ <.> π) a
       t' <- typeTerm' t tAnn
       ty <- substApp b t'
+      traceShowM "end of application)"
       pure $ Typed.App s' t' $ Annotation σ ty
     IR.Ann' π s a ℓ _ -> do
       a' <- typeTerm' a $ Annotation mempty (IR.VStar ℓ)
@@ -215,7 +262,8 @@ typeElim' elim σ =
       let ann = Annotation σ ty
       s' <- typeTerm' s ann
       pure $ Typed.Ann π s' a' ℓ ann
-    IR.ElimX x ->
+    IR.ElimX x -> do
+      traceShowM "we don't hit here"
       throwTC $ UnsupportedElimExt x
 
 pushLocal ::
