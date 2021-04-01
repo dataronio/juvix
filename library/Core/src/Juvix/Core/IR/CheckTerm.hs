@@ -151,7 +151,7 @@ typeTerm' ::
   AnnotationT primTy primVal ->
   m (Typed.Term primTy primVal)
 typeTerm' term ann@(Annotation σ ty) = do
-  traceShowM "in typeTerm' :-----"
+  traceShowM "in typeTerm!' :-----"
   traceShowM term
   case term of
     IR.Star' i _ -> do
@@ -230,6 +230,7 @@ typeElim' ::
   m (Typed.Elim primTy primVal)
 typeElim' elim σ = do
   traceShowM "start elim"
+  traceShowM elim
   case elim of
     IR.Bound' i _ -> do
       traceShowM "in a bound variables"
