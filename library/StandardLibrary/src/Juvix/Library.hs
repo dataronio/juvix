@@ -98,6 +98,11 @@ import Protolude hiding
   )
 import Prelude (Show (..), String, error)
 
+{-@ LIQUID "--full" @-}
+{-@ fromJusts :: {v:Maybe a | (isJust v)} -> a @-}
+fromJusts :: Maybe a -> a
+fromJusts (Just a) = a
+
 (∨) :: Bool -> Bool -> Bool
 (∨) = (||)
 
