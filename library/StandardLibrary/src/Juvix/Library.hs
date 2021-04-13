@@ -52,7 +52,7 @@ module Juvix.Library
     StateField,
     ReaderField,
     WriterField,
-    error
+    Juvix.Library.error
   )
 where
 
@@ -98,16 +98,18 @@ import Protolude hiding
     (:.:),
   )
 import Prelude (Show (..), String)
+import Prelude (error)
 import qualified Prelude
 
-{-@ LIQUID "Full" @-}
+
 {-@ fromJusts :: {v:Maybe a | (isJust v)} -> a @-}
 fromJusts :: Maybe a -> a
 fromJusts (Just a) = a
 
 
 {-@ ignore error @-}
-error :: [Char] -> a
+{-@ error :: String -> a @-}
+error :: String -> a
 error = Prelude.error
 
 (∨) :: Bool -> Bool -> Bool
@@ -137,7 +139,7 @@ infixl 1 |>
 
 undefined :: HasCallStack => a
 undefined =
-  error $ "undefined\n" ++ prettyCallStack callStack
+  Juvix.Library.error $ "undefined\n" ++ prettyCallStack callStack
 
 traverseM ::
   (Monad m, Traversable m, Applicative f) =>
