@@ -31,7 +31,8 @@ import qualified Juvix.Library as Std
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Sexp.Parser
 import Juvix.Library.Sexp.Types
-import Prelude (error)
+
+{-@ LIQUID "--full" @-}
 
 -- | @foldSearchPred@ is like foldPred with some notable exceptions.
 -- 1. Instead of recusing on the @predChange@ form, it will just leave
@@ -108,6 +109,7 @@ foldr f acc ts =
     Cons a as -> f a (foldr f acc as)
     Atom ____ -> f ts acc
     Nil -> acc
+
 
 foldr1 :: (T -> T -> T) -> T -> Maybe T
 foldr1 f (Cons x xs) = Just $ unsafe (Cons x xs)
