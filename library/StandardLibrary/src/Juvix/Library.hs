@@ -98,10 +98,11 @@ import Protolude hiding
   )
 import Prelude (Show (..), String, error)
 
-
+{-@ LIQUID "Full" @-}
 {-@ fromJusts :: {v:Maybe a | (isJust v)} -> a @-}
 fromJusts :: Maybe a -> a
 fromJusts (Just a) = a
+
 
 (∨) :: Bool -> Bool -> Bool
 (∨) = (||)
@@ -128,6 +129,7 @@ infixl 1 >>|
 
 infixl 1 |>
 
+{-@ ignore undefined @-}
 undefined :: HasCallStack => a
 undefined =
   Prelude.error $ "undefined\n" ++ prettyCallStack callStack
@@ -174,6 +176,7 @@ unixTime = fromRational . realToFrac |<< getPOSIXTime
 newtype Flip p a b = Flip {runFlip :: p b a}
   deriving (Show, Generic, Eq, Ord, Typeable)
 
+{-@ ignore untilNothingNTimesM @-}
 untilNothingNTimesM :: (Num t, Ord t, Enum t, Monad f) => f Bool -> t -> f ()
 untilNothingNTimesM f n
   | n <= 0 = pure ()
@@ -182,6 +185,7 @@ untilNothingNTimesM f n
       True -> untilNothingNTimesM f (pred n)
       False -> pure ()
 
+{-@ ignore untilNothing @-}
 untilNothing :: (t -> Maybe t) -> t -> t
 untilNothing f a = case f a of
   Nothing -> a
