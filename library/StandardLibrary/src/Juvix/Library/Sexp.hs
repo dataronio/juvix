@@ -193,3 +193,10 @@ unGroupBy2 (List [a1, a2] :> rest) =
 unGroupBy2 (a :> rest) =
   a :> unGroupBy2 rest
 unGroupBy2 a = a
+
+
+{-@ type Pos = {v:Int | 0 < v} @-}
+
+{-@ incr :: {v:Int | 1 < v} -> Pos @-}
+incr :: Int -> Int
+incr x = x - 1
