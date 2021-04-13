@@ -51,6 +51,7 @@ ghc-options:
   - -j
   - -static
   - -fwrite-ide-info
+  - -fplugin=LiquidHaskell
   - -fplugin-opt=LiquidHaskell:--prune-unsorted
 
 # TODO: Specify which packages are exported
