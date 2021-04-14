@@ -1590,9 +1590,11 @@ done with no extra information needed. Thus we export the following passes
   + [[Frontend/Types]]
   + [[Frontend/Types/Base]]
   + [[Library]]
+  + [[Library/Sexp]]
 *** Main <<Translate/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Library/Sexp]]
 *** Context
 **** Environment <<Context/Environment>>
 - _Relies on_
