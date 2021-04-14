@@ -16,6 +16,7 @@ import qualified Juvix.Library.Sexp as Sexp
 import qualified Juvix.Library.Usage as Usage
 import Text.Show (Show (..))
 
+
 data Error primTy primVal
   = -- features not yet implemented
 
@@ -86,6 +87,7 @@ data Error primTy primVal
   deriving (Eq, Generic)
 
 instance (Show primTy, Show primVal) => Show (Error primTy primVal) where
+  {-@ ignore show @-}
   show = \case
     ConstraintsUnimplemented x cons ->
       "Definition " <> show x <> " has constraints\n"

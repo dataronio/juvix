@@ -23,10 +23,12 @@ module Juvix.Library.Sexp
     cadr,
     foldSearchPred,
     unGroupBy2,
+    lengthM
   )
 where
 
-import Juvix.Library hiding (foldr, list, show, toList)
+import Data.Foldable (length)
+import Juvix.Library hiding (foldr, list, show, toList, length)
 import qualified Juvix.Library as Std
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Sexp.Parser
@@ -133,8 +135,10 @@ last (Cons _ xs) = last xs
 last (Atom a) = Atom a
 last Nil = Nil
 
-list :: Foldable t => t T -> T
-list = Std.foldr Cons Nil
+{-@ list :: fst : [T] -> {v : T | lengthM v == lengthL fst } @-}
+list :: [T] -> T
+list (x : xs) = Cons x (list xs)
+list [] = Nil
 
 listStar :: [T] -> T
 listStar = fromMaybe Nil . foldr1May Cons
@@ -200,3 +204,21 @@ unGroupBy2 a = a
 {-@ incr :: {v:Int | 1 < v} -> Pos @-}
 incr :: Int -> Int
 incr x = x - 1
+
+
+{-@ type Test = {s : T | lengthM s <= 4 } @-}
+
+{-@ test :: Test @-}
+test :: T
+test =
+  list [atom "type", atom "test2"]
+
+
+
+{-@ foo' :: Test @-}
+foo' :: T
+foo' = Cons (number 3) (Cons (number 4) Nil)
+
+{-@ foo :: {x :[Int] | lengthL x == 4} @-}
+foo :: [Int]
+foo = [1,2,3,4]

@@ -52,7 +52,9 @@ module Juvix.Library
     StateField,
     ReaderField,
     WriterField,
-    Juvix.Library.error
+    Juvix.Library.error,
+    -- should probably move this to refinement library
+    lengthL
   )
 where
 
@@ -224,6 +226,13 @@ dup x = (x, x)
 -- | Same as 'length' but returning a 'Natural'.
 lengthN :: Foldable f => f a -> Natural
 lengthN = foldl' (\n _ -> n + 1) 0
+
+
+{-@ measure lengthL @-}
+{-@ lengthL :: [a] -> Nat @-}
+lengthL :: [a] -> Int
+lengthL (_x : xs) = 1 + lengthL xs
+lengthL [] = 0
 
 -- | Select a field in a state monad, for example:
 --

@@ -66,6 +66,8 @@ ghc-options:
   - -fplugin-opt=LiquidHaskell:--prune-unsorted
   - -fplugin-opt=LiquidHaskell:--no-termination
   - -fplugin-opt=LiquidHaskell:--no-totality
+  - -fplugin-opt=LiquidHaskell:--max-case-expand=0
+  - -fplugin-opt=LiquidHaskell:--diff
 
 library:
   source-dirs: src
