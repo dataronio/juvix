@@ -2,6 +2,7 @@ module Main where
 
 import Juvix.Library
 import qualified NameSymb
+import qualified Juvix.Library.Sexp.Types (Atom, lengthM) -- we may not use it, but it makes liquid happy
 import qualified Sexp
 import qualified Sexp.Parser
 import qualified Sexp.SimplifiedPasses

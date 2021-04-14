@@ -13,6 +13,7 @@ import Prelude (Show (..), String)
 
 -- Can't use length here for sad reasons
 {-@ measure lengthM @-}
+{-@ lengthM :: T -> Nat @-}
 lengthM :: T -> Int
 lengthM Atom {} = 0
 lengthM Nil = 0

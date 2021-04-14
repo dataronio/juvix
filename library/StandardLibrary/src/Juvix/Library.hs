@@ -54,7 +54,8 @@ module Juvix.Library
     WriterField,
     Juvix.Library.error,
     -- should probably move this to refinement library
-    lengthL
+    lengthL,
+    lastList
   )
 where
 
@@ -248,3 +249,11 @@ type ReaderField fld m = ReadStatePure (StateField fld m)
 
 -- | Writer version of 'StateField'.
 type WriterField fld m = WriterLog (StateField fld m)
+
+{-@ predicate NonNull X = ((len X) > 0) @-}
+
+-- measure here is broken
+-- {-@ measure lastList @-}
+{-@ lastList :: {v : [a] | (NonNull v)} -> a @-}
+lastList (x : [])  = x
+lastList (_:xs)    = lastList xs

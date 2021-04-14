@@ -23,17 +23,15 @@ module Juvix.Library.Sexp
     cadr,
     foldSearchPred,
     unGroupBy2,
-    lengthM
+    listStarAcc,
+    append
   )
 where
 
-import Data.Foldable (length)
 import Juvix.Library hiding (foldr, list, show, toList, length)
-import qualified Juvix.Library as Std
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Sexp.Parser
 import Juvix.Library.Sexp.Types
-
 {-@ LIQUID "--full" @-}
 
 -- | @foldSearchPred@ is like foldPred with some notable exceptions.
@@ -135,13 +133,38 @@ last (Cons _ xs) = last xs
 last (Atom a) = Atom a
 last Nil = Nil
 
-{-@ list :: fst : [T] -> {v : T | lengthM v == lengthL fst } @-}
+{-@ list :: xs : [T] -> {v : T | lengthM v == len xs } @-}
 list :: [T] -> T
 list (x : xs) = Cons x (list xs)
 list [] = Nil
 
+
+-- TODO ∷ get a good refinement measurement on this
+-- {-@ assume listStar ::
+--  xs : [T]
+--  -> { v : T |
+--       ((NonNull xs) => lengthM v >= (lengthL xs - 1) + lengthM (lastList xs))
+--    }
+-- @-}
 listStar :: [T] -> T
-listStar = fromMaybe Nil . foldr1May Cons
+listStar =
+  fromMaybe Nil . foldr1May Cons
+  -- case reverse xs of
+  --   (last : butLast) -> listStarAcc (reverse butLast) last
+  --   [] -> Nil
+
+
+{-@ listStarAcc
+  :: xs : [T]
+  -> acc : T
+  -> { v : T |
+       lengthM v == lengthL xs + lengthM acc
+    }
+@-}
+listStarAcc :: [T] -> T -> T
+listStarAcc (x : xs) acc = Cons x (listStarAcc xs acc)
+listStarAcc [] acc = acc
+
 
 addMetaToCar :: Atom -> T -> T
 addMetaToCar (A _ lineInfo) (Cons (Atom (A term _)) xs) =
@@ -179,6 +202,15 @@ nameFromT :: T -> Maybe NameSymbol.T
 nameFromT (Atom (A name _)) = Just name
 nameFromT _ = Nothing
 
+-- Ill terminated lists do not work
+-- TODO ∷ specify it out of this somehow
+{-@ append :: xs : T -> ys : T -> {zs : T | lengthM zs == lengthM ys + lengthM xs } @-}
+append :: T -> T -> T
+append Nil ys = ys
+append (Cons x xs) ys = Cons x (append xs ys)
+append (Atom {}) ys = ys
+
+
 assoc :: T -> T -> Maybe T
 assoc t (car' :> cdr')
   | t == car car' = Just (cadr car')
@@ -213,12 +245,18 @@ test :: T
 test =
   list [atom "type", atom "test2"]
 
-
-
 {-@ foo' :: Test @-}
 foo' :: T
 foo' = Cons (number 3) (Cons (number 4) Nil)
 
-{-@ foo :: {x :[Int] | lengthL x == 4} @-}
+{-@ foo :: {x : [Int] | lengthL x == 4} @-}
 foo :: [Int]
 foo = [1,2,3,4]
+
+{-@ alistTest :: {x : T | lengthM x == 2 } @-}
+alistTest :: T
+alistTest = listStarAcc [atom "fi", number 3] (list [])
+
+-- {-@ alistTest2 :: {x : T | lengthM x == 2 } @-}
+alistTest2 :: T
+alistTest2 = listStar [atom "fi", number 3, list []]
