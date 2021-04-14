@@ -932,6 +932,7 @@ Tests that weak works as expected
 ***** Sexp <<Frontend/Sexp>>
 - _Relies on_
   + [[Frontend/Types/Base]]
+  + [[Types/Sexp]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Sexp]]
@@ -958,6 +959,10 @@ Tests that weak works as expected
 - _Relies on_
   + [[Library]]
   + [[Library/Parser]]
+****** Sexp <<Types/Sexp>>
+- _Relies on_
+  + [[Library]]
+  + [[Library/Sexp]]
 ** test
 *** Main <<Frontend/test/Main>>
 - _Relies on_
@@ -1308,7 +1313,6 @@ This module serves as the main sexpression import it contains the
 sexp type and all the various helper functionality one can need
 - _Relies on_
   + [[Library]]
-  + [[Library]]
   + [[NameSymbol]]
   + [[Library/Sexp/Parser]]
   + [[Sexp/Types]]
@@ -1328,6 +1332,7 @@ sexp type and all the various helper functionality one can need
 *** Main <<StandardLibrary/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Sexp/Types]]
 *** NameSymb
 - _Relies on_
   + [[Library]]
@@ -1335,6 +1340,7 @@ sexp type and all the various helper functionality one can need
 *** Sexp <<StandardLibrary/test/Sexp>>
 - _Relies on_
   + [[Library]]
+  + [[Library/Sexp]]
   + [[Library/Sexp]]
 **** Parser <<test/Sexp/Parser>>
 - _Relies on_

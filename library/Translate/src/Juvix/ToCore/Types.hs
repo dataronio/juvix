@@ -16,7 +16,6 @@ import qualified Juvix.Library.Sexp as Sexp
 import qualified Juvix.Library.Usage as Usage
 import Text.Show (Show (..))
 
-
 data Error primTy primVal
   = -- features not yet implemented
 

@@ -55,7 +55,8 @@ module Juvix.Library
     Juvix.Library.error,
     -- should probably move this to refinement library
     lengthL,
-    lastList
+    lastList,
+    butLastList,
   )
 where
 
@@ -100,15 +101,12 @@ import Protolude hiding
     yield,
     (:.:),
   )
-import Prelude (Show (..), String)
-import Prelude (error)
+import Prelude (Show (..), String, error)
 import qualified Prelude
-
 
 {-@ fromJusts :: {v:Maybe a | (isJust v)} -> a @-}
 fromJusts :: Maybe a -> a
 fromJusts (Just a) = a
-
 
 {-@ ignore error @-}
 {-@ error :: String -> a @-}
@@ -228,7 +226,6 @@ dup x = (x, x)
 lengthN :: Foldable f => f a -> Natural
 lengthN = foldl' (\n _ -> n + 1) 0
 
-
 {-@ measure lengthL @-}
 {-@ lengthL :: [a] -> Nat @-}
 lengthL :: [a] -> Int
@@ -255,5 +252,12 @@ type WriterField fld m = WriterLog (StateField fld m)
 -- measure here is broken
 -- {-@ measure lastList @-}
 {-@ lastList :: {v : [a] | (NonNull v)} -> a @-}
-lastList (x : [])  = x
-lastList (_:xs)    = lastList xs
+lastList :: [p] -> p
+lastList (x : []) = x
+lastList (_ : xs) = lastList xs
+
+-- {-@ measure butLastList @-}
+{-@ butLastList :: {x : [a] | (NonNull x)} -> [a] @-}
+butLastList :: [p] -> [p]
+butLastList (x : []) = []
+butLastList (x : xs) = x : butLastList xs
