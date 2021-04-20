@@ -1,4 +1,4 @@
-module Juvix.Contextify (fullyContextify, contextify, op, ResolveErr (..)) where
+module Juvix.Contextify (fullyContextify, contextify, op, ResolveErr (..), PathError) where
 
 import qualified Juvix.Contextify.Environment as Environment
 import qualified Juvix.Contextify.Passes as Passes
@@ -91,8 +91,8 @@ resolveOpens (ctx', openList) (sym, xs) = do
             { opens = opensS,
               explicitModule = sym,
               implicitInner = modsDefinedS
-            }
-            : openList
+            } :
+          openList
         )
     Left err -> throw @"left" err
 
