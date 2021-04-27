@@ -1,6 +1,5 @@
-{-# OPTIONS_GHC -Wno-unused-type-patterns #-}
-
 {-# LANGUAGE DeriveFunctor #-}
+{-# OPTIONS_GHC -Wno-unused-type-patterns #-}
 
 module Juvix.Core.Unify.Term
   ( T,
@@ -59,15 +58,13 @@ module Juvix.Core.Unify.Term
   )
 where
 
-import Juvix.Library
+import qualified Juvix.Core.IR.TransformExt as TE
+import qualified Juvix.Core.IR.Types as IR
+import Juvix.Core.IR.Types.Base
 import Juvix.Core.Unify.Extend
 import Juvix.Core.Unify.MetaVar (MetaSet)
 import qualified Juvix.Core.Unify.MetaVar as Meta
-import Juvix.Core.IR.Types.Base
-import qualified Juvix.Core.IR.Types as IR
-import qualified Juvix.Core.IR.TransformExt as TE
-
-
+import Juvix.Library
 
 data T
 
@@ -103,15 +100,14 @@ inTerm = TE.extTransformT injectorTE
 inElim :: IR.Elim primTy primVal -> Elim primTy primVal
 inElim = TE.extTransformE injectorTE
 
-
-data UnsolvedMetas a = Unsolved MetaSet | Solved a deriving Functor
+data UnsolvedMetas a = Unsolved MetaSet | Solved a deriving (Functor)
 
 instance Applicative UnsolvedMetas where
   pure = Solved
   Unsolved xs <*> Unsolved ys = Unsolved $ xs <> ys
-  Unsolved xs <*> Solved   _  = Unsolved xs
-  Solved   _  <*> Unsolved ys = Unsolved ys
-  Solved   f  <*> Solved   x  = Solved $ f x
+  Unsolved xs <*> Solved _ = Unsolved xs
+  Solved _ <*> Unsolved ys = Unsolved ys
+  Solved f <*> Solved x = Solved $ f x
 
 ejectorTE :: TE.ExtTransformTEF UnsolvedMetas T IR.NoExt primTy primVal
 ejectorTE =
@@ -140,8 +136,6 @@ outTerm = TE.extTransformTF ejectorTE
 
 outElim :: Elim primTy primVal -> UnsolvedMetas (IR.Elim primTy primVal)
 outElim = TE.extTransformEF ejectorTE
-
-
 
 extendValue "Value" [] [t|T|] extValue
 
@@ -172,7 +166,6 @@ inValue = TE.extTransformV injectorVN
 
 inNeutral :: IR.Neutral primTy primVal -> Neutral primTy primVal
 inNeutral = TE.extTransformN injectorVN
-
 
 ejectorVN :: TE.ExtTransformVNF UnsolvedMetas T IR.NoExt primTy primVal
 ejectorVN =

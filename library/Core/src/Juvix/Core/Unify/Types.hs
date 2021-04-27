@@ -4,39 +4,62 @@ module Juvix.Core.Unify.Types
   ( module Juvix.Core.Unify.Term,
 
     -- * Metavariables
-    MetaVar, MetaSet, MetaMap,
-    metasT, metasE, metasV, metasN,
-    occursT, occursE, occursV, occursN,
+    MetaVar,
+    MetaSet,
+    MetaMap,
+    metasT,
+    metasE,
+    metasV,
+    metasN,
+    occursT,
+    occursE,
+    occursV,
+    occursN,
 
     -- * Substitutions
     Subst (..),
-    appSubstV, appSubstN,
+    appSubstV,
+    appSubstN,
 
     -- * Unification
     Unify (..),
-    HasError, HasSubst, HasProblems, HasGlobals,
+    HasError,
+    HasSubst,
+    HasProblems,
+    HasGlobals,
     CanUnify,
-    PrimUnify, PrimUnify1,
+    PrimUnify,
+    PrimUnify1,
     Problem,
     Error (..),
-    runUnify, throwU, bind, occursCheck,
-    nextProblem, addProblem, addProblems,
+    runUnify,
+    throwU,
+    bind,
+    occursCheck,
+    nextProblem,
+    addProblem,
+    addProblems,
 
     -- * Reexports
-    Universe, GlobalName, PatternVar, PatternMap, BoundVar, Name (..),
-  ) where
+    Universe,
+    GlobalName,
+    PatternVar,
+    PatternMap,
+    BoundVar,
+    Name (..),
+  )
+where
 
+import Data.Sequence (Seq (..))
+import Juvix.Core.IR.Evaluator.Weak
+import qualified Juvix.Core.IR.Types as IR
+import Juvix.Core.IR.Types.Base
+import Juvix.Core.Unify.MetaVar (MetaMap, MetaSet, MetaVar)
+import qualified Juvix.Core.Unify.MetaVar as Meta
+import Juvix.Core.Unify.Subst
+import Juvix.Core.Unify.Term
 import Juvix.Library
 import qualified Juvix.Library.Usage as Usage
-import Juvix.Core.Unify.Subst
-import Juvix.Core.Unify.MetaVar (MetaVar, MetaSet, MetaMap)
-import qualified Juvix.Core.Unify.MetaVar as Meta
-import Juvix.Core.Unify.Term
-import Juvix.Core.IR.Types.Base
-import qualified Juvix.Core.IR.Types as IR
-import Juvix.Core.IR.Evaluator.Weak
-import Data.Sequence (Seq (..))
-
 
 metasT :: Term primTy primVal -> MetaSet
 metasT = \case
@@ -80,7 +103,6 @@ metasN = \case
   NFree _x -> mempty
   NApp f s -> metasN f <> metasV s
 
-
 occursT :: MetaVar -> Term primTy primVal -> Bool
 occursT α t = α `Meta.memberS` metasT t
 
@@ -93,16 +115,15 @@ occursV α t = α `Meta.memberS` metasV t
 occursN :: MetaVar -> Neutral primTy primVal -> Bool
 occursN α t = α `Meta.memberS` metasN t
 
-
-data Env primTy primVal =
-  Env {
-    subst :: Subst primTy primVal,
+data Env primTy primVal = Env
+  { subst :: Subst primTy primVal,
     problems :: Seq (Problem primTy primVal),
     globals :: IR.Globals primTy primVal
-  } deriving Generic
+  }
+  deriving (Generic)
 
-data Error primTy primVal =
-    Occurs MetaVar (Value primTy primVal)
+data Error primTy primVal
+  = Occurs MetaVar (Value primTy primVal)
   | Clash (Value primTy primVal) (Value primTy primVal)
   | ClashU Usage.T Usage.T
   deriving (Eq, Show)
@@ -116,26 +137,33 @@ type UnifyAlias primTy primVal =
 
 newtype Unify primTy primVal a = U (UnifyAlias primTy primVal a)
   deriving newtype (Functor, Applicative, Monad)
-  deriving (HasThrow "unifyError" (Error primTy primVal))
+  deriving
+    (HasThrow "unifyError" (Error primTy primVal))
     via MonadError (UnifyAlias primTy primVal)
   deriving
     ( HasSource "subst" (Subst primTy primVal),
-      HasSink   "subst" (Subst primTy primVal),
-      HasState  "subst" (Subst primTy primVal)
-    ) via StateField "subst" (UnifyAlias primTy primVal)
+      HasSink "subst" (Subst primTy primVal),
+      HasState "subst" (Subst primTy primVal)
+    )
+    via StateField "subst" (UnifyAlias primTy primVal)
   deriving
     ( HasSource "problems" (Problems primTy primVal),
-      HasSink   "problems" (Problems primTy primVal),
-      HasState  "problems" (Problems primTy primVal)
-    ) via StateField "problems" (UnifyAlias primTy primVal)
+      HasSink "problems" (Problems primTy primVal),
+      HasState "problems" (Problems primTy primVal)
+    )
+    via StateField "problems" (UnifyAlias primTy primVal)
   deriving
     ( HasSource "globals" (IR.Globals primTy primVal),
       HasReader "globals" (IR.Globals primTy primVal)
-    ) via ReaderField "globals" (UnifyAlias primTy primVal)
+    )
+    via ReaderField "globals" (UnifyAlias primTy primVal)
 
 type HasError primTy primVal = HasThrow "unifyError" (Error primTy primVal)
+
 type HasSubst primTy primVal = HasState "subst" (Subst primTy primVal)
+
 type HasProblems primTy primVal = HasState "problems" (Problems primTy primVal)
+
 type HasGlobals primTy primVal = HasReader "globals" (IR.Globals primTy primVal)
 
 type CanUnify primTy primVal m =
@@ -151,14 +179,13 @@ type PrimUnify primTy primVal =
 
 type PrimUnify1 a = (Eq a, HasWeak a)
 
-
 runUnify ::
   IR.Globals primTy primVal ->
   Unify primTy primVal a ->
   Either (Error primTy primVal) a
 runUnify g (U m) = evalState (runExceptT m) st
-  where st = Env {globals = g, subst = idSubst, problems = mempty}
-
+  where
+    st = Env {globals = g, subst = idSubst, problems = mempty}
 
 throwU :: HasError primTy primVal m => Error primTy primVal -> m ()
 throwU = throw @"unifyError"
@@ -166,30 +193,38 @@ throwU = throw @"unifyError"
 bind ::
   ( HasSubst primTy primVal m,
     HasProblems primTy primVal m,
-    HasWeak primTy, HasWeak primVal
+    HasWeak primTy,
+    HasWeak primVal
   ) =>
-  MetaVar -> Value primTy primVal -> m ()
+  MetaVar ->
+  Value primTy primVal ->
+  m ()
 bind α t = do
   modify @"subst" $ addSubst α t
   modify @"problems" $ fmap $ bimap (subst1 α t) (subst1 α t)
 
 occursCheck ::
   HasError primTy primVal m =>
-  MetaVar -> Value primTy primVal -> m ()
+  MetaVar ->
+  Value primTy primVal ->
+  m ()
 occursCheck α t = when (occursV α t) $ throwU $ Occurs α t
 
 nextProblem ::
   HasProblems primTy primVal m => m (Maybe (Problem primTy primVal))
 nextProblem = state @"problems" \case
-  Empty    -> (Nothing, Empty)
-  p :<| ps -> (Just p,  ps)
+  Empty -> (Nothing, Empty)
+  p :<| ps -> (Just p, ps)
 
 addProblems ::
   (HasProblems primTy primVal m, Foldable t) =>
-  t (Problem primTy primVal) -> m ()
+  t (Problem primTy primVal) ->
+  m ()
 addProblems = traverse_ (uncurry addProblem)
 
 addProblem ::
   (HasProblems primTy primVal m) =>
-  Value primTy primVal -> Value primTy primVal -> m ()
+  Value primTy primVal ->
+  Value primTy primVal ->
+  m ()
 addProblem s t = modify @"problems" (:|> (s, t))

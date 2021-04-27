@@ -8,22 +8,20 @@ module Juvix.Core.Unify.Subst
   )
 where
 
-import Juvix.Library
-import Juvix.Core.Unify.Term
-import Juvix.Core.Unify.MetaVar (MetaVar, MetaMap)
-import qualified Juvix.Core.Unify.MetaVar as Meta
 import Juvix.Core.IR.Evaluator.Weak
+import Juvix.Core.Unify.MetaVar (MetaMap, MetaVar)
+import qualified Juvix.Core.Unify.MetaVar as Meta
+import Juvix.Core.Unify.Term
+import Juvix.Library
 
-
-newtype Subst primTy primVal =
-  Subst {getSubst :: MetaMap (Value primTy primVal)}
+newtype Subst primTy primVal = Subst {getSubst :: MetaMap (Value primTy primVal)}
   deriving newtype (Eq, Show)
 
-data AppSubstEnv primTy primVal =
-  AppSubstEnv {
-    weaken :: Natural,
-    subst  :: Subst primTy primVal
-  } deriving Generic
+data AppSubstEnv primTy primVal = AppSubstEnv
+  { weaken :: Natural,
+    subst :: Subst primTy primVal
+  }
+  deriving (Generic)
 
 type AppSubstAlias primTy primVal = Reader (AppSubstEnv primTy primVal)
 
@@ -42,17 +40,24 @@ newtype AppSubst primTy primVal a = AS (AppSubstAlias primTy primVal a)
 
 runAppSubst :: Subst primTy primVal -> AppSubst primTy primVal a -> a
 runAppSubst σ (AS m) = runReader m env
-  where env = AppSubstEnv {weaken = 0, subst = σ}
+  where
+    env = AppSubstEnv {weaken = 0, subst = σ}
 
 under :: AppSubst primTy primVal a -> AppSubst primTy primVal a
 under = local @"weaken" succ
 
-appSubstV :: (HasWeak primTy, HasWeak primVal) =>
-  Subst primTy primVal -> Value primTy primVal -> Value primTy primVal
+appSubstV ::
+  (HasWeak primTy, HasWeak primVal) =>
+  Subst primTy primVal ->
+  Value primTy primVal ->
+  Value primTy primVal
 appSubstV σ = runAppSubst σ . appSubstV'
 
-appSubstN :: (HasWeak primTy, HasWeak primVal) =>
-  Subst primTy primVal -> Neutral primTy primVal -> Neutral primTy primVal
+appSubstN ::
+  (HasWeak primTy, HasWeak primVal) =>
+  Subst primTy primVal ->
+  Neutral primTy primVal ->
+  Neutral primTy primVal
 appSubstN σ = runAppSubst σ . appSubstN'
 
 appSubstV' ::
@@ -86,13 +91,18 @@ appSubstN' = \case
 
 subst1 ::
   (HasWeak primTy, HasWeak primVal) =>
-  MetaVar -> Value primTy primVal ->
-  Value primTy primVal -> Value primTy primVal
+  MetaVar ->
+  Value primTy primVal ->
+  Value primTy primVal ->
+  Value primTy primVal
 subst1 α t = appSubstV $ Subst $ Meta.singleM α t
 
 addSubst ::
   (HasWeak primTy, HasWeak primVal) =>
-  MetaVar -> Value primTy primVal -> Subst primTy primVal -> Subst primTy primVal
+  MetaVar ->
+  Value primTy primVal ->
+  Subst primTy primVal ->
+  Subst primTy primVal
 addSubst α t (Subst σ) =
   Subst $ Meta.insertM α t $ fmap (subst1 α t) σ
 

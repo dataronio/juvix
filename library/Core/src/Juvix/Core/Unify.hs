@@ -4,5 +4,5 @@ module Juvix.Core.Unify
   )
 where
 
-import Juvix.Core.Unify.Types
 import Juvix.Core.Unify.Algorithm
+import Juvix.Core.Unify.Types

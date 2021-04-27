@@ -1,5 +1,5 @@
-{-# LANGUAGE DeriveAnyClass, ViewPatterns #-}
-
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -Wno-unused-type-patterns #-}
 
 -- | Quantitative type implementation inspired by
@@ -136,35 +136,40 @@ globalName (GDataCon (DataCon {conName})) = conName
 globalName (GFunction (Function {funName})) = funName
 globalName (GAbstract (Abstract {absName})) = absName
 
-
 pattern Apps ::
   XApp ext primTy primVal ~ () =>
   Elim' ext primTy primVal ->
   [Term' ext primTy primVal] ->
   Elim' ext primTy primVal
-pattern Apps e ts <- (unApps -> (e, ts))
-  where Apps = foldl App
+pattern Apps e ts <-
+  (unApps -> (e, ts))
+  where
+    Apps = foldl App
 
 unApps ::
   XApp ext primTy primVal ~ () =>
   Elim' ext primTy primVal ->
   (Elim' ext primTy primVal, [Term' ext primTy primVal])
-unApps e = go e [] where
-  go (App f s) args = go f (s : args)
-  go f args = (f, args)
+unApps e = go e []
+  where
+    go (App f s) args = go f (s : args)
+    go f args = (f, args)
 
 pattern NApps ::
   XNApp ext primTy primVal ~ () =>
   Neutral' ext primTy primVal ->
   [Value' ext primTy primVal] ->
   Neutral' ext primTy primVal
-pattern NApps e ts <- (unNApps -> (e, ts))
-  where NApps = foldl NApp
+pattern NApps e ts <-
+  (unNApps -> (e, ts))
+  where
+    NApps = foldl NApp
 
 unNApps ::
   XNApp ext primTy primVal ~ () =>
   Neutral' ext primTy primVal ->
   (Neutral' ext primTy primVal, [Value' ext primTy primVal])
-unNApps e = go e [] where
-  go (NApp f s) args = go f (s : args)
-  go f args = (f, args)
+unNApps e = go e []
+  where
+    go (NApp f s) args = go f (s : args)
+    go f args = (f, args)

@@ -4,30 +4,65 @@
 module Juvix.Core.IR.TransformExt
   ( ExtTransformTEF (..),
     ExtTransformTE,
-      pattern ExtTransformTE,
-      -- fields of ExtTransformTE
-      etStar, etPrimTy, etPrim, etPi, etLam, etSig, etPair,
-      etUnitTy, etUnit, etLet, etElim,
-      etBound, etFree, etApp, etAnn,
-      etTermX, etElimX,
-    extTransformTF, extTransformEF, extTransformT, extTransformE,
-    forgetterTE, extForgetT, extForgetE,
+    pattern ExtTransformTE,
+    -- fields of ExtTransformTE
+    etStar,
+    etPrimTy,
+    etPrim,
+    etPi,
+    etLam,
+    etSig,
+    etPair,
+    etUnitTy,
+    etUnit,
+    etLet,
+    etElim,
+    etBound,
+    etFree,
+    etApp,
+    etAnn,
+    etTermX,
+    etElimX,
+    extTransformTF,
+    extTransformEF,
+    extTransformT,
+    extTransformE,
+    forgetterTE,
+    extForgetT,
+    extForgetE,
     composeTE,
     ExtTransformVNF (..),
     ExtTransformVN,
-      pattern ExtTransformVN,
-      -- fields of ExtTransformVN
-      etVStar, etVPrimTy, etVPrim, etVPi, etVLam, etVSig, etVPair,
-      etVUnitTy, etVUnit, etVNeutral,
-      etNBound, etNFree, etNApp,
-      etValueX, etNeutralX,
-    extTransformVF, extTransformNF, extTransformV, extTransformN,
-    forgetterVN, extForgetV, extForgetN,
+    pattern ExtTransformVN,
+    -- fields of ExtTransformVN
+    etVStar,
+    etVPrimTy,
+    etVPrim,
+    etVPi,
+    etVLam,
+    etVSig,
+    etVPair,
+    etVUnitTy,
+    etVUnit,
+    etVNeutral,
+    etNBound,
+    etNFree,
+    etNApp,
+    etValueX,
+    etNeutralX,
+    extTransformVF,
+    extTransformNF,
+    extTransformV,
+    extTransformN,
+    forgetterVN,
+    extForgetV,
+    extForgetN,
     composeVN,
-  ) where
+  )
+where
 
 import Data.Coerce
-import Juvix.Core.IR.Types (Elim, NoExt, Term, Value, Neutral)
+import Juvix.Core.IR.Types (Elim, Neutral, NoExt, Term, Value)
 import Juvix.Core.IR.Types.Base
 import Juvix.Library hiding (Coerce)
 
@@ -236,7 +271,6 @@ composeTE fs gs =
       etfElimX = etfElimX fs <=< etfElimX gs
     }
 
-
 data ExtTransformVNF f ext1 ext2 primTy primVal = ExtTransformVNF
   { etfVStar :: XVStar ext1 primTy primVal -> f (XVStar ext2 primTy primVal),
     etfVPrimTy :: XVPrimTy ext1 primTy primVal -> f (XVPrimTy ext2 primTy primVal),
@@ -247,7 +281,8 @@ data ExtTransformVNF f ext1 ext2 primTy primVal = ExtTransformVNF
     etfVUnitTy :: XVUnitTy ext1 primTy primVal -> f (XVUnitTy ext2 primTy primVal),
     etfVUnit :: XVUnit ext1 primTy primVal -> f (XVUnit ext2 primTy primVal),
     etfVNeutral ::
-      XVNeutral ext1 primTy primVal -> f (XVNeutral ext2 primTy primVal),
+      XVNeutral ext1 primTy primVal ->
+      f (XVNeutral ext2 primTy primVal),
     etfVPrim :: XVPrim ext1 primTy primVal -> f (XVPrim ext2 primTy primVal),
     etfNBound :: XNBound ext1 primTy primVal -> f (XNBound ext2 primTy primVal),
     etfNFree :: XNFree ext1 primTy primVal -> f (XNFree ext2 primTy primVal),
@@ -382,14 +417,15 @@ forgetterVN =
 
 extForgetV ::
   (ValueX ext primTy primVal ~ Void, NeutralX ext primTy primVal ~ Void) =>
-  Value' ext primTy primVal -> Value primTy primVal
+  Value' ext primTy primVal ->
+  Value primTy primVal
 extForgetV = extTransformV forgetterVN
 
 extForgetN ::
   (ValueX ext primTy primVal ~ Void, NeutralX ext primTy primVal ~ Void) =>
-  Neutral' ext primTy primVal -> Neutral primTy primVal
+  Neutral' ext primTy primVal ->
+  Neutral primTy primVal
 extForgetN = extTransformN forgetterVN
-
 
 composeVN ::
   Monad f =>
