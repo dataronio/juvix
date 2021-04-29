@@ -2,6 +2,8 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Juvix.Library.Sexp.Types where
 
@@ -10,6 +12,7 @@ import Juvix.Library hiding (foldr, show, toList)
 import qualified Juvix.Library.LineNum as LineNum
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Prelude (Show (..), String)
+import Data.Hashable()
 
 -- TODO ∷ make Atom generic, and have it conform to an interface?
 -- This way we can erase information later!
@@ -17,12 +20,12 @@ data T
   = Atom Atom
   | Cons {tCar :: T, tCdr :: T}
   | Nil
-  deriving (Eq)
+  deriving (Eq, Generic)
 
 data Atom
   = A {atomName :: NameSymbol.T, atomLineNum :: Maybe LineNum.T}
   | N {atomNum :: Integer, atomLineNum :: Maybe LineNum.T}
-  deriving (Show)
+  deriving (Show, Generic)
 
 instance Eq Atom where
   A n1 _ == A n2 _ = n1 == n2
@@ -34,6 +37,15 @@ instance Ord Atom where
   compare (N i1 _) (N i2 _) = compare i1 i2
   compare (N _ _) (A _ _) = GT
   compare (A _ _) (N _ _) = LT
+
+instance Hashable Atom where
+  hash (A {atomName, atomLineNum}) = hash (hash atomName, hash atomLineNum)
+  hash (N {atomNum, atomLineNum}) = hash (hash atomNum, hash atomLineNum)
+
+instance Hashable T where
+  hash (Atom atom)           = hash atom
+  hash Nil                   = 1
+  hash (Cons {tCar, tCdr})   = hash (hash tCar, hash tCdr)
 
 makeLensesWith camelCaseFields ''Atom
 
