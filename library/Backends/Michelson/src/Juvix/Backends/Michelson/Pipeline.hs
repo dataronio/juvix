@@ -50,6 +50,6 @@ instance HasBackend BMichelson where
       Right c -> do
         -- TODO: Maybe avoid having writeout. 
         -- Need some other interpretation for tests
-        -- TODO: Maybe use effects 
+        -- Maybe use effects 
         writeout out $ M.untypedContractToSource (fst c)
       Left err -> Feedback.fail $ show err

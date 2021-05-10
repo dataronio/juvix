@@ -3,11 +3,10 @@ module Interpreter where
 import Juvix.Library
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
-import qualified Data.ByteString as BS
 import Test.Tasty.Golden     (findByExtension)
 import System.Directory   (doesFileExist)
-import qualified Tmp.Compile as Compile
 import qualified Juvix.Backends.Michelson.DSL.Interpret as Interpret
+import qualified Juvix.Backends.Michelson as Michelson
 import qualified Juvix.Backends.Michelson.Parameterisation as Param
 import Juvix.Core.Types
 import Data.Either (isRight)
@@ -16,10 +15,15 @@ import qualified Juvix.Pipeline as Pipeline
 import Control.Arrow (left)
 import qualified Michelson.Untyped.Aliases as Alias
 import qualified Michelson.Interpret as Interpret
+import qualified Juvix.Backends.Michelson.Compilation as M
+import qualified Juvix.Library.Feedback as Feedback
+import qualified Juvix.Core.Pipeline as CorePipeline
+import Prelude (String)
 
--- Read files
--- Compile
--- Interpret!
+compile :: ErasedAnn.AnnTerm Param.PrimTy Param.PrimValHR -> Either Param.CompilationError Alias.Contract
+compile term  = do
+  let (res, _logs) = M.compileContract $ CorePipeline.toRaw term
+  fst <$> res
 
 -- | 
 -- 'expectSuccess' automatically fails on a 'Left' result and
@@ -31,34 +35,43 @@ expectFailure, expectSuccess
   -> IO T.TestTree
 expectSuccess action file = (\v -> T.testCase file . T.assertBool (show $ fromLeft (panic "Expected Left!") v) $ isRight v) <$> withPrint (action file)
 expectFailure action file = (\v -> T.testCase file . T.assertBool (show $ fromRight (panic "Expected Right!") v) $ isLeft v) <$> withPrint (action file)
-
-withPrint :: Show a => IO a -> IO a
-withPrint m = do
-  a <- m
-  print a
-  return a
+  where
+    withPrint :: Show a => IO a -> IO a
+    withPrint m = do
+      a <- m
+      print a
+      return a
 
 -- Path relative to library/Backends
 readJuvixExamples :: IO [FilePath]
 readJuvixExamples = findByExtension [".ju"] "../../test/examples"
 
-data PErr = ParseError Pipeline.Error
-          | TypecheckErr (PipelineError Param.PrimTy Param.RawPrimVal Param.CompErr)
+data PErr = 
+           TypecheckErr [String]
           | CompileErr Param.CompilationError
           | InterpretErr Interpret.InterpretError
     deriving (Show)
 
+pipelineFromFile ::
+  forall a b.
+  (Show a, Pipeline.HasBackend b) =>
+  FilePath ->
+  b ->
+  (forall b. Pipeline.HasBackend b => b -> Text -> Pipeline.Pipeline a) ->
+  Pipeline.Pipeline a
+pipelineFromFile fin b f = liftIO (readFile fin) >>= f b 
+
 compileJuvixFile :: FilePath -> IO (Either PErr Alias.Contract)
 compileJuvixFile fpath = do
-  pE <- Compile.parse fpath
-  case pE of
-    Left parseErr -> pure . Left $ ParseError parseErr
-    Right pValue -> do
-      tE <- Compile.typecheck pValue
-      case tE of
-        Left err -> pure . Left $ TypecheckErr err
-        Right t -> pure $ left CompileErr (Compile.compile t)
-
+  r <- Feedback.runFeedbackT $
+    pipelineFromFile 
+      fpath 
+      Michelson.BMichelson 
+      (\b -> Pipeline.parse b >=> Pipeline.typecheck @Michelson.BMichelson)
+  case r of
+    Feedback.Success _msgs r -> pure $ left CompileErr (compile r)
+    Feedback.Fail err -> pure $ Left (TypecheckErr err)
+  
 interpretJuvixFile :: Alias.Contract -> Either PErr Interpret.InterpretResult
 interpretJuvixFile = left InterpretErr . Interpret.dummyInterpretContract
 
