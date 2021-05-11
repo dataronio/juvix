@@ -800,6 +800,17 @@ temporary lexical bindings as our code encounters binders.
   + [[IR/Typechecker]]
   + [[IR/Types]]
   + [[Library]]
+****** CheckDatatype
+Datatype declarations are typechecked here. Usages are passed along.
+- _Relies on_
+  + [[CheckTerm]]
+  + [[IR/Evaluator]]
+  + [[OnlyExts]]
+  + [[IR/Types]]
+  + [[IR/Types/Base]]
+  + [[Globals]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
 ****** CheckTerm
 This file contains the functions and aux functions to typecheck terms.
 @typeTerm@ and @typeElim@ are called by functions for typechecking
@@ -893,11 +904,13 @@ Datatype declarations are typechecked by @checkDataType@ in CheckDataType.hs.
 Function declarations are typechecked by @typeCheckFuns@ in CheckFunction.hs.
 Typechecked declarations are added to the signature.
 - _Relies on_
+  + [[CheckDatatype]]
+  + [[IR/Evaluator]]
   + [[Typechecker/Env]]
   + [[Typechecker/Types]]
   + [[IR/Types]]
-  + [[IR/Types/Base]]
   + [[Globals]]
+  + [[Core/Parameterisation]]
   + [[Library]]
 ******* Env <<Typechecker/Env>>
 - _Relies on_
