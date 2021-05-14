@@ -133,7 +133,6 @@ last Nil = Nil
 
 list :: Foldable t => t T -> T
 list = Std.foldr Cons Nil
-
 listStar :: [T] -> T
 listStar = fromMaybe Nil . foldr1May Cons
 

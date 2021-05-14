@@ -35,6 +35,7 @@ dependencies:
   - frontend
   - core
   - translate
+  - ANF-IR
   - michelson
   - plonk
   - EasyPipeline
