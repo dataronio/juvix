@@ -219,7 +219,7 @@ searchAndClosureNoCtx a as cont
   | named "handler" = handler as cont
   where
     named = Sexp.isAtomNamed (Sexp.Atom a)
-searchAndClosureNoCtx _ _ _ = error "imporper closure call"
+searchAndClosureNoCtx _ _ _ = error "improper closure call"
 
 -- | @searchAndClosure@ is responsible for properly updating the
 -- closure based on any binders we may encounter. The signature is made
@@ -243,7 +243,6 @@ searchAndClosure ctx a as cont
   | otherwise = searchAndClosureNoCtx a as cont
   where
     named = Sexp.isAtomNamed (Sexp.Atom a)
-searchAndClosure _ _ _ _ = error "imporper closure call"
 
 ------------------------------------------------------------
 -- Environment functionality

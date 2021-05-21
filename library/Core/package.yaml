@@ -27,6 +27,7 @@ dependencies:
 - lens
 - dlist
 - hashable
+- pretty-simple
 - mtl
 
 default-extensions:
