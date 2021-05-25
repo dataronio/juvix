@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- |
@@ -11,18 +9,18 @@
 --           =ArrowGen= and not in =NamedType=
 module Juvix.Frontend.Types
   ( module Juvix.Frontend.Types,
+    module Juvix.Frontend.Types.Base,
     Header (..),
   )
 where
 
 import Juvix.Frontend.Types.Base
-import qualified Juvix.Frontend.Types.Extend as Ext
-import Juvix.Library hiding (Product, Sum)
 
 -- Unwrap the header from the rest of the definitions
 extractTopLevel :: Header topLevel -> [topLevel]
 extractTopLevel (Header _ tops) = tops
 extractTopLevel (NoHeader tops) = tops
+<<<<<<< HEAD
 
 data T
 
@@ -125,3 +123,5 @@ extendMatchLogic "MatchLogic" [] [t|T|] Ext.extendMatchLogic
 extendMatchLogicStart "MatchLogicStart" [] [t|T|] Ext.extendMatchLogicStart
 
 extendNameSet "NameSet" [] [t|T|] $ const Ext.extendNameSet
+=======
+>>>>>>> 24fab959c8e505355c29d5a3eb065ed92fb04733

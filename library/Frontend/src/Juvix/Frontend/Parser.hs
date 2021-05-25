@@ -7,17 +7,18 @@
 --
 -- - Parsers with SN at the end, eats the spaces and new lines at the
 --   end of the parse
-module Juvix.Frontend.Parser where
-
--- ( parse,
---   expressionSN,
---   removeComments,
---   topLevelSN,
---   expression,
---   matchLogic,
---   cond,
---   prefixSymbol,
--- )
+module Juvix.Frontend.Parser
+  ( parse,
+    prettyParse,
+    expressionSN,
+    removeComments,
+    topLevelSN,
+    expression,
+    matchLogic,
+    cond,
+    prefixSymbol,
+  )
+where
 
 import Control.Arrow (left)
 import qualified Control.Monad.Combinators.Expr as Expr
@@ -27,9 +28,8 @@ import qualified Data.Set as Set
 import qualified Data.Text.Encoding as Encoding
 import Data.Word8 (isDigit)
 import qualified Juvix.Frontend.Types as Types
-import qualified Juvix.Frontend.Types.Base as Types
 import Juvix.Library hiding (guard, list, mod, product, sum)
-import Juvix.Library.Parser (Parser, ParserError, skipLiner, spaceLiner, spacer)
+import Juvix.Library.Parser (Parser, ParserError, skipLiner, spaceLiner)
 import qualified Juvix.Library.Parser as J
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Byte as P
@@ -121,8 +121,8 @@ expressionArguments =
     <|> P.try (Types.ExpRecord <$> expRecord)
     <|> P.try (Types.Constant <$> constant)
     -- <|> try (Types.NamedTypeE <$> namedRefine)
-    <|> P.try (Types.Name <$> prefixSymbolDot)
     <|> P.try universeSymbol
+    <|> P.try (Types.Name <$> prefixSymbolDot)
     <|> P.try (Types.List <$> list)
     -- We wrap this in a paren to avoid conflict
     -- with infixity that we don't know about at this phase!
@@ -144,10 +144,6 @@ expressionGen p =
 -- used to remove do from parsing
 expression' :: Parser Types.Expression
 expression' = expressionGen app''
-
--- used to remove app from parsing
-expression'' :: Parser Types.Expression
-expression'' = expressionGen do'''
 
 -- used to remove both from parsing
 expression''' :: Parser Types.Expression
@@ -307,7 +303,8 @@ nameSetMany' :: Parser a -> Parser (NonEmpty (Types.NameSet a))
 nameSetMany' parser =
   J.curly $ do
     x <- J.sepBy1H (nameSetSN parser) (skipLiner J.comma)
-    if  | length x == 1 && isPunned x ->
+    if
+        | length x == 1 && isPunned x ->
           x <$ skipLiner J.comma
         | otherwise ->
           x <$ P.optional (skipLiner J.comma)
@@ -438,9 +435,9 @@ product =
 record :: Parser Types.Record
 record = do
   names <-
-    spaceLiner
-      $ J.curly
-      $ J.sepBy1HFinal nameTypeSN (skipLiner J.comma)
+    spaceLiner $
+      J.curly $
+        J.sepBy1HFinal nameTypeSN (skipLiner J.comma)
   familySignature <- P.optional (skipLiner J.colon *> expression)
   pure (Types.Record'' names familySignature)
 
@@ -591,7 +588,7 @@ tupleParen = do
 
 constant :: Parser Types.Constant
 constant =
-  (Types.Number <$> number)
+  P.try (Types.Number <$> number)
     <|> Types.String <$> string'
 
 number :: Parser Types.Numb
@@ -609,14 +606,23 @@ float = do
   _s2 <- digits
   fail "float not implemented"
 
---   pure (read (s1 <> "." <> s2))
+stringEscape :: Parser ByteString
+stringEscape =
+  P.between (P.string "\\'") (P.string "\\'") (P.takeWhile1P (Just "Not quote") (/= J.quote))
 
--- TODO ∷ no escape for strings yet
+doubleStringEscape :: Parser ByteString
+doubleStringEscape =
+  P.between (P.string "\\\"") (P.string "\\\"") (P.takeWhile1P (Just "Not quote") (/= J.doubleQuote))
+
+stringWithoutEscape :: Parser ByteString
+stringWithoutEscape = J.between J.quote (P.takeWhile1P (Just "Not quote") (/= J.quote)) J.quote
+
+doubleStringWithoutEscape :: Parser ByteString
+doubleStringWithoutEscape = J.between J.doubleQuote (P.takeWhile1P (Just "Not quote") (/= J.doubleQuote)) J.doubleQuote
+
 string' :: Parser Types.String'
 string' = do
-  P.single J.quote
-  words <- P.takeWhile1P (Just "Not quote") (/= J.quote)
-  P.single J.quote
+  words <- P.try stringEscape <|> P.try doubleStringEscape <|> P.try stringWithoutEscape <|> doubleStringWithoutEscape
   pure (Types.Sho $ Encoding.decodeUtf8 words)
 
 --------------------------------------------------
@@ -653,7 +659,8 @@ do'' = Expr.makeExprParser (P.try doBind <|> doNotBind) table P.<?> "bind expr"
 infixSymbolGen :: Parser Symbol -> Parser Symbol
 infixSymbolGen p = do
   symb <- p
-  if  | Set.member symb J.reservedSymbols -> fail "symbol is reserved word"
+  if
+      | Set.member symb J.reservedSymbols -> fail "symbol is reserved word"
       | otherwise -> pure symb
 
 infixSymbolDot :: Parser (NonEmpty Symbol)
@@ -681,7 +688,8 @@ prefixSymbolGen startParser = do
   rest <- P.takeWhileP (Just "Valid Middle Symbol") J.validMiddleSymbol
   -- Slow O(n) call, could maybe peek ahead instead, then parse it all at once?
   let new = ByteString.cons start rest
-  if  | Set.member new J.reservedWords -> fail "symbol is reserved operator"
+  if
+      | Set.member new J.reservedWords -> fail "symbol is reserved operator"
       | otherwise -> pure (internText $ Encoding.decodeUtf8 new)
 
 symbolEndGen :: ByteString -> Parser ()
@@ -718,9 +726,6 @@ prefixSepGen parser = do
 -- useful for infix application
 prefixSymbolDotPermissive :: Parser (NonEmpty Symbol)
 prefixSymbolDotPermissive = J.sepBy1H prefixSymbol (P.char J.dot)
-
-prefixCapitalDotPermissive :: Parser (NonEmpty Symbol)
-prefixCapitalDotPermissive = J.sepBy1H prefixCapital (P.char J.dot)
 
 prefixSymbolDot :: Parser (NonEmpty Symbol)
 prefixSymbolDot = prefixSepGen prefixSymbol
@@ -775,11 +780,11 @@ arrowExp =
 
 refine :: Expr.Operator Parser Types.Expression
 refine =
-  Expr.Postfix
-    $ P.try
-    $ do
-      refine <- spaceLiner (J.curly expressionSN)
-      pure (\p -> Types.RefinedE (Types.TypeRefine p refine))
+  Expr.Postfix $
+    P.try $
+      do
+        refine <- spaceLiner (J.curly expressionSN)
+        pure (\p -> Types.RefinedE (Types.TypeRefine p refine))
 
 -- For Do!
 table :: Semigroup a => [[Expr.Operator Parser a]]
@@ -798,18 +803,12 @@ topLevelSN = spaceLiner topLevel
 expression'SN :: Parser Types.Expression
 expression'SN = spaceLiner expression'
 
-expression''SN :: Parser Types.Expression
-expression''SN = spaceLiner expression''
-
 expression'''SN :: Parser Types.Expression
 expression'''SN = spaceLiner expression'''
 
 -- TODO: Add Docs
 expressionSN :: Parser Types.Expression
 expressionSN = spaceLiner expression
-
-expressionS :: Parser Types.Expression
-expressionS = spacer expression
 
 signatureConstraintSN :: Parser [Types.Expression]
 signatureConstraintSN = spaceLiner signatureConstraint
@@ -844,15 +843,6 @@ condLogicSN = spaceLiner . condLogic
 typePSN :: Parser Types.Type
 typePSN = spaceLiner typeP
 
-typePS :: Parser Types.Type
-typePS = spacer typeP
-
-recordSN :: Parser Types.Record
-recordSN = spaceLiner record
-
-recordS :: Parser Types.Record
-recordS = spacer record
-
 nameTypeSN :: Parser Types.NameType
 nameTypeSN = spaceLiner nameType
 
@@ -868,23 +858,14 @@ nameParserSN = spaceLiner nameParser
 sumSN :: Parser Types.Sum
 sumSN = spaceLiner sum
 
-sumS :: Parser Types.Sum
-sumS = spaceLiner sum
-
 prefixCapitalDotSN :: Parser (NonEmpty Symbol)
 prefixCapitalDotSN = spaceLiner prefixCapitalDot
-
-prefixCapitalSN :: Parser Symbol
-prefixCapitalSN = spaceLiner prefixCapital
 
 prefixSymbolDotSN :: Parser (NonEmpty Symbol)
 prefixSymbolDotSN = spaceLiner prefixSymbolDot
 
 prefixSymbolSN :: Parser Symbol
 prefixSymbolSN = spaceLiner prefixSymbol
-
-prefixSymbolS :: Parser Symbol
-prefixSymbolS = spacer prefixSymbol
 
 constantSN :: Parser Types.Constant
 constantSN = spaceLiner constant

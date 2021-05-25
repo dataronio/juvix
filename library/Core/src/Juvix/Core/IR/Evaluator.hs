@@ -28,7 +28,6 @@ import qualified Juvix.Core.IR.Types as IR
 import qualified Juvix.Core.IR.Types.Base as IR
 import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library
-import qualified Juvix.Library.Usage as Usage
 
 type NoExtensions ext primTy primVal =
   ( IR.TermX ext primTy primVal ~ Void,
@@ -82,6 +81,7 @@ inlineAllGlobals t map =
     IR.Prim' {} -> t
     IR.PrimTy' {} -> t
     IR.Star' {} -> t
+    IR.TermX {} -> t
 
 inlineAllGlobalsElim ::
   ( EvalPatSubst ext primTy primVal,
@@ -99,6 +99,7 @@ inlineAllGlobalsElim t map =
       IR.App' (inlineAllGlobalsElim elim map) (inlineAllGlobals term map) ann
     IR.Ann' u t1 t2 uni ann ->
       IR.Ann' u (inlineAllGlobals t1 map) (inlineAllGlobals t2 map) uni ann
+    IR.ElimX {} -> t
 
 -- annotations are discarded
 evalTermWith ::

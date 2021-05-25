@@ -34,6 +34,12 @@ tmp/
 
 # Testing temporary
 *.parsed
+*.HRGolden
+
+*.liquid
 
 # OSX
 .DS_Store
+
+# liquid
+*.liquid

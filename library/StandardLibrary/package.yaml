@@ -1,10 +1,10 @@
 name:                standard-library
 version:             0.1.0.0
-github:              "githubuser/StandardLibrary"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2020 Author name here"
+github:              "heliaxdev/juvix"
+license:             GPL-3
+author:              "Heliax AG <hello@heliax.dev>"
+maintainer:          "Heliax AG <hello@heliax.dev>"
+copyright:           "2020 Heliax AG"
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -23,7 +23,7 @@ dependencies:
 - text
 - hashable
 - unordered-containers
-- capability >= 0.2.0.0
+- capability
 - time
 - lens
 - megaparsec
@@ -84,3 +84,4 @@ tests:
     - tasty-hunit
     - tasty-silver
     - tasty-quickcheck
+    - pretty-simple

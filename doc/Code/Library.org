@@ -1,84 +1,4 @@
 * Backends
-** ArithmeticCircuit
-*** Setup <<ArithmeticCircuit/Setup>>
-*** src
-**** Juvix
-***** Backends
-****** ArithmeticCircuit <<Backends/ArithmeticCircuit>>
-******* Groth
-- place holder module until we have our groth
-  setup done
-- _Relies on_
-  + [[Library]]
-******* ZKP
-- _Relies on_
-  + [[ArithmeticCircuit/Compilation]]
-  + [[Groth]]
-  + [[Library]]
-******* Compilation <<ArithmeticCircuit/Compilation>>
-- _Relies on_
-  + [[Compilation/Environment]]
-  + [[Memory]]
-  + [[ArithmeticCircuit/Compilation/Types]]
-  + [[ArithmeticCircuit/Parameterisation]]
-  + [[ErasedAnn]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Usage]]
-******** Environment <<Compilation/Environment>>
-- _Relies on_
-  + [[Memory]]
-  + [[ArithmeticCircuit/Compilation/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-******** Memory
-- _Relies on_
-  + [[Library]]
-  + [[HashMap]]
-  + [[NameSymbol]]
-******** Types <<ArithmeticCircuit/Compilation/Types>>
-Provides the various types needed for the arithmetic circuit
-backend
-- Expression covers the gambit of arithmetic circuit expressions
-- _Relies on_
-  + [[ArithmeticCircuit/Parameterisation]]
-  + [[ErasedAnn]]
-  + [[Library]]
-******* Parameterisation <<ArithmeticCircuit/Parameterisation>>
-- _Relies on_
-  + [[Booleans]]
-  + [[FieldElements]]
-  + [[Integers]]
-  + [[Core/Parameterisation]]
-  + [[Library]]
-******** Booleans
-- _Relies on_
-  + [[FieldElements]]
-  + [[Core/Parameterisation]]
-  + [[Library]]
-******** FieldElements
-- _Relies on_
-  + [[Core/Parameterisation]]
-  + [[Library]]
-******** Integers
-- _Relies on_
-  + [[FieldElements]]
-  + [[Core/Parameterisation]]
-  + [[Library]]
-*** test
-**** ArithmeticCircuit <<test/ArithmeticCircuit>>
-- _Relies on_
-  + [[ArithmeticCircuit/Compilation]]
-  + [[Compilation/Environment]]
-  + [[ArithmeticCircuit/Compilation/Types]]
-  + [[ArithmeticCircuit/Parameterisation]]
-  + [[ZKP]]
-  + [[ErasedAnn]]
-  + [[Library]]
-  + [[Usage]]
-**** Main <<ArithmeticCircuit/test/Main>>
-- _Relies on_
-  + [[Library]]
 ** LLVM
 *** Setup <<LLVM/Setup>>
 *** src
@@ -353,8 +273,9 @@ Serves as a module for various debugging functions
 ***** Backends
 ****** Michelson <<Backends/Michelson>>
 - _Relies on_
-  + [[Michelson/Compilation]]
+  + [[Compilation]]
   + [[Michelson/Parameterisation]]
+  + [[Michelson/Pipeline]]
 ******* Contract <<Michelson/Contract>>
 This module provides a default contract environment
 ******* Optimisation
@@ -373,44 +294,52 @@ This module provides a default contract environment
     then choose the one with the fewest instructions (or based on
     some other gas-estimation preference function).
 - _Relies on_
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation/Types]]
   + [[Library]]
 ******* Parameterisation <<Michelson/Parameterisation>>
+Module that implements the backend parameters for the Michelson backend.
 - _Relies on_
-  + [[Michelson/Compilation]]
-  + [[Michelson/Compilation/Types]]
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation]]
+  + [[Compilation/Types]]
   + [[Michelson/Contract]]
   + [[Instructions]]
   + [[InstructionsEff]]
   + [[Interpret]]
+  + [[Untyped]]
   + [[Application]]
   + [[Prim]]
   + [[ErasedAnn/Types]]
   + [[IR/Evaluator]]
-  + [[OnlyExts]]
-  + [[Typechecker/Types]]
-  + [[IR/Types]]
   + [[IR/Types/Base]]
   + [[Core/Parameterisation]]
   + [[Core/Types]]
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
-  + [[Usage]]
-******* Compilation <<Michelson/Compilation>>
+  + [[Library/Usage]]
+******* Pipeline <<Michelson/Pipeline>>
+- _Relies on_
+  + [[Compilation]]
+  + [[Michelson/Parameterisation]]
+  + [[Core/IR]]
+  + [[Core/Pipeline]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[Juvix/Pipeline]]
+  + [[FromFrontend]]
+******* Compilation
 - Entrypoints into compilation from core terms to Michelson terms & contracts.
 - _Relies on_
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation/Types]]
   + [[VirtualStack]]
   + [[DSL/Environment]]
   + [[Instructions]]
   + [[InstructionsEff]]
+  + [[Untyped]]
   + [[Optimisation]]
   + [[ErasedAnn/Types]]
   + [[Library]]
-  + [[Usage]]
-******** Types <<Michelson/Compilation/Types>>
+******** Types <<Compilation/Types>>
 - Types used internally by the Michelson backend.
 - _Relies on_
   + [[Application]]
@@ -419,7 +348,6 @@ This module provides a default contract environment
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
 ******** VirtualStack
 - Serves as a virtual stack over Michelson
 - This stack has a few properties
@@ -435,28 +363,28 @@ This module provides a default contract environment
     future, or vice versa!
 - Import with qualified and the name of =VStack=
 - _Relies on_
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation/Types]]
   + [[Instructions]]
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******* DSL
 ******** Contract <<DSL/Contract>>
 - _Relies on_
   + [[Library]]
 ******** Environment <<DSL/Environment>>
 - _Relies on_
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation/Types]]
   + [[VirtualStack]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******** Instructions
 - This module serves as a lower layer DSL that is just a binding
   over the untyped instruction bindings
 - _Relies on_
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation/Types]]
   + [[Untyped]]
   + [[Library]]
 ******** InstructionsEff
@@ -470,7 +398,7 @@ This module provides a default contract environment
   the top two items in the stack and then returns back either if
   they were constants or not and dispatches logic based on that
 - _Relies on_
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation/Types]]
   + [[VirtualStack]]
   + [[DSL/Environment]]
   + [[Instructions]]
@@ -480,10 +408,10 @@ This module provides a default contract environment
   + [[Library]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******** Interpret
 - _Relies on_
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation/Types]]
   + [[DSL/Contract]]
   + [[Library]]
 ******** Untyped
@@ -496,15 +424,15 @@ This module provides a default contract environment
   + [[ErasedAnn/Types]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 *** test
 **** Main <<Michelson/test/Main>>
 - _Relies on_
   + [[Library]]
 **** Michelson <<test/Michelson>>
 - _Relies on_
-  + [[Michelson/Compilation]]
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation]]
+  + [[Compilation/Types]]
   + [[DSL/Environment]]
   + [[Instructions]]
   + [[Interpret]]
@@ -513,13 +441,137 @@ This module provides a default contract environment
   + [[ErasedAnn]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 **** VStack
 - _Relies on_
-  + [[Michelson/Compilation/Types]]
+  + [[Compilation/Types]]
   + [[VirtualStack]]
+  + [[Untyped]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
+** Plonk
+*** Setup <<Plonk/Setup>>
+*** src
+**** Juvix
+***** Backends
+****** Plonk
+- _Relies on_
+  + [[Builder]]
+  + [[Circuit]]
+  + [[Assignment]]
+  + [[Plonk/Compiler]]
+  + [[Plonk/Dot]]
+  + [[Plonk/IR]]
+  + [[Lang]]
+  + [[Parameterization]]
+  + [[Plonk/Pipeline]]
+  + [[Plonk/Types]]
+******* Builder
+- _Relies on_
+  + [[Circuit]]
+  + [[Plonk/IR]]
+  + [[Library]]
+******* Compiler <<Plonk/Compiler>>
+- _Relies on_
+  + [[Builder]]
+  + [[Circuit]]
+  + [[Plonk/IR]]
+  + [[Plonk/Types]]
+  + [[ErasedAnn/Types]]
+  + [[Library]]
+  + [[NameSymbol]]
+******* Dot <<Plonk/Dot>>
+Visualise circuits using Graphviz
+- _Relies on_
+  + [[Circuit]]
+  + [[Library]]
+******* IR <<Plonk/IR>>
+- _Relies on_
+  + [[Circuit]]
+  + [[Library]]
+******* Lang
+Surface language
+- _Relies on_
+  + [[Builder]]
+  + [[Circuit]]
+  + [[Plonk/IR]]
+  + [[Library]]
+******* Parameterization
+- _Relies on_
+  + [[Plonk/Types]]
+  + [[Application]]
+  + [[ErasedAnn/Types]]
+  + [[IR/Evaluator]]
+  + [[IR/Types/Base]]
+  + [[Core/Parameterisation]]
+  + [[Core/Types]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+******* Pipeline <<Plonk/Pipeline>>
+- _Relies on_
+  + [[Builder]]
+  + [[Circuit]]
+  + [[Plonk/Compiler]]
+  + [[Plonk/Dot]]
+  + [[Parameterization]]
+  + [[Plonk/Types]]
+  + [[Application]]
+  + [[Core/IR]]
+  + [[OnlyExts]]
+  + [[Typechecker/Types]]
+  + [[Core/Parameterisation]]
+  + [[Core/Pipeline]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[Juvix/Pipeline]]
+  + [[FromFrontend]]
+******* Types <<Plonk/Types>>
+- _Relies on_
+  + [[Application]]
+  + [[ErasedAnn]]
+  + [[ErasedAnn/Types]]
+  + [[IR/Types]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+******* Circuit
+- _Relies on_
+  + [[Library]]
+******** Assignment
+- _Relies on_
+  + [[Circuit]]
+  + [[Library]]
+*** test
+**** Main <<Plonk/test/Main>>
+- _Relies on_
+  + [[Library]]
+**** Test
+***** AnnTerm
+- _Relies on_
+  + [[Plonk]]
+  + [[Plonk]]
+  + [[ErasedAnn]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+***** Compiler <<Test/Compiler>>
+- _Relies on_
+  + [[Plonk]]
+  + [[Plonk]]
+  + [[Core]]
+  + [[Library]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[Juvix/Pipeline]]
+***** Example
+****** Polynomial
+- _Relies on_
+  + [[Plonk]]
+  + [[Plonk]]
+  + [[ErasedAnn]]
+  + [[Library]]
+  + [[Library/Usage]]
 * Core
 ** Setup <<Core/Setup>>
 ** src
@@ -530,8 +582,15 @@ Types to support partial application and polymorphic primitives.
 - _Relies on_
   + [[IR/Types]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ***** Parameterisation <<Core/Parameterisation>>
+Juvix parameterises the type theory & core language over a set of
+primitive data types and primitive values, which can include native data
+types such as strings, integers, or sets, and native functions such as
+addition, subtraction, string concatenation, set membership, etc. The
+language & typechecker can then be instantiated over a particular backend
+which provides concrete sets of primitives and a primitive type-checking
+relation.
 - _Relies on_
   + [[Application]]
   + [[IR/Types]]
@@ -540,8 +599,8 @@ Types to support partial application and polymorphic primitives.
   + [[NameSymbol]]
 ***** Translate
 - _Relies on_
-  + [[HR]]
-  + [[IR]]
+  + [[Core/HR]]
+  + [[Core/IR]]
   + [[Utility]]
   + [[Library]]
   + [[NameSymbol]]
@@ -559,11 +618,20 @@ Types to support partial application and polymorphic primitives.
   + [[Library]]
   + [[NameSymbol]]
 ***** Common
+****** Closure
+Closure.T serves as the data structure in which we will store
+temporary lexical bindings as our code encounters binders.
+- _Relies on_
+  + [[Core/Common/Context]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
 ****** NameSpace
 - _Relies on_
   + [[Library]]
   + [[HashMap]]
-****** Open <<Common/Open>>
+****** Open
 - _Relies on_
   + [[Library]]
 ****** Context <<Core/Common/Context>>
@@ -586,11 +654,11 @@ Types to support partial application and polymorphic primitives.
 - _Relies on_
   + [[Precedence]]
   + [[NameSpace]]
-  + [[Common/Open]]
+  + [[Open]]
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ***** Erased
 - _Relies on_
   + [[Erased/Evaluator]]
@@ -615,7 +683,6 @@ Types to support partial application and polymorphic primitives.
 - _Relies on_
   + [[Erased/Types/Base]]
   + [[Typechecker/Types]]
-  + [[IR/Types/Base]]
   + [[Globals]]
   + [[Library]]
 ******* Base <<Erased/Types/Base>>
@@ -624,7 +691,7 @@ Types to support partial application and polymorphic primitives.
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ***** ErasedAnn
 - _Relies on_
   + [[Conversion]]
@@ -636,7 +703,7 @@ Types to support partial application and polymorphic primitives.
   + [[Erasure/Types]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ****** Erasure <<ErasedAnn/Erasure>>
 - _Relies on_
   + [[Erased/Types]]
@@ -649,7 +716,7 @@ Types to support partial application and polymorphic primitives.
   + [[ErasedAnn/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ****** Types <<ErasedAnn/Types>>
 - _Relies on_
   + [[Application]]
@@ -657,7 +724,7 @@ Types to support partial application and polymorphic primitives.
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ***** Erasure <<Core/Erasure>>
 - _Relies on_
   + [[Algorithm]]
@@ -666,12 +733,11 @@ Types to support partial application and polymorphic primitives.
 - _Relies on_
   + [[Erasure/Types]]
   + [[Erasure/Types]]
-  + [[IR]]
+  + [[Core/IR]]
   + [[Typechecker/Types]]
-  + [[IR/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ****** Types <<Erasure/Types>>
 - _Relies on_
   + [[Erased/Types]]
@@ -683,23 +749,15 @@ Types to support partial application and polymorphic primitives.
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
-***** HR
+  + [[Library/Usage]]
+***** HR <<Core/HR>>
 - _Relies on_
-  + [[HR/Parser]]
   + [[HR/Types]]
 ****** Extend <<HR/Extend>>
 - _Relies on_
   + [[IR/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
-****** Parser <<HR/Parser>>
-- _Relies on_
-  + [[HR/Types]]
-  + [[Core/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Usage]]
 ****** Subst <<HR/Subst>>
 - Runs a substitution algorithm over core
 - _Relies on_
@@ -707,7 +765,7 @@ Types to support partial application and polymorphic primitives.
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ****** Types <<HR/Types>>
 - _Relies on_
   + [[HR/Extend]]
@@ -727,18 +785,28 @@ Types to support partial application and polymorphic primitives.
   + [[IR/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ****** Types <<HRAnn/Types>>
 - _Relies on_
   + [[HRAnn/Extend]]
   + [[IR/Types/Base]]
-***** IR
+***** IR <<Core/IR>>
 - _Relies on_
   + [[CheckTerm]]
   + [[IR/Evaluator]]
   + [[IR/Typechecker]]
   + [[IR/Typechecker]]
   + [[IR/Types]]
+  + [[Library]]
+****** CheckDatatype
+Datatype declarations are typechecked here. Usages are passed along.
+- _Relies on_
+  + [[CheckTerm]]
+  + [[IR/Evaluator]]
+  + [[IR/Types]]
+  + [[IR/Types/Base]]
+  + [[Globals]]
+  + [[Core/Parameterisation]]
   + [[Library]]
 ****** CheckTerm
 This file contains the functions and aux functions to typecheck terms.
@@ -753,7 +821,7 @@ datatype and function declarations.
   + [[IR/Types/Base]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ****** Evaluator <<IR/Evaluator>>
 This includes the evaluators (evalTerm and evalElim),
 the value application function (vapp) and
@@ -770,7 +838,6 @@ the substitution functions (substTerm and substElim).
   + [[IR/Types/Base]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Usage]]
 ******* PatSubst
 - _Relies on_
   + [[Application]]
@@ -780,7 +847,7 @@ the substitution functions (substTerm and substElim).
   + [[IR/Types/Base]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******* Subst <<Evaluator/Subst>>
 - _Relies on_
   + [[Application]]
@@ -788,7 +855,7 @@ the substitution functions (substTerm and substElim).
   + [[IR/Types]]
   + [[IR/Types/Base]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******* SubstV
 - _Relies on_
   + [[Application]]
@@ -798,7 +865,7 @@ the substitution functions (substTerm and substElim).
   + [[IR/Types/Base]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******* Types <<Evaluator/Types>>
 - _Relies on_
   + [[IR/Types]]
@@ -811,7 +878,7 @@ the substitution functions (substTerm and substElim).
   + [[IR/Types]]
   + [[IR/Types/Base]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ****** TransformExt
 Transformations between different extensions.
 - _Relies on_
@@ -833,11 +900,13 @@ Datatype declarations are typechecked by @checkDataType@ in CheckDataType.hs.
 Function declarations are typechecked by @typeCheckFuns@ in CheckFunction.hs.
 Typechecked declarations are added to the signature.
 - _Relies on_
+  + [[CheckDatatype]]
+  + [[IR/Evaluator]]
   + [[Typechecker/Env]]
   + [[Typechecker/Types]]
   + [[IR/Types]]
-  + [[IR/Types/Base]]
   + [[Globals]]
+  + [[Core/Parameterisation]]
   + [[Library]]
 ******* Env <<Typechecker/Env>>
 - _Relies on_
@@ -849,7 +918,7 @@ Typechecked declarations are added to the signature.
   + [[Globals]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******* Types <<Typechecker/Types>>
 - _Relies on_
   + [[Application]]
@@ -859,7 +928,7 @@ Typechecked declarations are added to the signature.
   + [[Globals]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ****** Types <<IR/Types>>
 Quantitative type implementation inspired by
   Atkey 2018 and McBride 2016.
@@ -868,19 +937,18 @@ Quantitative type implementation inspired by
   + [[Globals]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******* Base <<IR/Types/Base>>
 - _Relies on_
   + [[Library]]
-  + [[HashMap]]
   + [[NameSymbol]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ******* Globals
 - _Relies on_
   + [[IR/Types/Base]]
   + [[Library]]
   + [[HashMap]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ***** IRAnn
 - _Relies on_
   + [[IRAnn/Erasure]]
@@ -894,7 +962,7 @@ Quantitative type implementation inspired by
 - _Relies on_
   + [[IR/Types/Base]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 ***** Parameterisations
 ****** All
 - _Relies on_
@@ -922,8 +990,8 @@ Quantitative type implementation inspired by
 ** test
 *** Conv
 - _Relies on_
-  + [[HR]]
-  + [[IR]]
+  + [[Core/HR]]
+  + [[Core/IR]]
   + [[Translate]]
   + [[Library]]
 *** Erasure <<test/Erasure>>
@@ -931,27 +999,19 @@ Quantitative type implementation inspired by
   + [[Application]]
   + [[Erased]]
   + [[Core/Erasure]]
-  + [[IR]]
+  + [[Core/IR]]
   + [[IR/Typechecker]]
   + [[Unit]]
   + [[Core/Types]]
   + [[Library]]
-  + [[Usage]]
+  + [[Library/Usage]]
 *** Main <<Core/test/Main>>
 - _Relies on_
   + [[Library]]
-*** Parser <<Core/test/Parser>>
-- _Relies on_
-  + [[HR]]
-  + [[Naturals]]
-  + [[Unit]]
-  + [[Core/Types]]
-  + [[Library]]
-  + [[Usage]]
 *** Typechecker <<test/Typechecker>>
 Tests for the type checker and evaluator in Core/IR/Typechecker.hs
 - _Relies on_
-  + [[IR]]
+  + [[Core/IR]]
   + [[CheckTerm]]
   + [[IR/Evaluator]]
   + [[OnlyExts]]
@@ -962,7 +1022,7 @@ Tests for the type checker and evaluator in Core/IR/Typechecker.hs
   + [[Core/Types]]
   + [[Library]]
   + [[HashMap]]
-  + [[Usage]]
+  + [[Library/Usage]]
 *** Common
 **** Context <<test/Common/Context>>
 - _Relies on_
@@ -978,6 +1038,47 @@ Tests that weak works as expected
   + [[IR/Evaluator]]
   + [[IR/Types]]
   + [[Library]]
+* EasyPipeline
+** Setup <<EasyPipeline/Setup>>
+** src
+*** Easy
+The easy module serves as the stop shop for getting anywhere in the
+code-base fast.
+_The file is laid out where_
+ 1. we lay out a phase
+    - We have 2 variants of each phase
+      1) <name>File
+      2) <name>Library
+    - This lasts up until context, as we can see if the prelude we
+      give it matches our expectations
+ 2. We then give examples
+We do 1. and 2. having each step rely on the last, and continue the
+process until the compiler is at the full backends.
+We can view this approach as giving us a quick way to play around
+with any stage of the compiler while modifying the source code.
+- _Relies on_
+  + [[Juvix/Contextify]]
+  + [[ResolveOpenInfo]]
+  + [[ToContext/Types]]
+  + [[Core]]
+  + [[Core/Common/Context]]
+  + [[Traverse]]
+  + [[Desugar]]
+  + [[Frontend]]
+  + [[Frontend/Parser]]
+  + [[Frontend/Sexp]]
+  + [[Frontend/Types]]
+  + [[Frontend/Types]]
+  + [[Frontend/Types/Base]]
+  + [[FrontendDesugar]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[Juvix/Pipeline]]
+  + [[Compile]]
+** test
+*** Spec <<EasyPipeline/test/Spec>>
 * Frontend
 ** Setup <<Frontend/Setup>>
 ** src
@@ -996,13 +1097,11 @@ Tests that weak works as expected
   end of the parse
 - _Relies on_
   + [[Frontend/Types]]
-  + [[Frontend/Types/Base]]
   + [[Library]]
   + [[Library/Parser]]
   + [[Library/Parser]]
 ***** Sexp <<Frontend/Sexp>>
 - _Relies on_
-  + [[Frontend/Types]]
   + [[Frontend/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
@@ -1016,8 +1115,6 @@ Tests that weak works as expected
           =ArrowGen= and not in =NamedType=
 - _Relies on_
   + [[Frontend/Types/Base]]
-  + [[Types/Extend]]
-  + [[Library]]
 ****** Base <<Frontend/Types/Base>>
 - This file defines the main ADT for the Juvix front end language.
 - This ADT corresponds to the bnf laid out [[https://github.com/heliax/juvix/blob/develop/doc/Frontend/syntax.org][here]].
@@ -1027,10 +1124,7 @@ Tests that weak works as expected
           =ArrowGen= and not in =NamedType=
 - _Relies on_
   + [[Library]]
-  + [[Usage]]
-****** Extend <<Types/Extend>>
-- _Relies on_
-  + [[Frontend/Types/Base]]
+  + [[Library/Usage]]
 ****** Located
 - _Relies on_
   + [[Library]]
@@ -1039,7 +1133,7 @@ Tests that weak works as expected
 *** Main <<Frontend/test/Main>>
 - _Relies on_
   + [[Library]]
-*** Parser <<Frontend/test/Parser>>
+*** Parser <<test/Parser>>
 - _Relies on_
   + [[Frontend/Parser]]
   + [[Frontend/Parser]]
@@ -1206,7 +1300,7 @@ Can be added to via core translation
   + [[Library]]
   + [[NameSymbol]]
 **** Visualize
-***** Dot
+***** Dot <<Visualize/Dot>>
 - Generates a dot file in order to produce a simple image of a
   interaction net
 - Also provides a way of generating gifs (and the images used to
@@ -1236,9 +1330,9 @@ Can be added to via core translation
   + [[InteractionNet/Nets/Default]]
   + [[Type]]
   + [[Library]]
-  + [[Dot]]
+  + [[Visualize/Dot]]
   + [[Visualize/Graph]]
-*** Spec
+*** Spec <<InteractionNet/test/Spec>>
 *** Nets
 **** Combinators <<test/Nets/Combinators>>
 - _Relies on_
@@ -1324,10 +1418,142 @@ Can be added to via core translation
   + [[Core/Types]]
   + [[Library]]
   + [[HashMap]]
-  + [[Usage]]
+  + [[Library/Usage]]
 *** Main <<InteractionNetIR/test/Main>>
 - _Relies on_
   + [[Library]]
+* Pipeline
+** Setup <<Pipeline/Setup>>
+** src
+*** Juvix
+**** Core
+- _Relies on_
+  + [[Juvix/Contextify]]
+  + [[Core/Common/Context]]
+  + [[Core/Erasure]]
+  + [[Core/Pipeline]]
+  + [[Translate]]
+  + [[Core/Types]]
+  + [[Frontend/Types]]
+  + [[FrontendDesugar]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+***** Pipeline <<Core/Pipeline>>
+- _Relies on_
+  + [[Application]]
+  + [[ErasedAnn]]
+  + [[Prim]]
+  + [[Core/Erasure]]
+  + [[Core/HR]]
+  + [[Core/IR]]
+  + [[IR/Typechecker]]
+  + [[Translate]]
+  + [[Core/Types]]
+  + [[Library]]
+  + [[Library/Usage]]
+**** Encoding
+***** Encoding <<Encoding/Encoding>>
+- This provides generic functions used by the various encodings in
+  this directory
+- _Relies on_
+  + [[Encoding/Types]]
+  + [[Library]]
+  + [[HashMap]]
+***** Mendler
+- Gives a =Mendler= encoding from an =ADT=.
+- This file is not done as Ι have yet to find a way to convert any
+  general recursive function into a proper =Mendler= form.
+- This however will do the boilerplate of changing an =ADT= to
+  =Mendler= and the structure of a case expression into proper
+  =Mendler= form
+- _Relies on_
+  + [[Encoding/Encoding]]
+  + [[Encoding/Types]]
+  + [[Library]]
+  + [[HashMap]]
+***** Scott
+- Gives a =Scott= encoding from an =ADT= and works properly for case
+  expressions
+- Overall this encoding just works™
+- _Relies on_
+  + [[Encoding/Encoding]]
+  + [[Encoding/Types]]
+  + [[Library]]
+  + [[HashMap]]
+***** Types <<Encoding/Types>>
+- _Relies on_
+  + [[Library]]
+  + [[HashMap]]
+**** Pipeline <<Juvix/Pipeline>>
+- _Relies on_
+  + [[Application]]
+  + [[Core/Common/Context]]
+  + [[ErasedAnn]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[Library/Sexp]]
+  + [[Compile]]
+  + [[Pipeline/Internal]]
+  + [[Pipeline/Internal]]
+  + [[Pipeline/Types]]
+***** Compile
+- _Relies on_
+  + [[Application]]
+  + [[Core/IR]]
+  + [[IR/Types/Base]]
+  + [[Globals]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[ToCore/Types]]
+***** Internal <<Pipeline/Internal>>
+- _Relies on_
+  + [[Core]]
+  + [[Core/Common/Context]]
+  + [[Traverse]]
+  + [[IR/Types]]
+  + [[Core/Parameterisation]]
+  + [[Frontend]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Parser]]
+  + [[Library/Sexp]]
+  + [[Library/Usage]]
+  + [[FromFrontend]]
+***** Types <<Pipeline/Types>>
+- _Relies on_
+  + [[ErasedAnn/Types]]
+  + [[Erasure/Types]]
+  + [[Typechecker/Types]]
+  + [[Core/Types]]
+  + [[Library]]
+** test
+*** Main <<Pipeline/test/Main>>
+- _Relies on_
+  + [[Library]]
+*** Test
+**** Encoding <<Test/Encoding>>
+- _Relies on_
+  + [[Encoding/Encoding]]
+  + [[Mendler]]
+  + [[Scott]]
+  + [[Encoding/Types]]
+  + [[Library]]
+**** Pipeline <<Test/Pipeline>>
+- _Relies on_
+  + [[Backends/Michelson]]
+  + [[Compilation]]
+  + [[Core/IR]]
+  + [[Core/Pipeline]]
+  + [[Core/Types]]
+  + [[Library]]
+  + [[Library/Usage]]
+**** RecGroups
+- _Relies on_
+  + [[Traverse]]
+  + [[Library]]
+  + [[Juvix/Pipeline]]
 * StandardLibrary
 ** Setup <<StandardLibrary/Setup>>
 ** src
@@ -1363,23 +1589,26 @@ Can be added to via core translation
   + [[Library]]
   + [[Token]]
 ***** PrettyPrint
-***** Usage
+***** Usage <<Library/Usage>>
 - _Relies on_
   + [[Library]]
 ***** Parser <<Library/Parser>>
 - _Relies on_
-  + [[Internal]]
+  + [[Parser/Internal]]
   + [[Lexer]]
   + [[Token]]
-****** Internal
+****** Internal <<Parser/Internal>>
 ****** Lexer
 - _Relies on_
-  + [[Internal]]
+  + [[Library]]
+  + [[Parser/Internal]]
   + [[Token]]
 ****** Token
 - _Relies on_
   + [[Library]]
 ***** Sexp <<Library/Sexp>>
+This module serves as the main sexpression import it contains the
+sexp type and all the various helper functionality one can need
 - _Relies on_
   + [[Library]]
   + [[Library]]
@@ -1391,7 +1620,7 @@ Can be added to via core translation
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Parser]]
-  + [[Internal]]
+  + [[Parser/Internal]]
   + [[Sexp/Types]]
 ****** Types <<Sexp/Types>>
 - _Relies on_
@@ -1422,269 +1651,8 @@ Can be added to via core translation
 ** Setup <<Translate/Setup>>
 ** src
 *** Juvix
-**** FrontendDesugar
-- Order of Passes
-  1. =RemoveModule=
-  2. =RemoveGuard=
-  3. =RemoveCond=
-  4. =CombineMultiple=
-  5. =RemoveSignature=
-  6. =RemovePunned=
-  7. =RemoveDo=
-- _Relies on_
-  + [[Juvix/Conversion/ML]]
-  + [[Juvix/Desugar]]
-  + [[Desugar/Types]]
-  + [[Frontend/Sexp]]
-  + [[Frontend/Types]]
-  + [[Library]]
-**** Conversion
-***** ML <<Juvix/Conversion/ML>>
-This module is responsible for converting back S-expressions back
-- into the ML form. Currently this goes until the end of desugared
-- This module is best read along side the sexpression document in
-  doc/Aricheture/Sexp.org, looking at the forms to see they are the
-  same.
-  + Note they aren't all the same, as many forms like the top level
-    let/=defun= are desugared and thus need to look at the current
-    forms of that
-- _Relies on_
-  + [[Desugar/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Sexp]]
-**** Core
-***** Common
-****** Context
-******* Traverse
-Calculate mutually-recursive groups of definitions.
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[Traverse/Types]]
-  + [[NameSpace]]
-  + [[FreeVars]]
-  + [[Library]]
-  + [[HashMap]]
-  + [[NameSymbol]]
-******** Types <<Traverse/Types>>
-- _Relies on_
-  + [[Context/Types]]
-  + [[Context/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-**** Desugar <<Juvix/Desugar>>
-Desugar takes the frontend syntax and through the =desugar=
-function, removes all extra parts of syntax that can be boiled down
-to simple macro expansion (simplification of the frontend syntax
-from the syntax alone with no extra information needed!)
-- _Relies on_
-  + [[Passes]]
-  + [[Library]]
-  + [[Library/Sexp]]
-***** Extend <<Desugar/Extend>>
-- This Desugars the frontend syntax
-  + Belongs to Table
-    | Changed      | Is a Sum Type of |
-    |--------------+------------------|
-    | Do           | Expression       |
-    | ModuleE      | Expression       |
-    | Module       | TopLevel         |
-    | Function     | TopLevel         |
-    | Signature    | TopLevel         |
-    | Let          | Let              |
-    | FunctionLike | Function ∧ Let   |
-- Thus one does not have to ever deal with
-- _Expression_
-  + one does not have to deal with the following Sum Constructors
-  #+begin_src haskell
-    data Do
-      = Do'' (NonEmpty DoBody)
-      deriving (Show, Generic, NFData)
-    data DoBody
-      = DoBody
-        { doBodyName :: Maybe NameSymb,
-          doBodyExpr :: Expression
-        }
-      deriving (Show, Generic, NFData)
-    data ModuleE
-      = ModE
-          { moduleEBindings :: FunctionLike (NonEmpty TopLevel)
-          , moduleEBody :: Expression
-          }
-      deriving (Show, Generic, NFData)
-    data Cond a
-      = C (NonEmpty (CondLogic a))
-      deriving (Show, Generic, NFData)
-    data CondLogic a
-      = CondExpression
-          { condLogicPred :: Expression
-          , condLogicBody :: a
-          }
-      deriving (Show, Generic, NFData)
-  #+end_src
-- _Top Level_
-  + one does not have to deal with the following Sum Constructors
-   #+begin_src haskell
-    data Module
-      = Mod (FunctionLike (NonEmpty TopLevel))
-      deriving (Show, Generic, NFData)
-      data Signature
-        = Sig
-            { signatureName :: Symbol
-              -- Was a usage but can't alias for now
-            , signatureUsage :: Maybe Expression
-            , signatureArrowType :: Expression
-            , signatureConstraints :: [Expression]
-            }
-        deriving (Show, Generic, NFData)
-  #+end_src
-- _Function_
-  + This form now looks like
-    #+begin_src haskell
-      data Function
-        = Func Symbol (NonEmpty (FunctionLike Expression)) (Maybe Signature)
-    #+end_src
-- _NameSet_
-  + This form now looks like
-    #+begin_src haskell
-    data NameSet t
-      = NonPunned NameSymb t
-      deriving (Show, Generic, NFData)
-    #+end_src
-- _Relies on_
-  + [[Frontend/Types/Base]]
-  + [[Types/Extend]]
-  + [[Library]]
-***** Passes
-Passes contains a list of passes on the frontend syntax that can be
-done with no extra information needed. Thus we export the following passes
-- Removing Explicit Module declarations
-- Removing Guards
-- Conds ⟶ If ⟶ Match
-- Combining signatures to functions
-- Removing punned record arguments
-- Remvoing Do syntax
-- _Relies on_
-  + [[Library]]
-  + [[Library/Sexp]]
-***** Types <<Desugar/Types>>
-- _Relies on_
-  + [[Desugar/Extend]]
-  + [[Frontend/Types/Base]]
-  + [[Library]]
-**** FrontendContextualise
-- order of Passes
-  1. =ModuleOpen=
-  2. =InfixPrecedence=
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[Desugar/Types]]
-  + [[ResolveOpenInfo]]
-  + [[Contextify/Sexp]]
-  + [[Contextify/Transform]]
-  + [[Contextify/Types]]
-  + [[InfixPrecedence/Environment]]
-  + [[InfixPrecedence/Environment]]
-  + [[InfixPrecedence/Transform]]
-  + [[ModuleOpen/Environment]]
-  + [[ModuleOpen/Transform]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Sexp]]
-***** Environment <<FrontendContextualise/Environment>>
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[NameSpace]]
-  + [[Common/Open]]
-  + [[Library]]
-  + [[HashMap]]
-  + [[NameSymbol]]
-  + [[Library/Sexp]]
-***** Contextify
-****** ResolveOpenInfo
-- This module is responsible for adding the reverse open
-  information to the context, along with the alias map of what
-  symbols get qualified to what module
-- This module accepts a list of =PreQualified= which talks
-  about
-  1. The explicit module itself
-  2. Any opens this module does
-  3. Any modules defined in this module as to have implicit imports
-- Currently the most complicated part of this module is the resolve
-  section that creates an =OpenMap=
-  + This code is responsible for taking in all the opens and
-    properly storing them fully qualified.
-  + This has to try to open as much as possible as we could have
-    =open Michelson= =open Prelude=, in which Michelson is inside
-    of prelude so it can't be resolved right away. This way can
-    lead to ambiguities if it does exist so one has to be a bit
-    careful opening in this way!
-- The other bits of code are stand alone algorithms for filling in
-  the reverse map and the qualification from that point
-  forward.... these are thankfully quite straight forward
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[NameSpace]]
-  + [[Common/Open]]
-  + [[Library]]
-  + [[HashMap]]
-  + [[NameSymbol]]
-****** Sexp <<Contextify/Sexp>>
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[NameSpace]]
-  + [[Contextify/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Sexp]]
-****** Transform <<Contextify/Transform>>
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[NameSpace]]
-  + [[Desugar/Types]]
-  + [[Contextify/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-****** Types <<Contextify/Types>>
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[Desugar/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Sexp]]
-***** InfixPrecedence
-****** Environment <<InfixPrecedence/Environment>>
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[NameSpace]]
-  + [[FrontendContextualise/Environment]]
-  + [[InfixPrecedence/ShuntYard]]
-  + [[InfixPrecedence/Types]]
-  + [[ModuleOpen/Types]]
-  + [[Library]]
-  + [[Library]]
-****** Extend <<InfixPrecedence/Extend>>
-- This pass removes the =Infix= form
-  + Belongs to Table
-    | Changed | Is a Sum Type of |
-    |---------+------------------|
-    | Infix   | Expression       |
-- Thus one does not have to ever deal with
-  #+begin_src haskell
-    data Infix
-      = Inf
-        { infixLeft  :: Expression
-        , infixOp    :: NameSymb
-        , infixRight :: Expression
-        }
-      deriving (Show, Generic, NFData)
-  #+end_src
-- _Relies on_
-  + [[Frontend/Types/Base]]
-  + [[ModuleOpen/Extend]]
-  + [[ModuleOpen/Extend]]
-  + [[Library]]
-****** FreeVars
+**** FreeVars
+TODO ∷ determine what has changed in the rebasing of this algo
 - FreeVars is an algorithm that checks for free symbols in the AST.
 - The =ExcludedSet= holds the symbols defined... These are needed
   in case of a degenerate case like
@@ -1733,163 +1701,343 @@ done with no extra information needed. Thus we export the following passes
   #+END_SRC
   + here we need to dismiss =our-point.x= and =our-point.y=, just
 - _Relies on_
-  + [[InfixPrecedence/Types]]
+  + [[Contextify/Environment]]
+  + [[Closure]]
   + [[Library]]
   + [[NameSymbol]]
+  + [[Library/Sexp]]
+**** FrontendDesugar
+- Order of Passes
+  1. =RemoveModule=
+  2. =RemoveGuard=
+  3. =RemoveCond=
+  4. =CombineMultiple=
+  5. =RemoveSignature=
+  6. =RemovePunned=
+  7. =RemoveDo=
+- _Relies on_
+  + [[Desugar]]
+  + [[Frontend/Sexp]]
+  + [[Frontend/Types]]
+  + [[Library]]
+  + [[Library/Sexp]]
+**** Contextify <<Juvix/Contextify>>
+- _Relies on_
+  + [[Contextify/Environment]]
+  + [[Contextify/Passes]]
+  + [[ResolveOpenInfo]]
+  + [[ToContext/Sexp]]
+  + [[ToContext/Types]]
+  + [[Core/Common/Context]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+***** Environment <<Contextify/Environment>>
+- _Relies on_
+  + [[InfixPrecedence/ShuntYard]]
+  + [[Closure]]
+  + [[Core/Common/Context]]
+  + [[NameSpace]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+***** Passes <<Contextify/Passes>>
+- _Relies on_
+  + [[Contextify/Environment]]
+  + [[InfixPrecedence/ShuntYard]]
+  + [[Closure]]
+  + [[Core/Common/Context]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+***** InfixPrecedence
 ****** ShuntYard <<InfixPrecedence/ShuntYard>>
 - This implements the Shunt Yard algorithm for determining the
   precedence of operations
 - _Relies on_
   + [[Library]]
-****** Transform <<InfixPrecedence/Transform>>
+***** ToContext
+****** ResolveOpenInfo
+- This module is responsible for adding the reverse open
+  information to the context, along with the alias map of what
+  symbols get qualified to what module
+- This module accepts a list of =PreQualified= which talks
+  about
+  1. The explicit module itself
+  2. Any opens this module does
+  3. Any modules defined in this module as to have implicit imports
+- Currently the most complicated part of this module is the resolve
+  section that creates an =OpenMap=
+  + This code is responsible for taking in all the opens and
+    properly storing them fully qualified.
+  + This has to try to open as much as possible as we could have
+    =open Michelson= =open Prelude=, in which Michelson is inside
+    of prelude so it can't be resolved right away. This way can
+    lead to ambiguities if it does exist so one has to be a bit
+    careful opening in this way!
+- The other bits of code are stand alone algorithms for filling in
+  the reverse map and the qualification from that point
+  forward.... these are thankfully quite straight forward
 - _Relies on_
   + [[Core/Common/Context]]
   + [[NameSpace]]
-  + [[InfixPrecedence/Environment]]
-  + [[InfixPrecedence/ShuntYard]]
-  + [[InfixPrecedence/Types]]
-  + [[ModuleOpen/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-****** Types <<InfixPrecedence/Types>>
-- _Relies on_
-  + [[Frontend/Types/Base]]
-  + [[InfixPrecedence/Extend]]
-  + [[Library]]
-***** ModuleOpen
-****** Environment <<ModuleOpen/Environment>>
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[NameSpace]]
-  + [[Desugar/Types]]
-  + [[ResolveOpenInfo]]
-  + [[ResolveOpenInfo]]
-  + [[FrontendContextualise/Environment]]
-  + [[ModuleOpen/Types]]
+  + [[Open]]
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
-****** Extend <<ModuleOpen/Extend>>
-- This pass removes the =Infix= form
-  + Belongs to Table
-    | Changed        | Is a Sum Type of |
-    |----------------+------------------|
-    | ModuleOpen     | TopLevel         |
-    | ModuleOpenExpr | Expression       |
-- Thus one does not have to ever deal with
-  #+begin_src haskell
-    data ModuleOpen
-      = Open ModuleName
-      deriving (Show, Generic, NFData)
-    data ModuleOpenExpr
-      = OpenExpress
-        { moduleOpenExprModuleN :: ModuleName
-        , moduleOpenExprExpr    :: Expression }
-      deriving (Show, Generic, NFData)
-  #+end_src
-- This pass with thus try to qualify all names as we go, turning
-#+begin_src ocaml
-  let foo =
-    open Core in
-    List.map f xs
-  (* ====> *)
-  let foo =
-    Core.List.Map f xs
-#+end_src
-- for modules we can infer.
+****** Sexp <<ToContext/Sexp>>
 - _Relies on_
-  + [[Desugar/Extend]]
-  + [[Desugar/Extend]]
-  + [[Frontend/Types/Base]]
-  + [[Library]]
-****** Transform <<ModuleOpen/Transform>>
-- _Relies on_
+  + [[ToContext/Types]]
   + [[Core/Common/Context]]
   + [[NameSpace]]
-  + [[Desugar/Types]]
-  + [[ResolveOpenInfo]]
-  + [[ModuleOpen/Environment]]
-  + [[ModuleOpen/Types]]
   + [[Library]]
-****** Types <<ModuleOpen/Types>>
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+****** Types <<ToContext/Types>>
 - _Relies on_
-  + [[Frontend/Types/Base]]
-  + [[ModuleOpen/Extend]]
+  + [[Core/Common/Context]]
   + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+**** Core
+***** Common
+****** Context
+******* Traverse
+Calculate mutually-recursive groups of definitions.
+- _Relies on_
+  + [[Core/Common/Context]]
+  + [[Traverse/Types]]
+  + [[NameSpace]]
+  + [[FreeVars]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+******** Types <<Traverse/Types>>
+- _Relies on_
+  + [[Context/Types]]
+  + [[Context/Types]]
+  + [[Library]]
+  + [[NameSymbol]]
+**** Desugar
+Desugar takes the frontend syntax and through the =desugar=
+function, removes all extra parts of syntax that can be boiled down
+to simple macro expansion (simplification of the frontend syntax
+from the syntax alone with no extra information needed!)
+- _Relies on_
+  + [[Desugar/Passes]]
+  + [[Library]]
+  + [[Library/Sexp]]
+***** Passes <<Desugar/Passes>>
+Passes contains a list of passes on the frontend syntax that can be
+done with no extra information needed. Thus we export the following passes
+- Removing Explicit Module declarations
+- Removing Guards
+- Conds ⟶ If ⟶ Match
+- Combining signatures to functions
+- Removing punned record arguments
+- Remvoing Do syntax
+- _Relies on_
+  + [[Library]]
+  + [[Library/Sexp]]
+  + [[Structure]]
+  + [[Lens]]
+**** Sexp
+***** Structure
+Hardeing S-expressions into a more readable form. Here we use a
+mixture of record structures and aliases. Each cover a form that we
+wish to talk about rather than just match away at
+- _The form for transformation follows this structure_
+#+begin_src haskell
+  -- the data type
+  data Form = ... deriving (Show)
+  is<Form>   :: Sexp.T -> Bool
+  to<Form>   :: Sexp.T -> Maybe <Form>
+  from<Form> :: <Form> -> Sexp.T
+#+end_src
+_TODO_
+ 1. Figure out if we can even express a spec system in
+    Haskell... =to<Form>= and =From<From>= have the exact same signature
+ 2. replace the repeat code with the =to<Form>= with an abstraction
+ 3. put the meta data with the form so we don't have to do it by
+    hand in the code that uses this
+    1. Use =Juvix.Library.LineNum=
+    2. append the =Form= With this
+    3. have to<Form> fill this
+    4. Have extra smart consturctors that are =<form>=, so that we
+       can automatically fill in this meta data
+- _Relies on_
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[Structure/Helpers]]
+****** Helpers <<Structure/Helpers>>
+- _Relies on_
+  + [[Library]]
+  + [[Library/Sexp]]
+****** Lens
+- _Relies on_
+  + [[Structure]]
+**** ToCore
+***** Types <<ToCore/Types>>
+- _Relies on_
+  + [[Core/Common/Context]]
+  + [[Core/HR]]
+  + [[Core/IR]]
+  + [[IR/Types/Base]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+  + [[LineNum]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[Library/Usage]]
+***** FromFrontend
+- _Relies on_
+  + [[Transform]]
+  + [[ToCore/Types]]
+****** Transform
+- _Relies on_
+  + [[Def]]
+  + [[Sig]]
+******* Def
+- _Relies on_
+  + [[Core/Common/Context]]
+  + [[Core/IR]]
+  + [[Translate]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[Transform/HR]]
+  + [[Transform/Helpers]]
+  + [[ToCore/Types]]
+******* HR <<Transform/HR>>
+- _Relies on_
+  + [[Core/HR]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[Library/Usage]]
+  + [[Transform/Helpers]]
+  + [[Transform/Usage]]
+  + [[ToCore/Types]]
+******* Helpers <<Transform/Helpers>>
+- _Relies on_
+  + [[Core/Common/Context]]
+  + [[Core/HR]]
+  + [[Core/IR]]
+  + [[Core/Parameterisation]]
+  + [[Translate]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[ToCore/Types]]
+******* Sig
+- _Relies on_
+  + [[Core/Common/Context]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[Library/Usage]]
+  + [[Transform/HR]]
+  + [[Transform/Helpers]]
+  + [[TypeSig]]
+  + [[Transform/Usage]]
+  + [[ToCore/Types]]
+******* TypeSig
+- _Relies on_
+  + [[Core/HR]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[Library/Usage]]
+  + [[Transform/HR]]
+  + [[Transform/Helpers]]
+  + [[ToCore/Types]]
+******* Usage <<Transform/Usage>>
+- _Relies on_
+  + [[Core/IR]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Sexp]]
+  + [[Library/Usage]]
+  + [[Transform/Helpers]]
+  + [[ToCore/Types]]
 ** test
-*** Golden
-- _Relies on_
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
-  + [[Library]]
 *** Main <<Translate/test/Main>>
 - _Relies on_
   + [[Library]]
-*** Context
-**** Environment <<Context/Environment>>
+*** Test
+**** Contextify <<Test/Contextify>>
 - _Relies on_
-  + [[Core/Common/Context]]
-  + [[Juvix/Desugar]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Sexp]]
-  + [[Frontend/Types/Base]]
-  + [[FrontendContextualise]]
+  + [[Juvix/Contextify]]
+  + [[Contextify/Environment]]
   + [[ResolveOpenInfo]]
-  + [[Contextify/Types]]
-  + [[FrontendContextualise/Environment]]
-  + [[Library]]
-  + [[HashMap]]
-  + [[NameSymbol]]
-  + [[Library/Sexp]]
-*** Contextualise
-**** Contextify
-- _Relies on_
   + [[Core/Common/Context]]
-  + [[Juvix/Desugar]]
+  + [[Library]]
+  + [[Library/Sexp]]
+**** Golden
+- _Relies on_
   + [[Frontend/Parser]]
   + [[Frontend/Sexp]]
   + [[Frontend/Types]]
-  + [[FrontendContextualise]]
-  + [[FrontendDesugar]]
+  + [[Frontend/Types/Base]]
   + [[Library]]
-  + [[Internal]]
+**** Context
+***** Environment <<Context/Environment>>
+- _Relies on_
+  + [[Juvix/Contextify]]
+  + [[Contextify/Environment]]
+  + [[Closure]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+***** Helpers <<Context/Helpers>>
+- _Relies on_
+  + [[Juvix/Contextify]]
+  + [[ResolveOpenInfo]]
+  + [[ToContext/Types]]
+  + [[Core/Common/Context]]
+  + [[Desugar]]
+  + [[Frontend/Parser]]
+  + [[Frontend/Sexp]]
+  + [[Frontend/Types/Base]]
+  + [[Library]]
   + [[Library/Sexp]]
-**** Infix
-***** ShuntYard <<Infix/ShuntYard>>
+**** Contextualise
+***** Contextify <<Contextualise/Contextify>>
+- _Relies on_
+  + [[Juvix/Contextify]]
+  + [[Core/Common/Context]]
+  + [[Desugar]]
+  + [[Frontend/Parser]]
+  + [[Frontend/Sexp]]
+  + [[Frontend/Types]]
+  + [[Library]]
+  + [[Parser/Internal]]
+  + [[Library/Sexp]]
+***** Infix
+****** ShuntYard <<Infix/ShuntYard>>
 - _Relies on_
   + [[InfixPrecedence/ShuntYard]]
   + [[Library]]
-**** Module
-***** Open <<Module/Open>>
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[NameSpace]]
-  + [[ResolveOpenInfo]]
-  + [[ModuleOpen/Environment]]
-  + [[ModuleOpen/Types]]
-  + [[Library]]
-  + [[HashMap]]
-***** Resolve
-- _Relies on_
-  + [[Core/Common/Context]]
-  + [[Core/Common/Context]]
-  + [[NameSpace]]
-  + [[ResolveOpenInfo]]
-  + [[ModuleOpen/Environment]]
-  + [[Library]]
-  + [[HashMap]]
-*** Conversion
-**** ML <<test/Conversion/ML>>
+**** Conversion
+***** ML
 Temporary conversion from the Sexpression syntax to the ML syntax
-*** Desugar <<test/Desugar>>
+**** Desugar
+***** Sexp <<Desugar/Sexp>>
 - _Relies on_
-  + [[Desugar/Types]]
+  + [[Desugar/Passes]]
+  + [[Library]]
+  + [[Library/Sexp]]
+**** Sexp
+***** Helpers <<Sexp/Helpers>>
+- _Relies on_
+  + [[Juvix/Contextify]]
+  + [[Core/Common/Context]]
+  + [[Desugar]]
   + [[Frontend/Parser]]
-  + [[FrontendDesugar]]
+  + [[Frontend/Sexp]]
+  + [[Frontend/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
-**** Sexp <<Desugar/Sexp>>
-- _Relies on_
-  + [[Passes]]
-  + [[Library]]
   + [[Library/Sexp]]

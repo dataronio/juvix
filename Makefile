@@ -49,13 +49,13 @@ test:
 	stack test --fast --jobs=$(THREADS) --test-arguments "--hide-successes --ansi-tricks false"
 
 test-parser: build
-	find test/examples/demo -name "*.ju" | xargs -t -n 1 -I % stack exec juvix parse %
+	find test/examples/demo -name "*.ju" | xargs -t -n 1 -I % stack exec juvix -- parse % -b "michelson"
 
 test-typecheck: build
-	find test/examples/demo -name "*.ju" | xargs -t -n 1 -I % stack exec juvix typecheck %
+	find test/examples/demo -name "*.ju" | xargs -t -n 1 -I % stack exec juvix -- typecheck % -b "michelson"
 
 test-compile: build
-	find test/examples/demo -name "*.ju" | xargs -n 1 -I % basename % .ju | xargs -t -n 1 -I % stack exec juvix compile test/examples/demo/%.ju test/examples/demo/%.tz
+	find test/examples/demo -name "*.ju" | xargs -n 1 -I % basename % .ju | xargs -t -n 1 -I % stack exec juvix -- compile test/examples/demo/%.ju test/examples/demo/%.tz -b "michelson"
 	rm test/examples/demo/*.tz
 
 bench:
@@ -72,5 +72,8 @@ clean:
 
 clean-full:
 	stack clean --full
+
+stack-yaml:
+	ros -Q scripts/yaml-generator.lisp
 
 .PHONY: all setup build build-libff build-z3 build-watch build-prod lint format org-gen test test-parser test-typecheck test-compile repl-lib repl-exe clean clean-full bench build-format

@@ -10,6 +10,7 @@ module Juvix.Library.Parser.Token
     hash,
     backSlash,
     quote,
+    doubleQuote,
     pipe,
     equals,
     at,
@@ -18,6 +19,7 @@ module Juvix.Library.Parser.Token
     bang,
     amper,
     times,
+    exp,
     backtick,
     div,
     percent,
@@ -41,7 +43,7 @@ where
 import qualified Data.Set as Set
 import Data.Word8 (isDigit)
 import qualified GHC.Unicode as Unicode
-import Juvix.Library hiding (div, hash, maybe, option, takeWhile)
+import Juvix.Library hiding (div, exp, hash, maybe, option, takeWhile)
 
 charToWord8 :: Char -> Word8
 charToWord8 = fromIntegral . ord
@@ -103,6 +105,9 @@ backSlash = charToWord8 '\\'
 quote :: Word8
 quote = charToWord8 '\''
 
+doubleQuote :: Word8
+doubleQuote = charToWord8 '\"'
+
 pipe :: Word8
 pipe = charToWord8 '|'
 
@@ -127,6 +132,9 @@ amper = charToWord8 '&'
 times :: Word8
 times = charToWord8 '*'
 
+exp :: Word8
+exp = charToWord8 '^'
+
 backtick :: Word8
 backtick = charToWord8 '`'
 
@@ -147,6 +155,7 @@ validInfixSymbol :: Word8 -> Bool
 validInfixSymbol w =
   Unicode.isSymbol (wordToChr w)
     || w == times
+    || w == exp
     || w == dash
     || w == amper
     || w == colon

@@ -8,7 +8,6 @@ module Juvix.Core.IR.CheckTerm
   )
 where
 
-import qualified Data.HashMap.Strict as HashMap
 import qualified Data.IntMap.Strict as IntMap
 import Data.List.NonEmpty ((<|))
 import qualified Juvix.Core.Application as App
@@ -21,12 +20,11 @@ import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library hiding (Datatype)
 import qualified Juvix.Library.Usage as Usage
 
-data Leftovers a
-  = Leftovers
-      { loValue :: a,
-        loLocals :: UContext,
-        loPatVars :: PatUsages
-      }
+data Leftovers a = Leftovers
+  { loValue :: a,
+    loLocals :: UContext,
+    loPatVars :: PatUsages
+  }
   deriving (Eq, Show, Generic)
 
 leftoversOk :: Leftovers a -> Bool
