@@ -30,6 +30,8 @@ import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 import Prelude (Show (..))
+import Debug.Pretty.Simple ( pTraceShow ) 
+-- import qualified Juvix.Backends.Plonk.Compiler as Compiler
 
 isBool :: PrimTy f -> Bool
 isBool PBool = True
@@ -171,7 +173,7 @@ toTakes App.Return {retType, retTerm} = (fun, [], arityRaw retTerm)
 fromReturn :: Return' ext f -> PrimVal' ext f
 fromReturn = identity
 
-instance App.IsParamVar ext => Core.CanApply (PrimVal' ext f) where
+instance (App.IsParamVar ext, Show f) => Core.CanApply (PrimVal' ext f) where
   type ApplyErrorExtra (PrimVal' ext f) = ApplyError f
 
   type Arg (PrimVal' ext f) = Arg' ext f
@@ -200,8 +202,36 @@ instance App.IsParamVar ext => Core.CanApply (PrimVal' ext f) where
               Right $ App.Cont {fun, args = toList args, numLeft = 0}
           GT -> Left $ Core.ExtraArguments fun' args2
 
-applyProper :: Take f -> NonEmpty (Take f) -> Either (ApplyError f) (Return' ext f)
-applyProper fun args = panic "Apply proper not implemented"
+applyProper :: Show f => Take f -> NonEmpty (Take f) -> Either (ApplyError f) (Return' ext f)
+applyProper fun args = pTraceShow ("ApplyProper", fun, args) panic "Apply proper not implemented"
+--   where
+--     fun' = takeToTerm fun
+--     args' = takeToTerm <$> toList args
+--     newTerm = Run.applyPrimOnArgs fun' args'
+--     -- TODO ∷ do something with the logs!?
+--     (compd, _log) = Compiler.compileTerm    newTerm
+
+
+-- applyPrimOnArgs :: Types.Term -> [Types.Term] -> Types.Term
+-- applyPrimOnArgs prim arguments =
+--   let newTerm = Ann.AppM prim arguments
+--       retType = Utils.piToReturnType (Ann.type' prim)
+--    in Ann.Ann one retType newTerm
+
+
+-- applyProper fun args =
+--   case compd >>= Interpreter.dummyInterpret of
+--     Right x -> do
+--       retType <- toPrimType $ ErasedAnn.type' newTerm
+--       pure $ App.Return {retType, retTerm = Constant x}
+--     Left err -> Left $ CompilationError err
+--   where
+--     fun' = takeToTerm fun
+--     args' = takeToTerm <$> toList args
+--     newTerm = Run.applyPrimOnArgs fun' args'
+--     -- TODO ∷ do something with the logs!?
+--     (compd, _log) = Compilation.compileExpr newTerm
+
 
 instance Eval.HasWeak (PrimTy f) where weakBy' _ _ t = t
 
