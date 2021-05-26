@@ -32,10 +32,10 @@ import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 import Prelude (Show (..))
 import Debug.Pretty.Simple ( pTraceShow ) 
-import qualified Juvix.Backends.Plonk.Compiler as Compiler
-import qualified Juvix.Backends.Plonk.Circuit as Circuit
-import qualified Juvix.Backends.Plonk.Builder as Builder
-import qualified Juvix.Backends.Plonk.Circuit.Assignment as Circuit
+-- import qualified Juvix.Backends.Plonk.Compiler as Compiler
+-- import qualified Juvix.Backends.Plonk.Circuit as Circuit
+-- import qualified Juvix.Backends.Plonk.Builder as Builder
+-- import qualified Juvix.Backends.Plonk.Circuit.Assignment as Circuit
 
 
 
@@ -209,17 +209,26 @@ instance (App.IsParamVar ext, Show f, Integral f) => Core.CanApply (PrimVal' ext
           GT -> Left $ Core.ExtraArguments fun' args2
 
 applyProper :: (Show f, Integral f) => Take f -> NonEmpty (Take f) -> Either (ApplyError f) (Return' ext f)
-applyProper fun args = pTraceShow ("ApplyProper", fun, args) $ case compd of
-    Left err -> panic $ "Error on applyProper: " -- <> show err
-    Right v -> do
+applyProper fun@App.Take {usage, type', term} args = pTraceShow ("ApplyProper", fun, args) $  do
       retType <- toPrimType $ CoreErased.type' newTerm
-      pure $ App.Return {retType, retTerm = PConst $ Circuit.evalAffineCircuit Circuit.lookupAtWire (Circuit.initialAssignment mempty) v}
+      pure $ App.Return {
+          retType, 
+          retTerm = applyTerm term (App.term <$> args)
+      }
   where
     fun' = takeToTerm fun
     args' = takeToTerm <$> toList args
     newTerm = applyPrimOnArgs fun' args'
+    applyTerm f as = case f of
+      PExp -> 
+        let (PConst x:PConst y:_) = NonEmpty.toList as
+        in PConst $ x ^ y
+
+
+      
+      --foldl' (\acc a@App.Take{term} -> acc term) f as
     -- TODO ∷ do something with the logs!?
-    (compd, _circuit) = Builder.runCircuitBuilder $ Compiler.compileTerm newTerm mempty mempty 
+    -- circuit = Builder.execCircuitBuilder $ Compiler.compileTermWithWire newTerm 
 
 -- | Given a type, translate it to a type in the Plonk backend.
 toPrimType :: CoreErased.Type (PrimTy f) -> Either (ApplyError f) (Param.PrimType (PrimTy f))
