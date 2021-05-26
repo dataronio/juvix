@@ -202,7 +202,7 @@ applyProper fun args =
 
 -- | Translate a 'Take' into a 'Term'.
 takeToTerm :: Take -> Types.AnnTerm
-takeToTerm (App.Take {usage, type', term}) =
+takeToTerm App.Take {usage, type', term} =
   ErasedAnn.Ann {usage, type' = Prim.fromPrimType type', term = ErasedAnn.Prim term}
 
 -- | Given a type, translate it to a type in the Michelson backend.

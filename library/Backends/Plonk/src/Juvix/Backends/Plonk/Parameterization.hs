@@ -20,10 +20,11 @@ import Data.Field.Galois (GaloisField (..))
 import qualified Data.List.NonEmpty as NonEmpty
 import Juvix.Backends.Plonk.Types as Types
 import qualified Juvix.Core.Application as App
-import qualified Juvix.Core.ErasedAnn.Types as ErasedAnn
+import qualified Juvix.Core.ErasedAnn.Types as CoreErased
 import qualified Juvix.Core.IR.Evaluator as Eval
 import qualified Juvix.Core.IR.Types.Base as IR
 import qualified Juvix.Core.Parameterisation as Param
+import qualified Juvix.Core.ErasedAnn.Prim as Prim
 import qualified Juvix.Core.Types as Core
 import Juvix.Library hiding (many, show, try)
 import qualified Juvix.Library.HashMap as Map
@@ -31,7 +32,12 @@ import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 import Prelude (Show (..))
 import Debug.Pretty.Simple ( pTraceShow ) 
--- import qualified Juvix.Backends.Plonk.Compiler as Compiler
+import qualified Juvix.Backends.Plonk.Compiler as Compiler
+import qualified Juvix.Backends.Plonk.Circuit as Circuit
+import qualified Juvix.Backends.Plonk.Builder as Builder
+import qualified Juvix.Backends.Plonk.Circuit.Assignment as Circuit
+
+
 
 isBool :: PrimTy f -> Bool
 isBool PBool = True
@@ -118,7 +124,7 @@ instance Core.CanApply (PrimTy f) where
 
 data ApplyError f
   = CompilationError CompilationError
-  | ReturnTypeNotPrimitive (ErasedAnn.Type (PrimTy f))
+  | ReturnTypeNotPrimitive (CoreErased.Type (PrimTy f))
 
 instance Show f => Show (ApplyError f) where
   show (CompilationError perr) = show perr
@@ -173,7 +179,7 @@ toTakes App.Return {retType, retTerm} = (fun, [], arityRaw retTerm)
 fromReturn :: Return' ext f -> PrimVal' ext f
 fromReturn = identity
 
-instance (App.IsParamVar ext, Show f) => Core.CanApply (PrimVal' ext f) where
+instance (App.IsParamVar ext, Show f, Integral f) => Core.CanApply (PrimVal' ext f) where
   type ApplyErrorExtra (PrimVal' ext f) = ApplyError f
 
   type Arg (PrimVal' ext f) = Arg' ext f
@@ -202,21 +208,40 @@ instance (App.IsParamVar ext, Show f) => Core.CanApply (PrimVal' ext f) where
               Right $ App.Cont {fun, args = toList args, numLeft = 0}
           GT -> Left $ Core.ExtraArguments fun' args2
 
-applyProper :: Show f => Take f -> NonEmpty (Take f) -> Either (ApplyError f) (Return' ext f)
-applyProper fun args = pTraceShow ("ApplyProper", fun, args) panic "Apply proper not implemented"
---   where
---     fun' = takeToTerm fun
---     args' = takeToTerm <$> toList args
---     newTerm = Run.applyPrimOnArgs fun' args'
---     -- TODO ∷ do something with the logs!?
---     (compd, _log) = Compiler.compileTerm    newTerm
+applyProper :: (Show f, Integral f) => Take f -> NonEmpty (Take f) -> Either (ApplyError f) (Return' ext f)
+applyProper fun args = pTraceShow ("ApplyProper", fun, args) $ case compd of
+    Left err -> panic $ "Error on applyProper: " -- <> show err
+    Right v -> do
+      retType <- toPrimType $ CoreErased.type' newTerm
+      pure $ App.Return {retType, retTerm = PConst $ Circuit.evalAffineCircuit Circuit.lookupAtWire (Circuit.initialAssignment mempty) v}
+  where
+    fun' = takeToTerm fun
+    args' = takeToTerm <$> toList args
+    newTerm = applyPrimOnArgs fun' args'
+    -- TODO ∷ do something with the logs!?
+    (compd, _circuit) = Builder.runCircuitBuilder $ Compiler.compileTerm newTerm mempty mempty 
 
+-- | Given a type, translate it to a type in the Plonk backend.
+toPrimType :: CoreErased.Type (PrimTy f) -> Either (ApplyError f) (Param.PrimType (PrimTy f))
+toPrimType ty = maybe err Right $ go ty
+  where
+    err = Left $ ReturnTypeNotPrimitive ty
+    go ty = goPi ty <|> (pure <$> goPrim ty)
+    goPi (CoreErased.Pi _ s t) = NonEmpty.cons <$> goPrim s <*> go t
+    goPi _ = Nothing
+    goPrim (CoreErased.PrimTy p) = Just p
+    goPrim _ = Nothing
 
--- applyPrimOnArgs :: Types.Term -> [Types.Term] -> Types.Term
--- applyPrimOnArgs prim arguments =
---   let newTerm = Ann.AppM prim arguments
---       retType = Utils.piToReturnType (Ann.type' prim)
---    in Ann.Ann one retType newTerm
+applyPrimOnArgs :: Types.AnnTerm f -> [Types.AnnTerm f] -> Types.AnnTerm f
+applyPrimOnArgs prim arguments =
+  let newTerm = CoreErased.AppM prim arguments
+      retType = CoreErased.piToReturnType (CoreErased.type' prim)
+   in CoreErased.Ann one retType newTerm
+
+-- | Translate a 'Take' into a 'Term'.
+takeToTerm :: Take f -> Types.AnnTerm f
+takeToTerm App.Take {usage, type', term} =
+  CoreErased.Ann {usage, type' = Prim.fromPrimType type', term = CoreErased.Prim term}
 
 
 -- applyProper fun args =

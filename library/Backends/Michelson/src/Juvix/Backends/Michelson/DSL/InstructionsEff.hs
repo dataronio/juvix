@@ -145,7 +145,7 @@ inst (CoreErased.Ann _usage ty t) =
 applyPrimOnArgs :: Types.AnnTerm -> [Types.AnnTerm] -> Types.AnnTerm
 applyPrimOnArgs prim arguments =
   let newTerm = CoreErased.AppM prim arguments
-      retType = Utils.piToReturnType (CoreErased.type' prim)
+      retType = CoreErased.piToReturnType (CoreErased.type' prim)
    in CoreErased.Ann one retType newTerm
 
 add,
@@ -222,7 +222,7 @@ lambda captures arguments body type'
     throw @"compilationError" $ Types.InvalidInputType "usages/arguments mismatch"
   where
     usages =
-      Utils.usageFromType type'
+      CoreErased.usageFromType type'
     annotatedArgs =
       zipWith Env.Term arguments usages
 
@@ -663,7 +663,7 @@ constructApplication ::
   CoreErased.AnnTerm Types.PrimTy primVal ->
   m (CoreErased.AnnTerm Types.PrimTy primVal)
 constructApplication CoreErased.Ann {type', term = CoreErased.LamM {body, arguments}}
-  | length (Utils.piToListTy type') == 1 = do
+  | length (CoreErased.piToListTy type') == 1 = do
     -- register the value on the stack
     -- ASSUMES unqiue naming
     consVar arg1 Env.Nop usage bound
@@ -671,7 +671,7 @@ constructApplication CoreErased.Ann {type', term = CoreErased.LamM {body, argume
   | otherwise =
     error "unsupported: lambda going through multiple arguments"
   where
-    (usage, bound) : _ = Utils.piToList type'
+    (usage, bound) : _ = CoreErased.piToList type'
     arg1 : _ = arguments
 constructApplication _ = error "unsupported: consturctionApplication on non lambda"
 
@@ -776,7 +776,7 @@ apply closure args remainingArgs = do
           -- caputred  ≡ totalLength ≡ | caputreNames | ≡ | tyList |
           (captured, left) = splitAt (fromIntegral totalLength) (Env.argsLeft closure)
           captureNames = fmap Env.name captured
-          tyList = take (length captured) (Utils.piToListTy (Env.ty closure))
+          tyList = take (length captured) (CoreErased.piToListTy (Env.ty closure))
           con =
             Env.C
               { Env.left = remaining,
@@ -849,7 +849,7 @@ apply closure args remainingArgs = do
     -- as this exclusive works on the Curried type
     app =
       Env.ty closure
-        |> Utils.piToListTy
+        |> CoreErased.piToListTy
         -- we do a reversing ritual as we wish to type the
         -- remaining argument after
         |> reverse
@@ -1098,7 +1098,7 @@ promoteLambda (Env.C fun argsLeft left captures ty) = do
   curr <- get @"stack"
   -- Step 2: Figure out what the stack will be in the body of the function.
   -- Note: these lets are dropping usages the lambda consumes.
-  let listOfArgsType = Utils.piToListTy ty
+  let listOfArgsType = CoreErased.piToListTy ty
       Just returnType = lastMay listOfArgsType
       termList = reverse $ zip listOfArgsType argsLeft
       stackLeft = VStack.take (length captures) curr
