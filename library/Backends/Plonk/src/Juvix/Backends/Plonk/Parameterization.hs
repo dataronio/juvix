@@ -1,5 +1,4 @@
 {-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -Wwarn=incomplete-patterns #-}
 
 module Juvix.Backends.Plonk.Parameterization
   ( hasType,
@@ -13,6 +12,7 @@ module Juvix.Backends.Plonk.Parameterization
     toTakes,
     fromReturn,
     applyProper,
+    evalTerm
   )
 where
 
@@ -179,7 +179,7 @@ toTakes App.Return {retType, retTerm} = (fun, [], arityRaw retTerm)
 fromReturn :: Return' ext f -> PrimVal' ext f
 fromReturn = identity
 
-instance (App.IsParamVar ext, Show f, Integral f) => Core.CanApply (PrimVal' ext f) where
+instance (App.IsParamVar ext, Show f, Integral f, Fractional f) => Core.CanApply (PrimVal' ext f) where
   type ApplyErrorExtra (PrimVal' ext f) = ApplyError f
 
   type Arg (PrimVal' ext f) = Arg' ext f
@@ -208,27 +208,41 @@ instance (App.IsParamVar ext, Show f, Integral f) => Core.CanApply (PrimVal' ext
               Right $ App.Cont {fun, args = toList args, numLeft = 0}
           GT -> Left $ Core.ExtraArguments fun' args2
 
-applyProper :: (Show f, Integral f) => Take f -> NonEmpty (Take f) -> Either (ApplyError f) (Return' ext f)
+applyProper :: (Show f, Integral f, Fractional f) => Take f -> NonEmpty (Take f) -> Either (ApplyError f) (Return' ext f)
 applyProper fun@App.Take {usage, type', term} args = pTraceShow ("ApplyProper", fun, args) $  do
       retType <- toPrimType $ CoreErased.type' newTerm
       pure $ App.Return {
           retType, 
-          retTerm = applyTerm term (App.term <$> args)
+          retTerm = PConst $ evalTerm term (NonEmpty.toList $ App.term <$> args)
       }
   where
     fun' = takeToTerm fun
     args' = takeToTerm <$> toList args
     newTerm = applyPrimOnArgs fun' args'
-    applyTerm f as = case f of
-      PExp -> 
-        let (PConst x:PConst y:_) = NonEmpty.toList as
-        in PConst $ x ^ y
 
+evalBinOp ::(Fractional f, Integral f) => PrimVal f -> f -> f -> f 
+evalBinOp op x y = case op of
+  PAdd ->  x + y 
+  PSub ->  x - y 
+  PMul ->  x * y 
+  PDiv ->  x / y
+  PExp ->  x ^ y
+  PMod ->  x `mod` y 
+  PAnd -> if x == 0 || y == 0 then 0 else 1
+  POr -> if x == 0 then y else x
+  PXor -> if (x == 0 && y /= 0) || (x /= 0 && y == 0) then 1 else 0
+  PGt -> if x > y then 1 else 0
+  PGte -> if x >= y then 1 else 0
+  PLt -> if x < y then 1 else 0
+  PLte -> if x <= y then 1 else 0
+  PEq -> if x == y then 1 else 0 
 
-      
-      --foldl' (\acc a@App.Take{term} -> acc term) f as
-    -- TODO ∷ do something with the logs!?
-    -- circuit = Builder.execCircuitBuilder $ Compiler.compileTermWithWire newTerm 
+evalTerm :: (Fractional f, Integral f) => PrimVal f -> [PrimVal f] -> f
+evalTerm val vals = case val of
+  PConst f -> f
+  _ | (PConst x:PConst y:_) <- vals -> evalBinOp val x y
+  _ | (PConst x:_) <- vals -> panic "TODO: Implement evalUnOp" --evalUnOp val x y
+  _ -> panic "Not implemented"
 
 -- | Given a type, translate it to a type in the Plonk backend.
 toPrimType :: CoreErased.Type (PrimTy f) -> Either (ApplyError f) (Param.PrimType (PrimTy f))
@@ -251,21 +265,6 @@ applyPrimOnArgs prim arguments =
 takeToTerm :: Take f -> Types.AnnTerm f
 takeToTerm App.Take {usage, type', term} =
   CoreErased.Ann {usage, type' = Prim.fromPrimType type', term = CoreErased.Prim term}
-
-
--- applyProper fun args =
---   case compd >>= Interpreter.dummyInterpret of
---     Right x -> do
---       retType <- toPrimType $ ErasedAnn.type' newTerm
---       pure $ App.Return {retType, retTerm = Constant x}
---     Left err -> Left $ CompilationError err
---   where
---     fun' = takeToTerm fun
---     args' = takeToTerm <$> toList args
---     newTerm = Run.applyPrimOnArgs fun' args'
---     -- TODO ∷ do something with the logs!?
---     (compd, _log) = Compilation.compileExpr newTerm
-
 
 instance Eval.HasWeak (PrimTy f) where weakBy' _ _ t = t
 

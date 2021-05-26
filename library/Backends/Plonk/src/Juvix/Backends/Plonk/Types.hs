@@ -15,6 +15,9 @@ module Juvix.Backends.Plonk.Types
     Return',
     PrimTy (..),
     PrimVal (..),
+    isConst,
+    isBinOp,
+    -- isUnOp
   )
 where
 
@@ -24,6 +27,26 @@ import qualified Juvix.Core.IR.Types as IR
 import qualified Juvix.Core.Parameterisation as P
 import Juvix.Library hiding (Type)
 
+isConst :: PrimVal f -> Bool
+isConst (PConst _) = True
+isConst _ = False
+
+isBinOp :: PrimVal f -> Bool
+isBinOp = \case
+  PAdd -> True 
+  PSub -> True
+  PMul -> True
+  PDiv -> True
+  PExp -> True
+  PMod -> True
+  PAnd -> True
+  POr -> True
+  PXor -> True
+  PGt -> True
+  PGte -> True
+  PLt -> True
+  PLte -> True
+  PEq -> True
 data PrimVal f
   = PConst f
   | -- UnOps
