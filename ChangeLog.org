@@ -1,4 +1,17 @@
 * Changelog for Juvix
+
+** 0.1.0.4
+- _Changes to =Library/Sexp.hs=_
+  + Adds documentation to all functions
+  + Changes =Sexp.flatten= to be a full flatten
+  + Fixes a small bug in =Sexp.foldr1= where it behaves poorly with
+    dotted lists
+    * Tests the new behavior
+  + Adds dotted list syntax to the show.
+    #+begin_src haskell
+      λ> (Cons (atom "hi") (atom "hi"))
+      ("hi" . "hi")
+    #+end_src
 ** 0.1.0.3
 - Change: over =Juvix.Contextify.Passes= structure to use the
   S-expression generator instead of matching on the syntax directly
