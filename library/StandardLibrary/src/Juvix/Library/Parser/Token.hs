@@ -195,7 +195,9 @@ reservedWords =
       "declare",
       "where",
       "via",
-      "handler"
+      "handler",
+      "eff",
+      "op"
     ]
 
 reservedSymbols :: (Ord a, IsString a) => Set a

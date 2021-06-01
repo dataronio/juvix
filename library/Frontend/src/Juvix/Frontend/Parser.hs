@@ -458,6 +458,21 @@ nameParser =
     <|> Types.Concrete <$> prefixSymbol
 
 --------------------------------------------------
+-- Effect definition parser
+--------------------------------------------------
+
+effP :: Parser Types.Eff
+effP = do
+  reserved "eff"
+  name <- prefixSymbolSN
+  Types.Eff name <$> effDataParser
+
+effDataParser :: Parser Types.EffBody
+effDataParser =
+  P.try (Types.Op <$> (P.optional (skipLiner J.pipe) *> J.sepBy1H opParser (skipLiner J.pipe)))
+    <|> (Types.Ret <$> retParser)
+
+--------------------------------------------------
 -- Arrow Type parser
 --------------------------------------------------
 

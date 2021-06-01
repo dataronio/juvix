@@ -24,6 +24,7 @@ allParserTests =
       fun1,
       fun2,
       handler,
+      doNotation,
       sumTypeTest,
       superArrowCase,
       typeTest,
@@ -350,6 +351,14 @@ handler =
           |> AST.Hand
           |> AST.Handler
       ]
+
+doNotation :: T.TestTree
+doNotation =
+  shouldParseAs
+    "do notation"
+    Parser.parse
+    "print 1 ; return x"
+    $ undefined
 
 --------------------------------------------------------------------------------
 -- Type tests
