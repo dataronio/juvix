@@ -342,19 +342,6 @@ newtype Do
   = Do'' (NonEmpty DoBody)
   deriving (Show, Read, Eq)
 
-newtype Impure
-  = Imp (NonEmpty ImpureBody)
-  deriving (Show, Read, Eq)
-
-data ImpureBody = ImpBody
-  {
-    impBodyName :: Maybe Symbol,
-    impBodyExpr :: Expression
-  }
-  deriving (Show, Read, Eq)
-
-
-
 -- promote this to a match!!!
 data DoBody = DoBody
   { doBodyName :: Maybe Symbol,

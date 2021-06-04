@@ -23,7 +23,6 @@ allParserTests =
       sigTest2,
       fun1,
       fun2,
-      handler,
       sumTypeTest,
       superArrowCase,
       typeTest,
@@ -50,7 +49,12 @@ allParserTests =
       caseOfWords,
       questionMarktest,
       bangtest,
-      removeNewLineNextToNewline
+      removeNewLineNextToNewline,
+      handler,
+      effect,
+      fullEffect,
+      ret,
+      via_
     ]
 
 infixTests :: T.TestTree
@@ -378,7 +382,7 @@ via_ :: T.TestTree
 via_ = shouldParseAs
   "effect application"
   Parser.parse
-  "let foo = print via prog"
+  "let foo = prog via print"
   $ AST.NoHeader [AST.Function (AST.Func (AST.Like {functionLikedName = "foo", functionLikeArgs = [], functionLikeBody = AST.Body (AST.Application (AST.App {applicationName = AST.Name ("print" :| []), applicationArgs = AST.Name ("prog" :| []) :| []}))}))]
 
 handler :: T.TestTree
