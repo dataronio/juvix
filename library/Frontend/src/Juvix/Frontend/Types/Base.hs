@@ -10,7 +10,7 @@
 --           =ArrowGen= and not in =NamedType=
 module Juvix.Frontend.Types.Base where
 
-import Juvix.Library hiding (Data, Product, Sum, Type, Handler)
+import Juvix.Library hiding (Data, Handler, Product, Sum, Type)
 import qualified Juvix.Library.Usage as Usage
 
 type ConstructorName = NameSymb
@@ -347,13 +347,10 @@ newtype Impure
   deriving (Show, Read, Eq)
 
 data ImpureBody = ImpBody
-  {
-    impBodyName :: Maybe Symbol,
+  { impBodyName :: Maybe Symbol,
     impBodyExpr :: Expression
   }
   deriving (Show, Read, Eq)
-
-
 
 -- promote this to a match!!!
 data DoBody = DoBody
