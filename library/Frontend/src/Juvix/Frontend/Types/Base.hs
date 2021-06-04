@@ -27,6 +27,7 @@ data TopLevel
   | Module Module
   | Function Function
   | Handler Handler
+  | Effect Effect
   | Declaration Declaration
   | TypeClass
   | TypeClassInstance
@@ -150,6 +151,29 @@ data NameType = NameType'
   deriving (Show, Read, Eq)
 
 --------------------------------------------------------------------------------
+-- Effect Handlers
+--------------------------------------------------------------------------------
+
+data Effect = Eff
+  { effName :: Symbol,
+    effOps :: [Signature],
+    effRet :: Signature
+  }
+  deriving (Show, Read, Eq)
+
+data Operation = Op (FunctionLike Expression)
+  deriving (Show, Read, Eq)
+
+--  A 'Handler', as implemented here, is a set of functions that implement
+-- (at least) one `Effect` interface.
+-- However, Handlers are NOT scoped, meaning that they can't be defined
+-- defined within another function. We CAN fix that, but it requires
+-- us to make some choices, it's wise to have Witch up and running first.
+data Handler
+  = Hand Symbol [Operation] Operation
+  deriving (Show, Read, Generic, Eq)
+
+--------------------------------------------------------------------------------
 -- Functions And Modules
 --------------------------------------------------------------------------------
 -- was a newtype
@@ -223,20 +247,6 @@ data Signature = Sig
   deriving (Show, Read, Eq)
 
 --------------------------------------------------------------------------------
--- Handler
---------------------------------------------------------------------------------
-
--- 'Handler' is just like a regular function, but it is meant to also
--- contain perform effects. Handlers are meant to be used with Witch
--- primarily
--- However, Handlers are NOT scoped, meaning that they can't be defined
--- defined within another function. We CAN fix that, but it requires
--- us to make some choices, it's wise to have Witch up and running first.
-data Handler
-  = Hand (FunctionLike Expression)
-  deriving (Show, Read, Generic, Eq)
-
---------------------------------------------------------------------------------
 -- Type Classes
 --------------------------------------------------------------------------------
 
@@ -264,8 +274,6 @@ data Expression
   | Infix Infix
   | ExpRecord ExpRecord
   | Do Do
-  | Impure Impure
-  | Operation Operation
   | -- Added due to merge
     ArrowE ArrowExp
   | NamedTypeE NamedType
@@ -345,20 +353,7 @@ data ImpureBody = ImpBody
   }
   deriving (Show, Read, Eq)
 
-data Operation = Op
-  {
-    operations :: NonEmpty OpBody,
-    return :: OpBody
-  }
-  deriving (Show, Read, Eq)
 
-data OpBody = OpBody
-  {
-    opNames :: [NameSymb],
-    opCont :: Expression,
-    opBody :: Expression
-  }
-  deriving (Show, Read, Eq)
 
 -- promote this to a match!!!
 data DoBody = DoBody

@@ -37,7 +37,8 @@ top =
       primitiveTest,
       condTest,
       caseTest,
-      handlerTest
+      handlerTest,
+      effectTest
     ]
 
 --------------------------------------------------------------------------------
@@ -395,20 +396,39 @@ caseTest =
         \    ((A (B (:record (a) (b)))) (:infix + a b)) \
         \    ((A (B c) (C d))           (:infix + c d))))"
 
+--------------------------------------------------------------------------------
+-- Effects
+--------------------------------------------------------------------------------
+
 handlerTest :: T.TestTree
 handlerTest =
   T.testGroup
-    "handler parser"
+    "handler sexp parser"
     [ T.testCase "basic" (basic T.@=? basicExpected)
     ]
   where
     basic =
       Parser.parse
-        "handler foo y = y "
+        "handler print where op print x = print x , return x = toString x"
         |> singleEleErr
     basicExpected =
       Sexp.parse
-        "(:defhandler foo (y) y)"
+        "(:defhandler print (:ops (:defop print (x) (print x))) (:defop return (x) (toString x)))"
+
+effectTest :: T.TestTree
+effectTest =
+  T.testGroup
+    "effect sexp parser"
+    [ T.testCase "basic" (basic T.@=? basicExpected)
+    ]
+  where
+    basic =
+      Parser.parse
+        "effect Print where op print : string -> unit , return : x -> string"
+        |> singleEleErr
+    basicExpected =
+      Sexp.parse
+        "(:defeff Print (:ops (print (:infix -> string unit))) (return (:infix -> x string)))"
 
 --------------------------------------------------------------------------------
 -- Helpers

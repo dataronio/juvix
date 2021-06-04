@@ -3,8 +3,7 @@
 -- to simple macro expansion (simplification of the frontend syntax
 -- from the syntax alone with no extra information needed!)
 module Juvix.Desugar
-  ( op,
-  )
+  ( op )
 where
 
 import qualified Juvix.Desugar.Passes as Pass
@@ -26,5 +25,3 @@ op syn =
     |> Pass.multipleTransDefun
     |> Pass.combineSig
     >>| Pass.removePunnedRecords
-    >>| Pass.translateDo
-

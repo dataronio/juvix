@@ -6,7 +6,6 @@
 -- - Conds ⟶ If ⟶ Match
 -- - Combining signatures to functions
 -- - Removing punned record arguments
--- - Remvoing Do syntax
 module Juvix.Desugar.Passes
   ( moduleTransform,
     condTransform,
@@ -14,7 +13,6 @@ module Juvix.Desugar.Passes
     multipleTransDefun,
     combineSig,
     multipleTransLet,
-    translateDo,
     removePunnedRecords,
     moduleLetTransform,
   )
@@ -259,46 +257,6 @@ combineSig [] = []
 -- Misc transformations
 ------------------------------------------------------------
 
--- | @translateDo@ - removes the do syntax from the frontend syntax
--- - Input BNF:
---   + (:do
---       (%<- name-1 body-1)
---       body-2
---       body-3
---       …
---       (%<- name-n body-n)
---       return)
--- - Output BNF:
---   + (Prelude.>>= body-1
---        (lambda (name-1)
---          (Prelude.>> body-2
---             (Prelude.>> body-n
---                (… (Prelude.>>= body-n (lambda (name-n) return)))))))
-translateDo :: Sexp.T -> Sexp.T
-translateDo xs = Sexp.foldPred xs (== Structure.nameDo) doToBind
-  where
-    doToBind atom sexp =
-      Sexp.foldr generation acc (Sexp.butLast sexp)
-        |> Sexp.addMetaToCar atom
-      where
-        acc =
-          let last = Sexp.last sexp
-           in case last |> Structure.toArrow of
-                -- toss away last %<-... we should likely throw a warning for this
-                Just arr -> arr ^. body
-                Nothing -> last
-        generation bodyOf acc =
-          case Structure.toArrow bodyOf of
-            Just arr ->
-              Sexp.list
-                [ Sexp.atom "Prelude.>>=",
-                  arr ^. body,
-                  Structure.Lambda (Sexp.list [arr ^. name]) acc
-                    |> Structure.fromLambda
-                ]
-            Nothing ->
-              Sexp.list [Sexp.atom "Prelude.>>", bodyOf, acc]
-
 -- | @removePunnedRecords@ - removes the record puns from the syntax to
 -- have an uniform a-list
 -- - BNF input:
@@ -396,35 +354,6 @@ moduleLetTransform xs = Sexp.foldPred xs (== Structure.nameLetModule) moduleToRe
 -- | @combine@ - is the helper for transforming top level statements
 -- into expressions
 combine :: Sexp.T -> Sexp.T -> Sexp.T
-<<<<<<< HEAD
-combine (form Sexp.:> name Sexp.:> args Sexp.:> body Sexp.:> Sexp.Nil) expression
-  | Sexp.isAtomNamed form ":defun" =
-    -- we crunch the xs in a list
-    Sexp.list [Sexp.atom "let", name, args, body, expression]
-combine (form Sexp.:> name Sexp.:> args Sexp.:> body Sexp.:> Sexp.Nil) expression
-  | Sexp.isAtomNamed form ":defhandler" =
-    Sexp.list [Sexp.atom "let", name, args, body, expression]
-combine (form Sexp.:> name Sexp.:> xs) expression
-  | Sexp.isAtomNamed form "type" =
-    Sexp.list [Sexp.atom ":let-type", name, xs, expression]
-combine (form Sexp.:> name Sexp.:> xs Sexp.:> Sexp.Nil) expression
-  | Sexp.isAtomNamed form ":defsig" =
-    Sexp.list [Sexp.atom ":let-sig", name, xs, expression]
-combine (form Sexp.:> declaration) expression
-  | Sexp.isAtomNamed form "declare" =
-    Sexp.list [Sexp.atom ":declaim", declaration, expression]
-combine (Sexp.List [form, open]) expression
-  | Sexp.isAtomNamed form "open" =
-    Sexp.list [Sexp.atom ":open-in", open, expression]
-combine (form Sexp.:> name Sexp.:> args Sexp.:> xs) expression
-  | Sexp.isAtomNamed form ":defmodule" =
-    -- Turn this into a let-module
-    if
-        | Sexp.isAtomNamed (Sexp.car xs) ":cond" ->
-          Sexp.list [Sexp.atom ":let-mod", name, args, Sexp.car xs, expression]
-        | otherwise ->
-          Sexp.list [Sexp.atom ":let-mod", name, args, xs, expression]
-=======
 combine form expression
   | Just defun <- Structure.toDefun form =
     Structure.Let (defun ^. name) (defun ^. args) (defun ^. body) expression
@@ -449,8 +378,6 @@ combine form expression
           | otherwise = mod ^. body
      in Structure.LetModule (mod ^. name) (mod ^. args) newBody expression
           |> Structure.fromLetModule
->>>>>>> 624f4f960c451dc2c43c127c9530846d350582fd
--- ignore other forms
 combine _ expression = expression
 
 -- | @ignoreCond@ gets past the annoying cond cells for modules
@@ -478,18 +405,10 @@ names body = Sexp.foldr grabNames [] body |> Set.fromList |> Set.toList
 -- | @grabNames@ - responsible for grabbing the names out of top levels
 grabNames :: Sexp.T -> [Sexp.Atom] -> [Sexp.Atom]
 grabNames (form Sexp.:> name Sexp.:> _) acc
-<<<<<<< HEAD
-  | Sexp.isAtomNamed form ":defun"
-      || Sexp.isAtomNamed form ":defhandler"
-      || Sexp.isAtomNamed form "type"
-      || Sexp.isAtomNamed form ":defmodule"
-      || Sexp.isAtomNamed form ":defsig",
-=======
   | Sexp.isAtomNamed form Structure.nameDefun
       || Sexp.isAtomNamed form Structure.nameType
       || Sexp.isAtomNamed form Structure.nameDefModule
       || Sexp.isAtomNamed form Structure.nameSignature,
->>>>>>> 624f4f960c451dc2c43c127c9530846d350582fd
     Just name <- Sexp.atomFromT name =
     name : acc
   | Sexp.isAtomNamed form Structure.nameType,

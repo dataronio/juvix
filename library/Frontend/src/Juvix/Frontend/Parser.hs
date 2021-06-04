@@ -94,10 +94,11 @@ topLevel =
   P.try (Types.Type <$> typeP)
     <|> P.try fun
     <|> P.try modT
-    <|> P.try hand
+    <|> P.try (Types.Handler <$> handlerParser)
     <|> P.try (Types.ModuleOpen <$> moduleOpen)
     <|> P.try (Types.Signature <$> signature')
     <|> P.try (Types.Declaration <$> declaration)
+    <|> P.try (Types.Effect <$> effParser)
 
 expressionGen' ::
   Parser Types.Expression -> Parser Types.Expression
@@ -135,7 +136,7 @@ app'' :: Parser Types.Expression
 app'' = Types.Application <$> P.try application
 
 all'' :: Parser Types.Expression
-all'' = P.try do''' <|> app''
+all'' = P.try do''' <|> app'' <|> (Types.Application <$> P.try via_)
 
 expressionGen :: Parser Types.Expression -> Parser Types.Expression
 expressionGen p =
@@ -345,12 +346,7 @@ fun = functionModStartReserved "let" func
       genGuard n a expression
         >>| Types.Function . Types.Func
 
-hand ::  Parser Types.TopLevel
-hand = functionModStartReserved "handler" func
-  where
-    func n a =
-      genGuard n a expression
-        >>| Types.Handler . Types.Hand
+
 
 modT :: Parser Types.TopLevel
 modT = functionModStartReserved "mod" mod
@@ -458,19 +454,62 @@ nameParser =
     <|> Types.Concrete <$> prefixSymbol
 
 --------------------------------------------------
--- Effect definition parser
+-- Effect handler parser
 --------------------------------------------------
 
-effP :: Parser Types.Eff
-effP = do
-  reserved "eff"
+handlerParser :: Parser Types.Handler
+handlerParser = do
+  reserved "handler"
   name <- prefixSymbolSN
-  Types.Eff name <$> effDataParser
+  reserved "where"
+  ops <- P.sepEndBy opParser (skipLiner J.comma)
+  ret <- retParser
+  pure $ Types.Hand name ops ret
 
-effDataParser :: Parser Types.EffBody
-effDataParser =
-  P.try (Types.Op <$> (P.optional (skipLiner J.pipe) *> J.sepBy1H opParser (skipLiner J.pipe)))
-    <|> (Types.Ret <$> retParser)
+opParser :: Parser Types.Operation
+opParser = Types.Op <$>
+  functionModStartReserved
+    "op"
+    ( \name args -> do
+        guard <- guard expression
+        pure (Types.Like name args guard)
+    )
+
+retParser :: Parser Types.Operation
+retParser = Types.Op <$> do
+  reserved "return"
+  args <- P.many argSN
+  guard <- guard expression
+  pure (Types.Like "return" args guard)
+
+effParser :: Parser Types.Effect
+effParser = do
+  reserved "effect"
+  name <- prefixSymbolSN
+  reserved "where"
+  ops <- P.sepEndBy (opSig "op") (skipLiner J.comma)
+  ret <- opSig "return"
+  pure $ Types.Eff { effName = name, effOps = ops, effRet = ret }
+
+opSig :: ByteString -> Parser Types.Signature
+opSig res = do
+  reserved res
+  name <- prefixSymbolSN <|> pure "return"
+  maybeUsage <-
+    P.optional (fmap Types.Constant constantSN <|> spaceLiner (J.parens expressionSN))
+  skipLiner J.colon
+  typeclasses <- signatureConstraintSN
+  exp <- expression
+  pure (Types.Sig name maybeUsage exp typeclasses)
+
+
+via_ :: Parser Types.Application
+via_ = do
+    args <- J.many1H (spaceLiner expressionArguments)
+    reserved "via"
+    name <- spaceLiner (expressionGen' (fail ""))
+    pure (Types.App name args)
+
 
 --------------------------------------------------
 -- Arrow Type parser
@@ -681,7 +720,7 @@ infixSymbolGen p = do
 infixSymbolDot :: Parser (NonEmpty Symbol)
 infixSymbolDot = do
   qualified <- P.option [] (NonEmpty.toList <$> prefixSymbolDotPermissive <* P.char J.dot)
-  -- -o is a bit special since it's a normal letter
+  -- -o is are a bit special since it's a normal letter
   -- this is a bit of a hack
   infix' <- P.try ("-o" <$ P.string "-o") <|> P.try infixSymbol
   pure (NonEmpty.fromList (qualified <> [infix']))

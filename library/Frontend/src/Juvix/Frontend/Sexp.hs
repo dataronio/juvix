@@ -13,7 +13,8 @@ transTopLevel Types.TypeClassInstance = Sexp.atom ":instance"
 transTopLevel (Types.Declaration i) = Sexp.atom "declare" Sexp.:> transDeclaration i
 transTopLevel (Types.Signature sig) = Sexp.atom ":defsig" Sexp.:> transSig sig
 transTopLevel (Types.Function f) = transDefun f
-transTopLevel (Types.Handler h) = transLetHand h
+transTopLevel (Types.Effect eff) = transEffect eff
+transTopLevel (Types.Handler h) = transHand h
 transTopLevel (Types.Module m) = transModule m
 transTopLevel Types.TypeClass = Sexp.atom ":type-class"
 transTopLevel (Types.Type t) = transType t
@@ -146,10 +147,6 @@ transDefun (Types.Func like) = Sexp.list [Sexp.atom ":defun", name, args, body]
   where
     (name, args, body) = transLike False transExpr like
 
-transLetHand :: Types.Handler -> Sexp.T
-transLetHand (Types.Hand like) = Sexp.list [Sexp.atom ":defhandler", name, args, body]
-  where
-    (name, args, body) = transLike False transExpr like
 
 transLetType :: Types.LetType -> Sexp.T
 transLetType (Types.LetType'' bindings body) =
@@ -190,6 +187,31 @@ transGuardBody :: Bool -> (a -> Sexp.T) -> Types.GuardBody a -> Sexp.T
 transGuardBody _alsee trans (Types.Body b) = trans b
 transGuardBody False trans (Types.Guard c) = transCond trans c
 transGuardBody True transs (Types.Guard c) = transCondMultiple transs c
+
+
+--------------------------------------------------------------------------------
+-- Effect Expansion
+--------------------------------------------------------------------------------
+
+transHand :: Types.Handler -> Sexp.T
+transHand (Types.Hand name ops ret) =
+  Sexp.list [ Sexp.atom ":defhandler",
+              Sexp.atom (NameSymbol.fromSymbol name),
+              Sexp.listStar [Sexp.atom ":ops", Sexp.list (fmap transOperation ops)],
+              transOperation ret
+             ]
+
+transEffect :: Types.Effect -> Sexp.T
+transEffect Types.Eff {effName, effOps, effRet} =
+  Sexp.list [Sexp.atom ":defeff",
+             Sexp.atom (NameSymbol.fromSymbol effName),
+             Sexp.listStar [Sexp.atom ":ops", Sexp.list (fmap transSig effOps) ],
+             transSig effRet]
+
+transOperation :: Types.Operation -> Sexp.T
+transOperation (Types.Op like) = Sexp.list [Sexp.atom ":defop", name, args, body]
+  where
+    (name, args, body) = transLike False transExpr like
 
 --------------------------------------------------------------------------------
 -- Match Expansion

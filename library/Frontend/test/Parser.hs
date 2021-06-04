@@ -24,7 +24,6 @@ allParserTests =
       fun1,
       fun2,
       handler,
-      doNotation,
       sumTypeTest,
       superArrowCase,
       typeTest,
@@ -336,36 +335,87 @@ fun2 =
           |> AST.Function
       ]
 
-handler :: T.TestTree
-handler =
+-- --------------------------------------------------------------------------------
+-- -- Effect Testing
+-- --------------------------------------------------------------------------------
+
+effect :: T.TestTree
+effect =
   shouldParseAs
-    "handler"
+    "effect definition"
     Parser.parse
-    "handler foo y = y"
+    "effect Pure where return : x -> string"
+    $ AST.NoHeader [AST.Effect (AST.Eff {effName = "Pure", effOps = [], effRet = AST.Sig {signatureName = "return", signatureUsage = Nothing, signatureArrowType = AST.Infix (AST.Inf {infixLeft = AST.Name ("x" :| []), infixOp = "->" :| [], infixRight = AST.Name ("string" :| [])}), signatureConstraints = []}})]
+
+fullEffect :: T.TestTree
+fullEffect =
+  shouldParseAs
+    "effect full definition"
+    Parser.parse
+    "effect Print where op print : string -> unit , return : x -> string"
+    $ AST.NoHeader [AST.Effect (AST.Eff {effName = "Print", effOps = [AST.Sig {signatureName = "print", signatureUsage = Nothing, signatureArrowType = AST.Infix (AST.Inf {infixLeft = AST.Name ("string" :| []), infixOp = "->" :| [], infixRight = AST.Name ("unit" :| [])}), signatureConstraints = []}], effRet = AST.Sig {signatureName = "return", signatureUsage = Nothing, signatureArrowType = AST.Infix (AST.Inf {infixLeft = AST.Name ("x" :| []), infixOp = "->" :| [], infixRight = AST.Name ("string" :| [])}), signatureConstraints = []}})]
+
+ret :: T.TestTree
+ret = shouldParseAs
+    "effect handler of pure effect"
+    Parser.parse
+    "handler pureEff where return x = toString x"
     $ AST.NoHeader
-      [ AST.Name "y"
-          |> AST.Body
-          |> AST.Like
-            "foo"
-            [ AST.ConcreteA (AST.MatchLogic (AST.MatchName "y") Nothing) ]
-          |> AST.Hand
-          |> AST.Handler
+      [ AST.Name ("x" :| []) :| []
+        |> AST.App (AST.Name ("toString" :| []))
+        |> AST.Application
+        |> AST.Body
+        |> AST.Like "return"
+           [ AST.MatchLogic (AST.MatchName "x") Nothing
+             |> AST.ConcreteA
+           ]
+        |> AST.Op
+        |> AST.Hand "pureEff" []
+        |> AST.Handler
       ]
 
-doNotation :: T.TestTree
-doNotation =
-  shouldParseAs
-    "do notation"
+via_ :: T.TestTree
+via_ = shouldParseAs
+  "effect application"
+  Parser.parse
+  "print via prog"
+  $ AST.NoHeader [AST.Function (AST.Func (AST.Like {functionLikedName = "foo", functionLikeArgs = [], functionLikeBody = AST.Body (AST.Application (AST.App {applicationName = AST.Name ("print" :| []), applicationArgs = AST.Name ("prog" :| []) :| []}))}))]
+
+handler :: T.TestTree
+handler = shouldParseAs
+    "effect handler with op"
     Parser.parse
-    "print 1 ; return x"
-    $ undefined
+    "handler print where op print x = print x , return x = toString x"
+    $ AST.NoHeader
+      [ AST.Name ("x" :| []) :| []
+        |> AST.App (AST.Name ("toString" :| []))
+        |> AST.Application
+        |> AST.Body
+        |> AST.Like "return"
+           [ AST.MatchLogic (AST.MatchName "x") Nothing
+             |> AST.ConcreteA
+           ]
+        |> AST.Op
+        |> AST.Hand "print"
+                   [ AST.Name ("x" :| []) :| []
+                       |> AST.App ("print" :| [] |> AST.Name)
+                       |> AST.Application
+                       |> AST.Body
+                       |> AST.Like "print"
+                         [ AST.MatchLogic (AST.MatchName "x") Nothing
+                           |> AST.ConcreteA
+                         ]
+                       |> AST.Op
+                   ]
+        |> AST.Handler
+      ]
 
 --------------------------------------------------------------------------------
 -- Type tests
 --------------------------------------------------------------------------------
 
 --------------------------------------------------
--- adt testing
+-- ADT testing
 --------------------------------------------------
 
 sumTypeTest :: T.TestTree
