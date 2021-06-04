@@ -196,7 +196,7 @@ reservedWords =
       "where",
       "via",
       "handler",
-      "eff",
+      "effect",
       "op"
     ]
 

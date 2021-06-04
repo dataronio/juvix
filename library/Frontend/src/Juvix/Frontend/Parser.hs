@@ -720,7 +720,7 @@ infixSymbolGen p = do
 infixSymbolDot :: Parser (NonEmpty Symbol)
 infixSymbolDot = do
   qualified <- P.option [] (NonEmpty.toList <$> prefixSymbolDotPermissive <* P.char J.dot)
-  -- -o is are a bit special since it's a normal letter
+  -- -o is a bit special since it's a normal letter
   -- this is a bit of a hack
   infix' <- P.try ("-o" <$ P.string "-o") <|> P.try infixSymbol
   pure (NonEmpty.fromList (qualified <> [infix']))

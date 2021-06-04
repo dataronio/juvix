@@ -52,7 +52,4 @@ fixity "<" = nonAssoc 4
 fixity "<=" = nonAssoc 4
 fixity ">" = nonAssoc 4
 fixity ">=" = nonAssoc 4
-
--- other constructs
-fixity "via" = application
 fixity _ = default'
