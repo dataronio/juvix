@@ -378,7 +378,7 @@ via_ :: T.TestTree
 via_ = shouldParseAs
   "effect application"
   Parser.parse
-  "print via prog"
+  "let foo = print via prog"
   $ AST.NoHeader [AST.Function (AST.Func (AST.Like {functionLikedName = "foo", functionLikeArgs = [], functionLikeBody = AST.Body (AST.Application (AST.App {applicationName = AST.Name ("print" :| []), applicationArgs = AST.Name ("prog" :| []) :| []}))}))]
 
 handler :: T.TestTree
