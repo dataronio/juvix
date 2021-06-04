@@ -1,17 +1,16 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-
 -- | Closure.T serves as the data structure in which we will store
 -- temporary lexical bindings as our code encounters binders.
 module Juvix.Core.Common.Closure where
 
 import qualified Data.HashSet as Set
+import Data.Hashable (Hashable (..), hash)
 import qualified Juvix.Core.Common.Context as Context
 import Juvix.Library
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Sexp as Sexp
-import Data.Hashable (Hashable(..), hash)
 
 -- Currently we don't really use the signature however in the future
 -- the mSig will be used to detect the types of modules we will have
@@ -57,4 +56,4 @@ empty = T Map.empty
 insertHash :: T -> (Symbol, T)
 insertHash info =
   let name = intern . show $ hash info
-  in (name, insertGeneric name info)
+   in (name, insertGeneric name info)

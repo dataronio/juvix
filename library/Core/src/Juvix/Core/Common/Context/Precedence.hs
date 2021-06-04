@@ -13,10 +13,8 @@ module Juvix.Core.Common.Context.Precedence
 where
 
 import Data.Data
-import Juvix.Library (Eq, Int, Show, Symbol, Generic)
-import Data.Hashable (Hashable(..), hash)
-
-
+import Data.Hashable (Hashable (..), hash)
+import Juvix.Library (Eq, Generic, Int, Show, Symbol)
 
 data Associativity
   = Left
@@ -28,8 +26,8 @@ data Precedence = Pred Associativity Int
   deriving (Eq, Show, Data, Generic)
 
 instance Hashable Associativity where
-  hash Left     = 1
-  hash Right    = 2
+  hash Left = 1
+  hash Right = 2
   hash NonAssoc = 3
 
 instance Hashable Precedence where

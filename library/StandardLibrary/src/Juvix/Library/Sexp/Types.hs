@@ -1,18 +1,18 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE DeriveGeneric #-}
 
 module Juvix.Library.Sexp.Types where
 
 import Control.Lens hiding (List, (:>), (|>))
+import Data.Hashable ()
 import Juvix.Library hiding (foldr, show, toList)
 import qualified Juvix.Library.LineNum as LineNum
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Prelude (Show (..), String)
-import Data.Hashable()
 
 -- TODO ∷ make Atom generic, and have it conform to an interface?
 -- This way we can erase information later!
@@ -43,9 +43,9 @@ instance Hashable Atom where
   hash (N {atomNum, atomLineNum}) = hash (hash atomNum, hash atomLineNum)
 
 instance Hashable T where
-  hash (Atom atom)           = hash atom
-  hash Nil                   = 1
-  hash (Cons {tCar, tCdr})   = hash (hash tCar, hash tCdr)
+  hash (Atom atom) = hash atom
+  hash Nil = 1
+  hash (Cons {tCar, tCdr}) = hash (hash tCar, hash tCdr)
 
 makeLensesWith camelCaseFields ''Atom
 
