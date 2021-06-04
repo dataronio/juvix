@@ -349,7 +349,14 @@ effect =
     "effect definition"
     Parser.parse
     "effect Pure where return : x -> string"
-    $ AST.NoHeader [AST.Effect (AST.Eff {effName = "Pure", effOps = [], effRet = AST.Sig {signatureName = "return", signatureUsage = Nothing, signatureArrowType = AST.Infix (AST.Inf {infixLeft = AST.Name ("x" :| []), infixOp = "->" :| [], infixRight = AST.Name ("string" :| [])}), signatureConstraints = []}})]
+    $ AST.NoHeader
+      [ AST.Name ("string" :| [])
+        |> AST.Inf (AST.Name ("x" :| [])) ("->" :| [])
+        |> AST.Infix
+        |> flip (AST.Sig "return" Nothing) []
+        |> AST.Eff "Pure" []
+        |> AST.Effect
+      ]
 
 fullEffect :: T.TestTree
 fullEffect =
@@ -357,7 +364,19 @@ fullEffect =
     "effect full definition"
     Parser.parse
     "effect Print where op print : string -> unit , return : x -> string"
-    $ AST.NoHeader [AST.Effect (AST.Eff {effName = "Print", effOps = [AST.Sig {signatureName = "print", signatureUsage = Nothing, signatureArrowType = AST.Infix (AST.Inf {infixLeft = AST.Name ("string" :| []), infixOp = "->" :| [], infixRight = AST.Name ("unit" :| [])}), signatureConstraints = []}], effRet = AST.Sig {signatureName = "return", signatureUsage = Nothing, signatureArrowType = AST.Infix (AST.Inf {infixLeft = AST.Name ("x" :| []), infixOp = "->" :| [], infixRight = AST.Name ("string" :| [])}), signatureConstraints = []}})]
+    $ AST.NoHeader
+      [ AST.Name ("string" :| [])
+        |> AST.Inf (AST.Name ("x" :| [])) ("->" :| [])
+        |> AST.Infix
+        |> flip (AST.Sig "return" Nothing) []
+        |> AST.Eff "Print"
+          [ AST.Name ("unit" :| [])
+            |> AST.Inf (AST.Name ("string" :| [])) ("->" :| [])
+            |> AST.Infix
+            |> flip (AST.Sig "print" Nothing) []
+          ]
+        |> AST.Effect
+      ]
 
 ret :: T.TestTree
 ret =
@@ -385,7 +404,15 @@ via_ = shouldParseAs
   "effect application"
   Parser.parse
   "let foo = prog via print"
-  $ AST.NoHeader [AST.Function (AST.Func (AST.Like {functionLikedName = "foo", functionLikeArgs = [], functionLikeBody = AST.Body (AST.Application (AST.App {applicationName = AST.Name ("print" :| []), applicationArgs = AST.Name ("prog" :| []) :| []}))}))]
+  $ AST.NoHeader
+    [ AST.Name ("prog" :| []) :| []
+      |> AST.App (AST.Name ("print" :| []))
+      |> AST.Application
+      |> AST.Body
+      |> AST.Like "foo" []
+      |> AST.Func
+      |> AST.Function
+    ]
 
 handler :: T.TestTree
 handler =
