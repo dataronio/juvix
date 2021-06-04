@@ -49,7 +49,12 @@ allParserTests =
       caseOfWords,
       questionMarktest,
       bangtest,
-      removeNewLineNextToNewline
+      removeNewLineNextToNewline,
+      handler,
+      effect,
+      fullEffect,
+      ret,
+      via_
     ]
 
 infixTests :: T.TestTree
@@ -334,12 +339,120 @@ fun2 =
           |> AST.Function
       ]
 
+-- --------------------------------------------------------------------------------
+-- -- Effect Testing
+-- --------------------------------------------------------------------------------
+
+effect :: T.TestTree
+effect =
+  shouldParseAs
+    "effect definition"
+    Parser.parse
+    "effect Pure where return : x -> string"
+    $ AST.NoHeader
+      [ AST.Name ("string" :| [])
+        |> AST.Inf (AST.Name ("x" :| [])) ("->" :| [])
+        |> AST.Infix
+        |> flip (AST.Sig "return" Nothing) []
+        |> AST.Eff "Pure" []
+        |> AST.Effect
+      ]
+
+fullEffect :: T.TestTree
+fullEffect =
+  shouldParseAs
+    "effect full definition"
+    Parser.parse
+    "effect Print where op print : string -> unit , return : x -> string"
+    $ AST.NoHeader
+      [ AST.Name ("string" :| [])
+        |> AST.Inf (AST.Name ("x" :| [])) ("->" :| [])
+        |> AST.Infix
+        |> flip (AST.Sig "return" Nothing) []
+        |> AST.Eff "Print"
+          [ AST.Name ("unit" :| [])
+            |> AST.Inf (AST.Name ("string" :| [])) ("->" :| [])
+            |> AST.Infix
+            |> flip (AST.Sig "print" Nothing) []
+          ]
+        |> AST.Effect
+      ]
+
+ret :: T.TestTree
+ret =
+  shouldParseAs
+    "effect handler of pure effect"
+    Parser.parse
+    "handler pureEff where return x = toString x"
+    $ AST.NoHeader
+      [ AST.Name ("x" :| []) :| []
+          |> AST.App (AST.Name ("toString" :| []))
+          |> AST.Application
+          |> AST.Body
+          |> AST.Like
+            "return"
+            [ AST.MatchLogic (AST.MatchName "x") Nothing
+                |> AST.ConcreteA
+            ]
+          |> AST.Op
+          |> AST.Hand "pureEff" []
+          |> AST.Handler
+      ]
+
+via_ :: T.TestTree
+via_ = shouldParseAs
+  "effect application"
+  Parser.parse
+  "let foo = prog via print"
+  $ AST.NoHeader
+    [ AST.Name ("prog" :| []) :| []
+      |> AST.App (AST.Name ("print" :| []))
+      |> AST.Application
+      |> AST.Body
+      |> AST.Like "foo" []
+      |> AST.Func
+      |> AST.Function
+    ]
+
+handler :: T.TestTree
+handler =
+  shouldParseAs
+    "effect handler with op"
+    Parser.parse
+    "handler print where op print x = print x , return x = toString x"
+    $ AST.NoHeader
+      [ AST.Name ("x" :| []) :| []
+          |> AST.App (AST.Name ("toString" :| []))
+          |> AST.Application
+          |> AST.Body
+          |> AST.Like
+            "return"
+            [ AST.MatchLogic (AST.MatchName "x") Nothing
+                |> AST.ConcreteA
+            ]
+          |> AST.Op
+          |> AST.Hand
+            "print"
+            [ AST.Name ("x" :| []) :| []
+                |> AST.App ("print" :| [] |> AST.Name)
+                |> AST.Application
+                |> AST.Body
+                |> AST.Like
+                  "print"
+                  [ AST.MatchLogic (AST.MatchName "x") Nothing
+                      |> AST.ConcreteA
+                  ]
+                |> AST.Op
+            ]
+          |> AST.Handler
+      ]
+
 --------------------------------------------------------------------------------
 -- Type tests
 --------------------------------------------------------------------------------
 
 --------------------------------------------------
--- adt testing
+-- ADT testing
 --------------------------------------------------
 
 sumTypeTest :: T.TestTree

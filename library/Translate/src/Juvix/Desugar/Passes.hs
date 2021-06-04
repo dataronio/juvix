@@ -6,7 +6,6 @@
 -- - Conds ⟶ If ⟶ Match
 -- - Combining signatures to functions
 -- - Removing punned record arguments
--- - Remvoing Do syntax
 module Juvix.Desugar.Passes
   ( moduleTransform,
     condTransform,
@@ -14,7 +13,6 @@ module Juvix.Desugar.Passes
     multipleTransDefun,
     combineSig,
     multipleTransLet,
-    translateDo,
     removePunnedRecords,
     moduleLetTransform,
   )
@@ -259,46 +257,6 @@ combineSig [] = []
 -- Misc transformations
 ------------------------------------------------------------
 
--- | @translateDo@ - removes the do syntax from the frontend syntax
--- - Input BNF:
---   + (:do
---       (%<- name-1 body-1)
---       body-2
---       body-3
---       …
---       (%<- name-n body-n)
---       return)
--- - Output BNF:
---   + (Prelude.>>= body-1
---        (lambda (name-1)
---          (Prelude.>> body-2
---             (Prelude.>> body-n
---                (… (Prelude.>>= body-n (lambda (name-n) return)))))))
-translateDo :: Sexp.T -> Sexp.T
-translateDo xs = Sexp.foldPred xs (== Structure.nameDo) doToBind
-  where
-    doToBind atom sexp =
-      Sexp.foldr generation acc (Sexp.butLast sexp)
-        |> Sexp.addMetaToCar atom
-      where
-        acc =
-          let last = Sexp.last sexp
-           in case last |> Structure.toArrow of
-                -- toss away last %<-... we should likely throw a warning for this
-                Just arr -> arr ^. body
-                Nothing -> last
-        generation bodyOf acc =
-          case Structure.toArrow bodyOf of
-            Just arr ->
-              Sexp.list
-                [ Sexp.atom "Prelude.>>=",
-                  arr ^. body,
-                  Structure.Lambda (Sexp.list [arr ^. name]) acc
-                    |> Structure.fromLambda
-                ]
-            Nothing ->
-              Sexp.list [Sexp.atom "Prelude.>>", bodyOf, acc]
-
 -- | @removePunnedRecords@ - removes the record puns from the syntax to
 -- have an uniform a-list
 -- - BNF input:
@@ -420,7 +378,6 @@ combine form expression
           | otherwise = mod ^. body
      in Structure.LetModule (mod ^. name) (mod ^. args) newBody expression
           |> Structure.fromLetModule
--- ignore other forms
 combine _ expression = expression
 
 -- | @ignoreCond@ gets past the annoying cond cells for modules

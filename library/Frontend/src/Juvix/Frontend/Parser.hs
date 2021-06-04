@@ -94,9 +94,11 @@ topLevel =
   P.try (Types.Type <$> typeP)
     <|> P.try fun
     <|> P.try modT
+    <|> P.try (Types.Handler <$> handlerParser)
     <|> P.try (Types.ModuleOpen <$> moduleOpen)
     <|> P.try (Types.Signature <$> signature')
     <|> P.try (Types.Declaration <$> declaration)
+    <|> P.try (Types.Effect <$> effParser)
 
 expressionGen' ::
   Parser Types.Expression -> Parser Types.Expression
@@ -134,7 +136,7 @@ app'' :: Parser Types.Expression
 app'' = Types.Application <$> P.try application
 
 all'' :: Parser Types.Expression
-all'' = P.try do''' <|> app''
+all'' = P.try do''' <|> app'' <|> (Types.Application <$> P.try via_)
 
 expressionGen :: Parser Types.Expression -> Parser Types.Expression
 expressionGen p =
@@ -448,6 +450,64 @@ nameParser :: Parser Types.Name
 nameParser =
   P.try (P.skipSome (P.char J.hash) *> fmap Types.Implicit prefixSymbol)
     <|> Types.Concrete <$> prefixSymbol
+
+--------------------------------------------------
+-- Effect handler parser
+--------------------------------------------------
+
+handlerParser :: Parser Types.Handler
+handlerParser = do
+  reserved "handler"
+  name <- prefixSymbolSN
+  reserved "where"
+  ops <- P.sepEndBy opParser (skipLiner J.comma)
+  ret <- retParser
+  pure $ Types.Hand name ops ret
+
+opParser :: Parser Types.Operation
+opParser =
+  Types.Op
+    <$> functionModStartReserved
+      "op"
+      ( \name args -> do
+          guard <- guard expression
+          pure (Types.Like name args guard)
+      )
+
+retParser :: Parser Types.Operation
+retParser =
+  Types.Op <$> do
+    reserved "return"
+    args <- P.many argSN
+    guard <- guard expression
+    pure (Types.Like "return" args guard)
+
+effParser :: Parser Types.Effect
+effParser = do
+  reserved "effect"
+  name <- prefixSymbolSN
+  reserved "where"
+  ops <- P.sepEndBy (opSig "op") (skipLiner J.comma)
+  ret <- opSig "return"
+  pure $ Types.Eff {effName = name, effOps = ops, effRet = ret}
+
+opSig :: ByteString -> Parser Types.Signature
+opSig res = do
+  reserved res
+  name <- prefixSymbolSN <|> pure "return"
+  maybeUsage <-
+    P.optional (fmap Types.Constant constantSN <|> spaceLiner (J.parens expressionSN))
+  skipLiner J.colon
+  typeclasses <- signatureConstraintSN
+  exp <- expression
+  pure (Types.Sig name maybeUsage exp typeclasses)
+
+via_ :: Parser Types.Application
+via_ = do
+  args <- J.many1H (spaceLiner expressionArguments)
+  reserved "via"
+  name <- spaceLiner (expressionGen' (fail ""))
+  pure (Types.App name args)
 
 --------------------------------------------------
 -- Arrow Type parser
