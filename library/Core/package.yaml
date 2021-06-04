@@ -28,6 +28,7 @@ dependencies:
 - dlist
 - hashable
 - pretty-simple
+- pretty-compact
 - mtl
 
 default-extensions:

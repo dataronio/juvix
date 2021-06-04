@@ -35,7 +35,7 @@ dependencies:
   - frontend
   - core
   - translate
-  - ANF-IR
+  # - ANF-IR
   - michelson
   - plonk
   - EasyPipeline
@@ -65,7 +65,7 @@ dependencies:
   ###########################
   - morley
   ###########################
-  # Dependency for debugging 
+  # Dependency for debugging
   ###########################
   - pretty-simple
 
