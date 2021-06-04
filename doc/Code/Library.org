@@ -1837,7 +1837,6 @@ done with no extra information needed. Thus we export the following passes
 - Conds ⟶ If ⟶ Match
 - Combining signatures to functions
 - Removing punned record arguments
-- Remvoing Do syntax
 - _Relies on_
   + [[Library]]
   + [[Library/Sexp]]
