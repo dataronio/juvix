@@ -1,4 +1,3 @@
-;;; ----------------------------------------------------------------------
 ;;; Dependencies for YAML generation
 ;;; ----------------------------------------------------------------------
 
@@ -61,6 +60,11 @@
 ;; --------------------------------------
 ;; Stadnard Library Style Dependencies
 ;; --------------------------------------
+
+(defparameter *prettiest*
+  (make-dependency-github :name "jyp/prettiest"
+                          :commit "e5ce6cd6b4da71860c3d97da84bed4a827fa00ef"))
+
 
 (defparameter *capability*
   (string->dep-sha "capability-0.4.0.0@sha256:d86d85a1691ef0165c77c47ea72eac75c99d21fb82947efe8b2f758991cf1837,3345"))
@@ -242,13 +246,25 @@
 ;; stack-yaml for the YAML helpers
 ;; -----------------------------------
 
-(defun make-general-depencies (&rest deps)
+;; TODO ∷ deprecate this when we have dependencies imply other
+;; dependencies we should bring in
+(defparameter *standard-library-extra-deps*
+  (merge-group
+   (make-groups
+    :comment "Standard Library Extra Dependency"
+    :deps nil)
+   *tasty-silver*)
+  "Extra dependencies for the standard library")
+
+
+(defun make-general-dependencies (&rest deps)
   (make-groups :comment "General Dependencies" :deps deps))
 
 (defun big-dep-list (&key (plonk nil))
   "For the packages with lots of dependecies, these tend to be the
 common ones to include"
-  (list (make-general-depencies *capability*
+  (list (make-general-dependencies *capability*
+                                *prettiest*
                                 *extensible*
                                 *aeson-options*
                                 *un-exceptionalio*
@@ -256,7 +272,7 @@ common ones to include"
         *llvm-hs-extra-deps*
         *withdraw*
         *graph-visualizer*
-        *tasty-silver*
+        *standard-library-extra-deps*
         *morley-sub-deps*
         (make-groups
          :comment "For special deps that are similar to Michelson but not quite the same"
@@ -275,7 +291,7 @@ common ones to include"
 (defparameter *standard-library*
   (make-stack-yaml
    :name "StandardLibrary"
-   :extra-deps (list (make-general-depencies *capability*))))
+   :extra-deps (list (make-general-dependencies *capability* *prettiest*) *standard-library-extra-deps*)))
 
 (defparameter *frontend*
   (make-stack-yaml
@@ -283,21 +299,22 @@ common ones to include"
    :resolver   17.9
    :name       "Frontend"
    :packages   (list *standard-library*)
-   :extra-deps (list (make-general-depencies *capability*))))
+   :extra-deps (list (make-general-dependencies *capability* *prettiest*) *standard-library-extra-deps*)))
 
 (defparameter *core*
   (make-stack-yaml
    :name       "Core"
    :packages   (list *standard-library*)
-   :extra-deps (list (make-general-depencies *capability* *extensible*)
-                     *eac-solver*)))
+   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+                      *standard-library-extra-deps*
+                      *eac-solver*)))
 
 (defparameter *translate*
   (make-stack-yaml
    :name "Translate"
    :packages   (list *core* *frontend* *standard-library*)
-   :extra-deps (list (make-general-depencies *capability* *extensible*)
-                     *tasty-silver*
+   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+                     *standard-library-extra-deps*
                      *eac-solver*)))
 
 (defparameter *interaction-net*
@@ -305,7 +322,8 @@ common ones to include"
    :name       "InteractionNet"
    :resolver   17.9
    :packages   (list *standard-library* *core*)
-   :extra-deps (list (make-general-depencies *capability* *extensible*)
+   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+                     *standard-library-extra-deps*
                      *interaction-net-extra-deps*
                      *graph-visualizer*
                      *eac-solver*)
@@ -316,7 +334,7 @@ common ones to include"
    :name       "InteractionNetIR"
    :resolver   17.9
    :packages   (list *standard-library* *core*)
-   :extra-deps (list (make-general-depencies *capability* *extensible*)
+   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *eac-solver*)))
 
 (defparameter *LLVM*
@@ -325,29 +343,21 @@ common ones to include"
    :resolver 17.9
    :path-to-other "../../"
    :packages (list *standard-library* *core* *interaction-net*)
-   :extra-deps (list (make-general-depencies *capability* *extensible*)
+   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *llvm-hs-deps*
                      *llvm-hs-extra-deps*
                      *eac-solver*
+                     *standard-library-extra-deps*
                      *interaction-net-extra-deps*)
    :extra "allow-newer: true"))
 
 ;; Define these before pipeline due to mutual recursion
-(defparameter *Michelson*
-  (make-stack-yaml
-   :name "Backends/Michelson"))
-
-(defparameter *plonk*
-  (make-stack-yaml :name "Backends/Plonk"))
-
 (defparameter *Pipeline*
   (make-stack-yaml
    :packages (list *standard-library*
                    *frontend*
                    *core*
-                   *translate*
-                   *michelson*
-                   *plonk*)
+                   *translate*)
    ;; hack name, for sub dirs
    :name "Pipeline"
    :extra-deps (big-dep-list)
@@ -363,14 +373,15 @@ common ones to include"
                         ;; have left it unable to build. I think due to cyclic dependencies
                         *translate*
                         *frontend*)
-   :extra-deps    (list (make-general-depencies *capability* *extensible*)
+   :extra-deps    (list (make-general-dependencies *capability* *extensible* *prettiest*)
                         *fmt-withdraw*
                         *eac-solver*
                         *morley-arithmetic-circuit-deps*
                         *morley-deps*
                         *morley-sub-deps*
                         *morley-sub-deps-extra*
-                        *graph-visualizer*)))
+                        *graph-visualizer*
+                        *standard-library-extra-deps*)))
 
 (defparameter *plonk*
   (make-stack-yaml
@@ -380,8 +391,7 @@ common ones to include"
                    *frontend*
                    *core*
                    *pipeline*
-                   *translate*
-                   *michelson*)
+                   *translate*)
    :extra-deps (big-dep-list :plonk t)
    :extra "allow-newer: true"))
 
