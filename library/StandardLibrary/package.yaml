@@ -30,7 +30,13 @@ dependencies:
 - word8
 - bytestring
 - mtl
+# Testing
+- directory
+- filepath
+- pretty-simple
 - pretty-compact
+- tasty
+- tasty-silver
 
 default-extensions:
   - BlockArguments
