@@ -147,7 +147,6 @@ transDefun (Types.Func like) = Sexp.list [Sexp.atom ":defun", name, args, body]
   where
     (name, args, body) = transLike False transExpr like
 
-
 transLetType :: Types.LetType -> Sexp.T
 transLetType (Types.LetType'' bindings body) =
   Sexp.list [Sexp.atom ":let-type", name, args, dat, transExpr body]
@@ -188,25 +187,27 @@ transGuardBody _alsee trans (Types.Body b) = trans b
 transGuardBody False trans (Types.Guard c) = transCond trans c
 transGuardBody True transs (Types.Guard c) = transCondMultiple transs c
 
-
 --------------------------------------------------------------------------------
 -- Effect Expansion
 --------------------------------------------------------------------------------
 
 transHand :: Types.Handler -> Sexp.T
 transHand (Types.Hand name ops ret) =
-  Sexp.list [ Sexp.atom ":defhandler",
-              Sexp.atom (NameSymbol.fromSymbol name),
-              Sexp.listStar [Sexp.atom ":ops", Sexp.list (fmap transOperation ops)],
-              transOperation ret
-             ]
+  Sexp.list
+    [ Sexp.atom ":defhandler",
+      Sexp.atom (NameSymbol.fromSymbol name),
+      Sexp.listStar [Sexp.atom ":ops", Sexp.list (fmap transOperation ops)],
+      transOperation ret
+    ]
 
 transEffect :: Types.Effect -> Sexp.T
 transEffect Types.Eff {effName, effOps, effRet} =
-  Sexp.list [Sexp.atom ":defeff",
-             Sexp.atom (NameSymbol.fromSymbol effName),
-             Sexp.listStar [Sexp.atom ":ops", Sexp.list (fmap transSig effOps) ],
-             transSig effRet]
+  Sexp.list
+    [ Sexp.atom ":defeff",
+      Sexp.atom (NameSymbol.fromSymbol effName),
+      Sexp.listStar [Sexp.atom ":ops", Sexp.list (fmap transSig effOps)],
+      transSig effRet
+    ]
 
 transOperation :: Types.Operation -> Sexp.T
 transOperation (Types.Op like) = Sexp.list [Sexp.atom ":defop", name, args, body]

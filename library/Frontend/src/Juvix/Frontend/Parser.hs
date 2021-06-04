@@ -346,8 +346,6 @@ fun = functionModStartReserved "let" func
       genGuard n a expression
         >>| Types.Function . Types.Func
 
-
-
 modT :: Parser Types.TopLevel
 modT = functionModStartReserved "mod" mod
   where
@@ -467,20 +465,22 @@ handlerParser = do
   pure $ Types.Hand name ops ret
 
 opParser :: Parser Types.Operation
-opParser = Types.Op <$>
-  functionModStartReserved
-    "op"
-    ( \name args -> do
-        guard <- guard expression
-        pure (Types.Like name args guard)
-    )
+opParser =
+  Types.Op
+    <$> functionModStartReserved
+      "op"
+      ( \name args -> do
+          guard <- guard expression
+          pure (Types.Like name args guard)
+      )
 
 retParser :: Parser Types.Operation
-retParser = Types.Op <$> do
-  reserved "return"
-  args <- P.many argSN
-  guard <- guard expression
-  pure (Types.Like "return" args guard)
+retParser =
+  Types.Op <$> do
+    reserved "return"
+    args <- P.many argSN
+    guard <- guard expression
+    pure (Types.Like "return" args guard)
 
 effParser :: Parser Types.Effect
 effParser = do
@@ -489,7 +489,7 @@ effParser = do
   reserved "where"
   ops <- P.sepEndBy (opSig "op") (skipLiner J.comma)
   ret <- opSig "return"
-  pure $ Types.Eff { effName = name, effOps = ops, effRet = ret }
+  pure $ Types.Eff {effName = name, effOps = ops, effRet = ret}
 
 opSig :: ByteString -> Parser Types.Signature
 opSig res = do
@@ -502,14 +502,12 @@ opSig res = do
   exp <- expression
   pure (Types.Sig name maybeUsage exp typeclasses)
 
-
 via_ :: Parser Types.Application
 via_ = do
-    args <- J.many1H (spaceLiner expressionArguments)
-    reserved "via"
-    name <- spaceLiner (expressionGen' (fail ""))
-    pure (Types.App name args)
-
+  args <- J.many1H (spaceLiner expressionArguments)
+  reserved "via"
+  name <- spaceLiner (expressionGen' (fail ""))
+  pure (Types.App name args)
 
 --------------------------------------------------
 -- Arrow Type parser
