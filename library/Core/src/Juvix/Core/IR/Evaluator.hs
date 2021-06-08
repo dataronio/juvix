@@ -7,6 +7,7 @@
 -- the substitution functions (`substV`).
 module Juvix.Core.IR.Evaluator
   ( inlineAllGlobals,
+    inlineAllGlobalsElim,
     evalTerm,
     NoExtensions,
     CanEval,
