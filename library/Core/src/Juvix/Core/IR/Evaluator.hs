@@ -112,7 +112,8 @@ inlineAllGlobalsElim ::
 inlineAllGlobalsElim t lookupFun patternMap =
   case t of
     Core.Bound {} -> t
-    Core.Free (Core.Global name) _ann -> fromMaybe t $ lookupFun name
+    Core.Free (Core.Global name) _ann ->
+      maybe t (\t' -> inlineAllGlobalsElim t' lookupFun patternMap) $ lookupFun name
     Core.Free (Core.Pattern i) _ -> fromMaybe t $ PM.lookup i patternMap >>= lookupFun
     Core.App elim term ann ->
       Core.App (inlineAllGlobalsElim elim lookupFun patternMap) (inlineAllGlobals term lookupFun patternMap) ann
