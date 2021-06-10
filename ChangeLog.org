@@ -1,4 +1,9 @@
 * Changelog for Juvix
+** 0.1.1.2
+- Simplifies: =Context=
+  + Adds: =mapWithName=, =mapSumWithName=, and =overTopLevelMap=
+  + Removes: the repeat =mapCurrentContext'= function and simplifies
+    the core logic by using the new functions
 ** 0.1.1.1
 - Adds a minimal llvm backend to the juvix compiler
 ** 0.1.1.0
@@ -43,16 +48,12 @@ the ANF pass.
 - Add validity predicate examples in the don't work test directories
 ** 0.1.0.8
 - Add =Show= instances for extended =Term= and =Elim= types
-
 ** 0.1.0.7
-  + Fix checking of Π types
-
+- Fix checking of Π types
 ** 0.1.0.6
-  + Add Golden tests
-
+- Add Golden tests
 ** 0.1.0.5
-- Split the =stack.yeaml= generator into many files
-
+- Split the =stack.yaml= generator into many files
 ** 0.1.0.4
 - _Changes to =Library/Sexp.hs=_
   + Adds documentation to all functions
@@ -90,3 +91,4 @@ the ANF pass.
 - Changelog created.
 - Documentation around how to bump the changelog in the contributors
   guide.
+
