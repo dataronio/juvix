@@ -172,7 +172,7 @@
            "monoidal-containers-0.6.0.1@sha256:7d776942659eb4d70d8b8da5d734396374a6eda8b4622df9e61e26b24e9c8e40,2501"))))
 
 ;; --------------------------------------
-;; LLVM Extra Depenecy groups
+;; LLVM Extra Dependency groups
 ;; --------------------------------------
 
 (defparameter *llvm-hs-deps*
@@ -182,7 +182,7 @@
                       (make-dependency-bare :name "llvm-hs-pretty-0.9.0.0"))))
 
 ;; --------------------------------------
-;; Interaction Net Groups Depencenies
+;; Interaction Net Groups Dependencies
 ;; --------------------------------------
 
 (defparameter *interaction-net-extra-deps*
@@ -305,6 +305,14 @@ common ones to include"
                      *standard-library-extra-deps*
                      *eac-solver*)))
 
+(defparameter *anf*
+  (make-stack-yaml
+   :name "ANF"
+   :packages   (list *core* *frontend* *standard-library* *translate*)
+   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+                     *standard-library-extra-deps*
+                     *eac-solver*)))
+
 (defparameter *interaction-net*
   (make-stack-yaml
    :name       "InteractionNet"
@@ -413,9 +421,9 @@ common ones to include"
                    *michelson*
                    *easy-pipeline*
                    *plonk*
-                   *llvm*)
+                   *llvm*
+                   *anf*)
    :path-to-other "./library/"
    :extra-deps
    (cons *llvm-hs-deps* (big-dep-list))
    :extra "allow-newer: true"))
-
