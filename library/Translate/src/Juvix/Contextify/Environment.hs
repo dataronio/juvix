@@ -307,7 +307,6 @@ lambda (Sexp.List [arguments, body]) cont =
     pure $ Sexp.list [args, bod]
 lambda _ _ = error "malformed lambda"
 
-
 letType :: HasClosure m => Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
 letType (Sexp.List [assocName, args, dat, body]) cont = do
   local @"closure" closureUpdate $ do
