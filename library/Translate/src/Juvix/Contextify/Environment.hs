@@ -28,6 +28,7 @@ import qualified Juvix.Core.Common.NameSpace as NameSpace
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Sexp as Sexp
+import qualified Juvix.Sexp.Structure as Str
 import Prelude (error)
 
 data ErrorS
@@ -156,15 +157,15 @@ onExpression form trigger func =
 bindingForms :: (Eq a, IsString a) => a -> Bool
 bindingForms x =
   x
-    `elem` [ "type",
-             ":open-in",
-             ":let-type",
-             ":let-match",
-             "case",
-             ":lambda-case",
-             ":declaim",
-             ":lambda",
-             ":primitive"
+    `elem` [ Str.nameType,
+             Str.nameOpenIn,
+             Str.nameLetType,
+             Str.nameLetMatch,
+             Str.nameCase,
+             Str.nameLambdaCase,
+             Str.nameDeclaim,
+             Str.nameLambda,
+             Str.namePrimitive
            ]
 
 -- should really be moved out of here
