@@ -39,7 +39,7 @@ dependencies:
   - michelson
   - plonk
   - EasyPipeline
-  # - llvm
+  - llvm
   # - interaction-net
   # - InteractionNetIR
   ###########################
