@@ -2,34 +2,50 @@ module Juvix.ANF.Convert where
 
 import Juvix.Library
 import qualified Juvix.Library.Sexp as Sexp
+import qualified Juvix.Library.Sexp.Structure as Str
 import Juvix.ANF.IR
 
 convert :: Has2Closures m n => HandlerContext m n  -> HandlerContext m n
 convert sexp = Sexp.foldPred sexp isEffectful conv
   where
+    convVia = convertVia . mapViaStr . toVia
     conv atom cdr
-      | Sexp.isAtomNamed atom "handler" = fmap (Sexp.Cons cdr) (convertHandler atom)
-      | otherwise                       = error "something weird happened"
+      | Str.isVia    = fmap (Sexp.Cons cdr) (conVia atom)
+      | otherwise    = error "something weird happened"
 
--- at this point, continuations are only popped outta the stack
-convHandler :: Has2Closures m n => HandlerContext m n  -> HandlerContext m n
+-- convHandler :: Has2Closures m n => HandlerContext m n  -> HandlerContext m n
 convHandler prog = do
-  h <- get "pure"
-  k <- get "effectful"
-  return $ Sexp.list
-    [ Sexp.atom ":let-match",
+  pure $ Sexp.list
+    [ Sexp.atom Str.nameLetMatch,
       undefined,
       matchCases prog,
       forward prog
     ]
   where
-    matchCases prog = Sexp.list [ Sexp.atom ":lambda",
-                                  Sexp.list [ Sexp.atom ":as",
-                                              Sexp.atom (hash prog)]
+    matchCases prog
+      | Str.isOp  = undefined
+      | Str.isRet = undefined
+
+    forward prog = do
+      h <- get @"pure"
+      k <- get @"effectful"
+      h' <- get @"pure"
+      k' <- get @"effectful"
+      pure $ undefined
+
+-- convertDo :: Has2Closures m n => HandlerContext m n -> HandlerContext m n
+convertDo = do
+   h <- get @"pure"
+   k <- get @"effectful"
+   pure $ -- undefined l (V, \x -> k x h)
+
+
+convertVia { }
+
+
 
 -- vmap relays continuations to outer handlers if necessary
--- vmap ignores operations for now
--- TODO add operations to vmap
+-- vmap :: Has2Closures m n => HandlerContext m n -> HandlerContext m n
 vmap f val prog = do
-  h <- get "pure"
+  h <- get @"pure"
   return $ f val (\x -> k x) prog

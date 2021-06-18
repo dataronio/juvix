@@ -194,7 +194,8 @@ namedForms =
     ":defeff",
     ":defhandler",
     ":defop",
-    ":opsig"
+    ":opsig",
+    ":via"
   ]
 
 -- | @searchAndClosureNoCtx@ like searchAndClosure but does not rely on

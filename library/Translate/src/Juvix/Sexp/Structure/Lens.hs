@@ -40,3 +40,5 @@ Lens.makeLensesWith Lens.camelCaseFields ''LetModule
 Lens.makeLensesWith Lens.camelCaseFields ''DefHandler
 Lens.makeLensesWith Lens.camelCaseFields ''LetHandler
 Lens.makeLensesWith Lens.camelCaseFields ''Effect
+Lens.makeLensesWith Lens.camelCaseFields ''LetRet
+Lens.makeLensesWith Lens.camelCaseFields ''LetOp

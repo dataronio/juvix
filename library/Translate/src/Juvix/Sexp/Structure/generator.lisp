@@ -1,4 +1,4 @@
-;;; Hello, this is code that generators the functions in Structure.hs
+;;; Hello, this is code that generates the functions in Structure.hs
 ;;; Please ignore this file if you don't want to generate any more.
 ;;; However, if you want to generate more please provide a spec like
 
@@ -298,6 +298,8 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
 (generate-haskell "Case" '("sexp" "deconBody") "case" :list-star t)
 
+(generate-haskell "Do" '("sexp") ":do" :list-star t)
+
 (generate-haskell "Arrow" '("sexp" "sexp") "%<-")
 
 (generate-haskell "Lambda" '("sexp" "sexp") "lambda")
@@ -307,6 +309,8 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 (generate-haskell "NotPunned" '("sexp" "sexp") nil)
 
 (generate-haskell "Record" '("nameBind") ":record" :list-star t)
+
+(generate-haskell "Do" '("sexp") ":do" :list-star t)
 
 (generate-haskell "RecordNoPunned" '("notPunnedGroup") ":record-no-pun"
                   :list-star t
@@ -326,8 +330,12 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
 (generate-haskell "LetModule" (repeat 4 "sexp") ":let-mod")
 
-(generate-haskell "LetHandler" (repeat 2 "sexp") ":let-handler")
+(generate-haskell "LetHandler" (repeat 3 "sexp") ":let-handler")
 
 (generate-haskell "Effect" (repeat 2 "sexp") ":defeff")
 
-(generate-haskell "DefHandler" (repeat 3 "sexp") ":defHandler")
+(generate-haskell "DefHandler" (repeat 2 "sexp") ":defHandler")
+
+(generate-haskell "LetRet" (repeat 2 "sexp") ":let-return")
+
+(generate-haskell "LetOp" (repeat 2 "sexp") ":let-op")
