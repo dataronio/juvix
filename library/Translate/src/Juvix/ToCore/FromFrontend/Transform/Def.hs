@@ -21,6 +21,7 @@ import Juvix.ToCore.FromFrontend.Transform.Helpers
     lookupSig,
     splitDataType,
   )
+import Juvix.ToCore.FromFrontend.Transform.IR (transformTermIR)
 import Juvix.ToCore.Types
   ( CoreDef (..),
     CoreSig (..),
