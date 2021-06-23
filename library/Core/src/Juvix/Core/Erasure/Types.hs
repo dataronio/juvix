@@ -31,13 +31,22 @@ import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.PrettyPrint as PP
 import Juvix.Library.Usage (Usage)
 
+ -- | `MapPrim` seems to convert `p1` into `p2` given a list of names,
+ -- | not sure what it's supposed to abstract
+ -- TODO MapPrim should probably be re-written as `newtype`
 type MapPrim p1 p2 ty val =
   [NameSymbol.T] -> p1 -> Either (Error ty val) p2
 
+ -- | `Env` represents an environment Gamma of names
+ -- | parametised over 2 potentially different types and values
 data Env primTy1 primTy2 primVal1 primVal2 = Env
-  { nextName :: Int,
+  { -- | `nextName` is an iterator of names
+    nextName :: Int,
+    -- | `nameStack` maintains all names within the environment
     nameStack :: [NameSymbol.T],
+    -- | `mapPrimTy` maps a primitive type into a potentially different type
     mapPrimTy :: MapPrim primTy1 primTy2 primTy1 primVal1,
+    -- | `mapPrimVal` maps a primitive value into a potentially different value
     mapPrimVal :: MapPrim primVal1 primVal2 primTy1 primVal1
   }
   deriving (Generic)
