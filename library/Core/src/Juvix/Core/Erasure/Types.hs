@@ -89,6 +89,7 @@ newtype EnvT primTy1 primTy2 primVal1 primVal2 a
     (HasThrow "erasureError" (Error primTy1 primVal1))
     via MonadError (EnvEraAlias primTy1 primTy2 primVal1 primVal2)
 
+  -- | `exec` runs all the monads within `EnvEraAlias`
 exec ::
   MapPrim primTy1 primTy2 primTy1 primVal1 ->
   MapPrim primVal1 primVal2 primTy1 primVal1 ->
