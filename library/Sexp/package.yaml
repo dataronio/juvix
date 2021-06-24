@@ -1,10 +1,10 @@
-name:                Context
+name:                Sexp
 version:             0.1.0.0
 github:              "heliaxdev/Juvix"
 license:             GPL-3
 author:              "Heliax AG <hello@heliax.dev>"
 maintainer:          "Heliax AG <hello@heliax.dev>"
-copyright:           "2020 Heliax AG"
+copyright:           "2021 Heliax AG"
 
 extra-source-files:
 - README.org
@@ -16,17 +16,17 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/Context#readme>
+description:         Please see the README on GitHub at <https://github.com/githubuser/Sexp#readme>
 
 dependencies:
 - base >= 4.7 && < 5
 - standard-library
-- Sexp
 - containers
 - unordered-containers
 - stm-containers
 - lens
 - text
+- megaparsec
 
 default-extensions:
   - NoImplicitPrelude
@@ -72,7 +72,7 @@ library:
   source-dirs: src
 
 tests:
-  Context-test:
+  Sexp-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
@@ -80,6 +80,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - Context
+    - Sexp
     - tasty
     - tasty-hunit
