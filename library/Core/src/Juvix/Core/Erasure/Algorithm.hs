@@ -237,9 +237,10 @@ eraseElim (Typed.Ann _ s _ _ _) = do
   eraseTerm s
 
   -- | `eraseElim` erases types
-  -- | The clause of interest here is Typed.VSig, where signatures are
+  -- | The clause of interest here is Typed.VSig, where sigmas are
   -- | erased recursive calls.
   -- TODO add a catch-all clause for the theoretically impossible cases
+  -- TODO probably change `Sig` to something else more reasonable
 eraseType ::
   ErasureM primTy1 primTy2 primVal1 primVal2 m =>
   IR.Value primTy1 primVal1 ->
