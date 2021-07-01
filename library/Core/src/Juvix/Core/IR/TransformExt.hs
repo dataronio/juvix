@@ -4,8 +4,8 @@
 module Juvix.Core.IR.TransformExt where
 
 import Data.Coerce
-import Juvix.Core.IR.Types (Elim, NoExt, Term)
-import Juvix.Core.IR.Types.Base
+import Juvix.Core.Base.Types
+import Juvix.Core.IR.Types (Elim, T, Term)
 import Juvix.Library hiding (Coerce)
 
 data ExtTransformTEF f ext1 ext2 primTy primVal = ExtTransformTEF
@@ -152,7 +152,7 @@ forgetter ::
   ( TermX ext primTy primVal ~ Void,
     ElimX ext primTy primVal ~ Void
   ) =>
-  ExtTransformTE ext NoExt primTy primVal
+  ExtTransformTE ext T primTy primVal
 forgetter =
   ExtTransformTE
     { etStar = const (),
