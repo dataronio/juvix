@@ -1,4 +1,4 @@
-module Juvix.Core.ErasedAnn.Types where
+module Juvix.Core.Erased.Ann.Types where
 
 import Juvix.Core.Application (IsParamVar (..))
 import Juvix.Core.Base.Types (Universe)
