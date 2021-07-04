@@ -2,8 +2,7 @@ module Juvix.ANF.Convert where
 
 import Juvix.Library
 import qualified Juvix.Library.Sexp as Sexp
-import qualified Juvix.Library.Sexp.Structure as Str
-import Juvix.ANF.IR
+import qualified Juvix.Library.Sexp.Structure.EffHandlerHelpers as Str
 
 convert :: Has2Closures m n => HandlerContext m n  -> HandlerContext m n
 convert sexp = Sexp.foldPred sexp isEffectful conv
@@ -37,10 +36,10 @@ convHandler prog = do
 convertDo = do
    h <- get @"pure"
    k <- get @"effectful"
-   pure $ -- undefined l (V, \x -> k x h)
+   pure $ undefined -- l (V, \x -> k x h)
 
 
-convertVia { }
+convertVia = undefined
 
 
 
