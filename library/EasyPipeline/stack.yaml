@@ -8,6 +8,9 @@ packages:
 - ../Translate
 - ../Backends/Michelson
 - ../Pipeline
+- ../context
+- ../Backends/Plonk
+- ../Sexp
 
 extra-deps:
 

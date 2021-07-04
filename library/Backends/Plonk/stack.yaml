@@ -5,8 +5,10 @@ packages:
 - ../../StandardLibrary
 - ../../Frontend
 - ../../Core
+- ../../context
 - ../../Pipeline
 - ../../Translate
+- ../../Sexp
 
 extra-deps:
 

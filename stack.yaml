@@ -12,6 +12,8 @@ packages:
 - ./library/Backends/Plonk
 - ./library/Backends/llvm
 - ./library/ANF
+- ./library/context
+- ./library/Sexp
 
 extra-deps:
 
