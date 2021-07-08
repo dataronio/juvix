@@ -1,6 +1,8 @@
 {-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE UndecidableInstances #-}
 
+-- | Provides weakening / shifting of de Bruijn indices, that is the
+-- renumbering of free variables in terms.
 module Juvix.Core.IR.Evaluator.Weak
   ( HasWeak (..),
     weakBy,
@@ -15,8 +17,16 @@ import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library
 import qualified Juvix.Library.Usage as Usage
 
+-- | Weakening / shifting of de Bruijn terms.
 class HasWeak a where
-  weakBy' :: Natural -> Core.BoundVar -> a -> a
+  weakBy' ::
+    -- | Amount to shift.
+    Natural ->
+    -- | Cutoff value for shifting.
+    Core.BoundVar ->
+    -- | Term to apply weakening to.
+    a ->
+    a
   default weakBy' ::
     (Generic a, GHasWeak (Rep a)) =>
     Natural ->
@@ -25,15 +35,21 @@ class HasWeak a where
     a
   weakBy' b i = to . gweakBy' b i . from
 
+-- | Perform weakening on a term, starting with the closest binder.
 weakBy :: HasWeak a => Natural -> a -> a
 weakBy b = weakBy' b 0
 
+-- | Perform weakening on term, shifting a single binding with relation to a
+-- given bound variable.
 weak' :: HasWeak a => Core.BoundVar -> a -> a
 weak' = weakBy' 1
 
+-- | Perform weakening on a toplevel term, shifting a single binding with
+-- relation to a given bound variable.
 weak :: HasWeak a => a -> a
 weak = weak' 0
 
+-- | Constraint alias for terms and eliminations that can be weakened,
 type AllWeak ext primTy primVal =
   ( HasWeak primTy,
     HasWeak primVal,
@@ -41,6 +57,7 @@ type AllWeak ext primTy primVal =
     Core.ElimAll HasWeak ext primTy primVal
   )
 
+-- | Weakening implementation for terms.
 instance AllWeak ext primTy primVal => HasWeak (Core.Term' ext primTy primVal) where
   weakBy' b i (Core.Star' u a) =
     Core.Star' u (weakBy' b i a)
@@ -67,6 +84,7 @@ instance AllWeak ext primTy primVal => HasWeak (Core.Term' ext primTy primVal) w
   weakBy' b i (Core.TermX a) =
     Core.TermX (weakBy' b i a)
 
+-- | Weakening implementation for eliminations.
 instance AllWeak ext primTy primVal => HasWeak (Core.Elim' ext primTy primVal) where
   weakBy' b i (Core.Bound' j a)
     | j >= i = Core.Bound' (j + b) a'
@@ -82,6 +100,7 @@ instance AllWeak ext primTy primVal => HasWeak (Core.Elim' ext primTy primVal) w
   weakBy' b i (Core.ElimX a) =
     Core.ElimX (weakBy' b i a)
 
+-- | Constraint alias for valaues that can be weakened,
 type AllWeakV ext primTy primVal =
   ( HasWeak primTy,
     HasWeak primVal,
@@ -89,6 +108,7 @@ type AllWeakV ext primTy primVal =
     Core.NeutralAll HasWeak ext primTy primVal
   )
 
+-- | Weakening implementation for values.
 instance
   AllWeakV ext primTy primVal =>
   HasWeak (Core.Value' ext primTy primVal)
@@ -116,6 +136,7 @@ instance
   weakBy' b i (Core.ValueX a) =
     Core.ValueX (weakBy' b i a)
 
+-- | Weakening implementation for neutral values.
 instance
   AllWeakV ext primTy primVal =>
   HasWeak (Core.Neutral' ext primTy primVal)
@@ -132,8 +153,17 @@ instance
   weakBy' b i (Core.NeutralX a) =
     Core.NeutralX (weakBy' b i a)
 
+-- | Generic weakening / shifting (renumbering of free variables) of de
+-- Bruijn terms.
 class GHasWeak f where
-  gweakBy' :: Natural -> Core.BoundVar -> f t -> f t
+  gweakBy' ::
+    -- | Amount to shift.
+    Natural ->
+    -- | Cutoff value for shifting.
+    Core.BoundVar ->
+    -- | Term to apply weakening to.
+    f t ->
+    f t
 
 instance GHasWeak U1 where gweakBy' _ _ U1 = U1
 

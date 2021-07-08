@@ -1,6 +1,7 @@
 {-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE UndecidableInstances #-}
 
+-- | Provides the `HasPatSubst`-class for pattern substitution.
 module Juvix.Core.IR.Evaluator.PatSubst
   ( HasPatSubst (..),
     patSubst,
@@ -19,14 +20,17 @@ import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library
 import qualified Juvix.Library.Usage as Usage
 
+-- | Class of terms that support pattern substitution.
 class HasWeak a => HasPatSubst extT primTy primVal a where
-  -- returns either a substituted term or an unbound pattern var
+  -- | Substitution of patterns, returns either a substituted term or an
+  -- unbound pattern var.
   -- TODO: use @validation@ to return all unbound vars
   patSubst' ::
-    -- | How many bindings have been traversed so far
+    -- | How many bindings have been traversed so far.
     Natural ->
-    -- | Mapping of pattern variables to matched subterms
+    -- | Mapping of pattern variables to matched subterms.
     Core.PatternMap (Core.Elim' extT primTy primVal) ->
+    -- | Term to perform substitution on.
     a ->
     Either Core.PatternVar a
   default patSubst' ::
@@ -39,6 +43,7 @@ class HasWeak a => HasPatSubst extT primTy primVal a where
     Either Core.PatternVar a
   patSubst' b m = fmap to . gpatSubst' b m . from
 
+-- | Wrapper around `patSubst'` for toplevel terms without free variables.
 patSubst ::
   (HasPatSubst extT primTy primVal a) =>
   Core.PatternMap (Core.Elim' extT primTy primVal) ->
@@ -46,17 +51,21 @@ patSubst ::
   Either Core.PatternVar a
 patSubst = patSubst' 0
 
+-- | Class of terms that support pattern substitution, returns an `IR.Term'`
+-- instead of an @a@.
 class HasWeak a => HasPatSubstTerm extT primTy primVal a where
-  -- returns either a substituted term or an unbound pattern var
+  -- | Substitution of patterns, returns either a substituted term or an
+  -- unbound pattern var.
   -- TODO: use @validation@ to return all unbound vars
   patSubstTerm' ::
-    -- | How many bindings have been traversed so far
+    -- | How many bindings have been traversed so far.
     Natural ->
-    -- | Mapping of pattern variables to matched subterms
+    -- | Mapping of pattern variables to matched subterms.
     Core.PatternMap (Core.Elim' extT primTy primVal) ->
     a ->
     Either Core.PatternVar (Core.Term' extT primTy primVal)
 
+-- | Constraint for terms and eliminations that support pattern substitution.
 type AllPatSubst ext primTy primVal =
   ( Core.TermAll (HasPatSubst ext primTy primVal) ext primTy primVal,
     Core.ElimAll (HasPatSubst ext primTy primVal) ext primTy primVal,
@@ -129,12 +138,14 @@ instance
   patSubst' b m (Core.ElimX a) =
     Core.ElimX <$> patSubst' b m a
 
+-- | Generic pattern substitution for @f@.
 class GHasWeak f => GHasPatSubst extT primTy primVal f where
   gpatSubst' ::
-    -- | How many bindings have been traversed so far
+    -- | How many bindings have been traversed so far.
     Natural ->
-    -- | Mapping of pattern variables to matched subterms
+    -- | Mapping of pattern variables to matched subterms.
     Core.PatternMap (Core.Elim' extT primTy primVal) ->
+    -- | Term to perform substitution on.
     f t ->
     Either Core.PatternVar (f t)
 
@@ -251,6 +262,8 @@ instance
   patSubstTerm' _ _ ret@(App.Return {}) =
     pure $ IR.Prim ret
 
+-- | Transform a `App.Take` into an `IR.Elim'`.
+-- TODO: move this function somewhere else?
 takeToElim ::
   App.Take (Param.PrimType primTy) primVal ->
   Core.Elim' (OnlyExts.T ext) primTy (Param.TypedPrim primTy primVal)
@@ -259,6 +272,8 @@ takeToElim (App.Take {type', term}) =
       ty' = typeToTerm type'
    in IR.Ann Usage.Omega term' ty' 0
 
+-- | Transform a `App.Arg` into a `IR.Term'`.
+-- TODO: move this function somewhere else?
 argToTerm ::
   App.Arg (Param.PrimType primTy) primVal ->
   Core.Term' (OnlyExts.T ext) primTy (Param.TypedPrim primTy primVal)
@@ -268,6 +283,8 @@ argToTerm = \case
   App.BoundArg i -> IR.Elim $ IR.Bound i
   App.FreeArg x -> IR.Elim $ IR.Free $ Core.Global x
 
+-- | Transform a `Param.PrimType` into a `IR.Term'`.
+-- TODO: move this function somewhere else?
 typeToTerm ::
   ( Monoid (Core.XPi ext primTy primVal),
     Monoid (Core.XPrimTy ext primTy primVal)

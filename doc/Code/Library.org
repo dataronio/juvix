@@ -705,9 +705,9 @@ Quantitative type implementation inspired by
   + [[NameSymbol]]
   + [[Library/Usage]]
 ****** Evaluator
-This includes the evaluators (evalTerm and evalElimWith),
-the value application function (vapp) and
-the substitution functions (substV).
+This includes the evaluators (`evalTerm` and `evalElim`),
+the value application function (`vapp`) and
+the substitution functions (`substV`).
 - _Relies on_
   + [[TransformExt]]
   + [[TransformExt]]
@@ -721,6 +721,7 @@ the substitution functions (substV).
   + [[Core/Parameterisation]]
   + [[Library]]
 ******* PatSubst
+Provides the `HasPatSubst`-class for pattern substitution.
 - _Relies on_
   + [[Application]]
   + [[OnlyExts]]
@@ -731,6 +732,8 @@ the substitution functions (substV).
   + [[Library]]
   + [[Library/Usage]]
 ******* SubstV
+Module providing the `HasSubstV`-class, implementing substitution of
+values.
 - _Relies on_
   + [[Application]]
   + [[Core/Base/Types]]
@@ -741,6 +744,7 @@ the substitution functions (substV).
   + [[Library]]
   + [[Library/Usage]]
 ******* Types <<Evaluator/Types>>
+The types as used by the evaluator.
 - _Relies on_
   + [[Core/Base/Types]]
   + [[Core/HR/Pretty]]
@@ -751,6 +755,8 @@ the substitution functions (substV).
   + [[Library]]
   + [[PrettyPrint]]
 ******* Weak <<Evaluator/Weak>>
+Provides weakening / shifting of de Bruijn indices, that is the
+renumbering of free variables in terms.
 - _Relies on_
   + [[Application]]
   + [[Core/Base/Types]]
