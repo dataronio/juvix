@@ -78,6 +78,10 @@ stack-yaml:
 
 # Overwrite existing golden files
 accept-golden:
+	rm -rf test/examples-golden/positive
+	rm -rf test/examples-golden/negative
+	# If we want further commands, put - at the start, to ignore
+	# the error from this command
 	stack test --test-arguments "--accept"
 
 
