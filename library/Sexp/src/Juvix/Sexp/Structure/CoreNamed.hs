@@ -105,6 +105,14 @@ data Meta = Meta
 
 newtype Dot = Dot {dotBody :: Sexp.T} deriving (Show)
 
+data RawFunClause = RawFunClause
+  { rawFunClauseTele :: Sexp.T,
+    rawFunClausePats :: Sexp.T,
+    rawFunClauseBody :: Sexp.T,
+    rawFunClauseCatchAll :: Sexp.T
+  }
+  deriving (Show)
+
 --------------------------------------------------------------------------------
 -- Automatically Generated code
 --------------------------------------------------------------------------------
@@ -415,3 +423,19 @@ toMeta form =
 fromMeta :: Meta -> Sexp.T
 fromMeta (Meta sexp1 integer2) =
   Sexp.list [sexp1, fromInteger integer2]
+
+----------------------------------------
+-- RawFunClause
+----------------------------------------
+
+toRawFunClause :: Sexp.T -> Maybe RawFunClause
+toRawFunClause form =
+  case form of
+    sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> sexp4 Sexp.:> Sexp.Nil ->
+      RawFunClause sexp1 sexp2 sexp3 sexp4 |> Just
+    _ ->
+      Nothing
+
+fromRawFunClause :: RawFunClause -> Sexp.T
+fromRawFunClause (RawFunClause sexp1 sexp2 sexp3 sexp4) =
+  Sexp.list [sexp1, sexp2, sexp3, sexp4]

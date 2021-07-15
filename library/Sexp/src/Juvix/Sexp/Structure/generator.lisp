@@ -359,4 +359,6 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Ann" '("sexp" "meta" "sexp") ":")
 
-  (generate-haskell "Meta" '("sexp" "integer") nil))
+  (generate-haskell "Meta" '("sexp" "integer") nil)
+
+  (generate-haskell "RawFunClause" (repeat 4 "sexp") nil))
