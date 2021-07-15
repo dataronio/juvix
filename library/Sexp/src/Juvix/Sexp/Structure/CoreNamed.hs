@@ -103,7 +103,7 @@ data Meta = Meta
 
 -- Pattern
 
-newtype Dot = Dot { dotBody :: Sexp.T } deriving (Show)
+newtype Dot = Dot {dotBody :: Sexp.T} deriving (Show)
 
 --------------------------------------------------------------------------------
 -- Automatically Generated code
@@ -135,6 +135,7 @@ toStar form
 fromStar :: Star -> Sexp.T
 fromStar (Star integer1) =
   Sexp.list [Sexp.atom nameStar, fromInteger integer1]
+
 ----------------------------------------
 -- PrimTy
 ----------------------------------------
@@ -160,6 +161,7 @@ toPrimTy form
 fromPrimTy :: PrimTy -> Sexp.T
 fromPrimTy (PrimTy sexp1) =
   Sexp.list [Sexp.atom namePrimTy, sexp1]
+
 ----------------------------------------
 -- Prim
 ----------------------------------------
@@ -185,6 +187,7 @@ toPrim form
 fromPrim :: Prim -> Sexp.T
 fromPrim (Prim sexp1) =
   Sexp.list [Sexp.atom namePrim, sexp1]
+
 ----------------------------------------
 -- Pi
 ----------------------------------------
@@ -211,6 +214,7 @@ toPi form
 fromPi :: Pi -> Sexp.T
 fromPi (Pi binder1 sexp2) =
   Sexp.list [Sexp.atom namePi, fromBinder binder1, sexp2]
+
 ----------------------------------------
 -- Binder
 ----------------------------------------
@@ -227,6 +231,7 @@ toBinder form =
 fromBinder :: Binder -> Sexp.T
 fromBinder (Binder nameSymbol1 sexp2 sexp3) =
   Sexp.list [fromNameSymbol nameSymbol1, sexp2, sexp3]
+
 ----------------------------------------
 -- Lam
 ----------------------------------------
@@ -253,6 +258,7 @@ toLam form
 fromLam :: Lam -> Sexp.T
 fromLam (Lam nameSymbol1 sexp2) =
   Sexp.list [Sexp.atom nameLam, fromNameSymbol nameSymbol1, sexp2]
+
 ----------------------------------------
 -- Sigma
 ----------------------------------------
@@ -279,6 +285,7 @@ toSigma form
 fromSigma :: Sigma -> Sexp.T
 fromSigma (Sigma binder1 sexp2) =
   Sexp.list [Sexp.atom nameSigma, fromBinder binder1, sexp2]
+
 ----------------------------------------
 -- Pair
 ----------------------------------------
@@ -304,6 +311,7 @@ toPair form
 fromPair :: Pair -> Sexp.T
 fromPair (Pair sexp1 sexp2) =
   Sexp.list [Sexp.atom namePair, sexp1, sexp2]
+
 ----------------------------------------
 -- Let
 ----------------------------------------
@@ -330,6 +338,7 @@ toLet form
 fromLet :: Let -> Sexp.T
 fromLet (Let binder1 sexp2) =
   Sexp.list [Sexp.atom nameLet, fromBinder binder1, sexp2]
+
 ----------------------------------------
 -- Var
 ----------------------------------------
@@ -346,6 +355,7 @@ toVar form =
 fromVar :: Var -> Sexp.T
 fromVar (Var nameSymbol1) =
   Sexp.list [fromNameSymbol nameSymbol1]
+
 ----------------------------------------
 -- App
 ----------------------------------------
@@ -361,6 +371,7 @@ toApp form =
 fromApp :: App -> Sexp.T
 fromApp (App sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
+
 ----------------------------------------
 -- Ann
 ----------------------------------------
@@ -387,6 +398,7 @@ toAnn form
 fromAnn :: Ann -> Sexp.T
 fromAnn (Ann sexp1 meta2 sexp3) =
   Sexp.list [Sexp.atom nameAnn, sexp1, fromMeta meta2, sexp3]
+
 ----------------------------------------
 -- Meta
 ----------------------------------------

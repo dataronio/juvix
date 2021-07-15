@@ -5,7 +5,7 @@ module Juvix.Sexp.Structure.Helpers
     toNameSymbol,
     fromNameSymbol,
     fromInteger,
-    toInteger
+    toInteger,
   )
 where
 

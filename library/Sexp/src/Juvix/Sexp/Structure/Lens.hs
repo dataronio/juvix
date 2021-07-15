@@ -5,9 +5,9 @@
 module Juvix.Sexp.Structure.Lens where
 
 import qualified Control.Lens as Lens hiding ((|>))
+import qualified Juvix.Sexp.Structure.CoreNamed as Named
 import qualified Juvix.Sexp.Structure.Frontend as Frontend
 import qualified Juvix.Sexp.Structure.Transition as Transition
-import qualified Juvix.Sexp.Structure.CoreNamed as Named
 
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.DefunMatch
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.ArgBody
@@ -48,7 +48,7 @@ Lens.makeLensesWith Lens.camelCaseFields ''Named.Prim
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Pi
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Binder
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Lam
-Lens.makeLensesWith Lens.camelCaseFields ''Named.Sig
+Lens.makeLensesWith Lens.camelCaseFields ''Named.Sigma
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Pair
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Let
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Var
