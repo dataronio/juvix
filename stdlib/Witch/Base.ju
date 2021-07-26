@@ -1,0 +1,26 @@
+mod Witch.Base where
+
+let Term = %Builtin.Witch.Term
+let Type = %Builtin.Witch.Type
+let Top  = %Builtin.Witch.Top
+
+effect TypeChecker =
+  let reduce    : Term -> Term
+  let normalize : Term -> Term
+  let newVar    : String -> Name
+  let unify     : Term -> Term -> Top
+  let checkType : Term -> Type -> Term
+  let get       : () -> List (Term, Type)
+  let set       : List (Term, Type) -> ()
+  quote         : a -> Term
+  unquote       : Term -> a
+
+handler runSpeculative = %Builtin.Witch.runSpeculative
+handler typecheck = %Builtin.Witch.typecheck
+
+let Errors = %Builtin.Witch.Errors
+
+effect Error =
+  typeError : NonEmptyList Error -> a
+
+handler catch = %Bultin.Witch.catch
