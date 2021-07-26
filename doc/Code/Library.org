@@ -321,14 +321,14 @@ Surface language
 - _Relies on_
   + [[Plonk]]
   + [[Ann]]
+  + [[Core/HR]]
+  + [[Core/IR]]
   + [[Library]]
   + [[Feedback]]
   + [[Library/Test/Golden]]
   + [[Juvix/Pipeline]]
   + [[Juvix/Pipeline]]
   + [[ToCore/Types]]
-  + [[Core/HR]]
-  + [[Core/IR]]
 ***** Orphan
 - _Relies on_
   + [[Library]]
