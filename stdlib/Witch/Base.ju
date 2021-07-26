@@ -23,4 +23,4 @@ let Errors = %Builtin.Witch.Errors
 effect Error =
   typeError : NonEmptyList Error -> a
 
-handler catch = %Bultin.Witch.catch
+handler catch = %Builtin.Witch.catch
