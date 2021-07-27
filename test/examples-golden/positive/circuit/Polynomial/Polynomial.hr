@@ -1,0 +1,285 @@
+fromList
+    [
+        ( "Polynomial" :| [ "^" ]
+        , CoreDef
+            ( RawGFunction
+                ( RawFunction
+                    { rawFunName = "Polynomial" :| [ "^" ]
+                    , rawFunUsage = GOmega
+                    , rawFunType = Pi' Omega
+                        ( Elim'
+                            ( ElimX
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
+                            ) ()
+                        )
+                        ( Pi' Omega
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    , rawFunClauses = RawFunClause
+                        { rawClauseTel = []
+                        , rawClausePats = []
+                        , rawClauseBody = Prim' PExp ()
+                        , rawClauseCatchall = False
+                        } :| []
+                    }
+                )
+            )
+        )
+    ,
+        ( "Polynomial" :| [ "*" ]
+        , CoreDef
+            ( RawGFunction
+                ( RawFunction
+                    { rawFunName = "Polynomial" :| [ "*" ]
+                    , rawFunUsage = GOmega
+                    , rawFunType = Pi' Omega
+                        ( Elim'
+                            ( ElimX
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
+                            ) ()
+                        )
+                        ( Pi' Omega
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    , rawFunClauses = RawFunClause
+                        { rawClauseTel = []
+                        , rawClausePats = []
+                        , rawClauseBody = Prim' PMul ()
+                        , rawClauseCatchall = False
+                        } :| []
+                    }
+                )
+            )
+        )
+    ,
+        ( "Polynomial" :| [ "==" ]
+        , CoreDef
+            ( RawGFunction
+                ( RawFunction
+                    { rawFunName = "Polynomial" :| [ "==" ]
+                    , rawFunUsage = GOmega
+                    , rawFunType = Pi' Omega
+                        ( Elim'
+                            ( ElimX
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
+                            ) ()
+                        )
+                        ( Pi' Omega
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "bool"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    , rawFunClauses = RawFunClause
+                        { rawClauseTel = []
+                        , rawClausePats = []
+                        , rawClauseBody = Prim' PEq ()
+                        , rawClauseCatchall = False
+                        } :| []
+                    }
+                )
+            )
+        )
+    ,
+        ( "Polynomial" :| [ "+" ]
+        , CoreDef
+            ( RawGFunction
+                ( RawFunction
+                    { rawFunName = "Polynomial" :| [ "+" ]
+                    , rawFunUsage = GOmega
+                    , rawFunType = Pi' Omega
+                        ( Elim'
+                            ( ElimX
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
+                            ) ()
+                        )
+                        ( Pi' Omega
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    , rawFunClauses = RawFunClause
+                        { rawClauseTel = []
+                        , rawClausePats = []
+                        , rawClauseBody = Prim' PAdd ()
+                        , rawClauseCatchall = False
+                        } :| []
+                    }
+                )
+            )
+        )
+    ,
+        ( "Polynomial" :| [ "main" ]
+        , CoreDef
+            ( RawGFunction
+                ( RawFunction
+                    { rawFunName = "Polynomial" :| [ "main" ]
+                    , rawFunUsage = GOmega
+                    , rawFunType = Pi' Omega
+                        ( Elim'
+                            ( ElimX
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
+                            ) ()
+                        )
+                        ( Pi' Omega
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "bool"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    , rawFunClauses = RawFunClause
+                        { rawClauseTel = []
+                        , rawClausePats =
+                            [ PatternX
+                                ( "x" :| [] )
+                            , PatternX
+                                ( "y" :| [] )
+                            ]
+                        , rawClauseBody = Elim'
+                            ( App'
+                                ( App'
+                                    ( ElimX
+                                        ( "Polynomial" :| [ "==" ] )
+                                    )
+                                    ( Elim'
+                                        ( App'
+                                            ( App'
+                                                ( ElimX
+                                                    ( "Polynomial" :| [ "^" ] )
+                                                )
+                                                ( Elim'
+                                                    ( ElimX
+                                                        ( "x" :| [] )
+                                                    ) ()
+                                                ) ()
+                                            )
+                                            ( Prim'
+                                                ( PConst
+                                                    ( P
+                                                        ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                    )
+                                                ) ()
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                )
+                                ( Elim'
+                                    ( ElimX
+                                        ( "y" :| [] )
+                                    ) ()
+                                ) ()
+                            ) ()
+                        , rawClauseCatchall = False
+                        } :| []
+                    }
+                )
+            )
+        )
+    ]

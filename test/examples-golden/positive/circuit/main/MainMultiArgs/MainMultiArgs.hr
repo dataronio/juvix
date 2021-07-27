@@ -1,0 +1,122 @@
+fromList
+    [
+        ( "MainMultArgs" :| [ "+" ]
+        , CoreDef
+            ( RawGFunction
+                ( RawFunction
+                    { rawFunName = "MainMultArgs" :| [ "+" ]
+                    , rawFunUsage = GOmega
+                    , rawFunType = Pi' Omega
+                        ( Elim'
+                            ( ElimX
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
+                            ) ()
+                        )
+                        ( Pi' Omega
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    , rawFunClauses = RawFunClause
+                        { rawClauseTel = []
+                        , rawClausePats = []
+                        , rawClauseBody = Prim' PAdd ()
+                        , rawClauseCatchall = False
+                        } :| []
+                    }
+                )
+            )
+        )
+    ,
+        ( "MainMultArgs" :| [ "main" ]
+        , CoreDef
+            ( RawGFunction
+                ( RawFunction
+                    { rawFunName = "MainMultArgs" :| [ "main" ]
+                    , rawFunUsage = GOmega
+                    , rawFunType = Pi' Omega
+                        ( Elim'
+                            ( ElimX
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
+                            ) ()
+                        )
+                        ( Pi' Omega
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( Elim'
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    , rawFunClauses = RawFunClause
+                        { rawClauseTel = []
+                        , rawClausePats =
+                            [ PatternX
+                                ( "x" :| [] )
+                            , PatternX
+                                ( "y" :| [] )
+                            ]
+                        , rawClauseBody = Elim'
+                            ( App'
+                                ( App'
+                                    ( ElimX
+                                        ( "MainMultArgs" :| [ "+" ] )
+                                    )
+                                    ( Elim'
+                                        ( ElimX
+                                            ( "x" :| [] )
+                                        ) ()
+                                    ) ()
+                                )
+                                ( Elim'
+                                    ( ElimX
+                                        ( "y" :| [] )
+                                    ) ()
+                                ) ()
+                            ) ()
+                        , rawClauseCatchall = False
+                        } :| []
+                    }
+                )
+            )
+        )
+    ]
