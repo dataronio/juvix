@@ -282,6 +282,25 @@ removePunnedRecords xs = Sexp.foldPred xs (== Structure.nameRecord) removePunned
         f (Structure.NotPun notPunned) = notPunned
 
 ------------------------------------------------------------
+-- Type Transformation
+------------------------------------------------------------
+
+-- Update this…
+
+-- Currently we aren't running a free variable algorithm on this to
+-- determine dependency order. This should be run to ensure that we are
+-- getting the order right.
+
+-- | @recordPi@ - Transforms record declarations into @Pi@ Type
+-- expressions
+-- - BNF Input Form
+--   1. (:record-d arg-1 type-1 … arg-n type-n)
+-- - BNF Output Form
+--   1. (:sigma (arg-1 :usage-hole type-1)
+--         (:sigma (arg-2 :usage-hole type-2)
+--            … (:sigma (arg-n :usage-hole type-n))))
+
+------------------------------------------------------------
 -- Module Pass
 ------------------------------------------------------------
 
