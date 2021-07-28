@@ -23,6 +23,7 @@ import Control.Lens hiding ((|>))
 import qualified Data.Set as Set
 import Juvix.Library
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Sexp.Structure.CoreNamed as StructureCore
 import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Juvix.Sexp.Structure.Lens
 import qualified Juvix.Sexp.Structure.Transition as Structure
@@ -289,7 +290,7 @@ removePunnedRecords xs = Sexp.foldPred xs (== Structure.nameRecord) removePunned
 
 -- Currently we aren't running a free variable algorithm on this to
 -- determine dependency order. This should be run to ensure that we are
--- getting the order right.
+-- getting the order right. Also we need to pick a canonical ordering
 
 -- | @recordPi@ - Transforms record declarations into @Pi@ Type
 -- expressions
@@ -298,7 +299,26 @@ removePunnedRecords xs = Sexp.foldPred xs (== Structure.nameRecord) removePunned
 -- - BNF Output Form
 --   1. (:sigma (arg-1 :usage-hole type-1)
 --         (:sigma (arg-2 :usage-hole type-2)
---            … (:sigma (arg-n :usage-hole type-n))))
+--            … (:sigma (arg-n :usage-hole type-n)
+--                  :unit)))
+recordPi :: Sexp.T -> Sexp.T
+recordPi xs = Sexp.foldPred xs (== Structure.nameRecordDec) removeRecordD
+  where
+    removeRecordD atom cdr =
+      case Structure.toRecordDec (Sexp.Atom atom Sexp.:> cdr) of
+        Just recordD ->
+          -- we are doing a lookup, but here is where we do our sorting
+          recordD ^. value
+            |> foldr piTransform (Sexp.atom ":unit")
+        Nothing -> error "malformed record declaration"
+      where
+        piTransform termType sigmaChain
+          | Just name <- Sexp.nameFromT (termType ^. name) =
+            sigmaChain
+              |> StructureCore.Sigma
+                (StructureCore.Binder name (Sexp.atom ":omega") (termType ^. value))
+              |> StructureCore.fromSigma
+          | otherwise = error "malformed record declaration name"
 
 ------------------------------------------------------------
 -- Module Pass

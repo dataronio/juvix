@@ -312,7 +312,11 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Effect" (repeat 2 "sexp") ":defeff")
 
-  (generate-haskell "DefHandler" (repeat 2 "sexp") ":defHandler"))
+  (generate-haskell "DefHandler" (repeat 2 "sexp") ":defHandler")
+
+  (generate-haskell "RecordDec" '("notPunnedGroup") ":record-d"
+                  :list-star t
+                  :un-grouped t))
 
 (defun transition-types ()
   (generate-haskell "ArgBody" '("sexp" "sexp") nil)
