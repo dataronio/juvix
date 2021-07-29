@@ -1,4 +1,4 @@
-module Juvix.ToCore.FromFrontend.Transform.HR (transformTermHR) where
+module Juvix.Pipeline.ToHR.Term (transformTermHR) where
 
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NonEmpty
@@ -7,22 +7,11 @@ import qualified Juvix.Core.Parameterisation as P
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
+import Juvix.Pipeline.ToHR.Env
+import qualified Juvix.Pipeline.ToHR.Sig.Extract as Sig
+import Juvix.Pipeline.ToHR.Types
+import Juvix.Pipeline.ToHR.Usage
 import qualified Juvix.Sexp as Sexp
-import Juvix.ToCore.FromFrontend.Transform.Helpers
-  ( ReduceEff,
-    getParamConstant,
-    getSpecialSig,
-    lookupSigWithSymbol,
-    parseVarArg,
-    parseVarPat,
-    toElim,
-  )
-import Juvix.ToCore.FromFrontend.Transform.Usage
-import Juvix.ToCore.Types
-  ( Error (..),
-    Special (..),
-    throwFF,
-  )
 import Prelude (error)
 
 -- | Transform S-expression form into Human Readable form
@@ -34,9 +23,9 @@ transformTermHR ::
   Sexp.T ->
   m (HR.Term primTy primVal)
 transformTermHR _ (Sexp.Atom a@Sexp.N {}) =
-  HR.Prim <$> getParamConstant a
+  HR.Prim <$> Sig.getParamConstant a
 transformTermHR q (Sexp.Atom Sexp.A {atomName}) = do
-  term <- lookupSigWithSymbol (Just q) atomName
+  term <- Sig.lookupSigWithSymbol (Just q) atomName
   pure $ toName term
   where
     toName = HR.Elim . HR.Var . maybe atomName fst
@@ -134,7 +123,7 @@ transformApplication ::
   m (HR.Term primTy primVal)
 transformApplication q a@(f Sexp.:> args)
   | Just xs <- Sexp.toList args = do
-    mSig <- getSpecialSig q f
+    mSig <- Sig.getSpecialSig q f
     go mSig xs
   where
     go Nothing xs = do
@@ -179,3 +168,35 @@ transformApplication q a@(f Sexp.:> args)
     transformUniverse (Sexp.Atom Sexp.N {atomNum = i}) | i >= 0 = pure $ fromIntegral i
     transformUniverse e = throwFF $ NotAUniverse e
 transformApplication _ _ = error "malformed application"
+
+-- | Unwrap Term
+toElim ::
+  HasThrowFF ext primTy primVal m =>
+  -- | the original expression
+  Sexp.T ->
+  HR.Term primTy primVal ->
+  m (HR.Elim primTy primVal)
+toElim _ (HR.Elim e) = pure e
+toElim e _ = throwFF $ NotAnElim e
+
+-- | Check whether the S-expression form is a non-implicit string atom
+parseVarArg ::
+  HasThrowFF ext primTy primVal m =>
+  Sexp.T ->
+  m NameSymbol.T
+parseVarArg p@(name Sexp.:> _rest)
+  | Sexp.isAtomNamed name ":implicit-a" =
+    throwFF $ PatternUnimplemented p
+parseVarArg p = parseVarPat p
+
+-- | Check whether the S-expression form is a string atom (i.e. not a number)
+-- and return its name
+parseVarPat ::
+  HasThrowFF ext primTy primVal m =>
+  Sexp.T ->
+  m NameSymbol.T
+parseVarPat p
+  | Just Sexp.A {atomName} <- Sexp.atomFromT p =
+    pure atomName
+parseVarPat p =
+  throwFF $ PatternUnimplemented p

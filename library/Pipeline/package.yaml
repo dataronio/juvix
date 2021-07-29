@@ -108,6 +108,7 @@ default-extensions:
   - TupleSections
   - BlockArguments
   - RecordWildCards
+  - LiberalTypeSynonyms
 
 when:
   condition: flag(incomplete-error)

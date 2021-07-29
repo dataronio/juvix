@@ -13,7 +13,6 @@ import qualified Juvix.Core.IR as IR
 import Juvix.Library
 import Juvix.Library.Feedback
 import qualified Juvix.Pipeline as Pipeline
-import qualified Juvix.ToCore.FromFrontend as FF
 
 -- | Identifier for the LLVM backend.
 data BLLVM = BLLVM

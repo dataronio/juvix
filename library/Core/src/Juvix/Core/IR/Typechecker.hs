@@ -11,6 +11,7 @@ module Juvix.Core.IR.Typechecker
   )
 where
 
+import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.Base.Types as Core
 import Juvix.Core.IR.CheckDatatype
 import Juvix.Core.IR.CheckTerm (ShowExt)
@@ -37,21 +38,26 @@ typeCheckDeclaration ::
     Eval.NoExtensions extT primTy primVal,
     Env.CanTC' extT primTy primVal m,
     Param.CanApply (Param.TypedPrim primTy primVal),
-    HasReader "globals" (Typed.GlobalsT' IR.T extT primTy primVal) m
+    HasReader "globals" (Typed.GlobalsT IR.T extT primTy primVal) m,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
   -- | Telescope containing a list of
-  -- (name, usage, ty (of type Value') and the extension)
+  -- (name, usage, ty (of type Value) and the extension)
   Core.Telescope IR.T extT primTy primVal ->
-  -- | Raw telescope containing ty (of type Term')
+  -- | Raw telescope containing ty (of type Term)
   Core.RawTelescope extT primTy primVal ->
   -- | The targeted parameterisation
   Param.Parameterisation primTy primVal ->
   -- | A list of datatype declarations to be checked
-  [Core.RawDatatype' extT primTy primVal] ->
+  [Core.RawDatatype extT primTy primVal] ->
   -- | A list of function declarations to be checked
-  [Core.RawFunction' extT primTy primVal] ->
+  [Core.RawFunction extT primTy primVal] ->
   -- | A list of Globals to be added to the global state
-  Env.TypeCheck IR.T primTy primVal m [Core.RawGlobal' extT primTy primVal]
+  Env.TypeCheck IR.T primTy primVal m [Core.RawGlobal extT primTy primVal]
 typeCheckDeclaration _tel _rtel _param [] [] =
   return []
 -- type checking datatype declarations

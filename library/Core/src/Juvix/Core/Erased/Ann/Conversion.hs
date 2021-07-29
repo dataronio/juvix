@@ -10,17 +10,20 @@ module Juvix.Core.Erased.Ann.Conversion
 where
 
 import Data.List ((\\))
+
 import qualified Juvix.Core.Application as App
+import qualified Juvix.Core.Base as Core
+import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.Erased as Erased
 import qualified Juvix.Core.Erased.Algorithm as Erasure
 import qualified Juvix.Core.Erased.Algorithm.Types as E
 import qualified Juvix.Core.Erased.Ann.Prim as ErasedAnn
 import Juvix.Core.Erased.Ann.Types
 import qualified Juvix.Core.Erased.Ann.Types as ErasedAnn
-import qualified Juvix.Core.HR as HR
 import qualified Juvix.Core.IR as IR
+import qualified Juvix.Core.IR.Evaluator as Eval
 import qualified Juvix.Core.IR.Typechecker as TC
-import qualified Juvix.Core.Translate as Translate
+import qualified Juvix.Core.IR.Typechecker as Typed
 import qualified Juvix.Core.Types as Types
 import Juvix.Library hiding (Type)
 import qualified Juvix.Library.NameSymbol as NameSymbol
@@ -30,7 +33,7 @@ type CompConstraints' primTy primVal compErr m =
   ( HasWriter "log" [Types.PipelineLog primTy primVal] m,
     HasReader "parameterisation" (Types.Parameterisation primTy primVal) m,
     HasThrow "error" (Types.PipelineError primTy primVal compErr) m,
-    HasReader "globals" (IR.Globals primTy (Types.TypedPrim primTy primVal)) m
+    HasReader "globals" (Core.Globals IR.T IR.T primTy (Types.TypedPrim primTy primVal)) m
   )
 
 type CompConstraints primTy primVal compErr m =
@@ -43,7 +46,7 @@ type CompConstraints primTy primVal compErr m =
     Types.CanApply (Types.TypedPrim primTy primVal),
     TC.PrimSubstValue primTy primVal,
     TC.PrimPatSubstTerm primTy primVal,
-    IR.HasWeak primVal
+    Eval.HasWeak primVal
   )
 
 constMapPrim :: Erasure.MapPrim a a ty val
@@ -71,7 +74,13 @@ lookupMapPrim ns (App.Cont f xs n) =
 
 irToErasedAnn ::
   forall err ty val m.
-  CompConstraints ty val err m =>
+  ( CompConstraints ty val err m,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      ty
+      (Types.TypedPrim ty val)
+      ty
+  ) =>
   IR.Term ty val ->
   Usage.T ->
   IR.Term ty val ->
@@ -83,8 +92,14 @@ irToErasedAnn term usage ty = do
 
 -- For standard evaluation, no elementary affine check, no MonadIO required.
 typecheckEval ::
-  CompConstraints primTy primVal compErr m =>
-  HR.Term primTy primVal ->
+  ( CompConstraints primTy primVal compErr m,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Types.TypedPrim primTy primVal)
+      primTy
+  ) =>
+  Core.Term IR.T primTy primVal ->
   Usage.T ->
   IR.Value primTy (Types.TypedPrim primTy primVal) ->
   m (IR.Value primTy (Types.TypedPrim primTy primVal))
@@ -92,11 +107,7 @@ typecheckEval term usage ty = do
   -- Fetch the parameterisation, needed for typechecking.
   param <- ask @"parameterisation"
   globals <- ask @"globals"
-  -- First convert HR to IR.
-  let irTerm = Translate.hrToIR term
-  tell @"log" [Types.LogHRtoIR term irTerm]
-  -- Typecheck & return accordingly.
-  case IR.typeTerm param irTerm (IR.Annotation usage ty)
+  case IR.typeTerm param term (Typed.Annotation usage ty)
     >>= IR.evalTC
     |> IR.execTC globals
     |> fst of
@@ -105,7 +116,13 @@ typecheckEval term usage ty = do
 
 -- For standard evaluation, no elementary affine check, no MonadIO required.
 typecheckErase' ::
-  CompConstraints primTy primVal compErr m =>
+  ( CompConstraints primTy primVal compErr m,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Types.TypedPrim primTy primVal)
+      primTy
+  ) =>
   IR.Term primTy primVal ->
   Usage.T ->
   IR.Term primTy primVal ->
@@ -114,13 +131,19 @@ typecheckErase' ::
       IR.Value primTy (Types.TypedPrim primTy primVal)
     )
 typecheckErase' term usage ty = do
-  ty <- typecheckEval (Translate.irToHR ty) (Usage.SNat 0) (IR.VStar 0)
+  ty <- typecheckEval ty (Usage.SNat 0) (IR.VStar 0)
   term <- typecheckErase term usage ty
   pure (term, ty)
 
 -- For standard evaluation, no elementary affine check, no MonadIO required.
 typecheckErase ::
-  CompConstraints primTy primVal compErr m =>
+  ( CompConstraints primTy primVal compErr m,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Types.TypedPrim primTy primVal)
+      primTy
+  ) =>
   IR.Term primTy primVal ->
   Usage.T ->
   IR.Value primTy (Types.TypedPrim primTy primVal) ->
@@ -130,7 +153,7 @@ typecheckErase term usage ty = do
   param <- ask @"parameterisation"
   globals <- ask @"globals"
   -- Typecheck & return accordingly.
-  case IR.typeTerm param term (IR.Annotation usage ty)
+  case IR.typeTerm param term (Typed.Annotation usage ty)
     |> IR.execTC globals
     |> fst of
     Right tyTerm -> do

@@ -5,66 +5,34 @@ module Juvix.Core.IR.Types
   )
 where
 
-import Juvix.Core.Base.Types
+import qualified Juvix.Core.Base.Types as Core
 import Juvix.Library hiding (show)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 
 data T deriving (Data, Show)
 
-extendTerm "Term" [] [t|T|] $ \_ _ -> defaultExtTerm
+Core.extendTerm "Term" [] [t|T|] $ \_ _ -> Core.defaultExtTerm
 
-extendElim "Elim" [] [t|T|] $ \_ _ -> defaultExtElim
+Core.extendElim "Elim" [] [t|T|] $ \_ _ -> Core.defaultExtElim
 
-extendValue "Value" [] [t|T|] $ \_ _ -> defaultExtValue
+Core.extendValue "Value" [] [t|T|] $ \_ _ -> Core.defaultExtValue
 
-extendNeutral "Neutral" [] [t|T|] $ \_ _ -> defaultExtNeutral
+Core.extendNeutral "Neutral" [] [t|T|] $ \_ _ -> Core.defaultExtNeutral
 
-extendPattern "Pattern" [] [t|T|] $ \_ _ -> defaultExtPattern
+Core.extendPattern "Pattern" [] [t|T|] $ \_ _ -> Core.defaultExtPattern
 
-type Datatype = Datatype' T T
-
-type RawDatatype = RawDatatype' T
-
-type DataArg = DataArg' T
-
-type RawDataArg = RawDataArg' T
-
-type DataCon = DataCon' T T
-
-type RawDataCon = RawDataCon' T
-
-type Function = Function' T T
-
-type RawFunction = RawFunction' T
-
-type FunClause = FunClause' T T
-
-type RawFunClause = RawFunClause' T
-
-type Abstract = Abstract' T
-
-type RawAbstract = RawAbstract' T
-
-type Global = Global' T T
-
-type RawGlobal = RawGlobal' T
-
-type Globals primTy primVal = Globals' T T primTy primVal
-
-type RawGlobals primTy primVal = RawGlobals' T primTy primVal
-
-usageToGlobal :: Usage.T -> Maybe GlobalUsage
-usageToGlobal Usage.Omega = Just GOmega
-usageToGlobal (Usage.SNat 0) = Just GZero
+usageToGlobal :: Usage.T -> Maybe Core.GlobalUsage
+usageToGlobal Usage.Omega = Just Core.GOmega
+usageToGlobal (Usage.SNat 0) = Just Core.GZero
 usageToGlobal _ = Nothing
 
-globalToUsage :: GlobalUsage -> Usage.T
-globalToUsage GOmega = Usage.Omega
-globalToUsage GZero = Usage.SNat 0
+globalToUsage :: Core.GlobalUsage -> Usage.T
+globalToUsage Core.GOmega = Usage.Omega
+globalToUsage Core.GZero = Usage.SNat 0
 
-globalName :: Global' extT extV primTy primVal -> NameSymbol.T
-globalName (GDatatype (Datatype {dataName})) = dataName
-globalName (GDataCon (DataCon {conName})) = conName
-globalName (GFunction (Function {funName})) = funName
-globalName (GAbstract (Abstract {absName})) = absName
+globalName :: Core.Global extT extV primTy primVal -> NameSymbol.T
+globalName (Core.GDatatype (Core.Datatype {dataName})) = dataName
+globalName (Core.GDataCon (Core.DataCon {dataConName})) = dataConName
+globalName (Core.GFunction (Core.Function {funName})) = funName
+globalName (Core.GAbstract (Core.Abstract {absName})) = absName

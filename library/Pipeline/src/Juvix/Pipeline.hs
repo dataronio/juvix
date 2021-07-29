@@ -37,11 +37,11 @@ import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Parser (ParserError)
 import Juvix.Pipeline.Compile
-import qualified Juvix.Pipeline.Core as Core
-import qualified Juvix.Pipeline.Frontend as Frontend
+import qualified Juvix.Pipeline.ToHR as ToHR
+import qualified Juvix.Pipeline.ToIR as ToIR
+import qualified Juvix.Pipeline.ToSexp as ToSexp
 import Juvix.Pipeline.Types
 import qualified Juvix.Sexp as Sexp
-import qualified Juvix.ToCore.FromFrontend as FF
 import qualified System.IO.Temp as Temp
 import qualified Text.Megaparsec as P
 import Text.Pretty.Simple (pShowNoColor)
@@ -50,7 +50,7 @@ import qualified Text.PrettyPrint.Leijen.Text as Pretty
 -- TODO: Change error type to Error
 type Pipeline = Feedback.FeedbackT [] [Char] IO
 
-type IR b = (Core.PatternMap Core.GlobalName, FF.CoreDefs IR.T (Ty b) (Val b))
+type IR b = (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Ty b) (Val b))
 
 type Constraints b =
   ( Eq (Ty b),
@@ -73,7 +73,7 @@ type Constraints b =
   )
 
 data Error
-  = FrontendErr Frontend.Error
+  = FrontendErr ToSexp.Error
   | ParseErr ParserError
   -- TODO: CoreError
   deriving (Show)
@@ -107,7 +107,7 @@ class HasBackend b where
 
   toSexp :: b -> [(NameSymbol.T, [Types.TopLevel])] -> Pipeline (Context.T Sexp.T Sexp.T Sexp.T)
   toSexp _b x = liftIO $ do
-    e <- Frontend.frontendToSexp x
+    e <- ToSexp.frontendToSexp x
     case e of
       Left err -> Feedback.fail . toS . pShowNoColor $ err
       Right x -> pure x
@@ -116,24 +116,24 @@ class HasBackend b where
     (Show (Ty b), Show (Val b)) =>
     Param.Parameterisation (Ty b) (Val b) ->
     Context.T Sexp.T Sexp.T Sexp.T ->
-    Pipeline (FF.CoreDefs HR.T (Ty b) (Val b))
-  toHR param sexp = pure $ FF.coreDefs (Core.contextToHR sexp param)
+    Pipeline (Core.RawGlobals HR.T (Ty b) (Val b))
+  toHR param sexp = pure $ ToHR.contextToHR sexp param
 
   toIR ::
-    FF.CoreDefs HR.T (Ty b) (Val b) ->
-    Pipeline (Core.PatternMap Core.GlobalName, FF.CoreDefs IR.T (Ty b) (Val b))
-  toIR hr = pure $ FF.hrToIRDefs hr
+    Core.RawGlobals HR.T (Ty b) (Val b) ->
+    Pipeline (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Ty b) (Val b))
+  toIR hr = pure $ ToIR.hrToIRDefs hr
 
   toErased ::
     Constraints b =>
     Param.Parameterisation (Ty b) (Val b) ->
     Ty b ->
-    (Core.PatternMap Core.GlobalName, FF.CoreDefs IR.T (Ty b) (Val b)) ->
+    (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Ty b) (Val b)) ->
     Pipeline (ErasedAnn.AnnTermT (Ty b) (Val b))
-  toErased param ty (patToSym, defs) = do
-    (usage, term, ty) <- getMain >>= toLambda
+  toErased param ty (patToSym, globalDefs) = do
+    (usage, term, mainTy) <- getMain >>= toLambda
     let inlinedTerm = IR.inlineAllGlobals term lookupGlobal patToSym
-    let erasedAnn = ErasedAnn.irToErasedAnn @(Err b) inlinedTerm usage ty
+    let erasedAnn = ErasedAnn.irToErasedAnn @(Err b) inlinedTerm usage mainTy
     res <- liftIO $ fst <$> exec erasedAnn param evaluatedGlobals
     case res of
       Right r -> do
@@ -141,8 +141,6 @@ class HasBackend b where
       Left err -> do
         Feedback.fail $ "Error: " <> toS (pShowNoColor err) <> " on Term: " <> toS (pShowNoColor term)
     where
-      -- Filter out Special Defs
-      globalDefs = HM.mapMaybe toCoreDef defs
       lookupGlobal = IR.rawLookupFun' globalDefs
       -- Type primitive values, i.e.
       --      RawGlobal (Ty b) (Val b)
@@ -186,12 +184,10 @@ class HasBackend b where
     Param.Parameterisation (Ty b) (Val b) ->
     Ty b ->
     Pipeline (ErasedAnn.AnnTermT (Ty b) (Val b))
-  typecheck' ctx param ty =
-    let ir = Core.contextToIR ctx param
-        defs = FF.coreDefs ir
-        patVars = FF.patVars ir
-        patToSym = HM.toList patVars |> map swap |> PM.fromList
-     in toErased param ty (patToSym, defs)
+  typecheck' ctx param ty = do
+    toHR param ctx
+      >>= toIR
+      >>= toErased param ty
 
   compile ::
     FilePath ->

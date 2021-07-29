@@ -45,9 +45,9 @@ import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymb
 import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Pipeline.Compile as Compile
-import qualified Juvix.Pipeline.Core as Core
+import qualified Juvix.Pipeline.ToHR as ToHR
+import qualified Juvix.Pipeline.ToIR as ToIR
 import qualified Juvix.Sexp as Sexp
-import qualified Juvix.ToCore.Types as ToCore.Types
 import qualified Text.Pretty.Simple as Pretty
 import Prelude (error)
 import qualified Prelude (Show (..))
@@ -330,19 +330,19 @@ coreify ::
   (Show primTy, Show primVal) =>
   ByteString ->
   Options primTy primVal ->
-  IO (ToCore.Types.CoreDefs IR.T primTy primVal)
+  IO (Core.RawGlobals IR.T primTy primVal)
 coreify juvix options = do
   Right ctx <- contextifyDesugar juvix options
-  pure $ Core.contextToDefsIR ctx (param options)
+  pure . snd . ToIR.hrToIRDefs $ ToHR.contextToHR ctx (param options)
 
 coreifyFile ::
   (Show primTy, Show primVal) =>
   FilePath ->
   Options primTy primVal ->
-  IO (ToCore.Types.CoreDefs IR.T primTy primVal)
+  IO (Core.RawGlobals IR.T primTy primVal)
 coreifyFile juvix options = do
   Right ctx <- contextifyDesugarFile juvix options
-  pure $ Core.contextToDefsIR ctx (param options)
+  pure . snd . ToIR.hrToIRDefs $ ToHR.contextToHR ctx (param options)
 
 ----------------------------------------
 -- Coreify Examples
@@ -384,10 +384,10 @@ printModule name ctx =
       pure ()
 
 lookupCoreFunction ::
-  ToCore.Types.CoreDefs ext primTy1 primVal1 ->
+  Core.RawGlobals ext primTy1 primVal1 ->
   Options primTy2 primVal2 ->
   Symbol ->
-  Maybe (ToCore.Types.CoreDef ext primTy1 primVal1)
+  Maybe (Core.RawGlobal ext primTy1 primVal1)
 lookupCoreFunction coreDefs option functionName =
   let name =
         currentContextName option <> NameSymb.fromSymbol functionName
@@ -395,7 +395,7 @@ lookupCoreFunction coreDefs option functionName =
 
 printCoreFunction ::
   (MonadIO m, Show primTy1, Show primVal1, Core.CoreShow ext primTy1 primVal1) =>
-  ToCore.Types.CoreDefs ext primTy1 primVal1 ->
+  Core.RawGlobals ext primTy1 primVal1 ->
   Options primTy2 primVal2 ->
   Symbol ->
   m ()

@@ -3,11 +3,13 @@
 -- | Tests for the type checker and evaluator in Core/IR/Typechecker.hs
 module Typechecker where
 
+import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.IR.CheckTerm as TC
 import qualified Juvix.Core.IR.Evaluator as Eval
+import qualified Juvix.Core.IR.Typechecker as Typed
 import qualified Juvix.Core.Parameterisation as P
 import qualified Juvix.Core.Parameterisations.All as All
 import qualified Juvix.Core.Parameterisations.Naturals as Nat
@@ -19,35 +21,35 @@ import qualified Juvix.Library.Usage as Usage
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 
-type NatTerm = IR.Term Nat.Ty Nat.Val
+type NatTerm = Core.Term IR.T Nat.Ty Nat.Val
 
 type NatElim = IR.Elim Nat.Ty Nat.Val
 
-type NatValue = IR.Value Nat.Ty Nat.Val
+type NatValue = Core.Value IR.T Nat.Ty Nat.Val
 
-type NatValueT = IR.ValueT Nat.Ty Nat.Val
+type NatValueT = Typed.ValueT IR.T Nat.Ty Nat.Val
 
-type NatAnnotation = IR.AnnotationT Nat.Ty Nat.Val
+type NatAnnotation = Typed.AnnotationT IR.T Nat.Ty Nat.Val
 
-type UnitTerm = IR.Term Unit.Ty Unit.Val
+type UnitTerm = Core.Term IR.T Unit.Ty Unit.Val
 
 type UnitElim = IR.Elim Unit.Ty Unit.Val
 
-type UnitValue = IR.Value Unit.Ty Unit.Val
+type UnitValue = Core.Value IR.T Unit.Ty Unit.Val
 
-type UnitValueT = IR.ValueT Unit.Ty Unit.Val
+type UnitValueT = Typed.ValueT IR.T Unit.Ty Unit.Val
 
-type UnitAnnotation = IR.AnnotationT Unit.Ty Unit.Val
+type UnitAnnotation = Typed.AnnotationT IR.T Unit.Ty Unit.Val
 
-type AllTerm = IR.Term All.Ty All.Val
+type AllTerm = Core.Term IR.T All.Ty All.Val
 
 type AllElim = IR.Elim All.Ty All.Val
 
-type AllValue = IR.Value All.Ty All.Val
+type AllValue = Core.Value IR.T All.Ty All.Val
 
-type AllValueT = IR.ValueT All.Ty All.Val
+type AllValueT = Typed.ValueT IR.T All.Ty All.Val
 
-type AllAnnotation = IR.AnnotationT All.Ty All.Val
+type AllAnnotation = Typed.AnnotationT IR.T All.Ty All.Val
 
 -- | The Bool parameter means "expect right".
 assertEitherIsAsExpected ::
@@ -93,20 +95,25 @@ assertCheckResultWith ::
     Show (ApplyErrorExtra primTy),
     Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
     Show (ApplyErrorExtra (TypedPrim primTy primVal)),
-    TC.PrimSubstValue primTy primVal,
-    TC.PrimPatSubstTerm primTy primVal,
-    Eval.HasWeak primVal
+    Typed.PrimSubstValue primTy primVal,
+    Typed.PrimPatSubstTerm primTy primVal,
+    Eval.HasWeak primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (TypedPrim primTy primVal)
+      primTy
   ) =>
   Bool ->
   Parameterisation primTy primVal ->
-  IR.GlobalsT primTy primVal ->
-  IR.Context primTy primVal ->
-  IR.Term primTy primVal ->
-  IR.AnnotationT primTy primVal ->
+  Typed.GlobalsT IR.T IR.T primTy primVal ->
+  Typed.Context primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
 assertCheckResultWith expectSuccess param globals ctx term ann =
   -- TODO: take out the logs and put them in an IO monad.
-  let (res, _) = TC.exec globals $ TC.typeTermWith param mempty ctx term ann
+  let (res, _) = Typed.exec globals $ TC.typeTermWith param mempty ctx term ann
    in T.testCase
         ( show term
             <> " should "
@@ -133,15 +140,20 @@ shouldCheckWith ::
     Show (ApplyErrorExtra primTy),
     Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
     Show (ApplyErrorExtra (TypedPrim primTy primVal)),
-    TC.PrimSubstValue primTy primVal,
-    TC.PrimPatSubstTerm primTy primVal,
-    Eval.HasWeak primVal
+    Typed.PrimSubstValue primTy primVal,
+    Typed.PrimPatSubstTerm primTy primVal,
+    Eval.HasWeak primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (TypedPrim primTy primVal)
+      primTy
   ) =>
   Parameterisation primTy primVal ->
-  IR.GlobalsT primTy primVal ->
-  IR.Context primTy primVal ->
-  IR.Term primTy primVal ->
-  IR.AnnotationT primTy primVal ->
+  Typed.GlobalsT IR.T IR.T primTy primVal ->
+  Typed.Context primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
 shouldCheckWith = assertCheckResultWith True
 
@@ -162,15 +174,20 @@ shouldFailWith ::
     Show (ApplyErrorExtra primTy),
     Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
     Show (ApplyErrorExtra (TypedPrim primTy primVal)),
-    TC.PrimSubstValue primTy primVal,
-    TC.PrimPatSubstTerm primTy primVal,
-    Eval.HasWeak primVal
+    Typed.PrimSubstValue primTy primVal,
+    Typed.PrimPatSubstTerm primTy primVal,
+    Eval.HasWeak primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (TypedPrim primTy primVal)
+      primTy
   ) =>
   Parameterisation primTy primVal ->
-  IR.GlobalsT primTy primVal ->
-  IR.Context primTy primVal ->
-  IR.Term primTy primVal ->
-  IR.AnnotationT primTy primVal ->
+  Typed.GlobalsT IR.T IR.T primTy primVal ->
+  Typed.Context primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
 shouldFailWith = assertCheckResultWith False
 
@@ -190,14 +207,19 @@ assertCheckResult ::
     Show (ApplyErrorExtra primTy),
     Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
     Show (ApplyErrorExtra (TypedPrim primTy primVal)),
-    TC.PrimSubstValue primTy primVal,
-    TC.PrimPatSubstTerm primTy primVal,
-    Eval.HasWeak primVal
+    Typed.PrimSubstValue primTy primVal,
+    Typed.PrimPatSubstTerm primTy primVal,
+    Eval.HasWeak primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (TypedPrim primTy primVal)
+      primTy
   ) =>
   Bool ->
   Parameterisation primTy primVal ->
-  IR.Term primTy primVal ->
-  IR.AnnotationT primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
 assertCheckResult expectSuccess param =
   assertCheckResultWith expectSuccess param mempty []
@@ -218,13 +240,18 @@ shouldCheck ::
     Show (ApplyErrorExtra primTy),
     Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
     Show (ApplyErrorExtra (TypedPrim primTy primVal)),
-    TC.PrimSubstValue primTy primVal,
-    TC.PrimPatSubstTerm primTy primVal,
-    Eval.HasWeak primVal
+    Typed.PrimSubstValue primTy primVal,
+    Typed.PrimPatSubstTerm primTy primVal,
+    Eval.HasWeak primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (TypedPrim primTy primVal)
+      primTy
   ) =>
   Parameterisation primTy primVal ->
-  IR.Term primTy primVal ->
-  IR.AnnotationT primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
 shouldCheck = assertCheckResult True
 
@@ -244,13 +271,18 @@ shouldFail ::
     Show (ApplyErrorExtra primTy),
     Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
     Show (ApplyErrorExtra (TypedPrim primTy primVal)),
-    TC.PrimSubstValue primTy primVal,
-    TC.PrimPatSubstTerm primTy primVal,
-    Eval.HasWeak primVal
+    Typed.PrimSubstValue primTy primVal,
+    Typed.PrimPatSubstTerm primTy primVal,
+    Eval.HasWeak primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (TypedPrim primTy primVal)
+      primTy
   ) =>
   Parameterisation primTy primVal ->
-  IR.Term primTy primVal ->
-  IR.AnnotationT primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
 shouldFail = assertCheckResult False
 
@@ -271,19 +303,24 @@ shouldInferWith ::
     Show (ApplyErrorExtra primTy),
     Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
     Show (ApplyErrorExtra (TypedPrim primTy primVal)),
-    TC.PrimSubstValue primTy primVal,
-    TC.PrimPatSubstTerm primTy primVal,
-    Eval.HasWeak primVal
+    Typed.PrimSubstValue primTy primVal,
+    Typed.PrimPatSubstTerm primTy primVal,
+    Eval.HasWeak primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (TypedPrim primTy primVal)
+      primTy
   ) =>
   Parameterisation primTy primVal ->
-  IR.GlobalsT primTy primVal ->
-  IR.Context primTy primVal ->
+  Typed.GlobalsT IR.T IR.T primTy primVal ->
+  Typed.Context primTy primVal ->
   IR.Elim primTy primVal ->
-  IR.AnnotationT primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
-shouldInferWith param globals ctx elim ann@(IR.Annotation {annUsage = σ}) =
-  let (res, _) = TC.exec globals $ TC.typeElimWith param mempty ctx elim σ
-      resTy = TC.getElimAnn . TC.loValue <$> res
+shouldInferWith param globals ctx elim ann@(Typed.Annotation {annUsage = σ}) =
+  let (res, _) = Typed.exec globals $ TC.typeElimWith param mempty ctx elim σ
+      resTy = Typed.getElimAnn . TC.loValue <$> res
    in T.testCase (show term <> " should infer to type " <> show ann) $
         resTy T.@?= Right ann
 
@@ -303,13 +340,18 @@ shouldInfer ::
     Show (ApplyErrorExtra primTy),
     Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
     Show (ApplyErrorExtra (TypedPrim primTy primVal)),
-    TC.PrimSubstValue primTy primVal,
-    TC.PrimPatSubstTerm primTy primVal,
-    Eval.HasWeak primVal
+    Typed.PrimSubstValue primTy primVal,
+    Typed.PrimPatSubstTerm primTy primVal,
+    Eval.HasWeak primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (TypedPrim primTy primVal)
+      primTy
   ) =>
   Parameterisation primTy primVal ->
   IR.Elim primTy primVal ->
-  IR.AnnotationT primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
 shouldInfer param = shouldInferWith param mempty []
 
@@ -330,9 +372,9 @@ shouldEval' ::
     Eval.HasSubstValue IR.T primTy primVal primVal,
     Eval.HasWeak primVal
   ) =>
-  IR.Globals primTy primVal ->
-  IR.Term primTy primVal ->
-  IR.Value primTy primVal ->
+  Core.Globals IR.T IR.T primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Core.Value IR.T primTy primVal ->
   T.TestTree
 shouldEval' g term res =
   T.testCase (show term <> " should evaluate to " <> show res) $
@@ -354,15 +396,15 @@ shouldEval ::
     Eval.HasSubstValue IR.T primTy primVal primVal,
     Eval.HasWeak primVal
   ) =>
-  IR.Term primTy primVal ->
-  IR.Value primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Core.Value IR.T primTy primVal ->
   T.TestTree
 shouldEval = shouldEval' mempty
 
 infix 1 `ann`
 
-ann :: Usage.T -> IR.Value primTy primVal -> IR.Annotation primTy primVal
-ann = IR.Annotation
+ann :: Usage.T -> Core.Value IR.T primTy primVal -> Typed.Annotation IR.T primTy primVal
+ann = Typed.Annotation
 
 coreCheckerEval :: T.TestTree
 coreCheckerEval =
@@ -508,7 +550,7 @@ subtype =
     typ2typ i j = IR.VPi mempty (IR.VStar i) (IR.VStar j)
 
 -- \x. x
-identity :: forall primTy primVal. IR.Term primTy primVal
+identity :: forall primTy primVal. Core.Term IR.T primTy primVal
 identity = IR.Lam (IR.Elim (IR.Bound 0))
 
 -- computation annotation of identity: (1, 1 Nat -> Nat)
@@ -524,7 +566,7 @@ identityNatContTy :: NatAnnotation
 identityNatContTy = mempty `ann` IR.VPi mempty natT natT
 
 -- dependent identity function, \t.\x.x 1: t
-depIdentity :: forall primTy primVal. IR.Term primTy primVal
+depIdentity :: forall primTy primVal. Core.Term IR.T primTy primVal
 depIdentity =
   IR.Lam -- first input \t.
     ( IR.Lam -- second input \x.
@@ -540,7 +582,7 @@ depIdentity =
     )
 
 -- dependent identity function without ann, \t.\x.x
-depIdentity' :: forall primTy primVal. IR.Term primTy primVal
+depIdentity' :: forall primTy primVal. Core.Term IR.T primTy primVal
 depIdentity' = IR.Lam $ IR.Lam $ IR.Elim $ IR.Bound 0
 
 -- computation dependent identity annotation (1, 0 * -> 1 t -> t)
@@ -647,7 +689,7 @@ identityAppI =
         )
     )
 
-kcombinator :: forall primTy primVal. IR.Term primTy primVal -- K = \x.\y.x
+kcombinator :: forall primTy primVal. Core.Term IR.T primTy primVal -- K = \x.\y.x
 kcombinator = IR.Lam (IR.Lam (IR.Elim (IR.Bound 1)))
 
 -- K has annotation (1, 1 Nat -> 0 Nat -> Nat )
@@ -827,7 +869,7 @@ kAppICompTy :: NatAnnotation
 kAppICompTy = one `ann` IR.VPi mempty natT (IR.VPi one natT natT)
 
 -- dependent k, \t1.\t2.\x:t1.\y:t2.x 1: t1
-depK :: forall primTy primVal. IR.Term primTy primVal
+depK :: forall primTy primVal. Core.Term IR.T primTy primVal
 depK =
   IR.Lam -- first input t1, Bound 3 counting from output
     ( IR.Lam -- second input t2, Bound 2 counting from output
@@ -1035,13 +1077,13 @@ addTyT = IR.Pi Usage.Omega natT' $ IR.Pi Usage.Omega natT' $ natT'
 addTy :: NatValueT
 addTy = IR.VPi Usage.Omega natT $ IR.VPi Usage.Omega natT $ natT
 
-one' :: forall primTy primVal. IR.Term primTy primVal
+one' :: forall primTy primVal. Core.Term IR.T primTy primVal
 one' = IR.Lam $ IR.Lam $ IR.Elim $ IR.App (IR.Bound 1) (IR.Elim (IR.Bound 0))
 
 oneCompTy :: NatAnnotation
 oneCompTy = one `ann` IR.VPi one (IR.VPi one natT natT) (IR.VPi one natT natT)
 
-two :: IR.Term primTy primVal
+two :: Core.Term IR.T primTy primVal
 two =
   IR.Lam $
     IR.Lam $
@@ -1053,7 +1095,7 @@ twoCompTy = one `ann` IR.VPi two (IR.VPi one natT natT) (IR.VPi one natT natT)
   where
     two = Usage.SNat 2
 
-typGlobals :: IR.Globals Unit.Ty (TypedPrim Unit.Ty Unit.Val)
+typGlobals :: Core.Globals IR.T IR.T Unit.Ty (TypedPrim Unit.Ty Unit.Val)
 typGlobals =
   Map.fromList
     [ ("A", Core.GAbstract (Core.Abstract "A" Core.GZero (IR.VStar 0))),
@@ -1089,44 +1131,44 @@ typGlobals =
             }
       )
 
-aTerm :: IR.Term primTy primVal
+aTerm :: Core.Term IR.T primTy primVal
 aTerm = IR.Elim aElim
 
 aElim :: IR.Elim primTy primVal
 aElim = IR.Free (Core.Global "A")
 
-fTerm :: IR.Term primTy primVal
+fTerm :: Core.Term IR.T primTy primVal
 fTerm = IR.Elim fElim
 
 fElim :: IR.Elim primTy primVal
 fElim = IR.Free (Core.Global "F")
 
-faTerm :: IR.Term primTy primVal
+faTerm :: Core.Term IR.T primTy primVal
 faTerm = IR.Elim faElim
 
 faElim :: IR.Elim primTy primVal
 faElim = fElim `IR.App` aTerm
 
-nat :: Natural -> IR.Term primTy Nat.Val
+nat :: Natural -> Core.Term IR.T primTy Nat.Val
 nat = IR.Prim . Nat.Val
 
-natV :: Natural -> IR.Value primTy Nat.Val
+natV :: Natural -> Core.Value IR.T primTy Nat.Val
 natV = IR.VPrim . Nat.Val
 
-natT' :: IR.Term Nat.Ty primVal
+natT' :: Core.Term IR.T Nat.Ty primVal
 natT' = IR.PrimTy Nat.Ty
 
-natT :: IR.Value Nat.Ty primVal
+natT :: Core.Value IR.T Nat.Ty primVal
 natT = IR.VPrimTy Nat.Ty
 
-unitT' :: IR.Term Unit.Ty primVal
+unitT' :: Core.Term IR.T Unit.Ty primVal
 unitT' = IR.PrimTy Unit.Ty
 
-unitT :: IR.Value Unit.Ty primVal
+unitT :: Core.Value IR.T Unit.Ty primVal
 unitT = IR.VPrimTy Unit.Ty
 
-unit :: IR.Term primTy Unit.Val
+unit :: Core.Term IR.T primTy Unit.Val
 unit = IR.Prim Unit.Val
 
-unit' :: IR.Term Unit.Ty (TypedPrim Unit.Ty Unit.Val)
-unit' = IR.Prim (TC.Return {retType = P.PrimType [Unit.Ty], retTerm = Unit.Val})
+unit' :: Core.Term IR.T Unit.Ty (TypedPrim Unit.Ty Unit.Val)
+unit' = IR.Prim (App.Return {retType = P.PrimType [Unit.Ty], retTerm = Unit.Val})

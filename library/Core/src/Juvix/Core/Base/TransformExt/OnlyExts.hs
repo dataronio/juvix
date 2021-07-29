@@ -30,10 +30,10 @@ do
         }
   pure $ decsT <> decsE
 
-onlyExtsT :: Core.Term' ext primTy primVal -> Core.Term' (T ext) primTy primVal
+onlyExtsT :: Core.Term ext primTy primVal -> Core.Term (T ext) primTy primVal
 onlyExtsT = extTransformT transformer
 
-onlyExtsE :: Core.Elim' ext primTy primVal -> Core.Elim' (T ext) primTy primVal
+onlyExtsE :: Core.Elim ext primTy primVal -> Core.Elim (T ext) primTy primVal
 onlyExtsE = extTransformE transformer
 
 transformer :: ExtTransformTE ext (T ext) primTy primVal
@@ -63,8 +63,8 @@ injectT ::
     Core.ElimX ext' primTy primVal ~ Void,
     ForgotExt ext' primTy primVal
   ) =>
-  Core.Term' ext' primTy primVal ->
-  Core.Term' (T ext) primTy primVal
+  Core.Term ext' primTy primVal ->
+  Core.Term (T ext) primTy primVal
 injectT = extTransformT injector
 
 injectE ::
@@ -72,8 +72,8 @@ injectE ::
     Core.ElimX ext' primTy primVal ~ Void,
     ForgotExt ext' primTy primVal
   ) =>
-  Core.Elim' ext' primTy primVal ->
-  Core.Elim' (T ext) primTy primVal
+  Core.Elim ext' primTy primVal ->
+  Core.Elim (T ext) primTy primVal
 injectE = extTransformE injector
 
 injector ::

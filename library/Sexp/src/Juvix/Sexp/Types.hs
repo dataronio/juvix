@@ -17,12 +17,12 @@ data T
   = Atom Atom
   | Cons {tCar :: T, tCdr :: T}
   | Nil
-  deriving (Eq)
+  deriving (Eq, Data)
 
 data Atom
   = A {atomName :: NameSymbol.T, atomLineNum :: Maybe LineNum.T}
   | N {atomNum :: Integer, atomLineNum :: Maybe LineNum.T}
-  deriving (Show)
+  deriving (Show, Data)
 
 instance Eq Atom where
   A n1 _ == A n2 _ = n1 == n2
