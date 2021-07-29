@@ -1,4 +1,5 @@
 {-# LANGUAGE UndecidableInstances #-}
+
 module Juvix.Core.Base.Types.Sig
   ( Sig (..),
     Sigs,

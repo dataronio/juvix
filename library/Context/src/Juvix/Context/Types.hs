@@ -4,13 +4,13 @@
 module Juvix.Context.Types where
 
 import Control.Lens hiding ((|>))
+import qualified Data.HashSet as Set
 import GHC.Show
 import qualified Juvix.Context.NameSpace as NameSpace
 import qualified Juvix.Context.Open as Open
 import Juvix.Context.Precedence
 import Juvix.Library
 import qualified Juvix.Library.HashMap as HashMap
-import qualified Data.HashSet as Set
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 import qualified StmContainers.Map as STM
