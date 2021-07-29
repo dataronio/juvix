@@ -10,6 +10,7 @@ import qualified Juvix.Context.Open as Open
 import Juvix.Context.Precedence
 import Juvix.Library
 import qualified Juvix.Library.HashMap as HashMap
+import qualified Data.HashSet as Set
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 import qualified StmContainers.Map as STM
@@ -75,6 +76,7 @@ data Record term ty sumRep = Rec
     -- TODO ∷ reconsider the type when we have proper module typing up.
     recordMTy :: Maybe ty,
     recordOpenList :: [Open.TName NameSymbol.T],
+    recordFieldAssoc :: HashMap.T (Set.HashSet Symbol) [(Symbol, [Symbol])],
     recordQualifiedMap :: SymbolMap
   }
   deriving (Show, Read, Generic, Eq)

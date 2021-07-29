@@ -68,10 +68,11 @@ emptyRecord = do
       { recordContents = NameSpace.empty,
         recordOpenList = [],
         recordQualifiedMap = emptyQualificationMap,
+        recordFieldAssoc = mempty,
         recordMTy = Nothing
       }
 
-data AmbiguousDef = AmbiguousDef NameSymbol.T
+newtype AmbiguousDef = AmbiguousDef NameSymbol.T
 
 -- | @persistDefinition@ states that the definition we are adding is
 -- staying in the context, so promote it.  In the future this will be
@@ -253,7 +254,7 @@ addPathWithValue sym def t = do
     f (Final (Just _)) = pure Abort
     f (Continue Nothing) =
       atomically STM.new
-        >>| GoOn . Rec NameSpace.empty Nothing []
+        >>| GoOn . Rec NameSpace.empty Nothing [] mempty
     f (Continue (Just (Record record))) =
       pure (GoOn record)
     f (Continue _) =

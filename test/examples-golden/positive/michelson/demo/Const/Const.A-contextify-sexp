@@ -48,4 +48,5 @@ Rec
         , private = fromList [] }
     , recordMTy = Nothing
     , recordOpenList = []
+    , recordFieldAssoc = fromList []
     , recordQualifiedMap = map }
