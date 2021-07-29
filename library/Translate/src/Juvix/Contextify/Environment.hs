@@ -5,6 +5,8 @@ module Juvix.Contextify.Environment
     HasClosure,
     passContextSingle,
     passContext,
+    passContextExplicitBinderHandler,
+    searchAndClosureRegisterTypeName,
     Pass (..),
     extractInformation,
     lookupPrecedence,
@@ -25,10 +27,11 @@ import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Context
 import qualified Juvix.Context.NameSpace as NameSpace
 import qualified Juvix.Contextify.InfixPrecedence.ShuntYard as Shunt
-import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Sexp.Structure.Frontend as Structure
+import Juvix.Sexp.Structure.Lens
 import Prelude (error)
 
 data ErrorS
@@ -118,7 +121,23 @@ passContextSingle ctx trigger f =
 -- function for each type term and sum representation form.
 passContext ::
   (HasClosure m, ErrS m) => SexpContext -> (NameSymbol.T -> Bool) -> Pass m -> m SexpContext
-passContext ctx trigger Pass {sumF, termF, tyF} =
+passContext =
+  passContextExplicitBinderHandler searchAndClosure
+
+-- | @passContextExplicitBinderHandler@ is like @passContext@ except we
+-- must give it an explicit function to handle the binder forms. This
+-- is useful, if a certain pass requires to store information
+-- differently from the rest. For example passing record declaration
+-- on, we actually care about what definition we currently are in for type declarations.
+passContextExplicitBinderHandler ::
+  Monad m =>
+  -- | See @searchAndClosure@ for context on the argument structure
+  (SexpContext -> Sexp.Atom -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T) ->
+  Context.T Sexp.T Sexp.T Sexp.T ->
+  (NameSymbol.T -> Bool) ->
+  Pass m ->
+  m (Context.T Sexp.T Sexp.T Sexp.T)
+passContextExplicitBinderHandler handleBinders ctx trigger Pass {sumF, termF, tyF} =
   Context.mapWithContext
     ctx
     Context.CtxForm
@@ -134,7 +153,7 @@ passContext ctx trigger Pass {sumF, termF, tyF} =
       Sexp.foldSearchPred
         form
         (trigger, func ctx)
-        (bindingForms, searchAndClosure ctx)
+        (bindingForms, handleBinders ctx)
 
 -- | @onExpression@ runs an algorithm similar to @passContext@ however
 -- only on a single expression instead of an entire context. For this
@@ -247,6 +266,40 @@ searchAndClosure ctx a as cont
   | otherwise = searchAndClosureNoCtx a as cont
   where
     named = Sexp.isAtomNamed (Sexp.Atom a)
+
+-- | @searchAndClosureRegisterTypeName@ acts like @searchAndClosure@
+-- except we register the current type declaration name under
+-- ":current-def" along with all the normal behavior @searchAndClosure@
+-- has.
+searchAndClosureRegisterTypeName ::
+  (HasClosure f, ErrS f) =>
+  -- | The Context, an extra function that is required the by the
+  -- :open-in case.
+  SexpContext ->
+  -- | the atom to dispatch on
+  Sexp.Atom ->
+  -- | The sexp form in which the atom is called on
+  Sexp.T ->
+  -- | the continuation of continuing the changes
+  (Sexp.T -> f Sexp.T) ->
+  f Sexp.T
+searchAndClosureRegisterTypeName ctx a as cont
+  | Just typ <- Structure.toType (Sexp.Cons (Sexp.Atom a) as),
+    Just name <- Sexp.nameFromT (Sexp.car (typ ^. nameAndSig)) =
+    local @"closure" (Closure.insert ":current-def" (closureInfo name)) $
+      type' as cont
+  | otherwise = searchAndClosure ctx a as cont
+  where
+    closureInfo name =
+      Closure.Info
+        { mSig = Nothing,
+          info = [],
+          -- sort of a hack we register that our ":current-def" comes
+          -- from the source of type name. However this is rather
+          -- confusing, as we call this the open, as typically that is
+          -- where the term is gotten in scope from!
+          mOpen = Just name
+        }
 
 ------------------------------------------------------------
 -- Environment functionality

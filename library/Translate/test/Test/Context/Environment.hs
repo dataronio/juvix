@@ -53,7 +53,7 @@ runCtx :: Context a -> Capture -> (Either Env.ErrorS a, Capture)
 runCtx (Ctx c) = runState (runExceptT c)
 
 emptyClosure :: Capture
-emptyClosure = Cap (Closure.T Map.empty) []
+emptyClosure = Cap Closure.empty []
 
 recordClosure ::
   (HasReader "closure" a m, HasWriter "report" [a] m) => c -> p -> b -> m b
@@ -199,7 +199,7 @@ openTest =
             ( ("Foo", parseDesugarSexp "let f = open A in print-closure 2")
                 :| [("A", parseDesugarSexp "let bar = 3")]
             )
-        let (_, Cap _ [Closure.T capture]) =
+        let (_, Cap _ [Closure.T capture _]) =
               runCtx (Env.passContextSingle ctx trigger recordClosure) emptyClosure
         Map.toList capture T.@=? [("bar", Closure.Info Nothing [] (Just "A"))]
     ]

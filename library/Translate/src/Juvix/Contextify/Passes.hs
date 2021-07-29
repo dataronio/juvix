@@ -27,13 +27,15 @@ inifixSoloPass context =
 resolveRecordDeclaration ::
   Expression m => Env.SexpContext -> m Env.SexpContext
 resolveRecordDeclaration context =
-  Env.passContextSingle
+  Env.passContextExplicitBinderHandler
+    -- we wish to register the name of the type we are working under
+    searchAndClosureRegisterTypeName
     context
-    ( \x -> x == Structure.nameType
-    -- need another pr for this
-    --  || x == Structure.nameRecordDec
+    ( \x -> undefined -- x == Structure.nameRecordDec
     )
-    registerRecordDeclaration
+    (conPass registerRecordDeclaration)
+  where
+    conPass f = Env.Pass f f f
 
 type ExpressionIO m = (Env.ErrS m, Env.HasClosure m, MonadIO m)
 
@@ -87,7 +89,8 @@ registerRecordDeclaration ctx a cdr
   where
     form = Sexp.Cons (Sexp.Atom a) cdr
 
-registerCurrentForm = undefined
+registerCurrentForm type' =
+  pure (Structure.fromType type')
 
 ------------------------------------------------------------
 -- Helpers for infix conversion
