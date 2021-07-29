@@ -29,7 +29,7 @@ resolveRecordDeclaration ::
 resolveRecordDeclaration context =
   Env.passContextExplicitBinderHandler
     -- we wish to register the name of the type we are working under
-    searchAndClosureRegisterTypeName
+    Env.searchAndClosureRegisterTypeName
     context
     ( \x -> undefined -- x == Structure.nameRecordDec
     )
