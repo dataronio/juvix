@@ -24,6 +24,17 @@ inifixSoloPass ::
 inifixSoloPass context =
   Env.passContextSingle context (== Structure.nameInfix) infixConversion
 
+resolveRecordDeclaration ::
+  Expression m => Env.SexpContext -> m Env.SexpContext
+resolveRecordDeclaration context =
+  Env.passContextSingle
+    context
+    ( \x -> x == Structure.nameType
+    -- need another pr for this
+    --  || x == Structure.nameRecordDec
+    )
+    registerRecordDeclaration
+
 type ExpressionIO m = (Env.ErrS m, Env.HasClosure m, MonadIO m)
 
 type Expression m = (Env.ErrS m, Env.HasClosure m)
@@ -66,6 +77,17 @@ infixConversion context atom list = do
       throw @"error" (Env.Clash pred1 pred2)
     Left Shunt.MoreEles ->
       throw @"error" Env.ImpossibleMoreEles
+
+
+registerRecordDeclaration ctx a cdr
+  | Just type' <- Structure.toType form =
+      registerCurrentForm type'
+  | otherwise =
+    undefined
+  where
+    form = Sexp.Cons (Sexp.Atom a) cdr
+
+registerCurrentForm = undefined
 
 ------------------------------------------------------------
 -- Helpers for infix conversion

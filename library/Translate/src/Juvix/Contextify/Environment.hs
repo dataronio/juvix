@@ -25,6 +25,7 @@ import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Context
 import qualified Juvix.Context.NameSpace as NameSpace
 import qualified Juvix.Contextify.InfixPrecedence.ShuntYard as Shunt
+import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
@@ -49,7 +50,7 @@ type ErrS m = HasThrow "error" ErrorS m
 -- Runner environment
 ------------------------------------------------------------
 
-data Minimal = Minimal
+newtype Minimal = Minimal
   { closure :: Closure.T
   }
   deriving (Generic, Show)
@@ -124,7 +125,7 @@ passContext ctx trigger Pass {sumF, termF, tyF} =
       { -- Need to do this consing of type to figure out we are in a type
         -- we then need to remove it, as it shouldn't be there
         sumF = \form ->
-          fmap Sexp.cdr . pass sumF (Sexp.Cons (Sexp.atom "type") form),
+          fmap Sexp.cdr . pass sumF (Sexp.Cons (Sexp.atom Structure.nameType) form),
         termF = pass termF,
         tyF = pass tyF
       }
