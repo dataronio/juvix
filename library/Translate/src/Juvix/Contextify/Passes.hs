@@ -80,10 +80,9 @@ infixConversion context atom list = do
     Left Shunt.MoreEles ->
       throw @"error" Env.ImpossibleMoreEles
 
-
 registerRecordDeclaration ctx a cdr
   | Just type' <- Structure.toType form =
-      registerCurrentForm type'
+    registerCurrentForm type'
   | otherwise =
     undefined
   where

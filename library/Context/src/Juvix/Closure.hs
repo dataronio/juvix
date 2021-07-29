@@ -8,9 +8,10 @@ module Juvix.Closure
     keys,
     lookup,
     empty,
+
     -- * Extended API
     openList,
-    registerOpen
+    registerOpen,
   )
 where
 

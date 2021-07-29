@@ -1548,6 +1548,8 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
+  + [[Structure/Frontend]]
+  + [[Lens]]
 ***** Passes <<Contextify/Passes>>
 - _Relies on_
   + [[Closure]]
