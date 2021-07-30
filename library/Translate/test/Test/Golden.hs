@@ -288,7 +288,6 @@ resolveRecordPi names = do
     Left _err -> Feedback.fail "can't resolve infix symbols"
     Right ctx -> pure ctx
 
-
 ----------------------------------------------------------------------
 -- Helpers
 ----------------------------------------------------------------------
