@@ -1,8 +1,6 @@
 module Juvix.Core.Erased.Algorithm
   ( erase,
-    eraseAnn,
     eraseGlobal,
-    exec,
     module Erasure,
   )
 where
@@ -36,7 +34,7 @@ erase mt mv t π
 
 eraseGlobal ::
   ErasureM primTy1 primTy2 primVal1 primVal2 m =>
-  IR.Global primTy1 primVal1 ->
+  Core.Global IR.T IR.T primTy1 primVal1 ->
   m (Erasure.Global primTy2 primVal2)
 eraseGlobal g =
   case g of
@@ -49,14 +47,14 @@ eraseGlobal g =
 
 eraseAbstract ::
   ErasureM primTy1 primTy2 primVal1 primVal2 m =>
-  IR.Abstract primTy1 primVal1 ->
+  Core.Abstract IR.T primTy1 primVal1 ->
   m (Erasure.Abstract primTy2)
 eraseAbstract (Core.Abstract name usage ty) =
   Erasure.Abstract name usage <$> eraseType ty
 
 eraseDatatype ::
   ErasureM primTy1 primTy2 primVal1 primVal2 m =>
-  IR.Datatype primTy1 primVal1 ->
+  Core.Datatype IR.T IR.T primTy1 primVal1 ->
   m (Erasure.Datatype primTy2 primVal2)
 eraseDatatype (Core.Datatype name _pos args level cons) = do
   args <- mapM eraseDataArg args
@@ -65,7 +63,7 @@ eraseDatatype (Core.Datatype name _pos args level cons) = do
 
 eraseDataArg ::
   ErasureM primTy1 primTy2 primVal1 primVal2 m =>
-  IR.DataArg primTy1 primVal1 ->
+  Core.DataArg IR.T primTy1 primVal1 ->
   m (Erasure.DataArg primTy2)
 eraseDataArg (Core.DataArg name usage ty) = do
   ty <- eraseType ty
@@ -73,7 +71,7 @@ eraseDataArg (Core.DataArg name usage ty) = do
 
 eraseDataCon ::
   ErasureM primTy1 primTy2 primVal1 primVal2 m =>
-  IR.DataCon primTy1 primVal1 ->
+  Core.DataCon IR.T IR.T primTy1 primVal1 ->
   m (Erasure.DataCon primTy2 primVal2)
 eraseDataCon (Core.DataCon name ty def) = do
   ty <- eraseType ty
@@ -82,7 +80,7 @@ eraseDataCon (Core.DataCon name ty def) = do
 
 eraseFunction ::
   ErasureM primTy1 primTy2 primVal1 primVal2 m =>
-  IR.Function primTy1 primVal1 ->
+  Core.Function IR.T IR.T primTy1 primVal1 ->
   m (Erasure.Function primTy2 primVal2)
 eraseFunction (Core.Function name usage ty clauses) = do
   let (tys, ret) = piTypeToList (Core.quote ty)
@@ -154,29 +152,29 @@ eraseTerm ::
 eraseTerm t@(Typed.Star _ _) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm t@(Typed.PrimTy _ _) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Prim p ann) = do
-  Erasure.Prim <$> erasePrimVal p <*> eraseType (IR.annType ann)
+  Erasure.Prim <$> erasePrimVal p <*> eraseType (Typed.annType ann)
 eraseTerm t@(Typed.Pi _ _ _ _) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Lam t anns) = do
-  let ty@(IR.VPi π _ _) = IR.annType $ IR.baResAnn anns
+  let ty@(IR.VPi π _ _) = Typed.annType $ Typed.baResAnn anns
   (x, t) <- withName \x -> (x,) <$> eraseTerm t
   if π == mempty
     then pure t
     else Erasure.Lam x t <$> eraseType ty
 eraseTerm t@(Typed.Sig {}) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Pair s t ann) = do
-  let ty@(IR.VSig π _ _) = IR.annType ann
+  let ty@(IR.VSig π _ _) = Typed.annType ann
   if π == mempty
     then eraseTerm t
     else Erasure.Pair <$> eraseTerm s <*> eraseTerm t <*> eraseType ty
 eraseTerm t@(Typed.UnitTy {}) = throwEra $ Erasure.UnsupportedTermT t
-eraseTerm (Typed.Unit ann) = Erasure.Unit <$> eraseType (IR.annType ann)
+eraseTerm (Typed.Unit ann) = Erasure.Unit <$> eraseType (Typed.annType ann)
 eraseTerm (Typed.Let π b t anns) = do
   (x, t) <- withName \x -> (x,) <$> eraseTerm t
   if π == mempty
     then pure t
     else do
-      let exprTy = IR.annType $ IR.baResAnn anns
-          bindTy = IR.annType $ IR.baBindAnn anns
+      let exprTy = Typed.annType $ Typed.baResAnn anns
+          bindTy = Typed.annType $ Typed.baBindAnn anns
       b <- eraseElim b
       bindTy <- eraseType bindTy
       exprTy <- eraseType exprTy
@@ -189,20 +187,20 @@ eraseElim ::
   m (Erasure.Term primTy2 primVal2)
 eraseElim (Typed.Bound x ann) = do
   Erasure.Var <$> lookupBound x
-    <*> eraseType (IR.annType ann)
+    <*> eraseType (Typed.annType ann)
 eraseElim (Typed.Free (Core.Global x) ann) = do
-  Erasure.Var x <$> eraseType (IR.annType ann)
+  Erasure.Var x <$> eraseType (Typed.annType ann)
 eraseElim e@(Typed.Free (Core.Pattern _) _) = do
   -- FIXME ??????
   throwEra $ Erasure.UnsupportedTermE e
 eraseElim (Typed.App e s ann) = do
-  let IR.VPi π _ _ = IR.annType $ IR.getElimAnn e
+  let IR.VPi π _ _ = Typed.annType $ Typed.getElimAnn e
   e <- eraseElim e
   if π == mempty
     then pure e
     else do
       s <- eraseTerm s
-      Erasure.App e s <$> eraseType (IR.annType ann)
+      Erasure.App e s <$> eraseType (Typed.annType ann)
 eraseElim (Typed.Ann _ s _ _ _) = do
   eraseTerm s
 

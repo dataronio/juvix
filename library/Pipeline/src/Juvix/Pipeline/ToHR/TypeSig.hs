@@ -1,25 +1,14 @@
-module Juvix.ToCore.FromFrontend.Transform.TypeSig where
+module Juvix.Pipeline.ToHR.TypeSig where
 
 import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.HR as HR
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
+import Juvix.Pipeline.ToHR.Env
+import Juvix.Pipeline.ToHR.Term
+import Juvix.Pipeline.ToHR.Types
 import qualified Juvix.Sexp as Sexp
-import Juvix.ToCore.FromFrontend.Transform.HR
-import Juvix.ToCore.FromFrontend.Transform.Helpers
-  ( ReduceEff,
-    eleToSymbol,
-  )
-import Juvix.ToCore.Types
-  ( CoreSig (..),
-    Error (..),
-    HasCoreSigs,
-    HasParam,
-    HasPatVars,
-    HasThrowFF,
-    throwFF,
-  )
 import Prelude (error)
 
 transformTypeSig ::
@@ -36,22 +25,11 @@ transformTypeSig ::
 transformTypeSig q _name (typeCon Sexp.:> args Sexp.:> typeForm)
   | Just typeArgs <- Sexp.toList args >>= traverse eleToSymbol = do
     (baseTy, hd) <- transformIndices typeArgs typeCon
-    let dataType = foldr makeTPi baseTy typeArgs
-    (dataCons, conSigs) <- unzip <$> transformConSigs q hd typeCon typeForm
-    let dataSig = DataSig {dataType, dataCons}
+    let sigDataType = foldr makeTPi baseTy typeArgs
+    (sigDataCons, conSigs) <- unzip <$> transformConSigs q hd typeCon typeForm
+    let dataSig = CoreSig (Core.DataSig {sigDataType, sigDataCons})
     pure $ dataSig : conSigs
   where
-    -- ff k (x Sexp.:> xs)
-    --   | k == x = Just xs
-    --   | otherwise = ff k xs
-    -- ff _ _ = Nothing
-    -- transformIndices typeArgs (_ Sexp.:> grouped)
-    --   | Just dataArrow <- ff (Sexp.atom ":type") grouped = do
-
-    --     typ <- transformTermHR q dataArrow
-    --     let hd0 = HR.Var name
-    --     let args = HR.Elim . HR.Var . NameSymbol.fromSymbol <$> typeArgs
-    --     pure (typ, Just $ HR.Elim $ foldl HR.App hd0 args)
     transformIndices _ _ =
       pure (HR.Star 0, Just $ HR.Star 0) -- TODO metavar for universe
     makeTPi name res =
@@ -103,7 +81,7 @@ transformProduct ::
   ) =>
   NameSymbol.Mod ->
   -- | datatype head
-  Maybe (Core.Term' HR.T primTy primVal) ->
+  Maybe (Core.Term HR.T primTy primVal) ->
   -- | type constructor
   Sexp.T ->
   (Symbol, Sexp.T) ->
@@ -112,18 +90,18 @@ transformProduct q hd typeCon (x, prod) =
   (NameSymbol.qualify1 q x,) . makeSig
     <$> transformConSig q (NameSymbol.fromSymbol x) hd typeCon prod
   where
-    makeSig ty = ConSig {conType = Just ty}
+    makeSig ty = CoreSig (Core.ConSig {sigConType = Just ty})
 
 transformConSig ::
   (ReduceEff HR.T primTy primVal m, HasPatVars m, Show primTy, Show primVal) =>
   NameSymbol.Mod ->
   NameSymbol.T ->
   -- | datatype head
-  Maybe (Core.Term' HR.T primTy primVal) ->
+  Maybe (Core.Term HR.T primTy primVal) ->
   -- | type constructor
   Sexp.T ->
   Sexp.T ->
-  m (Core.Term' HR.T primTy primVal)
+  m (Core.Term HR.T primTy primVal)
 transformConSig q name mHd typeCon r@((t Sexp.:> ts) Sexp.:> _)
   | named ":record-d" = do
     let convertedSexp = Sexp.list [arrow, Sexp.list $ removeFieldNames ts, Sexp.car typeCon]
@@ -156,3 +134,9 @@ transformConSig q name mHd _ r@(t Sexp.:> ts)
     named = Sexp.isAtomNamed t
 transformConSig _ _ _ _ r = do
   error "malformed transformConSig"
+
+eleToSymbol :: Sexp.T -> Maybe Symbol
+eleToSymbol x
+  | Just Sexp.A {atomName} <- Sexp.atomFromT x =
+    Just (NameSymbol.toSymbol atomName)
+  | otherwise = Nothing

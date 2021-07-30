@@ -11,7 +11,7 @@ import qualified Juvix.Core.Erased as EC
 import qualified Juvix.Core.Erased.Algorithm.Types as Erasure
 import qualified Juvix.Core.HR.Pretty as HR
 import qualified Juvix.Core.HR.Types as HR
-import qualified Juvix.Core.IR.Typechecker as TC
+import qualified Juvix.Core.IR.Typechecker as Typed
 import qualified Juvix.Core.IR.Types as IR
 import Juvix.Core.Parameterisation
 import Juvix.Library
@@ -19,7 +19,7 @@ import qualified Juvix.Library.PrettyPrint as PP
 
 data PipelineError primTy primVal compErr
   = InternalInconsistencyError Text
-  | TypecheckerError (TC.TypecheckError primTy primVal)
+  | TypecheckerError (Typed.TypecheckError primTy primVal)
   | -- EACError (EAC.Errors primTy primVal)
     ErasureError (Erasure.Error primTy (TypedPrim primTy primVal))
   | PrimError compErr
@@ -30,9 +30,9 @@ deriving instance
     Show primVal,
     Show compErr,
     Show (Arg primTy),
-    Show (Arg (TC.TypedPrim primTy primVal)),
+    Show (Arg (Typed.Prim primTy primVal)),
     Show (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra (TC.TypedPrim primTy primVal))
+    Show (ApplyErrorExtra (Typed.Prim primTy primVal))
   ) =>
   Show (PipelineError primTy primVal compErr)
 

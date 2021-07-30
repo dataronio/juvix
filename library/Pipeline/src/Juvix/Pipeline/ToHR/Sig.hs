@@ -1,35 +1,27 @@
-module Juvix.ToCore.FromFrontend.Transform.Sig (transformSig) where
+{-# LANGUAGE UndecidableInstances #-}
 
+module Juvix.Pipeline.ToHR.Sig where
+
+import Data.HashMap.Strict (HashMap)
 import qualified Juvix.Context as Ctx
+import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.HR as HR
 import Juvix.Library
+import Juvix.Library hiding (show)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
-import qualified Juvix.Sexp as Sexp
-import Juvix.ToCore.FromFrontend.Transform.HR (transformTermHR)
-import Juvix.ToCore.FromFrontend.Transform.Helpers
-  ( ReduceEff,
-    conDefName,
-    eleToSymbol,
-    getSpecialSig,
-  )
-import Juvix.ToCore.FromFrontend.Transform.TypeSig
+import Juvix.Pipeline.ToHR.Env
+import Juvix.Pipeline.ToHR.Sig.Extract
+import Juvix.Pipeline.ToHR.Term (transformTermHR)
+import Juvix.Pipeline.ToHR.TypeSig
   ( transformTypeSig,
   )
-import Juvix.ToCore.FromFrontend.Transform.Usage
+import Juvix.Pipeline.ToHR.Types
+import Juvix.Pipeline.ToHR.Usage
   ( transformGUsage,
     transformUsage,
   )
-import Juvix.ToCore.Types
-  ( CoreSig (..),
-    Error (..),
-    HasCoreSigs,
-    HasParam,
-    HasPatVars,
-    HasThrowFF,
-    Special (..),
-    throwFF,
-  )
+import qualified Juvix.Sexp as Sexp
 
 transformSig ::
   ( HasPatVars m,
@@ -82,8 +74,8 @@ transformNormalSig q x (Ctx.SumCon Ctx.Sum {sumTDef}) = do
   where
     conSigM = case sumTDef of
       Just Ctx.D {defMTy} -> do
-        ConSig <$> traverse (transformTermHR q) defMTy
-      _ -> pure $ ConSig {conType = Nothing}
+        CoreSig . Core.ConSig <$> traverse (transformTermHR q) defMTy
+      _ -> pure $ CoreSig $ Core.ConSig {sigConType = Nothing}
 transformNormalSig _ _ Ctx.CurrentNameSpace =
   pure []
 transformNormalSig _ _ Ctx.Information {} =
@@ -104,9 +96,9 @@ transformValSig ::
   m (CoreSig HR.T primTy primVal)
 transformValSig q _ _ _ (Just (Sexp.List [usage, usageExpr, arrow]))
   | Sexp.isAtomNamed usage ":usage" =
-    ValSig <$> transformGUsage q (Just usageExpr) <*> transformTermHR q arrow
+    CoreSig <$> (Core.ValSig <$> transformGUsage q (Just usageExpr) <*> transformTermHR q arrow)
 transformValSig q _ _ _ (Just ty) =
-  ValSig <$> transformGUsage q Nothing <*> transformTermHR q ty
+  CoreSig <$> (Core.ValSig <$> transformGUsage q Nothing <*> transformTermHR q ty)
 transformValSig _ x def _ _ = throwFF $ SigRequired x def
 
 transformSpecial ::
@@ -159,3 +151,23 @@ transformSpecialRhs q (Sexp.List [f, arg])
           Just (PairS Nothing) -> Just . PairS . Just <$> transformUsage q arg
           _ -> pure Nothing
 transformSpecialRhs _ _ = pure Nothing
+
+conDefName :: NameSymbol.T -> NameSymbol.T
+conDefName = identity -- NameSymbol.applyBase (<> "$def")
+
+eleToSymbol :: Sexp.T -> Maybe Symbol
+eleToSymbol x
+  | Just Sexp.A {atomName} <- Sexp.atomFromT x =
+    Just (NameSymbol.toSymbol atomName)
+  | otherwise = Nothing
+
+-- | If two signatures can be merged (currently, only constructor signatures),
+-- then do so, otherwise return the *first* unchanged
+-- (since @insertWith@ calls it as @mergeSigs new old@).
+mergeSigs ::
+  CoreSig ext primTy primVal ->
+  CoreSig ext primTy primVal ->
+  CoreSig ext primTy primVal
+mergeSigs (CoreSig (Core.ConSig newTy)) (CoreSig (Core.ConSig oldTy)) =
+  CoreSig $ Core.ConSig (newTy <|> oldTy)
+mergeSigs _ second = second

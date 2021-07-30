@@ -9,6 +9,7 @@ where
 
 import qualified Juvix.Core.Erased.Algorithm.Types as Erasure
 import qualified Juvix.Core.Erased.Ann.Types as ErasedAnn
+import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.IR.Typechecker.Types as Typed
 import qualified Juvix.Core.Types as Core
 import Juvix.Library hiding (log)
@@ -34,7 +35,7 @@ type ExecTerm primTy primVal compErr =
 exec ::
   EnvExec primTy primVal compErr a ->
   Core.Parameterisation primTy primVal ->
-  Typed.GlobalsT primTy primVal ->
+  Typed.GlobalsT IR.T IR.T primTy primVal ->
   IO
     ( Either (Core.PipelineError primTy primVal compErr) a,
       [Core.PipelineLog primTy primVal]
@@ -46,7 +47,7 @@ exec (EnvE env) param globals = do
 data Env primTy primVal = Env
   { parameterisation :: Core.Parameterisation primTy primVal,
     log :: [Core.PipelineLog primTy primVal],
-    globals :: Typed.GlobalsT primTy primVal
+    globals :: Typed.GlobalsT IR.T IR.T primTy primVal
   }
   deriving (Generic)
 
@@ -69,13 +70,13 @@ newtype EnvExec primTy primVal compErr a
     )
     via ReaderField "parameterisation" (EnvExecAlias primTy primVal compErr)
   deriving
-    ( HasState "globals" (Typed.GlobalsT primTy primVal),
-      HasSource "globals" (Typed.GlobalsT primTy primVal),
-      HasSink "globals" (Typed.GlobalsT primTy primVal)
+    ( HasState "globals" (Typed.GlobalsT IR.T IR.T primTy primVal),
+      HasSource "globals" (Typed.GlobalsT IR.T IR.T primTy primVal),
+      HasSink "globals" (Typed.GlobalsT IR.T IR.T primTy primVal)
     )
     via StateField "globals" (EnvExecAlias primTy primVal compErr)
   deriving
-    (HasReader "globals" (Typed.GlobalsT primTy primVal))
+    (HasReader "globals" (Typed.GlobalsT IR.T IR.T primTy primVal))
     via ReaderField "globals" (EnvExecAlias primTy primVal compErr)
   deriving
     (HasThrow "error" (Core.PipelineError primTy primVal compErr))

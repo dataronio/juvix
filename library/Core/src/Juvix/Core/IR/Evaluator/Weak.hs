@@ -58,45 +58,45 @@ type AllWeak ext primTy primVal =
   )
 
 -- | Weakening implementation for terms.
-instance AllWeak ext primTy primVal => HasWeak (Core.Term' ext primTy primVal) where
-  weakBy' b i (Core.Star' u a) =
-    Core.Star' u (weakBy' b i a)
-  weakBy' b i (Core.PrimTy' p a) =
-    Core.PrimTy' (weakBy' b i p) (weakBy' b i a)
-  weakBy' b i (Core.Prim' p a) =
-    Core.Prim' (weakBy' b i p) (weakBy' b i a)
-  weakBy' b i (Core.Pi' π s t a) =
-    Core.Pi' π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
-  weakBy' b i (Core.Lam' t a) =
-    Core.Lam' (weakBy' b (succ i) t) (weakBy' b i a)
-  weakBy' b i (Core.Sig' π s t a) =
-    Core.Sig' π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
-  weakBy' b i (Core.Pair' s t a) =
-    Core.Pair' (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
-  weakBy' b i (Core.UnitTy' a) =
-    Core.UnitTy' (weakBy' b i a)
-  weakBy' b i (Core.Unit' a) =
-    Core.Unit' (weakBy' b i a)
-  weakBy' b i (Core.Let' π s t a) =
-    Core.Let' π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
-  weakBy' b i (Core.Elim' f a) =
-    Core.Elim' (weakBy' b i f) (weakBy' b i a)
+instance AllWeak ext primTy primVal => HasWeak (Core.Term ext primTy primVal) where
+  weakBy' b i (Core.Star u a) =
+    Core.Star u (weakBy' b i a)
+  weakBy' b i (Core.PrimTy p a) =
+    Core.PrimTy (weakBy' b i p) (weakBy' b i a)
+  weakBy' b i (Core.Prim p a) =
+    Core.Prim (weakBy' b i p) (weakBy' b i a)
+  weakBy' b i (Core.Pi π s t a) =
+    Core.Pi π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.Lam t a) =
+    Core.Lam (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.Sig π s t a) =
+    Core.Sig π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.Pair s t a) =
+    Core.Pair (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
+  weakBy' b i (Core.UnitTy a) =
+    Core.UnitTy (weakBy' b i a)
+  weakBy' b i (Core.Unit a) =
+    Core.Unit (weakBy' b i a)
+  weakBy' b i (Core.Let π s t a) =
+    Core.Let π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.Elim f a) =
+    Core.Elim (weakBy' b i f) (weakBy' b i a)
   weakBy' b i (Core.TermX a) =
     Core.TermX (weakBy' b i a)
 
 -- | Weakening implementation for eliminations.
-instance AllWeak ext primTy primVal => HasWeak (Core.Elim' ext primTy primVal) where
-  weakBy' b i (Core.Bound' j a)
-    | j >= i = Core.Bound' (j + b) a'
-    | otherwise = Core.Bound' j a'
+instance AllWeak ext primTy primVal => HasWeak (Core.Elim ext primTy primVal) where
+  weakBy' b i (Core.Bound j a)
+    | j >= i = Core.Bound (j + b) a'
+    | otherwise = Core.Bound j a'
     where
       a' = weakBy' b i a
-  weakBy' b i (Core.Free' x a) =
-    Core.Free' x (weakBy' b i a)
-  weakBy' b i (Core.App' s t a) =
-    Core.App' (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
-  weakBy' b i (Core.Ann' π s t l a) =
-    Core.Ann' π (weakBy' b i s) (weakBy' b i t) l (weakBy' b i a)
+  weakBy' b i (Core.Free x a) =
+    Core.Free x (weakBy' b i a)
+  weakBy' b i (Core.App s t a) =
+    Core.App (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
+  weakBy' b i (Core.Ann π s t l a) =
+    Core.Ann π (weakBy' b i s) (weakBy' b i t) l (weakBy' b i a)
   weakBy' b i (Core.ElimX a) =
     Core.ElimX (weakBy' b i a)
 
@@ -111,45 +111,45 @@ type AllWeakV ext primTy primVal =
 -- | Weakening implementation for values.
 instance
   AllWeakV ext primTy primVal =>
-  HasWeak (Core.Value' ext primTy primVal)
+  HasWeak (Core.Value ext primTy primVal)
   where
-  weakBy' b i (Core.VStar' n a) =
-    Core.VStar' n (weakBy' b i a)
-  weakBy' b i (Core.VPrimTy' p a) =
-    Core.VPrimTy' (weakBy' b i p) (weakBy' b i a)
-  weakBy' b i (Core.VPi' π s t a) =
-    Core.VPi' π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
-  weakBy' b i (Core.VLam' t a) =
-    Core.VLam' (weakBy' b (succ i) t) (weakBy' b i a)
-  weakBy' b i (Core.VSig' π s t a) =
-    Core.VSig' π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
-  weakBy' b i (Core.VPair' s t a) =
-    Core.VPair' (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
-  weakBy' b i (Core.VUnitTy' a) =
-    Core.VUnitTy' (weakBy' b i a)
-  weakBy' b i (Core.VUnit' a) =
-    Core.VUnit' (weakBy' b i a)
-  weakBy' b i (Core.VNeutral' n a) =
-    Core.VNeutral' (weakBy' b i n) (weakBy' b i a)
-  weakBy' b i (Core.VPrim' p a) =
-    Core.VPrim' (weakBy' b i p) (weakBy' b i a)
+  weakBy' b i (Core.VStar n a) =
+    Core.VStar n (weakBy' b i a)
+  weakBy' b i (Core.VPrimTy p a) =
+    Core.VPrimTy (weakBy' b i p) (weakBy' b i a)
+  weakBy' b i (Core.VPi π s t a) =
+    Core.VPi π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.VLam t a) =
+    Core.VLam (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.VSig π s t a) =
+    Core.VSig π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.VPair s t a) =
+    Core.VPair (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.VUnitTy a) =
+    Core.VUnitTy (weakBy' b i a)
+  weakBy' b i (Core.VUnit a) =
+    Core.VUnit (weakBy' b i a)
+  weakBy' b i (Core.VNeutral n a) =
+    Core.VNeutral (weakBy' b i n) (weakBy' b i a)
+  weakBy' b i (Core.VPrim p a) =
+    Core.VPrim (weakBy' b i p) (weakBy' b i a)
   weakBy' b i (Core.ValueX a) =
     Core.ValueX (weakBy' b i a)
 
 -- | Weakening implementation for neutral values.
 instance
   AllWeakV ext primTy primVal =>
-  HasWeak (Core.Neutral' ext primTy primVal)
+  HasWeak (Core.Neutral ext primTy primVal)
   where
-  weakBy' b i (Core.NBound' j a)
-    | j >= i = Core.NBound' (j + b) a'
-    | otherwise = Core.NBound' j a'
+  weakBy' b i (Core.NBound j a)
+    | j >= i = Core.NBound (j + b) a'
+    | otherwise = Core.NBound j a'
     where
       a' = weakBy' b i a
-  weakBy' b i (Core.NFree' x a) =
-    Core.NFree' x (weakBy' b i a)
-  weakBy' b i (Core.NApp' f s a) =
-    Core.NApp' (weakBy' b i f) (weakBy' b i s) (weakBy' b i a)
+  weakBy' b i (Core.NFree x a) =
+    Core.NFree x (weakBy' b i a)
+  weakBy' b i (Core.NApp f s a) =
+    Core.NApp (weakBy' b i f) (weakBy' b i s) (weakBy' b i a)
   weakBy' b i (Core.NeutralX a) =
     Core.NeutralX (weakBy' b i a)
 

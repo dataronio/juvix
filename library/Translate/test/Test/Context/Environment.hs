@@ -80,7 +80,7 @@ passContext =
 letTest :: T.TestTree
 letTest =
   T.testGroup
-    "Let's properly add to the closure"
+    "Lets properly add to the closure"
     [ T.testCase "let-match" $ do
         [x, y] <-
           capture

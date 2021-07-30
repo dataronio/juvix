@@ -29,7 +29,7 @@ class HasWeak a => HasPatSubst extT primTy primVal a where
     -- | How many bindings have been traversed so far.
     Natural ->
     -- | Mapping of pattern variables to matched subterms.
-    Core.PatternMap (Core.Elim' extT primTy primVal) ->
+    Core.PatternMap (Core.Elim extT primTy primVal) ->
     -- | Term to perform substitution on.
     a ->
     Either Core.PatternVar a
@@ -38,7 +38,7 @@ class HasWeak a => HasPatSubst extT primTy primVal a where
       GHasPatSubst extT primTy primVal (Rep a)
     ) =>
     Natural ->
-    Core.PatternMap (Core.Elim' extT primTy primVal) ->
+    Core.PatternMap (Core.Elim extT primTy primVal) ->
     a ->
     Either Core.PatternVar a
   patSubst' b m = fmap to . gpatSubst' b m . from
@@ -46,12 +46,12 @@ class HasWeak a => HasPatSubst extT primTy primVal a where
 -- | Wrapper around `patSubst'` for toplevel terms without free variables.
 patSubst ::
   (HasPatSubst extT primTy primVal a) =>
-  Core.PatternMap (Core.Elim' extT primTy primVal) ->
+  Core.PatternMap (Core.Elim extT primTy primVal) ->
   a ->
   Either Core.PatternVar a
 patSubst = patSubst' 0
 
--- | Class of terms that support pattern substitution, returns an `IR.Term'`
+-- | Class of terms that support pattern substitution, returns an `IR.Term`
 -- instead of an @a@.
 class HasWeak a => HasPatSubstTerm extT primTy primVal a where
   -- | Substitution of patterns, returns either a substituted term or an
@@ -61,9 +61,9 @@ class HasWeak a => HasPatSubstTerm extT primTy primVal a where
     -- | How many bindings have been traversed so far.
     Natural ->
     -- | Mapping of pattern variables to matched subterms.
-    Core.PatternMap (Core.Elim' extT primTy primVal) ->
+    Core.PatternMap (Core.Elim extT primTy primVal) ->
     a ->
-    Either Core.PatternVar (Core.Term' extT primTy primVal)
+    Either Core.PatternVar (Core.Term extT primTy primVal)
 
 -- | Constraint for terms and eliminations that support pattern substitution.
 type AllPatSubst ext primTy primVal =
@@ -75,63 +75,63 @@ type AllPatSubst ext primTy primVal =
 
 instance
   AllPatSubst ext primTy primVal =>
-  HasPatSubst ext primTy primVal (Core.Term' ext primTy primVal)
+  HasPatSubst ext primTy primVal (Core.Term ext primTy primVal)
   where
-  patSubst' b m (Core.Star' u a) =
-    Core.Star' u <$> patSubst' b m a
-  patSubst' b m (Core.PrimTy' t _) =
+  patSubst' b m (Core.Star u a) =
+    Core.Star u <$> patSubst' b m a
+  patSubst' b m (Core.PrimTy t _) =
     -- FIXME annotation?
     patSubstTerm' b m t
-  patSubst' b m (Core.Prim' p _) =
+  patSubst' b m (Core.Prim p _) =
     -- FIXME annotation?
     patSubstTerm' b m p
-  patSubst' b m (Core.Pi' π s t a) =
-    Core.Pi' π <$> patSubst' b m s
+  patSubst' b m (Core.Pi π s t a) =
+    Core.Pi π <$> patSubst' b m s
       <*> patSubst' (succ b) m t
       <*> patSubst' b m a
-  patSubst' b m (Core.Lam' t a) =
-    Core.Lam' <$> patSubst' (succ b) m t
+  patSubst' b m (Core.Lam t a) =
+    Core.Lam <$> patSubst' (succ b) m t
       <*> patSubst' b m a
-  patSubst' b m (Core.Sig' π s t a) =
-    Core.Sig' π <$> patSubst' b m s
+  patSubst' b m (Core.Sig π s t a) =
+    Core.Sig π <$> patSubst' b m s
       <*> patSubst' (succ b) m t
       <*> patSubst' b m a
-  patSubst' b m (Core.Pair' s t a) =
-    Core.Pair' <$> patSubst' b m s
+  patSubst' b m (Core.Pair s t a) =
+    Core.Pair <$> patSubst' b m s
       <*> patSubst' b m t
       <*> patSubst' b m a
-  patSubst' b m (Core.UnitTy' a) =
-    Core.UnitTy' <$> patSubst' b m a
-  patSubst' b m (Core.Unit' a) =
-    Core.Unit' <$> patSubst' b m a
-  patSubst' b m (Core.Let' π l t a) =
-    Core.Let' π <$> patSubst' b m l
+  patSubst' b m (Core.UnitTy a) =
+    Core.UnitTy <$> patSubst' b m a
+  patSubst' b m (Core.Unit a) =
+    Core.Unit <$> patSubst' b m a
+  patSubst' b m (Core.Let π l t a) =
+    Core.Let π <$> patSubst' b m l
       <*> patSubst' (succ b) m t
       <*> patSubst' b m a
-  patSubst' b m (Core.Elim' e a) =
-    Core.Elim' <$> patSubst' b m e
+  patSubst' b m (Core.Elim e a) =
+    Core.Elim <$> patSubst' b m e
       <*> patSubst' b m a
   patSubst' b m (Core.TermX a) =
     Core.TermX <$> patSubst' b m a
 
 instance
   AllPatSubst ext primTy primVal =>
-  HasPatSubst ext primTy primVal (Core.Elim' ext primTy primVal)
+  HasPatSubst ext primTy primVal (Core.Elim ext primTy primVal)
   where
-  patSubst' b m (Core.Bound' j a) =
-    Core.Bound' j <$> patSubst' b m a
-  patSubst' b m (Core.Free' (Core.Pattern x) _) =
+  patSubst' b m (Core.Bound j a) =
+    Core.Bound j <$> patSubst' b m a
+  patSubst' b m (Core.Free (Core.Pattern x) _) =
     case IntMap.lookup x m of
       Nothing -> Left x
       Just e -> pure $ weakBy b e
-  patSubst' b m (Core.Free' x a) =
-    Core.Free' x <$> patSubst' b m a
-  patSubst' b m (Core.App' f e a) =
-    Core.App' <$> patSubst' b m f
+  patSubst' b m (Core.Free x a) =
+    Core.Free x <$> patSubst' b m a
+  patSubst' b m (Core.App f e a) =
+    Core.App <$> patSubst' b m f
       <*> patSubst' b m e
       <*> patSubst' b m a
-  patSubst' b m (Core.Ann' π s t ℓ a) =
-    Core.Ann' π <$> patSubst' b m s
+  patSubst' b m (Core.Ann π s t ℓ a) =
+    Core.Ann π <$> patSubst' b m s
       <*> patSubst' b m t
       <*> pure ℓ
       <*> patSubst' b m a
@@ -144,7 +144,7 @@ class GHasWeak f => GHasPatSubst extT primTy primVal f where
     -- | How many bindings have been traversed so far.
     Natural ->
     -- | Mapping of pattern variables to matched subterms.
-    Core.PatternMap (Core.Elim' extT primTy primVal) ->
+    Core.PatternMap (Core.Elim extT primTy primVal) ->
     -- | Term to perform substitution on.
     f t ->
     Either Core.PatternVar (f t)
@@ -262,36 +262,36 @@ instance
   patSubstTerm' _ _ ret@(App.Return {}) =
     pure $ IR.Prim ret
 
--- | Transform a `App.Take` into an `IR.Elim'`.
+-- | Transform a `App.Take` into an `IR.Elim`.
 -- TODO: move this function somewhere else?
 takeToElim ::
   App.Take (Param.PrimType primTy) primVal ->
-  Core.Elim' (OnlyExts.T ext) primTy (Param.TypedPrim primTy primVal)
+  Core.Elim (OnlyExts.T ext) primTy (Param.TypedPrim primTy primVal)
 takeToElim (App.Take {type', term}) =
   let term' = IR.Prim (App.Return {retType = type', retTerm = term})
       ty' = typeToTerm type'
    in IR.Ann Usage.Omega term' ty' 0
 
--- | Transform a `App.Arg` into a `IR.Term'`.
+-- | Transform a `App.Arg` into a `IR.Term`.
 -- TODO: move this function somewhere else?
 argToTerm ::
   App.Arg (Param.PrimType primTy) primVal ->
-  Core.Term' (OnlyExts.T ext) primTy (Param.TypedPrim primTy primVal)
+  Core.Term (OnlyExts.T ext) primTy (Param.TypedPrim primTy primVal)
 argToTerm = \case
   App.TermArg (App.Take {type', term}) ->
     IR.Prim $ App.Return {retType = type', retTerm = term}
   App.BoundArg i -> IR.Elim $ IR.Bound i
   App.FreeArg x -> IR.Elim $ IR.Free $ Core.Global x
 
--- | Transform a `Param.PrimType` into a `IR.Term'`.
+-- | Transform a `Param.PrimType` into a `IR.Term`.
 -- TODO: move this function somewhere else?
 typeToTerm ::
   ( Monoid (Core.XPi ext primTy primVal),
     Monoid (Core.XPrimTy ext primTy primVal)
   ) =>
   Param.PrimType primTy ->
-  Core.Term' ext primTy primVal
+  Core.Term ext primTy primVal
 typeToTerm tys = foldr1 arr $ map prim tys
   where
-    prim ty = Core.PrimTy' ty mempty
-    arr s t = Core.Pi' Usage.Omega s t mempty
+    prim ty = Core.PrimTy ty mempty
+    arr s t = Core.Pi Usage.Omega s t mempty

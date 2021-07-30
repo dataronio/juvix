@@ -9,7 +9,6 @@ module Juvix.Core.IR.Typechecker.Error
   )
 where
 
-import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.HR.Pretty as HR
 import qualified Juvix.Core.IR.Evaluator as Eval
@@ -23,23 +22,23 @@ import qualified Juvix.Library.Usage as Usage
 
 data TypecheckError' extV extT primTy primVal
   = TypeMismatch
-      { typeSubject :: Core.Elim' extT primTy primVal,
-        typeExpected, typeGot :: ValueT' extV primTy primVal
+      { typeSubject :: Core.Elim extT primTy primVal,
+        typeExpected, typeGot :: ValueT extV primTy primVal
       }
   | UniverseMismatch
       { universeLower, universeHigher :: Core.Universe
       }
   | ShouldBeStar
-      { typeActual :: ValueT' extV primTy primVal
+      { typeActual :: ValueT extV primTy primVal
       }
   | ShouldBeFunctionType
-      { typeActual :: ValueT' extV primTy primVal
+      { typeActual :: ValueT extV primTy primVal
       }
   | ShouldBePairType
-      { typeActual :: ValueT' extV primTy primVal
+      { typeActual :: ValueT extV primTy primVal
       }
   | ShouldBeUnitType
-      { typeActual :: ValueT' extV primTy primVal
+      { typeActual :: ValueT extV primTy primVal
       }
   | LeftoverUsage
       { usageLeftover :: Usage.T
@@ -57,7 +56,7 @@ data TypecheckError' extV extT primTy primVal
       { unboundPatVar :: Core.PatternVar
       }
   | NotPrimTy
-      { typeActual :: ValueT' extV primTy primVal
+      { typeActual :: ValueT extV primTy primVal
       }
   | WrongPrimTy
       { primVal :: primVal,
@@ -70,24 +69,24 @@ data TypecheckError' extV extT primTy primVal
       { elimExt :: Core.ElimX extT primTy primVal
       }
   | PartiallyAppliedConstructor
-      { pattern_ :: Core.Pattern' extT primTy primVal
+      { pattern_ :: Core.Pattern extT primTy primVal
       }
   | EvalError
       { evalErr :: Eval.Error IR.T T primTy (P.TypedPrim primTy primVal)
       }
   | -- | datatype typechecking errors
     DatatypeError
-      { invalidType :: Core.Term' extT primTy primVal
+      { invalidType :: Core.Term extT primTy primVal
       }
   | ConTypeError
-      { invalidConTy :: Core.Value' extV primTy (P.TypedPrim primTy primVal)
+      { invalidConTy :: Core.Value extV primTy (P.TypedPrim primTy primVal)
       }
   | ParamError
       { expectedN :: Core.GlobalName,
-        exp :: Core.Term' extT primTy primVal
+        exp :: Core.Term extT primTy primVal
       }
   | DeclError
-      { tg :: Core.Term' extT primTy primVal,
+      { tg :: Core.Term extT primTy primVal,
         name :: Core.GlobalName,
         tel :: Core.RawTelescope extT primTy primVal
       }

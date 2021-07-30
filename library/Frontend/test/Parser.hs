@@ -197,7 +197,7 @@ many1FunctionsParser =
         |> AST.Function,
       --
 
-      AST.Let''
+      AST.Let'
         { letBindings =
             AST.Name "nah" |> AST.Body |> AST.Like "check" [],
           letBody =

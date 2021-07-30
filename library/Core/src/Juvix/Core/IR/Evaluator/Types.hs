@@ -78,7 +78,7 @@ deriving instance
 data Error extV extT primTy primVal
   = -- | Error during application.
     CannotApply
-      { fun, arg :: Core.Value' extV primTy primVal,
+      { fun, arg :: Core.Value extV primTy primVal,
         paramErr :: ApplyError primTy primVal
       }
   | -- | Unsupported term extension.
@@ -163,7 +163,7 @@ rejectExts =
       eExtFun = \_ -> Left . UnsupportedElimExt
     }
 
--- | Type synonym for a function that does a lookup for an @IR.Elim'@ based on
+-- | Type synonym for a function that does a lookup for an @IR.Elim@ based on
 -- an @IR.GlobalName@.
 type LookupFun ext primTy primVal =
-  Core.GlobalName -> Maybe (Core.Elim' ext primTy primVal)
+  Core.GlobalName -> Maybe (Core.Elim ext primTy primVal)

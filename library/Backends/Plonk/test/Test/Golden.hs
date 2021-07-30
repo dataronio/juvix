@@ -16,7 +16,6 @@ import qualified Juvix.Library.Feedback as Feedback
 import Juvix.Library.Test.Golden
 import Juvix.Pipeline (Pipeline)
 import qualified Juvix.Pipeline as Pipeline
-import Juvix.ToCore.Types (CoreDef, CoreDefs)
 import Test.Orphan
 import Test.Tasty
 import Text.Pretty.Simple (pPrint)

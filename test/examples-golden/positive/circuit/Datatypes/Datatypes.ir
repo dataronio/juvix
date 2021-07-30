@@ -2,60 +2,129 @@
 , fromList
     [
         ( "Datatypes" :| [ "norm" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "norm" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Pi' Omega
-                        ( Elim'
-                            ( Free'
-                                ( Global
-                                    ( "Datatypes" :| [ "Bar" ] )
-                                ) ()
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "norm" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "Bar" ] )
                             ) ()
-                        )
-                        ( Elim'
-                            ( Free'
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
+                        ) ()
+                    )
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats =
+                        [ PCon
+                            ( "P" :| [] )
+                            [ PVar 0 ()
+                            , PVar 1 ()
+                            ] ()
+                        ]
+                    , rawClauseBody = Elim
+                        ( App
+                            ( App
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "+" ] )
+                                    ) ()
+                                )
+                                ( Elim
+                                    ( App
+                                        ( App
+                                            ( Free
+                                                ( Global
+                                                    ( "Datatypes" :| [ "^" ] )
+                                                ) ()
+                                            )
+                                            ( Elim
+                                                ( Free
+                                                    ( Global
+                                                        ( "Datatypes" :| [ "x" ] )
+                                                    ) ()
+                                                ) ()
+                                            ) ()
+                                        )
+                                        ( Prim
+                                            ( PConst
+                                                ( P
+                                                    ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                )
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            )
+                            ( Elim
+                                ( App
+                                    ( App
+                                        ( Free
+                                            ( Global
+                                                ( "Datatypes" :| [ "^" ] )
+                                            ) ()
+                                        )
+                                        ( Elim
+                                            ( Free
+                                                ( Pattern 1 ) ()
+                                            ) ()
+                                        ) ()
+                                    )
+                                    ( Prim
+                                        ( PConst
+                                            ( P
+                                                ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                            )
+                                        ) ()
+                                    ) ()
                                 ) ()
                             ) ()
                         ) ()
-                    , rawFunClauses = RawFunClause
+                    , rawClauseCatchall = False
+                    } :|
+                    [ RawFunClause
                         { rawClauseTel = []
                         , rawClausePats =
-                            [ PCon'
-                                ( "P" :| [] )
-                                [ PVar' 0 ()
-                                , PVar' 1 ()
+                            [ PCon
+                                ( "Q" :| [] )
+                                [ PVar 2 ()
+                                , PVar 3 ()
+                                , PVar 4 ()
                                 ] ()
                             ]
-                        , rawClauseBody = Elim'
-                            ( App'
-                                ( App'
-                                    ( Free'
+                        , rawClauseBody = Elim
+                            ( App
+                                ( App
+                                    ( Free
                                         ( Global
                                             ( "Datatypes" :| [ "+" ] )
                                         ) ()
                                     )
-                                    ( Elim'
-                                        ( App'
-                                            ( App'
-                                                ( Free'
+                                    ( Elim
+                                        ( App
+                                            ( App
+                                                ( Free
                                                     ( Global
                                                         ( "Datatypes" :| [ "^" ] )
                                                     ) ()
                                                 )
-                                                ( Elim'
-                                                    ( Free'
+                                                ( Elim
+                                                    ( Free
                                                         ( Global
                                                             ( "Datatypes" :| [ "x" ] )
                                                         ) ()
                                                     ) ()
                                                 ) ()
                                             )
-                                            ( Prim'
+                                            ( Prim
                                                 ( PConst
                                                     ( P
                                                         ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
@@ -65,123 +134,29 @@
                                         ) ()
                                     ) ()
                                 )
-                                ( Elim'
-                                    ( App'
-                                        ( App'
-                                            ( Free'
+                                ( Elim
+                                    ( App
+                                        ( App
+                                            ( Free
                                                 ( Global
-                                                    ( "Datatypes" :| [ "^" ] )
+                                                    ( "Datatypes" :| [ "+" ] )
                                                 ) ()
                                             )
-                                            ( Elim'
-                                                ( Free'
-                                                    ( Pattern 1 ) ()
-                                                ) ()
-                                            ) ()
-                                        )
-                                        ( Prim'
-                                            ( PConst
-                                                ( P
-                                                    ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                                )
-                                            ) ()
-                                        ) ()
-                                    ) ()
-                                ) ()
-                            ) ()
-                        , rawClauseCatchall = False
-                        } :|
-                        [ RawFunClause
-                            { rawClauseTel = []
-                            , rawClausePats =
-                                [ PCon'
-                                    ( "Q" :| [] )
-                                    [ PVar' 2 ()
-                                    , PVar' 3 ()
-                                    , PVar' 4 ()
-                                    ] ()
-                                ]
-                            , rawClauseBody = Elim'
-                                ( App'
-                                    ( App'
-                                        ( Free'
-                                            ( Global
-                                                ( "Datatypes" :| [ "+" ] )
-                                            ) ()
-                                        )
-                                        ( Elim'
-                                            ( App'
-                                                ( App'
-                                                    ( Free'
-                                                        ( Global
-                                                            ( "Datatypes" :| [ "^" ] )
-                                                        ) ()
-                                                    )
-                                                    ( Elim'
-                                                        ( Free'
-                                                            ( Global
-                                                                ( "Datatypes" :| [ "x" ] )
-                                                            ) ()
-                                                        ) ()
-                                                    ) ()
-                                                )
-                                                ( Prim'
-                                                    ( PConst
-                                                        ( P
-                                                            ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                                        )
-                                                    ) ()
-                                                ) ()
-                                            ) ()
-                                        ) ()
-                                    )
-                                    ( Elim'
-                                        ( App'
-                                            ( App'
-                                                ( Free'
-                                                    ( Global
-                                                        ( "Datatypes" :| [ "+" ] )
-                                                    ) ()
-                                                )
-                                                ( Elim'
-                                                    ( App'
-                                                        ( App'
-                                                            ( Free'
-                                                                ( Global
-                                                                    ( "Datatypes" :| [ "^" ] )
-                                                                ) ()
-                                                            )
-                                                            ( Elim'
-                                                                ( Free'
-                                                                    ( Pattern 3 ) ()
-                                                                ) ()
-                                                            ) ()
-                                                        )
-                                                        ( Prim'
-                                                            ( PConst
-                                                                ( P
-                                                                    ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                                                )
-                                                            ) ()
-                                                        ) ()
-                                                    ) ()
-                                                ) ()
-                                            )
-                                            ( Elim'
-                                                ( App'
-                                                    ( App'
-                                                        ( Free'
+                                            ( Elim
+                                                ( App
+                                                    ( App
+                                                        ( Free
                                                             ( Global
                                                                 ( "Datatypes" :| [ "^" ] )
                                                             ) ()
                                                         )
-                                                        ( Elim'
-                                                            ( Free'
-                                                                ( Pattern 4 ) ()
+                                                        ( Elim
+                                                            ( Free
+                                                                ( Pattern 3 ) ()
                                                             ) ()
                                                         ) ()
                                                     )
-                                                    ( Prim'
+                                                    ( Prim
                                                         ( PConst
                                                             ( P
                                                                 ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
@@ -190,476 +165,477 @@
                                                     ) ()
                                                 ) ()
                                             ) ()
+                                        )
+                                        ( Elim
+                                            ( App
+                                                ( App
+                                                    ( Free
+                                                        ( Global
+                                                            ( "Datatypes" :| [ "^" ] )
+                                                        ) ()
+                                                    )
+                                                    ( Elim
+                                                        ( Free
+                                                            ( Pattern 4 ) ()
+                                                        ) ()
+                                                    ) ()
+                                                )
+                                                ( Prim
+                                                    ( PConst
+                                                        ( P
+                                                            ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                        )
+                                                    ) ()
+                                                ) ()
+                                            ) ()
                                         ) ()
                                     ) ()
                                 ) ()
-                            , rawClauseCatchall = False
-                            }
-                        ]
-                    }
-                )
+                            ) ()
+                        , rawClauseCatchall = False
+                        }
+                    ]
+                }
             )
         )
     ,
         ( "Datatypes" :| [ "t" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "t" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Pi' Omega
-                        ( Elim'
-                            ( Free'
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "t" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
                             ) ()
-                        )
-                        ( Elim'
-                            ( Free'
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
+                        ) ()
+                    )
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats =
+                        [ PVar 0 () ]
+                    , rawClauseBody = Elim
+                        ( App
+                            ( App
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "+" ] )
+                                    ) ()
+                                )
+                                ( Elim
+                                    ( Free
+                                        ( Global
+                                            ( "Datatypes" :| [ "x" ] )
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            )
+                            ( Prim
+                                ( PConst
+                                    ( P
+                                        ( 5 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                    )
                                 ) ()
                             ) ()
                         ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats =
-                            [ PVar' 0 () ]
-                        , rawClauseBody = Elim'
-                            ( App'
-                                ( App'
-                                    ( Free'
-                                        ( Global
-                                            ( "Datatypes" :| [ "+" ] )
-                                        ) ()
-                                    )
-                                    ( Elim'
-                                        ( Free'
-                                            ( Global
-                                                ( "Datatypes" :| [ "x" ] )
-                                            ) ()
-                                        ) ()
-                                    ) ()
-                                )
-                                ( Prim'
-                                    ( PConst
-                                        ( P
-                                            ( 5 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                        )
-                                    ) ()
-                                ) ()
-                            ) ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
+                    , rawClauseCatchall = False
+                    } :| []
+                }
             )
         )
     ,
         ( "Datatypes" :| [ "+" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "+" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Pi' Omega
-                        ( Elim'
-                            ( Free'
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "+" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( Free
                                 ( Global
                                     ( "Datatypes" :| [ "field" ] )
                                 ) ()
                             ) ()
                         )
-                        ( Pi' Omega
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "field" ] )
-                                    ) ()
-                                ) ()
-                            )
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "field" ] )
-                                    ) ()
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "field" ] )
                                 ) ()
                             ) ()
                         ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats = []
-                        , rawClauseBody = Prim' PAdd ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim PAdd ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
             )
         )
     ,
         ( "Datatypes" :| [ "P" ]
-        , CoreDef
-            ( RawGDataCon
-                ( RawDataCon
-                    { rawConName = "Datatypes" :| [ "P" ]
-                    , rawConType = Pi' Omega
-                        ( Elim'
-                            ( Free'
+        , RawGDataCon
+            ( RawDataCon
+                { rawConName = "Datatypes" :| [ "P" ]
+                , rawConType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( Free
                                 ( Global
                                     ( "Datatypes" :| [ "field" ] )
                                 ) ()
                             ) ()
                         )
-                        ( Pi' Omega
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "field" ] )
-                                    ) ()
-                                ) ()
-                            )
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "Bar" ] )
-                                    ) ()
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "Bar" ] )
                                 ) ()
                             ) ()
                         ) ()
-                    , rawConDef = Nothing
-                    }
-                )
+                    ) ()
+                , rawConDef = Nothing
+                }
             )
         )
     ,
         ( "Datatypes" :| [ "==" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "==" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Pi' Omega
-                        ( Elim'
-                            ( Free'
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "==" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( Free
                                 ( Global
                                     ( "Datatypes" :| [ "field" ] )
                                 ) ()
                             ) ()
                         )
-                        ( Pi' Omega
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "field" ] )
-                                    ) ()
-                                ) ()
-                            )
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Prelude" :|
-                                            [ "Circuit"
-                                            , "bool"
-                                            ]
-                                        )
-                                    ) ()
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "bool"
+                                        ]
+                                    )
                                 ) ()
                             ) ()
                         ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats = []
-                        , rawClauseBody = Prim' PEq ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim PEq ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
             )
         )
     ,
         ( "Datatypes" :| [ "Bar" ]
-        , CoreDef
-            ( RawGDatatype
-                ( RawDatatype
-                    { rawDataName = "Datatypes" :| [ "Bar" ]
-                    , rawDataPos = []
-                    , rawDataArgs = []
-                    , rawDataLevel = 0
-                    , rawDataCons =
-                        [ RawDataCon
-                            { rawConName = "Datatypes" :| [ "P" ]
-                            , rawConType = Pi' Omega
-                                ( Elim'
-                                    ( Free'
-                                        ( Global
-                                            ( "Datatypes" :| [ "field" ] )
-                                        ) ()
-                                    ) ()
-                                )
-                                ( Pi' Omega
-                                    ( Elim'
-                                        ( Free'
-                                            ( Global
-                                                ( "Datatypes" :| [ "field" ] )
-                                            ) ()
-                                        ) ()
-                                    )
-                                    ( Elim'
-                                        ( Free'
-                                            ( Global
-                                                ( "Datatypes" :| [ "Bar" ] )
-                                            ) ()
-                                        ) ()
-                                    ) ()
-                                ) ()
-                            , rawConDef = Nothing
-                            }
-                        , RawDataCon
-                            { rawConName = "Datatypes" :| [ "Q" ]
-                            , rawConType = Pi' Omega
-                                ( Elim'
-                                    ( Free'
-                                        ( Global
-                                            ( "Datatypes" :| [ "field" ] )
-                                        ) ()
-                                    ) ()
-                                )
-                                ( Pi' Omega
-                                    ( Elim'
-                                        ( Free'
-                                            ( Global
-                                                ( "Datatypes" :| [ "field" ] )
-                                            ) ()
-                                        ) ()
-                                    )
-                                    ( Pi' Omega
-                                        ( Elim'
-                                            ( Free'
-                                                ( Global
-                                                    ( "Datatypes" :| [ "field" ] )
-                                                ) ()
-                                            ) ()
-                                        )
-                                        ( Elim'
-                                            ( Free'
-                                                ( Global
-                                                    ( "Datatypes" :| [ "Bar" ] )
-                                                ) ()
-                                            ) ()
-                                        ) ()
-                                    ) ()
-                                ) ()
-                            , rawConDef = Nothing
-                            }
-                        ]
-                    }
-                )
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "^" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "^" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Pi' Omega
-                        ( Elim'
-                            ( Free'
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        )
-                        ( Pi' Omega
-                            ( Elim'
-                                ( Free'
+        , RawGDatatype
+            ( RawDatatype
+                { rawDataName = "Datatypes" :| [ "Bar" ]
+                , rawDataPos = []
+                , rawDataArgs = []
+                , rawDataLevel = 0
+                , rawDataCons =
+                    [ RawDataCon
+                        { rawConName = "Datatypes" :| [ "P" ]
+                        , rawConType = Pi Omega
+                            ( Elim
+                                ( Free
                                     ( Global
                                         ( "Datatypes" :| [ "field" ] )
                                     ) ()
                                 ) ()
                             )
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "field" ] )
-                                    ) ()
-                                ) ()
-                            ) ()
-                        ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats = []
-                        , rawClauseBody = Prim' PExp ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "field" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "field" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Elim'
-                        ( Free'
-                            ( Global
-                                ( "Prelude" :| [ "ty" ] )
-                            ) ()
-                        ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats = []
-                        , rawClauseBody = PrimTy' PField ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "*" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "*" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Pi' Omega
-                        ( Elim'
-                            ( Free'
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        )
-                        ( Pi' Omega
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "field" ] )
-                                    ) ()
-                                ) ()
-                            )
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "field" ] )
-                                    ) ()
-                                ) ()
-                            ) ()
-                        ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats = []
-                        , rawClauseBody = Prim' PMul ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "main" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "main" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Elim'
-                        ( Free'
-                            ( Global
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats = []
-                        , rawClauseBody = Prim'
-                            ( PConst
-                                ( P
-                                    ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                )
-                            ) ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "x" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "Datatypes" :| [ "x" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Elim'
-                        ( Free'
-                            ( Global
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats = []
-                        , rawClauseBody = Prim'
-                            ( PConst
-                                ( P
-                                    ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                )
-                            ) ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "Q" ]
-        , CoreDef
-            ( RawGDataCon
-                ( RawDataCon
-                    { rawConName = "Datatypes" :| [ "Q" ]
-                    , rawConType = Pi' Omega
-                        ( Elim'
-                            ( Free'
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        )
-                        ( Pi' Omega
-                            ( Elim'
-                                ( Free'
-                                    ( Global
-                                        ( "Datatypes" :| [ "field" ] )
-                                    ) ()
-                                ) ()
-                            )
-                            ( Pi' Omega
-                                ( Elim'
-                                    ( Free'
+                            ( Pi Omega
+                                ( Elim
+                                    ( Free
                                         ( Global
                                             ( "Datatypes" :| [ "field" ] )
                                         ) ()
                                     ) ()
                                 )
-                                ( Elim'
-                                    ( Free'
+                                ( Elim
+                                    ( Free
                                         ( Global
                                             ( "Datatypes" :| [ "Bar" ] )
                                         ) ()
                                     ) ()
                                 ) ()
                             ) ()
+                        , rawConDef = Nothing
+                        }
+                    , RawDataCon
+                        { rawConName = "Datatypes" :| [ "Q" ]
+                        , rawConType = Pi Omega
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "field" ] )
+                                    ) ()
+                                ) ()
+                            )
+                            ( Pi Omega
+                                ( Elim
+                                    ( Free
+                                        ( Global
+                                            ( "Datatypes" :| [ "field" ] )
+                                        ) ()
+                                    ) ()
+                                )
+                                ( Pi Omega
+                                    ( Elim
+                                        ( Free
+                                            ( Global
+                                                ( "Datatypes" :| [ "field" ] )
+                                            ) ()
+                                        ) ()
+                                    )
+                                    ( Elim
+                                        ( Free
+                                            ( Global
+                                                ( "Datatypes" :| [ "Bar" ] )
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            ) ()
+                        , rawConDef = Nothing
+                        }
+                    ]
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "^" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "^" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
                         ) ()
-                    , rawConDef = Nothing
-                    }
-                )
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "field" ] )
+                                ) ()
+                            ) ()
+                        )
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "field" ] )
+                                ) ()
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim PExp ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "field" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "field" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Prelude" :| [ "ty" ] )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = PrimTy PField ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "*" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "*" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "field" ] )
+                                ) ()
+                            ) ()
+                        )
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "field" ] )
+                                ) ()
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim PMul ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "main" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "main" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Datatypes" :| [ "field" ] )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim
+                        ( PConst
+                            ( P
+                                ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                            )
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "x" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "x" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Datatypes" :| [ "field" ] )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim
+                        ( PConst
+                            ( P
+                                ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                            )
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "Q" ]
+        , RawGDataCon
+            ( RawDataCon
+                { rawConName = "Datatypes" :| [ "Q" ]
+                , rawConType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "field" ] )
+                                ) ()
+                            ) ()
+                        )
+                        ( Pi Omega
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "field" ] )
+                                    ) ()
+                                ) ()
+                            )
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "Bar" ] )
+                                    ) ()
+                                ) ()
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawConDef = Nothing
+                }
             )
         )
     ]

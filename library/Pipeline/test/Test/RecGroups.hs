@@ -7,7 +7,7 @@ import qualified Juvix.Core.Common.Context.Traverse as Traverse
 import qualified Juvix.Frontend as Frontend
 import Juvix.Library
 import qualified Juvix.Pipeline as Pipeline
-import qualified Juvix.Pipeline.Frontend as Frontend
+import qualified Juvix.Pipeline.ToSexp as ToSexp
 import qualified Juvix.Sexp as Sexp
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
@@ -33,7 +33,7 @@ toSexp paths = do
   case x of
     Left er -> pure $ Left (Pipeline.ParseErr er)
     Right x -> do
-      from <- Frontend.frontendToSexp x
+      from <- ToSexp.frontendToSexp x
       case from of
         Left err -> pure $ Left (Pipeline.FrontendErr err)
         Right con -> pure $ Right con

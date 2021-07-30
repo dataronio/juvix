@@ -1,5 +1,5 @@
 -- |
--- Hardeing S-expressions into a more readable form. Here we use a
+-- Hardening S-expressions into a more readable form. Here we use a
 -- mixture of record structures and aliases. Each cover a form that we
 -- wish to talk about rather than just match away at
 --

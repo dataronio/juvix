@@ -1,8 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Juvix.Pipeline.Compile
-  ( toCoreDef,
-    isMain,
+  ( isMain,
     typePrims,
     unsafeEvalGlobal,
   )
@@ -14,7 +13,8 @@ import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
-import Juvix.ToCore.Types (CoreDef (..))
+import qualified Juvix.Pipeline.ToHR.Def as Def
+import Juvix.Pipeline.ToHR.Types
 import qualified Prelude as P
 
 type Debug primTy primVal =
@@ -26,14 +26,7 @@ type Debug primTy primVal =
     Show (Param.Arg primVal)
   )
 
-toCoreDef ::
-  Alternative f =>
-  CoreDef ext primTy primVal ->
-  f (Core.RawGlobal' ext primTy primVal)
-toCoreDef (CoreDef g) = pure g
-toCoreDef _ = empty
-
-isMain :: Core.RawGlobal' ext primTy primVal -> Bool
+isMain :: Core.RawGlobal ext primTy primVal -> Bool
 isMain (Core.RawGFunction (Core.RawFunction (_ :| ["main"]) _ _ _)) = True
 isMain _ = False
 
@@ -42,9 +35,9 @@ unsafeEvalGlobal ::
   ( IR.CanEval IR.T IR.T primTy primVal,
     Debug primTy primVal
   ) =>
-  IR.RawGlobals primTy primVal ->
-  IR.RawGlobal primTy primVal ->
-  IR.Global primTy primVal
+  Core.RawGlobals IR.T primTy primVal ->
+  Core.RawGlobal IR.T primTy primVal ->
+  Core.Global IR.T IR.T primTy primVal
 unsafeEvalGlobal globals g =
   case g of
     Core.RawGDatatype (Core.RawDatatype n pos a l cons) ->
@@ -61,8 +54,8 @@ unsafeEvalGlobal globals g =
 typePrims ::
   (Show ty, Show val) =>
   ty ->
-  IR.RawGlobal ty val ->
-  IR.RawGlobal ty (Param.TypedPrim ty val)
+  Core.RawGlobal IR.T ty val ->
+  Core.RawGlobal IR.T ty (Param.TypedPrim ty val)
 typePrims ty g =
   case g of
     Core.RawGDatatype (Core.RawDatatype n pos a l cons) ->
@@ -76,8 +69,8 @@ typePrims ty g =
 
 argReturn ::
   ty ->
-  IR.RawDataArg ty val ->
-  IR.RawDataArg ty (Param.TypedPrim ty val)
+  Core.RawDataArg IR.T ty val ->
+  Core.RawDataArg IR.T ty (Param.TypedPrim ty val)
 argReturn ty arg@Core.RawDataArg {rawArgType} =
   arg {Core.rawArgType = baseToReturn ty rawArgType}
 
@@ -85,16 +78,16 @@ argEval ::
   ( IR.CanEval IR.T IR.T primTy primVal,
     Debug primTy primVal
   ) =>
-  IR.RawGlobals primTy primVal ->
-  IR.RawDataArg primTy primVal ->
-  IR.DataArg primTy primVal
+  Core.RawGlobals IR.T primTy primVal ->
+  Core.RawDataArg IR.T primTy primVal ->
+  Core.DataArg IR.T primTy primVal
 argEval globals arg@Core.RawDataArg {rawArgName, rawArgUsage, rawArgType} =
   Core.DataArg rawArgName rawArgUsage (unsafeEval globals rawArgType)
 
 conReturn ::
   ty ->
-  IR.RawDataCon ty val ->
-  IR.RawDataCon ty (Param.TypedPrim ty val)
+  Core.RawDataCon IR.T ty val ->
+  Core.RawDataCon IR.T ty (Param.TypedPrim ty val)
 conReturn ty con@Core.RawDataCon {rawConType, rawConDef} =
   con {Core.rawConType = baseToReturn ty rawConType, Core.rawConDef = funReturn ty <$> rawConDef}
 
@@ -102,16 +95,16 @@ conEval ::
   ( IR.CanEval IR.T IR.T primTy primVal,
     Debug primTy primVal
   ) =>
-  IR.RawGlobals primTy primVal ->
-  IR.RawDataCon primTy primVal ->
-  IR.DataCon primTy primVal
+  Core.RawGlobals IR.T primTy primVal ->
+  Core.RawDataCon IR.T primTy primVal ->
+  Core.DataCon IR.T IR.T primTy primVal
 conEval globals con@Core.RawDataCon {rawConName, rawConType, rawConDef} =
   Core.DataCon rawConName (unsafeEval globals rawConType) (funEval globals <$> rawConDef)
 
 funReturn ::
   ty ->
-  IR.RawFunction ty val ->
-  IR.RawFunction ty (Param.TypedPrim ty val)
+  Core.RawFunction IR.T ty val ->
+  Core.RawFunction IR.T ty (Param.TypedPrim ty val)
 funReturn ty (Core.RawFunction name usage term clauses) =
   Core.RawFunction name usage (baseToReturn ty term) (funClauseReturn ty <$> clauses)
 
@@ -119,16 +112,16 @@ funEval ::
   ( IR.CanEval IR.T IR.T primTy primVal,
     Debug primTy primVal
   ) =>
-  IR.RawGlobals primTy primVal ->
-  IR.RawFunction primTy primVal ->
-  IR.Function primTy primVal
+  Core.RawGlobals IR.T primTy primVal ->
+  Core.RawFunction IR.T primTy primVal ->
+  Core.Function IR.T IR.T primTy primVal
 funEval globals (Core.RawFunction name usage term clauses) =
   Core.Function name usage (unsafeEval globals term) (funClauseEval globals <$> clauses)
 
 funClauseReturn ::
   ty ->
-  IR.RawFunClause ty val ->
-  IR.RawFunClause ty (Param.TypedPrim ty val)
+  Core.RawFunClause IR.T ty val ->
+  Core.RawFunClause IR.T ty (Param.TypedPrim ty val)
 funClauseReturn ty (Core.RawFunClause tel patts term catchall) =
   Core.RawFunClause (telescopeReturn ty tel) (map (pattEval ty) patts) (baseToReturn ty term) catchall
 
@@ -136,9 +129,9 @@ funClauseEval ::
   ( IR.CanEval IR.T IR.T primTy primVal,
     Debug primTy primVal
   ) =>
-  IR.RawGlobals primTy primVal ->
-  IR.RawFunClause primTy primVal ->
-  IR.FunClause primTy primVal
+  Core.RawGlobals IR.T primTy primVal ->
+  Core.RawFunClause IR.T primTy primVal ->
+  Core.FunClause IR.T IR.T primTy primVal
 funClauseEval globals (Core.RawFunClause tel patts rhs catchall) =
   Core.FunClause
     (telescopeEval globals tel)
@@ -160,7 +153,7 @@ telescopeEval ::
   ( IR.CanEval IR.T IR.T primTy primVal,
     Debug primTy primVal
   ) =>
-  IR.RawGlobals primTy primVal ->
+  Core.RawGlobals IR.T primTy primVal ->
   Core.RawTelescope IR.T primTy primVal ->
   Core.Telescope IR.T IR.T primTy primVal
 telescopeEval globals ts = f <$> ts
@@ -189,8 +182,8 @@ pattEval ty patt =
 
 baseToReturn ::
   ty ->
-  Core.Term' IR.T ty val ->
-  Core.Term' IR.T ty (Param.TypedPrim ty val)
+  Core.Term IR.T ty val ->
+  Core.Term IR.T ty (Param.TypedPrim ty val)
 baseToReturn ty t =
   case t of
     IR.Star u -> IR.Star u
@@ -207,8 +200,8 @@ baseToReturn ty t =
 
 elimToReturn ::
   ty ->
-  Core.Elim' IR.T ty val ->
-  Core.Elim' IR.T ty (Param.TypedPrim ty val) -- ty' --(TypedPrim ty val)
+  Core.Elim IR.T ty val ->
+  Core.Elim IR.T ty (Param.TypedPrim ty val) -- ty' --(TypedPrim ty val)
 elimToReturn ty e =
   case e of
     IR.Bound b -> IR.Bound b
@@ -220,9 +213,9 @@ unsafeEval ::
   ( IR.CanEval IR.T IR.T primTy primVal,
     Debug primTy primVal
   ) =>
-  IR.RawGlobals primTy primVal ->
-  IR.Term primTy primVal ->
-  IR.Value primTy primVal
+  Core.RawGlobals IR.T primTy primVal ->
+  Core.Term IR.T primTy primVal ->
+  Core.Value IR.T primTy primVal
 unsafeEval globals t = case IR.evalTerm (IR.rawLookupFun' globals) t of
   Right v -> v
   Left v -> panic "Failed to eval term"

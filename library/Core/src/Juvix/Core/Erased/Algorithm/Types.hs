@@ -87,7 +87,7 @@ exec mt mv (EnvEra m) = evalState (runExceptT m) (Env 0 [] mt mv)
 data Error primTy primVal
   = UnsupportedTermT (Typed.Term' primTy primVal)
   | UnsupportedTermE (Typed.Elim' primTy primVal)
-  | UnsupportedTypeV (IR.Value primTy primVal)
+  | UnsupportedTypeV (Core.Value IR.T primTy primVal)
   | UnsupportedTypeN (IR.Neutral primTy primVal)
   | CannotEraseZeroUsageTerm (Typed.Term' primTy primVal)
   | InternalError Text
@@ -165,7 +165,7 @@ do
           Erased.typeApp = typed
         }
 
-type TermT primTy primVal = Term primTy (Typed.TypedPrim primTy primVal)
+type TermT primTy primVal = Term primTy (Typed.Prim primTy primVal)
 
 -- TODO: Figure out how to do this with extensible.
 -- IR.extendDatatype "Datatype" [] [t|T|] extDatatype
@@ -206,7 +206,7 @@ data Function primTy primVal = Function
   }
 
 type FunctionT primTy primVal =
-  Function primTy (Typed.TypedPrim primTy primVal)
+  Function primTy (Typed.Prim primTy primVal)
 
 -- TODO: Figure out how to do this with extensible.
 -- IR.extendFunClause "FunClause" [] [t|T|] extFunClause
@@ -215,7 +215,7 @@ data FunClause primTy primVal
   = FunClause [Pattern primTy primVal] (Term primTy primVal)
 
 type FunClauseT primTy primVal =
-  FunClause primTy (Typed.TypedPrim primTy primVal)
+  FunClause primTy (Typed.Prim primTy primVal)
 
 -- TODO: Figure out how to do this with extensible.
 -- IR.extendPattern "Pattern" [] [t|T|] extPattern
@@ -229,7 +229,7 @@ data Pattern primTy primVal
   | PPrim primVal
 
 type PatternT primTy primVal =
-  Pattern primTy (Typed.TypedPrim primTy primVal)
+  Pattern primTy (Typed.Prim primTy primVal)
 
 data Abstract primTy = Abstract
   { absName :: GlobalName,
@@ -245,9 +245,9 @@ data Global primTy primVal
 
 type Globals primTy primVal = HM.HashMap GlobalName (Global primTy primVal)
 
-type GlobalT primTy primVal = Global primTy (Typed.TypedPrim primTy primVal)
+type GlobalT primTy primVal = Global primTy (Typed.Prim primTy primVal)
 
-type GlobalsT primTy primVal = Globals primTy (Typed.TypedPrim primTy primVal)
+type GlobalsT primTy primVal = Globals primTy (Typed.Prim primTy primVal)
 
 getType :: Term primTy primVal -> Type primTy
 getType (Var _ ty) = ty

@@ -74,16 +74,16 @@ instance
   Monoid (Core.XVPrimTy ext PrimTy primVal) =>
   IR.HasSubstValue ext PrimTy primVal PrimTy
   where
-  substValueWith _ _ _ t = pure $ Core.VPrimTy' t mempty
+  substValueWith _ _ _ t = pure $ Core.VPrimTy t mempty
 
 instance
   Monoid (Core.XPrimTy ext PrimTy primVal) =>
   IR.HasPatSubstTerm ext PrimTy primVal PrimTy
   where
-  patSubstTerm' _ _ t = pure $ Core.PrimTy' t mempty
+  patSubstTerm' _ _ t = pure $ Core.PrimTy t mempty
 
 instance
   Monoid (Core.XPrim ext primTy RawPrimVal) =>
   IR.HasPatSubstTerm ext primTy RawPrimVal RawPrimVal
   where
-  patSubstTerm' _ _ t = pure $ Core.Prim' t mempty
+  patSubstTerm' _ _ t = pure $ Core.Prim t mempty

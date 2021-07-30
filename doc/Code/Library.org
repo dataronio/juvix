@@ -190,12 +190,20 @@ Module that implements the backend parameters for the Michelson backend.
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Usage]]
+***** Parameterisation <<Test/Parameterisation>>
+- _Relies on_
+  + [[Compilation/Types]]
+  + [[Untyped]]
+  + [[Michelson/Parameterisation]]
+  + [[Core/Parameterisation]]
 ***** Pipeline <<Test/Pipeline>>
 - _Relies on_
   + [[Backends/Michelson]]
   + [[Michelson/Compilation]]
+  + [[Core/Base]]
   + [[Ann]]
   + [[Core/IR]]
+  + [[IR/Typechecker]]
   + [[Core/Types]]
   + [[Library]]
   + [[Library/Usage]]
@@ -321,14 +329,13 @@ Surface language
 - _Relies on_
   + [[Plonk]]
   + [[Ann]]
-  + [[Core/HR]]
+  + [[HR]]
   + [[Core/IR]]
   + [[Library]]
   + [[Feedback]]
   + [[Library/Test/Golden]]
   + [[Juvix/Pipeline]]
   + [[Juvix/Pipeline]]
-  + [[ToCore/Types]]
 ***** Orphan
 - _Relies on_
   + [[Library]]
@@ -377,7 +384,6 @@ The basic connection between the backend and the Juvix pipeline.
   + [[Library]]
   + [[Feedback]]
   + [[Juvix/Pipeline]]
-  + [[ToCore/FromFrontend]]
 ******* Primitive
 Representation of LLVM primitives in Juvix.
 - _Relies on_
@@ -535,6 +541,7 @@ keeps the extensions.
 - _Relies on_
   + [[Base/Types/Base]]
   + [[Globals]]
+  + [[Types/Sig]]
 ******* Base <<Base/Types/Base>>
 - _Relies on_
   + [[Library]]
@@ -546,16 +553,15 @@ keeps the extensions.
   + [[Library]]
   + [[HashMap]]
   + [[Library/Usage]]
+******* Sig <<Types/Sig>>
+- _Relies on_
+  + [[Base/Types/Base]]
+  + [[Library]]
+  + [[NameSymbol]]
 ***** Erased
 - _Relies on_
   + [[Erased/Types]]
   + [[Util]]
-****** Types <<Erased/Types>>
-- _Relies on_
-  + [[Core/Base/Types]]
-  + [[Erased/Base/Types]]
-  + [[Typechecker/Types]]
-  + [[Library]]
 ****** Util
 - _Relies on_
   + [[Erased/Types]]
@@ -596,16 +602,18 @@ keeps the extensions.
 ******* Conversion
 - _Relies on_
   + [[Application]]
+  + [[Core/Base]]
+  + [[OnlyExts]]
   + [[Erased]]
   + [[Algorithm]]
   + [[Algorithm/Types]]
   + [[Prim]]
   + [[Ann/Types]]
   + [[Ann/Types]]
-  + [[Core/HR]]
   + [[Core/IR]]
+  + [[Evaluator]]
   + [[IR/Typechecker]]
-  + [[Translate]]
+  + [[IR/Typechecker]]
   + [[Core/Types]]
   + [[Library]]
   + [[NameSymbol]]
@@ -646,7 +654,12 @@ keeps the extensions.
   + [[HashMap]]
   + [[NameSymbol]]
   + [[Library/Usage]]
-***** HR <<Core/HR>>
+****** Types <<Erased/Types>>
+- _Relies on_
+  + [[Erased/Base/Types]]
+  + [[Typechecker/Types]]
+  + [[Library]]
+***** HR
 - _Relies on_
   + [[Core/HR/Pretty]]
   + [[HR/Types]]
@@ -657,6 +670,7 @@ keeps the extensions.
   + [[NameSymbol]]
 ****** Pretty <<Core/HR/Pretty>>
 - _Relies on_
+  + [[Core/Base]]
   + [[HR/Types]]
   + [[Library]]
   + [[NameSymbol]]
@@ -672,15 +686,18 @@ keeps the extensions.
   + [[CheckTerm]]
   + [[Evaluator]]
   + [[IR/Typechecker]]
-  + [[IR/Typechecker]]
   + [[IR/Types]]
   + [[Library]]
 ****** CheckDatatype
 Datatype declarations are typechecked here. Usages are passed along.
 - _Relies on_
+  + [[OnlyExts]]
   + [[Core/Base/Types]]
   + [[CheckTerm]]
   + [[Evaluator]]
+  + [[Typechecker/Env]]
+  + [[Error]]
+  + [[Typechecker/Types]]
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
@@ -690,22 +707,15 @@ This file contains the functions and aux functions to typecheck terms.
 datatype and function declarations.
 - _Relies on_
   + [[Application]]
+  + [[OnlyExts]]
   + [[Core/Base/Types]]
   + [[Evaluator]]
   + [[Typechecker/Env]]
-  + [[Typechecker/Error]]
+  + [[Error]]
   + [[Typechecker/Types]]
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Library/Usage]]
-****** Types <<IR/Types>>
-Quantitative type implementation inspired by
-  Atkey 2018 and McBride 2016.
-- _Relies on_
-  + [[Core/Base/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
   + [[Library/Usage]]
 ****** Evaluator
 This includes the evaluators (`evalTerm` and `evalElim`),
@@ -773,12 +783,13 @@ Datatype declarations are typechecked by @checkDataType@ in CheckDataType.hs.
 Function declarations are typechecked by @typeCheckFuns@ in CheckFunction.hs.
 Typechecked declarations are added to the signature.
 - _Relies on_
+  + [[OnlyExts]]
   + [[Core/Base/Types]]
   + [[CheckDatatype]]
   + [[CheckTerm]]
   + [[Evaluator]]
   + [[Typechecker/Env]]
-  + [[Typechecker/Error]]
+  + [[Error]]
   + [[Typechecker/Types]]
   + [[IR/Types]]
   + [[Core/Parameterisation]]
@@ -788,15 +799,14 @@ Typechecked declarations are added to the signature.
   + [[OnlyExts]]
   + [[Core/Base/Types]]
   + [[Evaluator]]
-  + [[Typechecker/Error]]
+  + [[Error]]
   + [[Typechecker/Types]]
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[Library/Usage]]
-******* Error <<Typechecker/Error>>
+******* Error
 - _Relies on_
-  + [[Application]]
   + [[Core/Base/Types]]
   + [[Core/HR/Pretty]]
   + [[Evaluator]]
@@ -814,6 +824,14 @@ Typechecked declarations are added to the signature.
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
+  + [[Library/Usage]]
+****** Types <<IR/Types>>
+Quantitative type implementation inspired by
+  Atkey 2018 and McBride 2016.
+- _Relies on_
+  + [[Core/Base/Types]]
+  + [[Library]]
+  + [[NameSymbol]]
   + [[Library/Usage]]
 ***** Parameterisations
 ****** All
@@ -840,11 +858,20 @@ Typechecked declarations are added to the signature.
   + [[Evaluator]]
   + [[Core/Parameterisation]]
   + [[Library]]
+***** Pipeline <<Core/Pipeline>>
+****** ToIR <<Core/Pipeline/ToIR>>
+- _Relies on_
+  + [[Core/Base/Types]]
+  + [[HR]]
+  + [[Core/IR]]
+  + [[Translate]]
+  + [[Translate]]
+  + [[Library]]
 ** test
 *** Conv
 - _Relies on_
   + [[Core/Base]]
-  + [[Core/HR]]
+  + [[HR]]
   + [[Core/IR]]
   + [[Translate]]
   + [[Library]]
@@ -866,11 +893,13 @@ Typechecked declarations are added to the signature.
 *** Typechecker <<test/Typechecker>>
 Tests for the type checker and evaluator in Core/IR/Typechecker.hs
 - _Relies on_
+  + [[Application]]
   + [[Core/Base]]
   + [[OnlyExts]]
   + [[Core/IR]]
   + [[CheckTerm]]
   + [[Evaluator]]
+  + [[IR/Typechecker]]
   + [[Core/Parameterisation]]
   + [[All]]
   + [[Naturals]]
@@ -885,7 +914,7 @@ Tests for the type checker and evaluator in Core/IR/Typechecker.hs
 *** HR
 **** Pretty <<test/HR/Pretty>>
 - _Relies on_
-  + [[Core/HR]]
+  + [[HR]]
   + [[Naturals]]
   + [[Library]]
   + [[NameSymbol]]
@@ -942,16 +971,15 @@ with any stage of the compiler while modifying the source code.
   + [[NameSymbol]]
   + [[Juvix/Pipeline]]
   + [[Compile]]
-  + [[Core]]
+  + [[ToHR]]
+  + [[Juvix/Pipeline/ToIR]]
   + [[Juvix/Sexp]]
-  + [[ToCore/Types]]
 ** test
-*** FromFrontend <<test/FromFrontend>>
+*** FromFrontend
 - _Relies on_
   + [[Core/Base/Types]]
   + [[IR/Types]]
   + [[Library]]
-  + [[ToCore/Types]]
 *** Spec
 - _Relies on_
   + [[Library]]
@@ -1052,11 +1080,11 @@ with any stage of the compiler while modifying the source code.
   + [[NameSymbol]]
   + [[Library/Parser]]
   + [[Compile]]
-  + [[Core]]
-  + [[Pipeline/Frontend]]
+  + [[ToHR]]
+  + [[Juvix/Pipeline/ToIR]]
+  + [[ToSexp]]
   + [[Pipeline/Types]]
   + [[Juvix/Sexp]]
-  + [[ToCore/FromFrontend]]
 ***** Compile
 - _Relies on_
   + [[Application]]
@@ -1065,25 +1093,12 @@ with any stage of the compiler while modifying the source code.
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[Feedback]]
-  + [[ToCore/Types]]
-***** Core
+  + [[Def]]
+  + [[ToHR/Types]]
+***** ToIR <<Juvix/Pipeline/ToIR>>
 - _Relies on_
-  + [[Juvix/Context]]
-  + [[Core/Base]]
-  + [[Traverse]]
-  + [[Core/HR]]
-  + [[Core/IR]]
-  + [[IR/Types]]
-  + [[Core/Parameterisation]]
-  + [[Juvix/Frontend]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Parser]]
-  + [[Library/Usage]]
-  + [[Juvix/Sexp]]
-  + [[ToCore/FromFrontend]]
-  + [[ToCore/Types]]
-***** Frontend <<Pipeline/Frontend>>
+  + [[Core/Pipeline/ToIR]]
+***** ToSexp
 - _Relies on_
   + [[Juvix/Context]]
   + [[Juvix/Contextify]]
@@ -1101,9 +1116,129 @@ with any stage of the compiler while modifying the source code.
 - _Relies on_
   + [[Algorithm/Types]]
   + [[Ann/Types]]
+  + [[Core/IR]]
   + [[Typechecker/Types]]
   + [[Core/Types]]
   + [[Library]]
+***** ToHR
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[Core/Base]]
+  + [[Traverse]]
+  + [[HR]]
+  + [[Core/IR]]
+  + [[IR/Types]]
+  + [[Core/Parameterisation]]
+  + [[Juvix/Frontend]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Parser]]
+  + [[Library/Usage]]
+  + [[Def]]
+  + [[ToHR/Env]]
+  + [[ToHR/Sig]]
+  + [[ToHR/Types]]
+  + [[Juvix/Sexp]]
+****** Def
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[Core/Base]]
+  + [[Core/Base/Types]]
+  + [[HR]]
+  + [[HR]]
+  + [[Library]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[ToHR/Env]]
+  + [[Extract]]
+  + [[Term]]
+  + [[ToHR/Types]]
+  + [[Juvix/Sexp]]
+****** Env <<ToHR/Env>>
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[Core/Base/Types]]
+  + [[HR]]
+  + [[Core/IR]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[ToHR/Types]]
+  + [[Juvix/Sexp]]
+****** Term
+- _Relies on_
+  + [[HR]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[ToHR/Env]]
+  + [[Extract]]
+  + [[ToHR/Types]]
+  + [[ToHR/Usage]]
+  + [[Juvix/Sexp]]
+****** TypeSig
+- _Relies on_
+  + [[Core/Base]]
+  + [[HR]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[ToHR/Env]]
+  + [[Term]]
+  + [[ToHR/Types]]
+  + [[Juvix/Sexp]]
+****** Types <<ToHR/Types>>
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[Core/Base]]
+  + [[HR]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[Juvix/Sexp]]
+****** Usage <<ToHR/Usage>>
+- _Relies on_
+  + [[Core/Base]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[ToHR/Env]]
+  + [[Extract]]
+  + [[ToHR/Types]]
+  + [[Juvix/Sexp]]
+****** Sig <<ToHR/Sig>>
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[Core/Base/Types]]
+  + [[HR]]
+  + [[Library]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[ToHR/Env]]
+  + [[Extract]]
+  + [[Term]]
+  + [[TypeSig]]
+  + [[ToHR/Types]]
+  + [[ToHR/Usage]]
+  + [[Juvix/Sexp]]
+******* Extract
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[Core/Base/Types]]
+  + [[HR]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[ToHR/Env]]
+  + [[ToHR/Types]]
+  + [[Juvix/Sexp]]
 ** test
 *** Main <<Pipeline/test/Main>>
 - _Relies on_
@@ -1116,7 +1251,7 @@ with any stage of the compiler while modifying the source code.
   + [[Juvix/Frontend]]
   + [[Library]]
   + [[Juvix/Pipeline]]
-  + [[Pipeline/Frontend]]
+  + [[ToSexp]]
   + [[Juvix/Sexp]]
 * Sexp
 ** Setup <<Sexp/Setup>>
@@ -1145,7 +1280,7 @@ sexp type and all the various helper functionality one can need
   + [[NameSymbol]]
 ***** Structure
 ****** CoreNamed
-Hardeing S-expressions into a more readable form. Here we use a
+Hardening S-expressions into a more readable form. Here we use a
 mixture of record structures and aliases. Each cover a form that we
 wish to talk about rather than just match away at
 - _The form for transformation follows this structure_
@@ -1178,7 +1313,7 @@ _TODO_
   + [[Juvix/Sexp]]
   + [[Structure/Helpers]]
 ****** Frontend <<Structure/Frontend>>
-Hardeing S-expressions into a more readable form. Here we use a
+Hardening S-expressions into a more readable form. Here we use a
 mixture of record structures and aliases. Each cover a form that we
 wish to talk about rather than just match away at
 - _The form for transformation follows this structure_
@@ -1221,7 +1356,7 @@ _TODO_
   + [[Structure/Frontend]]
   + [[Transition]]
 ****** Transition
-Hardeing S-expressions into a more readable form. Here we use a
+Hardening S-expressions into a more readable form. Here we use a
 mixture of record structures and aliases. Each cover a form that we
 wish to talk about rather than just match away at
 - _The form for transformation follows this structure_
@@ -1548,136 +1683,10 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[Library]]
   + [[Juvix/Sexp]]
+  + [[CoreNamed]]
   + [[Structure/Frontend]]
   + [[Lens]]
   + [[Transition]]
-**** ToCore
-***** FromFrontend <<ToCore/FromFrontend>>
-- _Relies on_
-  + [[Transform]]
-  + [[ToCore/Types]]
-****** Transform
-- _Relies on_
-  + [[Def]]
-  + [[Sig]]
-******* Def
-- _Relies on_
-  + [[Juvix/Context]]
-  + [[Core/Base]]
-  + [[Core/HR]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Juvix/Sexp]]
-  + [[Transform/HR]]
-  + [[Transform/Helpers]]
-  + [[ToCore/Types]]
-******* HR <<Transform/HR>>
-- _Relies on_
-  + [[Core/HR]]
-  + [[Core/Parameterisation]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Usage]]
-  + [[Juvix/Sexp]]
-  + [[Transform/Helpers]]
-  + [[Transform/Usage]]
-  + [[ToCore/Types]]
-******* Helpers <<Transform/Helpers>>
-- _Relies on_
-  + [[Juvix/Context]]
-  + [[Core/Base]]
-  + [[Core/HR]]
-  + [[Core/IR]]
-  + [[Core/Parameterisation]]
-  + [[Translate]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Juvix/Sexp]]
-  + [[ToCore/Types]]
-******* IR <<Transform/IR>>
-- _Relies on_
-  + [[Core/Base]]
-  + [[Core/HR]]
-  + [[Core/IR]]
-  + [[Translate]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Juvix/Sexp]]
-  + [[Transform/HR]]
-  + [[Transform/Helpers]]
-  + [[ToCore/Types]]
-******* Sig
-- _Relies on_
-  + [[Juvix/Context]]
-  + [[Core/HR]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Usage]]
-  + [[Juvix/Sexp]]
-  + [[Transform/HR]]
-  + [[Transform/Helpers]]
-  + [[TypeSig]]
-  + [[Transform/Usage]]
-  + [[ToCore/Types]]
-******* TypeSig
-- _Relies on_
-  + [[Core/Base]]
-  + [[Core/HR]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Usage]]
-  + [[Juvix/Sexp]]
-  + [[Transform/HR]]
-  + [[Transform/Helpers]]
-  + [[ToCore/Types]]
-******* Usage <<Transform/Usage>>
-- _Relies on_
-  + [[Core/Base]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Usage]]
-  + [[Juvix/Sexp]]
-  + [[Transform/Helpers]]
-  + [[ToCore/Types]]
-***** Types <<ToCore/Types>>
-- _Relies on_
-  + [[Core/Base/Types]]
-  + [[Core/HR]]
-  + [[Core/IR]]
-  + [[Translate]]
-  + [[Translate]]
-  + [[Library]]
-  + [[LineNum]]
-  + [[Juvix/Sexp]]
-  + [[Defs]]
-  + [[Types/Env]]
-  + [[Types/Error]]
-****** Defs
-- _Relies on_
-  + [[Core/Base/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Usage]]
-****** Env <<Types/Env>>
-- _Relies on_
-  + [[Juvix/Context]]
-  + [[Core/Base/Types]]
-  + [[Core/Parameterisation]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Juvix/Sexp]]
-  + [[Defs]]
-  + [[Types/Error]]
-****** Error <<Types/Error>>
-- _Relies on_
-  + [[Juvix/Context]]
-  + [[Core/Base/Types]]
-  + [[Core/HR]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Library/Usage]]
-  + [[Juvix/Sexp]]
-  + [[Defs]]
 ** test
 *** Main <<Translate/test/Main>>
 - _Relies on_
