@@ -14,7 +14,7 @@ top :: T.TestTree
 top =
   T.testGroup
     "testing desugaring passes functions"
-    [moduleResolution, infixResolution]
+    [moduleResolution, infixResolution, recordTest]
 
 moduleResolution :: T.TestTree
 moduleResolution =
@@ -48,7 +48,7 @@ moduleResolution =
       T.testCase "defining an imported function just shadows" $ do
         Right t <- contextualizeFoo "open A let fi = x let x = 2"
         let Right expected = Sexp.parse "(:lambda-case (() x))"
-        unwrapLookup "fi" t T.@=? Just expected,
+        Just expected T.@=? unwrapLookup "fi" t,
       T.testCase "ambiguous imports error" $ do
         t <- contextualizeFooAmbi "open A open B let fi = 2"
         Left (Contextify.Resolve (Contextify.AmbiguousSymbol "+")) T.@=? t
@@ -70,4 +70,14 @@ infixResolution =
         Right t <- contextualizeFoo "open A let fi a = 1 * 2 + 3"
         let Right expected = Sexp.parse "(:lambda-case ((a) (TopLevel.A.+ (TopLevel.A.* 1 2) 3)))"
         Just expected T.@=? unwrapLookup "fi" t
+    ]
+
+recordTest :: T.TestTree
+recordTest =
+  T.testGroup
+    "Testing records into Sigma Transformation"
+    [ T.testCase "record With Fields turn into Sigmas" $ do
+        Right t <- contextualizeFoo "type bah = {x : int, y : int}"
+        let Right expected = Sexp.parse "(bah () (:sigma (x :omega int) (:sigma (y :omega int) :unit)))"
+        Just expected T.@=? unwrapLookup "bah" t
     ]

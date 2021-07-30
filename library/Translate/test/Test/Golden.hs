@@ -207,7 +207,8 @@ discoverContext =
   discoverPrefix
     [ (contextifySexp, "contextify-sexp"),
       (resolveModuleContext, "resolve-module"),
-      (resolveInfixContext, "resolve-infix")
+      (resolveInfixContext, "resolve-infix"),
+      (resolveRecordPi, "recordToPi")
     ]
     (fmap (: []) ['A' .. 'Z'])
 
@@ -275,6 +276,18 @@ resolveInfixContext names = do
   case infix' of
     Left _err -> Feedback.fail "can't resolve infix symbols"
     Right ctx -> pure ctx
+
+resolveRecordPi ::
+  (MonadIO m, MonadFail m) =>
+  NonEmpty (NameSymbol.T, [Sexp.T]) ->
+  m Environment.SexpContext
+resolveRecordPi names = do
+  ctx <- resolveInfixContext names
+  let (infix', _) = Environment.runM (Contextify.recordPi ctx)
+  case infix' of
+    Left _err -> Feedback.fail "can't resolve infix symbols"
+    Right ctx -> pure ctx
+
 
 ----------------------------------------------------------------------
 -- Helpers
