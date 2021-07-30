@@ -37,7 +37,7 @@ op names = do
   case context of
     Left err -> pure $ Left err
     Right ctx -> do
-      (newCtx, _) <-
+      (newCtx, _) <- -- only Passes.resolveModule requires IO in these passes
         Environment.runMIO $
           Passes.resolveModule ctx
             >>= Passes.inifixSoloPass
