@@ -1,4 +1,9 @@
-module Juvix.Contextify.Passes (resolveModule, inifixSoloPass) where
+module Juvix.Contextify.Passes
+  ( resolveModule,
+    inifixSoloPass,
+    recordPi,
+  )
+where
 
 import Control.Lens hiding (op, (|>))
 import qualified Data.List.NonEmpty as NonEmpty
@@ -12,7 +17,6 @@ import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Sexp.Structure.CoreNamed as StructureCore
 import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Juvix.Sexp.Structure.Lens
-import qualified Juvix.Sexp.Structure.Transition as Structure
 import qualified StmContainers.Map as STM
 
 --------------------------------------------------------------------------------
@@ -158,4 +162,5 @@ recordPi context =
                 (StructureCore.Binder name (Sexp.atom ":omega") (termType ^. value))
               |> StructureCore.fromSigma
               |> pure
-          | otherwise = throw @"error" (Env.ImproperForm "malformed record declaration name")
+          | otherwise =
+            throw @"error" (Env.ImproperForm "malformed record declaration name")
