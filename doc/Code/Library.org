@@ -562,6 +562,11 @@ keeps the extensions.
 - _Relies on_
   + [[Erased/Types]]
   + [[Util]]
+****** Types <<Erased/Types>>
+- _Relies on_
+  + [[Erased/Base/Types]]
+  + [[Typechecker/Types]]
+  + [[Library]]
 ****** Util
 - _Relies on_
   + [[Erased/Types]]
@@ -654,11 +659,6 @@ keeps the extensions.
   + [[HashMap]]
   + [[NameSymbol]]
   + [[Library/Usage]]
-****** Types <<Erased/Types>>
-- _Relies on_
-  + [[Erased/Base/Types]]
-  + [[Typechecker/Types]]
-  + [[Library]]
 ***** HR
 - _Relies on_
   + [[Core/HR/Pretty]]
@@ -716,6 +716,14 @@ datatype and function declarations.
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
+  + [[Library/Usage]]
+****** Types <<IR/Types>>
+Quantitative type implementation inspired by
+  Atkey 2018 and McBride 2016.
+- _Relies on_
+  + [[Core/Base/Types]]
+  + [[Library]]
+  + [[NameSymbol]]
   + [[Library/Usage]]
 ****** Evaluator
 This includes the evaluators (`evalTerm` and `evalElim`),
@@ -824,14 +832,6 @@ Typechecked declarations are added to the signature.
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Library/Usage]]
-****** Types <<IR/Types>>
-Quantitative type implementation inspired by
-  Atkey 2018 and McBride 2016.
-- _Relies on_
-  + [[Core/Base/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
   + [[Library/Usage]]
 ***** Parameterisations
 ****** All
