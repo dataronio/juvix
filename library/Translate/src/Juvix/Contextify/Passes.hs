@@ -9,24 +9,28 @@ import qualified Juvix.Contextify.InfixPrecedence.ShuntYard as Shunt
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Sexp.Structure.CoreNamed as StructureCore
 import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Juvix.Sexp.Structure.Lens
 import qualified Juvix.Sexp.Structure.Transition as Structure
 import qualified StmContainers.Map as STM
 
-resolveModule ::
-  ExpressionIO m => Env.SexpContext -> m Env.SexpContext
-resolveModule context =
-  Env.passContextSingle context (\x -> x == ":atom" || x == Structure.nameOpenIn) openResolution
-
-inifixSoloPass ::
-  Expression m => Env.SexpContext -> m Env.SexpContext
-inifixSoloPass context =
-  Env.passContextSingle context (== Structure.nameInfix) infixConversion
+--------------------------------------------------------------------------------
+-- Environmental Constraint Types
+--------------------------------------------------------------------------------
 
 type ExpressionIO m = (Env.ErrS m, Env.HasClosure m, MonadIO m)
 
 type Expression m = (Env.ErrS m, Env.HasClosure m)
+
+--------------------------------------------------------------------------------
+-- Open Transformation
+--------------------------------------------------------------------------------
+
+resolveModule ::
+  ExpressionIO m => Env.SexpContext -> m Env.SexpContext
+resolveModule context =
+  Env.passContextSingle context (\x -> x == ":atom" || x == Structure.nameOpenIn) openResolution
 
 openResolution ::
   ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom -> Sexp.T -> m Sexp.T
@@ -54,6 +58,15 @@ atomResolution context atom@Sexp.A {atomName = name} sexpAtom = do
           pure $ Sexp.addMetaToCar atom (Sexp.atom (prefix <> name))
         Nothing -> pure sexpAtom
 atomResolution _ _ s = pure s
+
+--------------------------------------------------------------------------------
+-- Infix Form Transformation
+--------------------------------------------------------------------------------
+
+inifixSoloPass ::
+  Expression m => Env.SexpContext -> m Env.SexpContext
+inifixSoloPass context =
+  Env.passContextSingle context (== Structure.nameInfix) infixConversion
 
 infixConversion ::
   (Env.ErrS m, Env.HasClosure m) => Context.T t y s -> Sexp.Atom -> Sexp.T -> m Sexp.T
@@ -105,3 +118,44 @@ convertShunt :: Shunt.Application Sexp.T Sexp.T -> Sexp.T
 convertShunt (Shunt.Single e) = e
 convertShunt (Shunt.App s app1 app2) =
   Sexp.list [s, convertShunt app1, convertShunt app2]
+
+--------------------------------------------------------------------------------
+-- Record Transform
+--------------------------------------------------------------------------------
+
+-- Update this…
+
+-- Currently we aren't running a free variable algorithm on this to
+-- determine dependency order. This should be run to ensure that we are
+-- getting the order right. Also we need to pick a canonical ordering
+
+-- | @recordPi@ - Transforms record declarations into @Pi@ Type
+-- expressions
+-- - BNF Input Form
+--   1. (:record-d arg-1 type-1 … arg-n type-n)
+-- - BNF Output Form
+--   1. (:sigma (arg-1 :usage-hole type-1)
+--         (:sigma (arg-2 :usage-hole type-2)
+--            … (:sigma (arg-n :usage-hole type-n)
+--                  :unit)))
+recordPi ::
+  Expression m => Env.SexpContext -> m Env.SexpContext
+recordPi context =
+  Env.passContextSingle context (== Structure.nameRecordDec) removeRecordD
+  where
+    removeRecordD _context atom cdr =
+      case Structure.toRecordDec (Sexp.Atom atom Sexp.:> cdr) of
+        Just recordD ->
+          -- we are doing a lookup, but here is where we do our sorting
+          recordD ^. value
+            |> foldrM piTransform (Sexp.atom ":unit")
+        Nothing -> throw @"error" (Env.ImproperForm "malformed record declaration")
+      where
+        piTransform termType sigmaChain
+          | Just name <- Sexp.nameFromT (termType ^. name) =
+            sigmaChain
+              |> StructureCore.Sigma
+                (StructureCore.Binder name (Sexp.atom ":omega") (termType ^. value))
+              |> StructureCore.fromSigma
+              |> pure
+          | otherwise = throw @"error" (Env.ImproperForm "malformed record declaration name")
