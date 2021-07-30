@@ -10,7 +10,6 @@ module Juvix.Core.Erased.Ann.Conversion
 where
 
 import Data.List ((\\))
-
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
