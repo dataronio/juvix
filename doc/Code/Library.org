@@ -1592,6 +1592,7 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
+  + [[CoreNamed]]
   + [[Structure/Frontend]]
   + [[Lens]]
   + [[Transition]]
