@@ -101,6 +101,16 @@ atomResolution _ _ s = pure s
 -- Infix Form Transformation
 --------------------------------------------------------------------------------
 
+-- TODO ∷ add comment about infixl vs infix vs infixr, and explain how
+-- this isn't a real bnf
+
+-- | @infixSoloPass@ resolves the infix precedence of a given form into
+-- a properly ordered prefix ordering via the shuntyard algorithm.
+-- - BNF input form:
+--   1. (:infix infix-3 3 (:infix infix-4 1 (:infix infix-2 5 7)))
+-- - BNF output form:
+--   1. (:infix-3 3 (:infix-2 (:infix-4 1 5) 7))
+-- - Note :: infix-<num> stands for precedent <num>
 inifixSoloPass ::
   Expression m => Env.SexpContext -> m Env.SexpContext
 inifixSoloPass context =
