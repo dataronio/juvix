@@ -1,4 +1,4 @@
-module Juvix.Frontend.Sexp where
+module Juvix.Translate.Pipeline.TopLevel where
 
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Frontend.Types.Base as Types

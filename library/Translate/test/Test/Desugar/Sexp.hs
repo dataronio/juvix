@@ -177,7 +177,7 @@ modulesWorkAsExpected =
   T.testGroup
     "module desugar tests"
     [ T.testCase
-        "basic expnasion expansion work"
+        "basic expansion expansion work"
         (expected T.@=? fmap Desugar.moduleTransform form),
       T.testCase
         "Type expansion works"

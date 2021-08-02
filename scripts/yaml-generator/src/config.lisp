@@ -294,7 +294,7 @@ common ones to include"
    ;; why is this one ahead again!?
    :resolver   17.9
    :name       "Frontend"
-   :packages   (list *standard-library* *sexp*)
+   :packages   (list *standard-library*)
    :extra-deps (list (make-general-dependencies *capability* *prettiest*) *standard-library-extra-deps*)))
 
 (defparameter *Context*

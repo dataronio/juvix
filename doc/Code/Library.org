@@ -858,7 +858,7 @@ Typechecked declarations are added to the signature.
   + [[Evaluator]]
   + [[Core/Parameterisation]]
   + [[Library]]
-***** Pipeline <<Core/Pipeline>>
+***** Pipeline
 ****** ToIR <<Core/Pipeline/ToIR>>
 - _Relies on_
   + [[Core/Base/Types]]
@@ -960,11 +960,10 @@ with any stage of the compiler while modifying the source code.
   + [[Desugar]]
   + [[Juvix/Frontend]]
   + [[Frontend/Parser]]
-  + [[Frontend/Sexp]]
+  + [[Pipeline/ToSexp]]
   + [[Frontend/Types]]
   + [[Frontend/Types]]
   + [[Frontend/Types/Base]]
-  + [[FrontendDesugar]]
   + [[Library]]
   + [[Feedback]]
   + [[HashMap]]
@@ -1004,12 +1003,6 @@ with any stage of the compiler while modifying the source code.
   + [[Library]]
   + [[Library/Parser]]
   + [[Library/Parser]]
-***** Sexp <<Frontend/Sexp>>
-- _Relies on_
-  + [[Frontend/Types/Base]]
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Juvix/Sexp]]
 ***** Types <<Frontend/Types>>
 - This file defines the main ADT for the Juvix front end language.
 - This ADT corresponds to the BNF laid out [[https://github.com/heliaxdev/juvix/blob/develop/doc/Frontend/syntax.org][here]].
@@ -1047,13 +1040,6 @@ with any stage of the compiler while modifying the source code.
   + [[NameSymbol]]
   + [[Library/Parser]]
   + [[Library/Parser]]
-*** Sexp <<Frontend/test/Sexp>>
-- _Relies on_
-  + [[Frontend/Parser]]
-  + [[Frontend/Sexp]]
-  + [[Frontend/Types]]
-  + [[Library]]
-  + [[Juvix/Sexp]]
 * Pipeline
 ** Setup <<Pipeline/Setup>>
 ** src
@@ -1082,7 +1068,7 @@ with any stage of the compiler while modifying the source code.
   + [[Compile]]
   + [[ToHR]]
   + [[Juvix/Pipeline/ToIR]]
-  + [[ToSexp]]
+  + [[Pipeline/ToSexp]]
   + [[Pipeline/Types]]
   + [[Juvix/Sexp]]
 ***** Compile
@@ -1098,7 +1084,7 @@ with any stage of the compiler while modifying the source code.
 ***** ToIR <<Juvix/Pipeline/ToIR>>
 - _Relies on_
   + [[Core/Pipeline/ToIR]]
-***** ToSexp
+***** ToSexp <<Pipeline/ToSexp>>
 - _Relies on_
   + [[Juvix/Context]]
   + [[Juvix/Contextify]]
@@ -1107,7 +1093,8 @@ with any stage of the compiler while modifying the source code.
   + [[Translate]]
   + [[Core/Types]]
   + [[Frontend/Types]]
-  + [[FrontendDesugar]]
+  + [[Desugar]]
+  + [[Translate/Pipeline]]
   + [[Library]]
   + [[NameSymbol]]
   + [[PrettyPrint]]
@@ -1251,7 +1238,14 @@ with any stage of the compiler while modifying the source code.
   + [[Juvix/Frontend]]
   + [[Library]]
   + [[Juvix/Pipeline]]
-  + [[ToSexp]]
+  + [[Pipeline/ToSexp]]
+  + [[Juvix/Sexp]]
+**** ToSexp <<Test/ToSexp>>
+- _Relies on_
+  + [[Frontend/Parser]]
+  + [[Pipeline/ToSexp]]
+  + [[Frontend/Types]]
+  + [[Library]]
   + [[Juvix/Sexp]]
 * Sexp
 ** Setup <<Sexp/Setup>>
@@ -1393,7 +1387,7 @@ _TODO_
 *** Main <<Sexp/test/Main>>
 - _Relies on_
   + [[Library]]
-*** Sexp <<Sexp/test/Sexp>>
+*** Sexp <<test/Sexp>>
 - _Relies on_
   + [[Library]]
   + [[Juvix/Sexp]]
@@ -1548,21 +1542,6 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
-**** FrontendDesugar
-- Order of Passes
-  1. =RemoveModule=
-  2. =RemoveGuard=
-  3. =RemoveCond=
-  4. =CombineMultiple=
-  5. =RemoveSignature=
-  6. =RemovePunned=
-  7. =RemoveDo=
-- _Relies on_
-  + [[Desugar]]
-  + [[Frontend/Sexp]]
-  + [[Frontend/Types]]
-  + [[Library]]
-  + [[Juvix/Sexp]]
 **** Contextify <<Juvix/Contextify>>
 - _Relies on_
   + [[Juvix/Context]]
@@ -1594,7 +1573,6 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Juvix/Sexp]]
   + [[Structure/Frontend]]
   + [[Lens]]
-  + [[Transition]]
 ***** InfixPrecedence
 ****** ShuntYard <<InfixPrecedence/ShuntYard>>
 - This implements the Shunt Yard algorithm for determining the
@@ -1686,6 +1664,16 @@ done with no extra information needed. Thus we export the following passes
   + [[Structure/Frontend]]
   + [[Lens]]
   + [[Transition]]
+**** Translate
+***** Pipeline <<Translate/Pipeline>>
+- _Relies on_
+  + [[TopLevel]]
+****** TopLevel
+- _Relies on_
+  + [[Frontend/Types/Base]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Juvix/Sexp]]
 ** test
 *** Main <<Translate/test/Main>>
 - _Relies on_
@@ -1708,7 +1696,7 @@ done with no extra information needed. Thus we export the following passes
   + [[Desugar/Passes]]
   + [[Juvix/Frontend]]
   + [[Frontend/Parser]]
-  + [[Frontend/Sexp]]
+  + [[TopLevel]]
   + [[Frontend/Types]]
   + [[Frontend/Types/Base]]
   + [[Library]]
@@ -1735,7 +1723,7 @@ done with no extra information needed. Thus we export the following passes
   + [[ToContext/Types]]
   + [[Desugar]]
   + [[Frontend/Parser]]
-  + [[Frontend/Sexp]]
+  + [[TopLevel]]
   + [[Frontend/Types/Base]]
   + [[Library]]
   + [[Juvix/Sexp]]
@@ -1746,7 +1734,7 @@ done with no extra information needed. Thus we export the following passes
   + [[Juvix/Contextify]]
   + [[Desugar]]
   + [[Frontend/Parser]]
-  + [[Frontend/Sexp]]
+  + [[TopLevel]]
   + [[Frontend/Types]]
   + [[Library]]
   + [[Internal]]
@@ -1756,9 +1744,6 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[InfixPrecedence/ShuntYard]]
   + [[Library]]
-**** Conversion
-***** ML
-Temporary conversion from the Sexpression syntax to the ML syntax
 **** Desugar
 ***** Sexp <<Desugar/Sexp>>
 - _Relies on_
@@ -1772,7 +1757,7 @@ Temporary conversion from the Sexpression syntax to the ML syntax
   + [[Juvix/Contextify]]
   + [[Desugar]]
   + [[Frontend/Parser]]
-  + [[Frontend/Sexp]]
+  + [[TopLevel]]
   + [[Frontend/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]

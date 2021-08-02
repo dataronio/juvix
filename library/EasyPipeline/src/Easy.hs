@@ -34,11 +34,9 @@ import qualified Juvix.Core.Parameterisation as Param
 import qualified Juvix.Desugar as Desugar
 import qualified Juvix.Frontend as Frontend
 import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Sexp as SexpTrans
 import qualified Juvix.Frontend.Types as FrontendT
 import qualified Juvix.Frontend.Types as Initial
 import qualified Juvix.Frontend.Types.Base as Frontend
-import qualified Juvix.FrontendDesugar as FrontDesugar
 import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.HashMap as Map
@@ -47,6 +45,7 @@ import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Pipeline.Compile as Compile
 import qualified Juvix.Pipeline.ToHR as ToHR
 import qualified Juvix.Pipeline.ToIR as ToIR
+import qualified Juvix.Pipeline.ToSexp as ToSexp
 import qualified Juvix.Sexp as Sexp
 import qualified Text.Pretty.Simple as Pretty
 import Prelude (error)
@@ -121,7 +120,7 @@ timeLapse1 =
 -- You may want to stop here if you want to see what some base forms look like
 -- Text ⟶ ML AST ⟶ LISP AST
 sexp :: ByteString -> [Sexp.T]
-sexp xs = ignoreHeader (Parser.parse xs) >>| SexpTrans.transTopLevel
+sexp xs = ignoreHeader (Parser.parse xs) >>| ToSexp.transTopLevel
 
 -- | Here we extend the idea of desugar but we run it on the prelude we
 -- care about.
@@ -131,7 +130,7 @@ sexpFile file = do
   f <- Frontend.parseSingleFile file
   case f of
     Right (_name, ast) ->
-      fmap SexpTrans.transTopLevel ast
+      fmap ToSexp.transTopLevel ast
         |> pure
     Left err ->
       error (show err)
@@ -143,7 +142,7 @@ sexpLibrary def = do
   files <- Frontend.parseFiles (prelude def)
   case files of
     Right f ->
-      pure (second (fmap SexpTrans.transTopLevel) <$> f)
+      pure (second (fmap ToSexp.transTopLevel) <$> f)
     Left err ->
       error (show err)
 

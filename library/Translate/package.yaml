@@ -83,6 +83,7 @@ tests:
     - megaparsec
     - pretty-simple
     - pretty-show
+    - Sexp
     - strict
     - translate
     - tasty
