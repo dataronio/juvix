@@ -43,6 +43,28 @@ type Expression m = (Env.ErrS m, Env.HasClosure m)
 -- Open Transformation
 --------------------------------------------------------------------------------
 
+-- The resolveModule pass, looks over any S-expression, searching for
+-- Atoms or open forms. In the case for Atoms, we see if there is any
+-- module that it should be qualified to.
+
+-- So for example if we have @sig foo : int -> int@ the @int@ atom
+-- really belongs to perhaps @Prelude.Michelson.int@. Thus we will do
+-- the conversion there. Further we change the @->@ atom into
+-- @Prelude.->@ for the same reason.
+
+-- In the open case we note the open into the closure, and then remove
+-- the open from the source code
+
+-- - BNF input form:
+--   1. (:open-in Foo body)
+--   2. unqualified-foo
+-- - BNF output form:
+--   1. body
+--   2. qualified-foo
+
+-- Note that the qualification of foo to Bar.foo if the symbol is from
+-- an open module
+
 resolveModule ::
   ExpressionIO m => Env.SexpContext -> m Env.SexpContext
 resolveModule context =
