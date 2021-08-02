@@ -37,6 +37,7 @@ import Prelude (error)
 data ErrorS
   = CantResolve [Sexp.T]
   | UnknownSymbol NameSymbol.T
+  | ImproperForm [Char]
   | ImpossibleMoreEles
   | Clash
       (Shunt.Precedence Sexp.T)

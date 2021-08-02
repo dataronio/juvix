@@ -4,7 +4,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 -- |
--- Hardeing S-expressions into a more readable form. Here we use a
+-- Hardening S-expressions into a more readable form. Here we use a
 -- mixture of record structures and aliases. Each cover a form that we
 -- wish to talk about rather than just match away at
 --
@@ -139,10 +139,10 @@ matchConstructor x = Sexp.list [x]
 -- NotPunned no Grouping
 --------------------
 fromNotPunnedGroup :: [Frontend.NotPunned] -> Sexp.T
-fromNotPunnedGroup = Sexp.unGroupBy2 . toStarList Frontend.fromNotPunned
+fromNotPunnedGroup = Frontend.fromNotPunnedGroup
 
 toNotPunnedGroup :: Sexp.T -> Maybe [Frontend.NotPunned]
-toNotPunnedGroup = fromStarList Frontend.toNotPunned . Sexp.groupBy2
+toNotPunnedGroup = Frontend.toNotPunnedGroup
 
 ----------------------------------------
 -- Generated

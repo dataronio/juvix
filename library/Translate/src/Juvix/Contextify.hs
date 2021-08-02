@@ -37,14 +37,14 @@ op names = do
   case context of
     Left err -> pure $ Left err
     Right ctx -> do
-      (newCtx, _) <- Environment.runMIO (Passes.resolveModule ctx)
+      (newCtx, _) <- -- only Passes.resolveModule requires IO in these passes
+        Environment.runMIO $
+          Passes.resolveModule ctx
+            >>= Passes.inifixSoloPass
+            >>= Passes.recordPi
       case newCtx of
         Left err -> pure $ Left $ PassErr err
-        Right t ->
-          let (infix', _) = Environment.runM (Passes.inifixSoloPass t)
-           in case infix' of
-                Left err -> pure $ Left $ PassErr err
-                Right x -> pure (Right x)
+        Right t -> pure (Right t)
 
 -- | @fullyContextify@ runs @contextifyS@ along while running the
 -- algorithm that resolves the opens to the modules in which they

@@ -23,6 +23,7 @@ import Control.Lens hiding ((|>))
 import qualified Data.Set as Set
 import Juvix.Library
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Sexp.Structure.CoreNamed as StructureCore
 import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Juvix.Sexp.Structure.Lens
 import qualified Juvix.Sexp.Structure.Transition as Structure

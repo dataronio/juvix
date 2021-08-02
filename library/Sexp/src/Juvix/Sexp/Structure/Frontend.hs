@@ -4,7 +4,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 -- |
--- Hardeing S-expressions into a more readable form. Here we use a
+-- Hardening S-expressions into a more readable form. Here we use a
 -- mixture of record structures and aliases. Each cover a form that we
 -- wish to talk about rather than just match away at
 --
@@ -153,6 +153,11 @@ newtype Record = Record
   }
   deriving (Show)
 
+newtype RecordDec = RecordDec
+  { recordDecValue :: [NotPunned]
+  }
+  deriving (Show)
+
 -- | @Infix@ represents an infix function
 data Infix = Infix
   { infixOp :: Sexp.T,
@@ -224,6 +229,15 @@ data DefHandler = DefHandler
 -------------------------------------------
 -- Not Generated, due to limited generation
 -------------------------------------------
+
+--------------------
+-- NotPunned no Grouping
+--------------------
+fromNotPunnedGroup :: [NotPunned] -> Sexp.T
+fromNotPunnedGroup = Sexp.unGroupBy2 . toStarList fromNotPunned
+
+toNotPunnedGroup :: Sexp.T -> Maybe [NotPunned]
+toNotPunnedGroup = fromStarList toNotPunned . Sexp.groupBy2
 
 --------------------
 -- Name Bind
@@ -827,3 +841,30 @@ toDefHandler form
 fromDefHandler :: DefHandler -> Sexp.T
 fromDefHandler (DefHandler sexp1 sexp2) =
   Sexp.list [Sexp.atom nameDefHandler, sexp1, sexp2]
+
+----------------------------------------
+-- RecordDec
+----------------------------------------
+
+nameRecordDec :: NameSymbol.T
+nameRecordDec = ":record-d"
+
+isRecordDec :: Sexp.T -> Bool
+isRecordDec (Sexp.Cons form _) = Sexp.isAtomNamed form nameRecordDec
+isRecordDec _ = False
+
+toRecordDec :: Sexp.T -> Maybe RecordDec
+toRecordDec form
+  | isRecordDec form =
+    case form of
+      _nameRecordDec Sexp.:> notPunnedGroup1
+        | Just notPunnedGroup1 <- toNotPunnedGroup notPunnedGroup1 ->
+          RecordDec notPunnedGroup1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromRecordDec :: RecordDec -> Sexp.T
+fromRecordDec (RecordDec notPunnedGroup1) =
+  Sexp.listStar [Sexp.atom nameRecordDec, fromNotPunnedGroup notPunnedGroup1]
