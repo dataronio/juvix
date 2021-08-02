@@ -27,7 +27,7 @@ import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Context
 import qualified Juvix.Context.NameSpace as NameSpace
 import qualified Juvix.Contextify.InfixPrecedence.ShuntYard as Shunt
-import Juvix.Library
+import Juvix.Library as Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Sexp.Structure.Frontend as Structure
@@ -401,7 +401,7 @@ openIn ctx (Sexp.List [mod, body]) cont = do
         Just (Context.Record record) ->
           let NameSpace.List {publicL} = NameSpace.toList (record ^. Context.contents)
               --
-              newSymbs = fst <$> publicL
+              newSymbs = Library.fst <$> publicL
               --
               addSymbolInfo symbol =
                 Closure.insert symbol (Closure.Info Nothing [] (Just atomName))

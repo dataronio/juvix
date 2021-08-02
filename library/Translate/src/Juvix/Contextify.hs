@@ -41,7 +41,6 @@ op names = do
         Environment.runMIO $
           Passes.resolveModule ctx
             >>= Passes.inifixSoloPass
-            >>= Passes.recordPi
       case newCtx of
         Left err -> pure $ Left $ PassErr err
         Right t -> pure (Right t)

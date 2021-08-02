@@ -1,7 +1,6 @@
 module Juvix.Contextify.Passes
   ( resolveModule,
-    inifixSoloPass,
-    recordPi,
+    inifixSoloPass
   )
 where
 

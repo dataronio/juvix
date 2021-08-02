@@ -207,8 +207,7 @@ discoverContext =
   discoverPrefix
     [ (contextifySexp, "contextify-sexp"),
       (resolveModuleContext, "resolve-module"),
-      (resolveInfixContext, "resolve-infix"),
-      (resolveRecordPi, "recordToPi")
+      (resolveInfixContext, "resolve-infix")
     ]
     (fmap (: []) ['A' .. 'Z'])
 
@@ -269,14 +268,6 @@ resolveInfixContext ::
 resolveInfixContext =
   "can't resolve infix symbols"
     |> runPass (resolveModuleContext, Contextify.inifixSoloPass)
-
-resolveRecordPi ::
-  (MonadIO m, MonadFail m) =>
-  NonEmpty (NameSymbol.T, [Sexp.T]) ->
-  m Environment.SexpContext
-resolveRecordPi =
-  "can't resolve record to Sigma"
-    |> runPass (resolveInfixContext, Contextify.recordPi)
 
 runPass ::
   (MonadIO m, MonadFail m) => (t1 -> m t2, t2 -> Environment.MinimalMIO b) -> String -> t1 -> m b
