@@ -1,15 +1,16 @@
 module Juvix.Core.IR.Typechecker.API
-  (Typechecker,
-  checkType,
-  Juvix.Core.IR.Typechecker.API.reduce,
-  normalize)
-  where
+  ( Typechecker,
+    checkType,
+    Juvix.Core.IR.Typechecker.API.reduce,
+    normalize,
+  )
+where
 
-import Juvix.Library
-import Juvix.Core.IR.Typechecker.Env as Env
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.IR.Evaluator as Eval
+import Juvix.Core.IR.Typechecker.Env as Env
 import qualified Juvix.Core.IR.Types as IR
+import Juvix.Library
 
 data Error = OopsTypeError
 
