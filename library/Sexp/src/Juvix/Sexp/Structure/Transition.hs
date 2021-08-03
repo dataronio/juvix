@@ -49,7 +49,9 @@ data DefunMatch = DefunMatch
   deriving (Show)
 
 -- | @ArgBody@ abstracts over the details of arguments and body
-data ArgBody = ArgBody {argsBodyArgs :: Sexp.T, argsBodyBody :: Sexp.T}
+data ArgBody = ArgBody { argsBodyArgs :: Sexp.T,
+                         argsBodyBody :: Sexp.T
+                       }
   deriving (Show)
 
 -- | @If@ has an pred, then, and else.
