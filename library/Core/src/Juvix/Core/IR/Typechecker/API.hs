@@ -1,7 +1,7 @@
 module Juvix.Core.IR.Typechecker.API
   (Typechecker,
   checkType,
-  reduce,
+  Juvix.Core.IR.Typechecker.API.reduce,
   normalize)
   where
 
@@ -13,36 +13,35 @@ import qualified Juvix.Core.IR.Types as IR
 
 data Error = OopsTypeError
 
-type Ctxt = forall primTy primVal m extT.
-  (Env.CanTC' extT primTy primVal m,
-   Eval.CanEval extT IR.T primTy primVal
-  ) =>
-  Env.TypeCheck IR.T primTy primVal m [Core.RawGlobal extT primTy primVal]
+data Ctxt = Context
+  -- must check which values we usually use here
+  -- Env.TypeCheck IR.T primTy primVal m [Core.RawGlobal extT primTy primVal]
+  deriving (Generic, Show)
 
 data TypecheckerI = TypecheckerI
   { context :: Ctxt
   }
   deriving (Generic, Show)
 
-type TypecheckerA a =
+type TypecheckerA =
   ExceptT Error (State TypecheckerI)
 
-newtype Typechecker a = Typechecker {_run :: TypecheckerA}
+newtype Typechecker a = Typechecker {_run :: TypecheckerA a}
   deriving (Functor, Applicative, Monad)
   deriving
-    ( HasReader "context" a,
-      HasSource "context" a
+    ( HasReader "context" Ctxt,
+      HasSource "context" Ctxt
     )
     via ReaderField "context" TypecheckerA
   deriving
     (HasThrow "error" Error)
     via MonadError TypecheckerA
 
-checkType :: Typechecker -> Typechecker
+checkType :: Typechecker a -> Typechecker a
 checkType = undefined
 
-reduce :: Typechecker -> Typechecker
+reduce :: Typechecker a -> Typechecker a
 reduce = undefined
 
-normalize :: Typechecker -> Typechecker
+normalize :: Typechecker a -> Typechecker a
 normalize = undefined
