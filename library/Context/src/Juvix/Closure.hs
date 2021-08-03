@@ -53,7 +53,10 @@ lookup k (T m) = Map.lookup k m
 empty :: T
 empty = T Map.empty
 
-insertHash :: T -> (Symbol, T)
-insertHash info =
+insertHash :: Information -> T -> (Symbol, T)
+insertHash info t =
   let name = intern . show $ hash info
-   in (name, insertGeneric name info)
+   in (name, insertGeneric name info t)
+
+merge :: T -> T -> T
+merge = fmap Map.union

@@ -115,4 +115,9 @@ vmap f val prog = do
   return $ f val (\x -> k x) prog
 
 isEffectful :: Sexp.T -> Bool
-isEffectful sexp = foldr (||) False ([Str.isHandler, Str.isLetHandler, Str.isVia, Str.isLetRet, Str.isLetOp])
+isEffectful sexp = foldr (||) False ([ Str.isHandler sexp
+                                     , Str.isLetHandler sexp
+                                     , Str.isVia sexp
+                                     , Str.isLetRet sexp
+                                     , Str.isLetOp sexp
+                                     ])
