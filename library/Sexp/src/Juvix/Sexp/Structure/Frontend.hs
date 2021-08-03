@@ -115,11 +115,6 @@ data DeconBody = DeconBody
   }
   deriving (Show)
 
-newtype Do = Do
-  { doStatements :: Sexp.T
-  }
-  deriving (Show)
-
 data Arrow = Arrow
   { arrowName :: Sexp.T,
     arrowBody :: Sexp.T
@@ -197,18 +192,6 @@ data LetModule = LetModule
     letModuleArgs :: Sexp.T,
     letModuleBody :: Sexp.T,
     letModuleRest :: Sexp.T
-  }
-  deriving (Show)
-
-data Effect = Effect
-  { effectName :: Sexp.T,
-    effectOps :: Sexp.T
-  }
-  deriving (Show)
-
-data DefHandler = DefHandler
-  { defHandlerName :: Sexp.T,
-    defHandlerOps :: Sexp.T
   }
   deriving (Show)
 
@@ -775,56 +758,3 @@ toLetModule form
 fromLetModule :: LetModule -> Sexp.T
 fromLetModule (LetModule sexp1 sexp2 sexp3 sexp4) =
   Sexp.list [Sexp.atom nameLetModule, sexp1, sexp2, sexp3, sexp4]
-
-----------------------------------------
--- Effect
-----------------------------------------
-
-nameEffect :: NameSymbol.T
-nameEffect = ":defeff"
-
-isEffect :: Sexp.T -> Bool
-isEffect (Sexp.Cons form _) = Sexp.isAtomNamed form nameEffect
-isEffect _ = False
-
-toEffect :: Sexp.T -> Maybe Effect
-toEffect form
-  | isEffect form =
-    case form of
-      _nameEffect Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
-        Effect sexp1 sexp2 |> Just
-      _ ->
-        Nothing
-  | otherwise =
-    Nothing
-
-fromEffect :: Effect -> Sexp.T
-fromEffect (Effect sexp1 sexp2) =
-  Sexp.list [Sexp.atom nameEffect, sexp1, sexp2]
-
-----------------------------------------
--- DefHandler
-----------------------------------------
-
-nameDefHandler :: NameSymbol.T
-nameDefHandler = ":defHandler"
-
-isDefHandler :: Sexp.T -> Bool
-isDefHandler (Sexp.Cons form _) = Sexp.isAtomNamed form nameDefHandler
-isDefHandler _ = False
-
-toDefHandler :: Sexp.T -> Maybe DefHandler
-toDefHandler form
-  | isDefHandler form =
-    case form of
-      _nameDefHandler Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
-        DefHandler sexp1 sexp2 |> Just
-      _ ->
-        Nothing
-  | otherwise =
-    Nothing
-
-fromDefHandler :: DefHandler -> Sexp.T
-fromDefHandler (DefHandler sexp1 sexp2) =
-  Sexp.list [Sexp.atom nameDefHandler, sexp1, sexp2]
->>>>>>> 4ef172b9d098cc37cae009e94a4819d7362333fd:library/Sexp/src/Juvix/Sexp/Structure/Frontend.hs

@@ -96,13 +96,6 @@ newtype RecordNoPunned = RecordNoPunned
   }
   deriving (Show)
 
-data LetHandler = LetHandler
-  { letHandlername :: Sexp.T,
-    letHandlerOps :: Sexp.T,
-    letHandlerRet :: Sexp.T
-  }
-  deriving (Show)
-
 --------------------------------------------------------------------------------
 -- Converter functions
 -- The format for these are
@@ -296,32 +289,6 @@ toLetMatch form
 fromLetMatch :: LetMatch -> Sexp.T
 fromLetMatch (LetMatch sexp1 argBodys2 sexp3) =
   Sexp.list [Sexp.atom nameLetMatch, sexp1, fromArgBodys argBodys2, sexp3]
-
-----------------------------------------
--- LetHandler
-----------------------------------------
-
-nameLetHandler :: NameSymbol.T
-nameLetHandler = ":let-handler"
-
-isLetHandler :: Sexp.T -> Bool
-isLetHandler (Sexp.Cons form _) = Sexp.isAtomNamed form nameLetHandler
-isLetHandler _ = False
-
-toLetHandler :: Sexp.T -> Maybe LetHandler
-toLetHandler form
-  | isLetHandler form =
-    case form of
-      _nameLetHandler Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil ->
-        LetHandler sexp1 sexp2 sexp3 |> Just
-      _ ->
-        Nothing
-  | otherwise =
-    Nothing
-
-fromLetHandler :: LetHandler -> Sexp.T
-fromLetHandler (LetHandler sexp1 sexp2 sexp3) =
-  Sexp.list [Sexp.atom nameLetHandler, sexp1, sexp2, sexp3]
 
 ----------------------------------------
 -- RecordNoPunned

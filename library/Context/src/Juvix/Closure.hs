@@ -5,12 +5,8 @@
 module Juvix.Closure where
 
 import qualified Data.HashSet as Set
-<<<<<<< HEAD:library/Core/src/Juvix/Core/Common/Closure.hs
 import Data.Hashable (Hashable (..), hash)
-import qualified Juvix.Core.Common.Context as Context
-=======
 import qualified Juvix.Context as Context
->>>>>>> 4ef172b9d098cc37cae009e94a4819d7362333fd:library/Context/src/Juvix/Closure.hs
 import Juvix.Library
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol

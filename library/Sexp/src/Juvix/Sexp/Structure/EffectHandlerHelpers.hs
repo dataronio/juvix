@@ -1,8 +1,52 @@
 module Juvix.Sexp.Structure.EffectHandlerHelpers where
 
-import Juvix.Library
-import qualified Juvix.Library.Sexp as Sexp
+import Juvix.Library hiding (Handler)
+import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Library.NameSymbol as NameSymbol
+import qualified Control.Lens as Lens hiding ((|>))
+
+data Effect = Effect
+  { effectName :: Sexp.T,
+    effectOps :: Sexp.T
+  }
+  deriving (Show)
+
+data DefHandler = DefHandler
+  { defHandlerName :: Sexp.T,
+    defHandlerOps :: Sexp.T
+  }
+  deriving (Show)
+
+data LetHandler = LetHandler
+  { letHandlerName :: Sexp.T,
+    letHandlerOps :: Sexp.T,
+    letHandlerRet :: Sexp.T
+  }
+  deriving (Show)
+
+data LetOp = LetOp
+  { letOpName :: Sexp.T,
+    letOpArgs :: Sexp.T,
+    letOpBody :: Sexp.T
+  }
+  deriving (Show)
+
+data LetRet = LetRet
+  { letRetBody :: Sexp.T
+  }
+  deriving (Show)
+
+data Do = Do
+  { doStatements :: Sexp.T
+  }
+  deriving (Show)
+
+Lens.makeLensesWith Lens.camelCaseFields ''DefHandler
+Lens.makeLensesWith Lens.camelCaseFields ''LetHandler
+Lens.makeLensesWith Lens.camelCaseFields ''Effect
+Lens.makeLensesWith Lens.camelCaseFields ''LetRet
+Lens.makeLensesWith Lens.camelCaseFields ''LetOp
+Lens.makeLensesWith Lens.camelCaseFields ''Do
 
 ----------------------------------------
 -- LetHandler
@@ -122,16 +166,16 @@ toLetOp :: Sexp.T -> Maybe LetOp
 toLetOp form
   | isLetOp form =
     case form of
-      _nameLetOp Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
-        LetOp sexp1 sexp2 |> Just
+      _nameLetOp Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil ->
+        LetOp sexp1 sexp2 sexp3 |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
 fromLetOp :: LetOp -> Sexp.T
-fromLetOp (LetOp sexp1 sexp2) =
-  Sexp.list [Sexp.atom nameLetOp, sexp1, sexp2]
+fromLetOp (LetOp sexp1 sexp2 sexp3) =
+  Sexp.list [Sexp.atom nameLetOp, sexp1, sexp2, sexp3]
 
 ----------------------------------------
 -- Do
@@ -164,7 +208,7 @@ fromDo (Do sexp1) =
 ----------------------------------------
 
 data Via = Via
-  { viaHandler :: LetHandler,
+  { viaHandler :: Handler,
     viaProgram :: Do
   }
 
@@ -186,18 +230,22 @@ toVia form
   | isVia form =
     case form of
       _ Sexp.:> hand Sexp.:> prog Sexp.:> Sexp.Nil ->
-        Via <$> toHandler hand <*> Str.toDo prog
+        Via <$> toHandler hand <*> toDo prog
       _ -> Nothing
   | otherwise = Nothing
 
-toHandler :: Sexp.T -> Maybe LetHandler
+toHandler :: Sexp.T -> Maybe Handler
 toHandler form =
   let hand = toLetHandler form
-      ret  = fmap (toLetRet . letHandlerRet) hand
-      ops  = fmap (toLetOps . letHandlerOps)  hand
-  in Str.LetHandler <$> letHandlerName hand <*> ret <*> ops
+      ret  = letHandlerRet  <$> hand >>= toLetRet
+      ops  = letHandlerOps  <$> hand >>= toLetOps
+      name = letHandlerName <$> hand >>= toNameSymbol
+  in Handler <$> name <*> ret <*> ops
 
 toLetOps :: Sexp.T -> Maybe [LetOp]
 toLetOps form =
   let ops = Sexp.toList form
   in undefined
+
+toNameSymbol :: Sexp.T -> Maybe NameSymbol.T
+toNameSymbol = undefined

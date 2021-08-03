@@ -26,6 +26,7 @@ import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Juvix.Sexp.Structure.Lens
 import qualified Juvix.Sexp.Structure.Transition as Structure
+import qualified Juvix.Sexp.Structure.EffectHandlerHelpers as Structure
 import Prelude (error)
 
 --------------------------------------------------------------------------------
@@ -426,8 +427,8 @@ handlerTransform xs = Sexp.foldPred xs (== Structure.nameDefHandler) handTrans
   where
     handTrans atom cdr
       | Just mod <- Structure.toDefHandler (Sexp.Atom atom Sexp.:> cdr) =
-        let (ret_, ops_) = filterRet (mod ^. ops)
-         in Structure.LetHandler (mod ^. name) ops_ ret_
+        let (ret_, ops_) = filterRet (mod ^. Structure.ops)
+         in Structure.LetHandler (mod ^. Structure.name) ops_ ret_
               |> Structure.fromLetHandler
               |> Sexp.addMetaToCar atom
     handTrans _ _ = error "malformed defhandler"

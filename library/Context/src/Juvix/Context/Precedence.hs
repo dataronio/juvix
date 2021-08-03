@@ -14,7 +14,7 @@ where
 
 import Data.Data
 import Data.Hashable (Hashable (..), hash)
-import Juvix.Library (Eq, Generic, Int, Show, Symbol)
+import Juvix.Library (Eq, Generic, Int, Show, Symbol, Read)
 
 data Associativity
   = Left

@@ -21,7 +21,6 @@ Lens.makeLensesWith Lens.camelCaseFields ''If
 Lens.makeLensesWith Lens.camelCaseFields ''IfNoElse
 Lens.makeLensesWith Lens.camelCaseFields ''Case
 Lens.makeLensesWith Lens.camelCaseFields ''DeconBody
-Lens.makeLensesWith Lens.camelCaseFields ''Do
 Lens.makeLensesWith Lens.camelCaseFields ''Arrow
 Lens.makeLensesWith Lens.camelCaseFields ''Lambda
 Lens.makeLensesWith Lens.camelCaseFields ''Record
@@ -38,8 +37,3 @@ Lens.makeLensesWith Lens.camelCaseFields ''LetType
 Lens.makeLensesWith Lens.camelCaseFields ''LetSignature
 Lens.makeLensesWith Lens.camelCaseFields ''DefModule
 Lens.makeLensesWith Lens.camelCaseFields ''LetModule
-Lens.makeLensesWith Lens.camelCaseFields ''DefHandler
-Lens.makeLensesWith Lens.camelCaseFields ''LetHandler
-Lens.makeLensesWith Lens.camelCaseFields ''Effect
-Lens.makeLensesWith Lens.camelCaseFields ''LetRet
-Lens.makeLensesWith Lens.camelCaseFields ''LetOp

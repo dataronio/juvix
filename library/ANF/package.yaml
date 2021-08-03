@@ -13,6 +13,9 @@ dependencies:
 - standard-library
 - core
 - frontend
+- Sexp
+- Context
+- translate
 - extensible-data
 - unordered-containers
 - stm-containers
