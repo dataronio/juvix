@@ -1,4 +1,61 @@
 * Backends
+** LLVM
+*** Setup <<LLVM/Setup>>
+*** src
+**** Juvix
+***** Backends
+****** LLVM
+- _Relies on_
+  + [[LLVM/Compilation]]
+  + [[LLVM/Parameterization]]
+  + [[LLVM/Pipeline]]
+  + [[Primitive]]
+******* Compilation <<LLVM/Compilation>>
+- _Relies on_
+  + [[Primitive]]
+  + [[Ann]]
+  + [[Library]]
+  + [[Feedback]]
+******* Parameterization <<LLVM/Parameterization>>
+Parameterization and application of the LLVM backend primitives.
+- _Relies on_
+  + [[Primitive]]
+  + [[Application]]
+  + [[Core/Base/Types]]
+  + [[Evaluator]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+******* Pipeline <<LLVM/Pipeline>>
+The basic connection between the backend and the Juvix pipeline.
+- _Relies on_
+  + [[LLVM/Compilation]]
+  + [[LLVM/Parameterization]]
+  + [[Primitive]]
+  + [[Ann]]
+  + [[Core/IR]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[Juvix/Pipeline]]
+******* Primitive
+Representation of LLVM primitives in Juvix.
+- _Relies on_
+  + [[Application]]
+  + [[Core/Parameterisation]]
+  + [[Library]]
+*** test
+**** Main <<LLVM/test/Main>>
+- _Relies on_
+  + [[Library]]
+**** Test
+***** Golden <<LLVM/test/Test/Golden>>
+- _Relies on_
+  + [[LLVM]]
+  + [[Ann]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[Library/Test/Golden]]
+  + [[Juvix/Pipeline]]
+  + [[Juvix/Pipeline]]
 ** Michelson
 *** Setup <<Michelson/Setup>>
 *** src
@@ -347,63 +404,6 @@ Surface language
   + [[Ann]]
   + [[Library]]
   + [[Library/Usage]]
-** llvm
-*** Setup <<llvm/Setup>>
-*** src
-**** Juvix
-***** Backends
-****** LLVM
-- _Relies on_
-  + [[LLVM/Compilation]]
-  + [[LLVM/Parameterization]]
-  + [[LLVM/Pipeline]]
-  + [[Primitive]]
-******* Compilation <<LLVM/Compilation>>
-- _Relies on_
-  + [[Primitive]]
-  + [[Ann]]
-  + [[Library]]
-  + [[Feedback]]
-******* Parameterization <<LLVM/Parameterization>>
-Parameterization and application of the LLVM backend primitives.
-- _Relies on_
-  + [[Primitive]]
-  + [[Application]]
-  + [[Core/Base/Types]]
-  + [[Evaluator]]
-  + [[Core/Parameterisation]]
-  + [[Library]]
-******* Pipeline <<LLVM/Pipeline>>
-The basic connection between the backend and the Juvix pipeline.
-- _Relies on_
-  + [[LLVM/Compilation]]
-  + [[LLVM/Parameterization]]
-  + [[Primitive]]
-  + [[Ann]]
-  + [[Core/IR]]
-  + [[Library]]
-  + [[Feedback]]
-  + [[Juvix/Pipeline]]
-******* Primitive
-Representation of LLVM primitives in Juvix.
-- _Relies on_
-  + [[Application]]
-  + [[Core/Parameterisation]]
-  + [[Library]]
-*** test
-**** Main <<llvm/test/Main>>
-- _Relies on_
-  + [[Library]]
-**** Test
-***** Golden <<llvm/test/Test/Golden>>
-- _Relies on_
-  + [[LLVM]]
-  + [[Ann]]
-  + [[Library]]
-  + [[Feedback]]
-  + [[Library/Test/Golden]]
-  + [[Juvix/Pipeline]]
-  + [[Juvix/Pipeline]]
 * Context
 ** Setup <<Context/Setup>>
 ** src
@@ -562,11 +562,6 @@ keeps the extensions.
 - _Relies on_
   + [[Erased/Types]]
   + [[Util]]
-****** Types <<Erased/Types>>
-- _Relies on_
-  + [[Erased/Base/Types]]
-  + [[Typechecker/Types]]
-  + [[Library]]
 ****** Util
 - _Relies on_
   + [[Erased/Types]]
@@ -659,6 +654,11 @@ keeps the extensions.
   + [[HashMap]]
   + [[NameSymbol]]
   + [[Library/Usage]]
+****** Types <<Erased/Types>>
+- _Relies on_
+  + [[Erased/Base/Types]]
+  + [[Typechecker/Types]]
+  + [[Library]]
 ***** HR
 - _Relies on_
   + [[Core/HR/Pretty]]
@@ -716,14 +716,6 @@ datatype and function declarations.
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
-  + [[Library/Usage]]
-****** Types <<IR/Types>>
-Quantitative type implementation inspired by
-  Atkey 2018 and McBride 2016.
-- _Relies on_
-  + [[Core/Base/Types]]
-  + [[Library]]
-  + [[NameSymbol]]
   + [[Library/Usage]]
 ****** Evaluator
 This includes the evaluators (`evalTerm` and `evalElim`),
@@ -802,13 +794,6 @@ Typechecked declarations are added to the signature.
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
-******* API
-- _Relies on_
-  + [[Library]]
-  + [[Typechecker/Env]]
-  + [[Core/Base/Types]]
-  + [[Evaluator]]
-  + [[IR/Types]]
 ******* Env <<Typechecker/Env>>
 - _Relies on_
   + [[OnlyExts]]
@@ -839,6 +824,32 @@ Typechecked declarations are added to the signature.
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
+  + [[Library/Usage]]
+******* API
+- _Relies on_
+  + [[Library]]
+  + [[Typechecker/Env]]
+  + [[Core/Base/Types]]
+  + [[Evaluator]]
+  + [[IR/Types]]
+  + [[Types]]
+  + [[History]]
+******** History
+******** Types <<API/Types>>
+- _Relies on_
+  + [[Library]]
+  + [[Typechecker/Env]]
+  + [[Core/Base/Types]]
+  + [[Evaluator]]
+  + [[IR/Types]]
+  + [[History]]
+****** Types <<IR/Types>>
+Quantitative type implementation inspired by
+  Atkey 2018 and McBride 2016.
+- _Relies on_
+  + [[Core/Base/Types]]
+  + [[Library]]
+  + [[NameSymbol]]
   + [[Library/Usage]]
 ***** Parameterisations
 ****** All

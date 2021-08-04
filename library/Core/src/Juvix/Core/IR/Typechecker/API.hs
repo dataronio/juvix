@@ -76,6 +76,7 @@ instance MetaProg (ProofState primTy primVal a b) where
     l <- get @"proofTerm"
     pure l
 
+  -- TODO: find out which functions to put here
   check = undefined
   normalise = undefined
   unify = undefined
