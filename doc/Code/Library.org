@@ -973,6 +973,7 @@ with any stage of the compiler while modifying the source code.
   + [[Juvix/Pipeline/ToIR]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
+  + [[TopLevel]]
 ** test
 *** FromFrontend
 - _Relies on_

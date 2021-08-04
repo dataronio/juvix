@@ -20,6 +20,8 @@
 -- with any stage of the compiler while modifying the source code.
 module Easy where
 
+import Data.Curve.Weierstrass.BLS12381 (Fr)
+import qualified Data.Field.Galois as Field
 import qualified Juvix.Backends.Michelson.Parameterisation as Michelson.Param
 import qualified Juvix.Backends.Plonk as Plonk
 import qualified Juvix.Context as Context
@@ -45,8 +47,8 @@ import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Pipeline.Compile as Compile
 import qualified Juvix.Pipeline.ToHR as ToHR
 import qualified Juvix.Pipeline.ToIR as ToIR
-import qualified Juvix.Pipeline.ToSexp as ToSexp
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Translate.Pipeline.TopLevel as SexpTrans
 import qualified Text.Pretty.Simple as Pretty
 import Prelude (error)
 import qualified Prelude (Show (..))
@@ -93,7 +95,10 @@ defMichelson =
 
 -- @defCircuit@ gives us the circuit prelude
 -- defCircuit :: Options
-defCircuit =
+defCircuitGeneric ::
+  Field.GaloisField f =>
+  Options (Plonk.PrimTy f) (Plonk.PrimVal f)
+defCircuitGeneric =
   def
     { prelude =
         [ "../../stdlib/Prelude.ju",
@@ -101,6 +106,9 @@ defCircuit =
         ],
       param = Plonk.param
     }
+
+defCircuit :: Options (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)
+defCircuit = defCircuitGeneric
 
 -- These functions help us stop at various part of the pipeline
 
@@ -120,7 +128,7 @@ timeLapse1 =
 -- You may want to stop here if you want to see what some base forms look like
 -- Text ⟶ ML AST ⟶ LISP AST
 sexp :: ByteString -> [Sexp.T]
-sexp xs = ignoreHeader (Parser.parse xs) >>| ToSexp.transTopLevel
+sexp xs = ignoreHeader (Parser.parse xs) >>| SexpTrans.transTopLevel
 
 -- | Here we extend the idea of desugar but we run it on the prelude we
 -- care about.
@@ -130,7 +138,7 @@ sexpFile file = do
   f <- Frontend.parseSingleFile file
   case f of
     Right (_name, ast) ->
-      fmap ToSexp.transTopLevel ast
+      fmap SexpTrans.transTopLevel ast
         |> pure
     Left err ->
       error (show err)
@@ -142,7 +150,7 @@ sexpLibrary def = do
   files <- Frontend.parseFiles (prelude def)
   case files of
     Right f ->
-      pure (second (fmap ToSexp.transTopLevel) <$> f)
+      pure (second (fmap SexpTrans.transTopLevel) <$> f)
     Left err ->
       error (show err)
 
