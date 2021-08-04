@@ -35,19 +35,19 @@ contextToHR ::
   ) =>
   Context.T Sexp.T Sexp.T Sexp.T ->
   P.Parameterisation primTy primVal ->
-  Core.RawGlobals HR.T primTy primVal
+  Either (Types.Error HR.T primTy primVal) (Core.RawGlobals HR.T primTy primVal)
 contextToHR ctx param =
-  HM.mapMaybe Types.toCoreDef $
-    Env.coreDefs $ Env.evalEnv ctx param do
-      newCtx <- Context.mapSumWithName ctx attachConstructor
+  Env.evalEnvEither ctx param do
+    newCtx <- Context.mapSumWithName ctx attachConstructor
 
-      let ordered = Context.recGroups newCtx
+    let ordered = Context.recGroups newCtx
 
-      for_ ordered \grp -> do
-        traverse_ addSig grp
+    for_ ordered \grp -> do
+      traverse_ addSig grp
 
-      for_ ordered \grp -> do
-        traverse_ addDef grp
+    for_ ordered \grp -> do
+      traverse_ addDef grp
+    >>| HM.mapMaybe Types.toCoreDef . Env.coreDefs
   where
     -- TODO
     -- put @"ffOrder" ordered

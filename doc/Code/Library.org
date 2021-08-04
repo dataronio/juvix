@@ -960,7 +960,6 @@ with any stage of the compiler while modifying the source code.
   + [[Desugar]]
   + [[Juvix/Frontend]]
   + [[Frontend/Parser]]
-  + [[Pipeline/ToSexp]]
   + [[Frontend/Types]]
   + [[Frontend/Types]]
   + [[Frontend/Types/Base]]
@@ -972,6 +971,7 @@ with any stage of the compiler while modifying the source code.
   + [[Compile]]
   + [[ToHR]]
   + [[Juvix/Pipeline/ToIR]]
+  + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
 ** test
 *** FromFrontend
@@ -1092,13 +1092,13 @@ with any stage of the compiler while modifying the source code.
   + [[Core/HR/Pretty]]
   + [[Translate]]
   + [[Core/Types]]
-  + [[Frontend/Types]]
   + [[Desugar]]
-  + [[Translate/Pipeline]]
+  + [[Frontend/Types]]
   + [[Library]]
   + [[NameSymbol]]
   + [[PrettyPrint]]
   + [[Juvix/Sexp]]
+  + [[Translate/Pipeline]]
 ***** Types <<Pipeline/Types>>
 - _Relies on_
   + [[Algorithm/Types]]
@@ -1243,9 +1243,9 @@ with any stage of the compiler while modifying the source code.
 **** ToSexp <<Test/ToSexp>>
 - _Relies on_
   + [[Frontend/Parser]]
-  + [[Pipeline/ToSexp]]
   + [[Frontend/Types]]
   + [[Library]]
+  + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
 * Sexp
 ** Setup <<Sexp/Setup>>
@@ -1696,7 +1696,6 @@ done with no extra information needed. Thus we export the following passes
   + [[Desugar/Passes]]
   + [[Juvix/Frontend]]
   + [[Frontend/Parser]]
-  + [[TopLevel]]
   + [[Frontend/Types]]
   + [[Frontend/Types/Base]]
   + [[Library]]
@@ -1706,6 +1705,7 @@ done with no extra information needed. Thus we export the following passes
   + [[Library/Parser]]
   + [[Library/Test/Golden]]
   + [[Juvix/Sexp]]
+  + [[TopLevel]]
 **** Context
 ***** Environment <<Context/Environment>>
 - _Relies on_
@@ -1723,10 +1723,10 @@ done with no extra information needed. Thus we export the following passes
   + [[ToContext/Types]]
   + [[Desugar]]
   + [[Frontend/Parser]]
-  + [[TopLevel]]
   + [[Frontend/Types/Base]]
   + [[Library]]
   + [[Juvix/Sexp]]
+  + [[TopLevel]]
 **** Contextualise
 ***** Contextify <<Contextualise/Contextify>>
 - _Relies on_
@@ -1734,11 +1734,11 @@ done with no extra information needed. Thus we export the following passes
   + [[Juvix/Contextify]]
   + [[Desugar]]
   + [[Frontend/Parser]]
-  + [[TopLevel]]
   + [[Frontend/Types]]
   + [[Library]]
   + [[Internal]]
   + [[Juvix/Sexp]]
+  + [[TopLevel]]
 ***** Infix
 ****** ShuntYard <<Infix/ShuntYard>>
 - _Relies on_
@@ -1757,8 +1757,8 @@ done with no extra information needed. Thus we export the following passes
   + [[Juvix/Contextify]]
   + [[Desugar]]
   + [[Frontend/Parser]]
-  + [[TopLevel]]
   + [[Frontend/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
+  + [[TopLevel]]

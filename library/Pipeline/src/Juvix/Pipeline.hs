@@ -117,7 +117,10 @@ class HasBackend b where
     Param.Parameterisation (Ty b) (Val b) ->
     Context.T Sexp.T Sexp.T Sexp.T ->
     Pipeline (Core.RawGlobals HR.T (Ty b) (Val b))
-  toHR param sexp = pure $ ToHR.contextToHR sexp param
+  toHR param sexp =
+    case ToHR.contextToHR sexp param of
+      Right r -> pure r
+      Left er -> Feedback.fail ("Error on toHR: " <> toS (pShowNoColor er))
 
   toIR ::
     Core.RawGlobals HR.T (Ty b) (Val b) ->

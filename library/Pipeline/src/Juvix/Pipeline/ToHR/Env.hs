@@ -117,6 +117,16 @@ evalEnv ::
 evalEnv ctx param env =
   snd $ runEnv ctx param env
 
+evalEnvEither ::
+  Ctx.T Sexp.T Sexp.T Sexp.T ->
+  P.Parameterisation primTy primVal ->
+  Env ext primTy primVal a ->
+  Either (Error ext primTy primVal) (FFState ext primTy primVal)
+evalEnvEither ctx param env =
+  case runEnv ctx param env of
+    (Left err, _) -> Left err
+    (Right _, state) -> Right state
+
 runEnv ::
   Ctx.T Sexp.T Sexp.T Sexp.T ->
   P.Parameterisation primTy primVal ->

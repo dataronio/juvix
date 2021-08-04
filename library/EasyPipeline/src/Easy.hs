@@ -332,7 +332,12 @@ coreify ::
   IO (Core.RawGlobals IR.T primTy primVal)
 coreify juvix options = do
   Right ctx <- contextifyDesugar juvix options
-  pure . snd . ToIR.hrToIRDefs $ ToHR.contextToHR ctx (param options)
+  case ToHR.contextToHR ctx (param options) of
+    Left err -> do
+      printCompactParens err
+      error "failure at coreify"
+    Right env ->
+      pure . snd . ToIR.hrToIRDefs $ env
 
 coreifyFile ::
   (Show primTy, Show primVal) =>
@@ -341,7 +346,12 @@ coreifyFile ::
   IO (Core.RawGlobals IR.T primTy primVal)
 coreifyFile juvix options = do
   Right ctx <- contextifyDesugarFile juvix options
-  pure . snd . ToIR.hrToIRDefs $ ToHR.contextToHR ctx (param options)
+  case ToHR.contextToHR ctx (param options) of
+    Left err -> do
+      printCompactParens err
+      error "failure at coreify"
+    Right env ->
+      pure . snd . ToIR.hrToIRDefs $ env
 
 ----------------------------------------
 -- Coreify Examples

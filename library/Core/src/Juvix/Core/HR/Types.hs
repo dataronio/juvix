@@ -5,10 +5,10 @@ where
 
 import qualified Juvix.Core.Base.Types as Core
 import Juvix.Core.HR.Extend
-import Juvix.Library (Data)
+import Juvix.Library (Data, Show)
 
 data T
-  deriving (Data)
+  deriving (Data, Show)
 
 Core.extendTerm "Term" [] [t|T|] extTerm
 
