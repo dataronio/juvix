@@ -325,8 +325,7 @@ requireStar ty = Error.throwTC (Error.ShouldBeStar ty)
 -- arguments to be written in a right-associative way, e.g: @* -> (* -> *)@.
 -- TODO: check if being right-associative is enough (that all primitives are
 -- defined this way).
--- TODO: check what to do with the information that we through away using
--- @void@.
+-- TODO: check what to do with the information that we throw away using @void@.
 -- TODO: what to do with the usage information.
 requirePrimStars ::
   Error.HasThrowTC' IR.T ext primTy primVal m =>
