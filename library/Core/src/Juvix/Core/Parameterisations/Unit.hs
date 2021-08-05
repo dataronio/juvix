@@ -46,18 +46,18 @@ instance P.CanApply (P.TypedPrim Ty Val) where
 instance E.HasWeak Ty where weakBy' _ _ ty = ty
 
 instance Monoid (Core.XVPrimTy ext Ty val) => E.HasSubstValue ext Ty val Ty where
-  substValueWith _ _ _ ty = pure $ Core.VPrimTy' ty mempty
+  substValueWith _ _ _ ty = pure $ Core.VPrimTy ty mempty
 
 instance Monoid (Core.XPrimTy ext Ty val) => E.HasPatSubstTerm ext Ty val Ty where
-  patSubstTerm' _ _ ty = pure $ Core.PrimTy' ty mempty
+  patSubstTerm' _ _ ty = pure $ Core.PrimTy ty mempty
 
 instance E.HasWeak Val where weakBy' _ _ val = val
 
 instance Monoid (Core.XVPrim ext ty Val) => E.HasSubstValue ext ty Val Val where
-  substValueWith _ _ _ val = pure $ Core.VPrim' val mempty
+  substValueWith _ _ _ val = pure $ Core.VPrim val mempty
 
 instance Monoid (Core.XPrim ext Ty Val) => E.HasPatSubstTerm ext Ty Val Val where
-  patSubstTerm' _ _ val = pure $ Core.Prim' val mempty
+  patSubstTerm' _ _ val = pure $ Core.Prim val mempty
 
 builtinTypes :: P.Builtins Ty
 builtinTypes = [(["Unit"], Ty)]

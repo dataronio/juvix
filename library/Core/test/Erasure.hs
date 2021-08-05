@@ -27,8 +27,8 @@ shouldEraseTo ::
     Eq primVal,
     Eq (Core.ApplyErrorExtra primTy),
     Show (Core.ApplyErrorExtra primTy),
-    Eq (Core.ApplyErrorExtra (Typed.TypedPrim primTy primVal)),
-    Show (Core.ApplyErrorExtra (Typed.TypedPrim primTy primVal))
+    Eq (Core.ApplyErrorExtra (Typed.Prim primTy primVal)),
+    Show (Core.ApplyErrorExtra (Typed.Prim primTy primVal))
   ) =>
   String ->
   Core.Parameterisation primTy primVal ->
@@ -46,31 +46,31 @@ shouldEraseTo name _ (term, usage) erased =
 
 infix 0 `ann`
 
-ann :: Usage.T -> IR.Value primTy primVal -> Typed.Annotation primTy primVal
+ann :: Usage.T -> IR.Value primTy primVal -> Typed.Annotation IR.T primTy primVal
 ann = Typed.Annotation
 
 bann ::
-  Typed.Annotation primTy primVal ->
-  Typed.Annotation primTy primVal ->
-  Typed.BindAnnotation primTy primVal
+  Typed.Annotation IR.T primTy primVal ->
+  Typed.Annotation IR.T primTy primVal ->
+  Typed.BindAnnotation IR.T primTy primVal
 bann = Typed.BindAnnotation
 
 omega :: Usage.T
 omega = Usage.Omega
 
-omegaAnn :: IR.Value primTy primVal -> Typed.Annotation primTy primVal
+omegaAnn :: IR.Value primTy primVal -> Typed.Annotation IR.T primTy primVal
 omegaAnn = Typed.Annotation omega
 
-zeroAnn :: IR.Value primTy primVal -> Typed.Annotation primTy primVal
+zeroAnn :: IR.Value primTy primVal -> Typed.Annotation IR.T primTy primVal
 zeroAnn = Typed.Annotation mempty
 
-unitAnn :: Typed.AnnotationT Unit.Ty Unit.Val
+unitAnn :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
 unitAnn = omegaAnn unitTy
 
-unitAnn0 :: Typed.AnnotationT Unit.Ty Unit.Val
+unitAnn0 :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
 unitAnn0 = zeroAnn unitTy
 
-unitTy :: IR.ValueT Unit.Ty Unit.Val
+unitTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
 unitTy = IR.VPrimTy Unit.Ty
 
 unitTyT :: Typed.Term Unit.Ty Unit.Val
@@ -186,19 +186,19 @@ identityTerm =
     (Typed.Elim (Typed.Bound 0 unitAnn) unitAnn)
     (bann unitAnn identityAnn)
 
-identityTy :: IR.ValueT Unit.Ty Unit.Val
+identityTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
 identityTy = IR.VPi one unitTy unitTy
 
 identityTyT :: Typed.Term Unit.Ty Unit.Val
 identityTyT = Typed.Pi one unitTyT unitTyT (zeroAnn $ IR.VStar 0)
 
-identityAnn :: Typed.AnnotationT Unit.Ty Unit.Val
+identityAnn :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
 identityAnn = omegaAnn identityTy
 
-identityTy2 :: IR.ValueT Unit.Ty Unit.Val
+identityTy2 :: Typed.ValueT IR.T Unit.Ty Unit.Val
 identityTy2 = IR.VPi one identityTy identityTy
 
-identityAnn2 :: Typed.AnnotationT Unit.Ty Unit.Val
+identityAnn2 :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
 identityAnn2 = omegaAnn identityTy2
 
 appTerm :: Typed.Term Unit.Ty Unit.Val
@@ -226,7 +226,7 @@ appTerm =
         identityAnn2
     )
 
-appTy :: IR.ValueT Unit.Ty Unit.Val
+appTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
 appTy = IR.VPi one identityTy identityTy
 
 constTerm :: Typed.Term Unit.Ty Unit.Val
@@ -238,13 +238,13 @@ constTerm =
         (omegaAnn constTy)
     )
 
-constTy :: IR.ValueT Unit.Ty Unit.Val
+constTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
 constTy = IR.VPi mempty unitTy identityTy
 
 constTyT :: Typed.Term Unit.Ty Unit.Val
 constTyT = Typed.Pi mempty unitTyT identityTyT (zeroAnn $ IR.VStar 0)
 
-constTy2 :: IR.ValueT Unit.Ty Unit.Val
+constTy2 :: Typed.ValueT IR.T Unit.Ty Unit.Val
 constTy2 = IR.VPi mempty identityTy identityTy
 
 constTy2T :: Typed.Term Unit.Ty Unit.Val
@@ -259,11 +259,11 @@ unitElim = Typed.Ann Usage.Omega unitTerm unitTyT 0 unitAnn
 unitTermE :: Erased.TermT Unit.Ty Unit.Val
 unitTermE = Erased.Prim unitVal'
 
-unitPairTy0 :: IR.ValueT Unit.Ty Unit.Val
+unitPairTy0 :: Typed.ValueT IR.T Unit.Ty Unit.Val
 unitPairTy0 = IR.VSig mempty unitTy unitTy
 
-unitPairTy1 :: IR.ValueT Unit.Ty Unit.Val
+unitPairTy1 :: Typed.ValueT IR.T Unit.Ty Unit.Val
 unitPairTy1 = IR.VSig one unitTy unitTy
 
-unitVal' :: Typed.TypedPrim Unit.Ty Unit.Val
+unitVal' :: Typed.Prim Unit.Ty Unit.Val
 unitVal' = App.Return {retType = P.PrimType [Unit.Ty], retTerm = Unit.Val}

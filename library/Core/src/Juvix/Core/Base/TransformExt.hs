@@ -96,46 +96,46 @@ pattern ExtTransformTE
 extTransformTF ::
   Applicative f =>
   ExtTransformTEF f ext1 ext2 primTy primVal ->
-  Term' ext1 primTy primVal ->
-  f (Term' ext2 primTy primVal)
-extTransformTF fs (Star' i e) = Star' i <$> etfStar fs e
-extTransformTF fs (PrimTy' k e) = PrimTy' k <$> etfPrimTy fs e
-extTransformTF fs (Prim' k e) = Prim' k <$> etfPrim fs e
-extTransformTF fs (Pi' π s t e) =
-  Pi' π <$> extTransformTF fs s <*> extTransformTF fs t <*> etfPi fs e
-extTransformTF fs (Lam' t e) = Lam' <$> extTransformTF fs t <*> etfLam fs e
-extTransformTF fs (Sig' π s t e) =
-  Sig' π <$> extTransformTF fs s <*> extTransformTF fs t <*> etfSig fs e
-extTransformTF fs (Pair' s t e) =
-  Pair' <$> extTransformTF fs s <*> extTransformTF fs t <*> etfPair fs e
-extTransformTF fs (UnitTy' e) =
-  UnitTy' <$> etfUnitTy fs e
-extTransformTF fs (Unit' e) =
-  Unit' <$> etfUnit fs e
-extTransformTF fs (Let' π l b e) =
-  Let' π <$> extTransformEF fs l <*> extTransformTF fs b <*> etfLet fs e
-extTransformTF fs (Elim' f e) = Elim' <$> extTransformEF fs f <*> etfElim fs e
+  Term ext1 primTy primVal ->
+  f (Term ext2 primTy primVal)
+extTransformTF fs (Star i e) = Star i <$> etfStar fs e
+extTransformTF fs (PrimTy k e) = PrimTy k <$> etfPrimTy fs e
+extTransformTF fs (Prim k e) = Prim k <$> etfPrim fs e
+extTransformTF fs (Pi π s t e) =
+  Pi π <$> extTransformTF fs s <*> extTransformTF fs t <*> etfPi fs e
+extTransformTF fs (Lam t e) = Lam <$> extTransformTF fs t <*> etfLam fs e
+extTransformTF fs (Sig π s t e) =
+  Sig π <$> extTransformTF fs s <*> extTransformTF fs t <*> etfSig fs e
+extTransformTF fs (Pair s t e) =
+  Pair <$> extTransformTF fs s <*> extTransformTF fs t <*> etfPair fs e
+extTransformTF fs (UnitTy e) =
+  UnitTy <$> etfUnitTy fs e
+extTransformTF fs (Unit e) =
+  Unit <$> etfUnit fs e
+extTransformTF fs (Let π l b e) =
+  Let π <$> extTransformEF fs l <*> extTransformTF fs b <*> etfLet fs e
+extTransformTF fs (Elim f e) = Elim <$> extTransformEF fs f <*> etfElim fs e
 extTransformTF fs (TermX e) = TermX <$> etfTermX fs e
 
 extTransformT ::
   ExtTransformTE ext1 ext2 primTy primVal ->
-  Term' ext1 primTy primVal ->
-  Term' ext2 primTy primVal
+  Term ext1 primTy primVal ->
+  Term ext2 primTy primVal
 extTransformT fs t = runIdentity $ extTransformTF fs t
 
 extTransformEF ::
   Applicative f =>
   ExtTransformTEF f ext1 ext2 primTy primVal ->
-  Elim' ext1 primTy primVal ->
-  f (Elim' ext2 primTy primVal)
-extTransformEF fs (Bound' x e) = Bound' x <$> etfBound fs e
-extTransformEF fs (Free' x e) = Free' x <$> etfFree fs e
-extTransformEF fs (App' f s e) =
-  App' <$> extTransformEF fs f
+  Elim ext1 primTy primVal ->
+  f (Elim ext2 primTy primVal)
+extTransformEF fs (Bound x e) = Bound x <$> etfBound fs e
+extTransformEF fs (Free x e) = Free x <$> etfFree fs e
+extTransformEF fs (App f s e) =
+  App <$> extTransformEF fs f
     <*> extTransformTF fs s
     <*> etfApp fs e
-extTransformEF fs (Ann' π s t ℓ e) =
-  Ann' π <$> extTransformTF fs s
+extTransformEF fs (Ann π s t ℓ e) =
+  Ann π <$> extTransformTF fs s
     <*> extTransformTF fs t
     <*> pure ℓ
     <*> etfAnn fs e
@@ -143,8 +143,8 @@ extTransformEF fs (ElimX e) = ElimX <$> etfElimX fs e
 
 extTransformE ::
   ExtTransformTE ext1 ext2 primTy primVal ->
-  Elim' ext1 primTy primVal ->
-  Elim' ext2 primTy primVal
+  Elim ext1 primTy primVal ->
+  Elim ext2 primTy primVal
 extTransformE fs t = runIdentity $ extTransformEF fs t
 
 type ForgotExt ext primTy primVal =
@@ -197,8 +197,8 @@ extForgetT ::
     ElimX ext primTy primVal ~ Void,
     ForgotExt ext' primTy primVal
   ) =>
-  Term' ext primTy primVal ->
-  Term' ext' primTy primVal
+  Term ext primTy primVal ->
+  Term ext' primTy primVal
 extForgetT = extTransformT forgetter
 
 extForgetE ::
@@ -206,8 +206,8 @@ extForgetE ::
     ElimX ext primTy primVal ~ Void,
     ForgotExt ext' primTy primVal
   ) =>
-  Elim' ext primTy primVal ->
-  Elim' ext' primTy primVal
+  Elim ext primTy primVal ->
+  Elim ext' primTy primVal
 extForgetE = extTransformE forgetter
 
 compose ::

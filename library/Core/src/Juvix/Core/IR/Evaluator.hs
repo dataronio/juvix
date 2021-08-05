@@ -71,31 +71,31 @@ inlineAllGlobals ::
     NoExtensions ext primTy primVal
   ) =>
   -- | Term to perform inlining on.
-  Core.Term' ext primTy primVal ->
+  Core.Term ext primTy primVal ->
   -- | Lookup function used to dereference the variables.
   LookupFun ext primTy primVal ->
   -- | Maps @Int@s to @GlobalName@s. Passed to @inlineAllGlobalsElim@ as a pattern is an integer encoded in a free variable
   Core.PatternMap Core.GlobalName ->
-  Core.Term' ext primTy primVal
+  Core.Term ext primTy primVal
 inlineAllGlobals t lookupFun patternMap =
   case t of
-    Core.Unit' {} -> t
-    Core.UnitTy' {} -> t
-    Core.Pair' p1 p2 ann ->
-      Core.Pair' (inlineAllGlobals p1 lookupFun patternMap) (inlineAllGlobals p2 lookupFun patternMap) ann
-    Core.Elim' elim ann ->
-      Core.Elim' (inlineAllGlobalsElim elim lookupFun patternMap) ann
-    Core.Sig' u t1 t2 ann ->
-      Core.Sig' u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
-    Core.Let' u e t ann ->
-      Core.Let' u (inlineAllGlobalsElim e lookupFun patternMap) (inlineAllGlobals t lookupFun patternMap) ann
-    Core.Lam' t ann ->
-      Core.Lam' (inlineAllGlobals t lookupFun patternMap) ann
-    Core.Pi' u t1 t2 ann ->
-      Core.Pi' u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
-    Core.Prim' {} -> t
-    Core.PrimTy' {} -> t
-    Core.Star' {} -> t
+    Core.Unit {} -> t
+    Core.UnitTy {} -> t
+    Core.Pair p1 p2 ann ->
+      Core.Pair (inlineAllGlobals p1 lookupFun patternMap) (inlineAllGlobals p2 lookupFun patternMap) ann
+    Core.Elim elim ann ->
+      Core.Elim (inlineAllGlobalsElim elim lookupFun patternMap) ann
+    Core.Sig u t1 t2 ann ->
+      Core.Sig u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
+    Core.Let u e t ann ->
+      Core.Let u (inlineAllGlobalsElim e lookupFun patternMap) (inlineAllGlobals t lookupFun patternMap) ann
+    Core.Lam t ann ->
+      Core.Lam (inlineAllGlobals t lookupFun patternMap) ann
+    Core.Pi u t1 t2 ann ->
+      Core.Pi u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
+    Core.Prim {} -> t
+    Core.PrimTy {} -> t
+    Core.Star {} -> t
     Core.TermX {} -> t
 
 -- | Perform inling of references to globals in an elimination.
@@ -104,20 +104,20 @@ inlineAllGlobalsElim ::
     NoExtensions ext primTy primVal
   ) =>
   -- | Elimination to perform inlining on.
-  Core.Elim' ext primTy primVal ->
+  Core.Elim ext primTy primVal ->
   -- | Lookup function used to dereference the variables.
   LookupFun ext primTy primVal ->
   Core.PatternMap Core.GlobalName ->
-  Core.Elim' ext primTy primVal
+  Core.Elim ext primTy primVal
 inlineAllGlobalsElim t lookupFun patternMap =
   case t of
-    Core.Bound' {} -> t
-    Core.Free' (Core.Global name) _ann -> fromMaybe t $ lookupFun name
-    Core.Free' (Core.Pattern i) _ -> fromMaybe t $ PM.lookup i patternMap >>= lookupFun
-    Core.App' elim term ann ->
-      Core.App' (inlineAllGlobalsElim elim lookupFun patternMap) (inlineAllGlobals term lookupFun patternMap) ann
-    Core.Ann' u t1 t2 uni ann ->
-      Core.Ann' u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) uni ann
+    Core.Bound {} -> t
+    Core.Free (Core.Global name) _ann -> fromMaybe t $ lookupFun name
+    Core.Free (Core.Pattern i) _ -> fromMaybe t $ PM.lookup i patternMap >>= lookupFun
+    Core.App elim term ann ->
+      Core.App (inlineAllGlobalsElim elim lookupFun patternMap) (inlineAllGlobals term lookupFun patternMap) ann
+    Core.Ann u t1 t2 uni ann ->
+      Core.Ann u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) uni ann
     Core.ElimX {} -> t
 
 -- | Evaluate a term with extensions, discards annotations but keeps the
@@ -129,31 +129,31 @@ evalTermWith ::
   -- | Functions to transform term and elim extensions.
   ExtFuns extG extT primTy primVal ->
   -- | The term to evaluate.
-  Core.Term' (OnlyExts.T extT) primTy primVal ->
+  Core.Term (OnlyExts.T extT) primTy primVal ->
   Either (Error IR.T extT primTy primVal) (IR.Value primTy primVal)
-evalTermWith _ _ (Core.Star' u _) =
+evalTermWith _ _ (Core.Star u _) =
   pure $ IR.VStar u
-evalTermWith _ _ (Core.PrimTy' p _) =
+evalTermWith _ _ (Core.PrimTy p _) =
   pure $ IR.VPrimTy p
-evalTermWith _ _ (Core.Prim' p _) =
+evalTermWith _ _ (Core.Prim p _) =
   pure $ IR.VPrim p
-evalTermWith g exts (Core.Pi' π s t _) =
+evalTermWith g exts (Core.Pi π s t _) =
   IR.VPi π <$> evalTermWith g exts s <*> evalTermWith g exts t
-evalTermWith g exts (Core.Lam' t _) =
+evalTermWith g exts (Core.Lam t _) =
   IR.VLam <$> evalTermWith g exts t
-evalTermWith g exts (Core.Sig' π s t _) =
+evalTermWith g exts (Core.Sig π s t _) =
   IR.VSig π <$> evalTermWith g exts s <*> evalTermWith g exts t
-evalTermWith g exts (Core.Pair' s t _) =
+evalTermWith g exts (Core.Pair s t _) =
   IR.VPair <$> evalTermWith g exts s <*> evalTermWith g exts t
-evalTermWith _ _ (Core.UnitTy' _) =
+evalTermWith _ _ (Core.UnitTy _) =
   pure IR.VUnitTy
-evalTermWith _ _ (Core.Unit' _) =
+evalTermWith _ _ (Core.Unit _) =
   pure IR.VUnit
-evalTermWith g exts (Core.Let' _ l b _) = do
+evalTermWith g exts (Core.Let _ l b _) = do
   l' <- evalElimWith g exts l
   b' <- evalTermWith g exts b
   substV l' b'
-evalTermWith g exts (Core.Elim' e _) =
+evalTermWith g exts (Core.Elim e _) =
   evalElimWith g exts e
 evalTermWith g exts (Core.TermX a) =
   tExtFun exts g a
@@ -167,21 +167,21 @@ evalElimWith ::
   -- | Functions to transform term and elim extensions.
   ExtFuns extG extT primTy primVal ->
   -- | The elimination to evaluate.
-  Core.Elim' (OnlyExts.T extT) primTy primVal ->
+  Core.Elim (OnlyExts.T extT) primTy primVal ->
   Either (Error IR.T extT primTy primVal) (IR.Value primTy primVal)
-evalElimWith _ _ (Core.Bound' i _) =
+evalElimWith _ _ (Core.Bound i _) =
   pure $ Core.VBound i
-evalElimWith g exts (Core.Free' x _)
+evalElimWith g exts (Core.Free x _)
   | Core.Global x <- x,
     Just e <- g x =
     evalElimWith g exts $ toOnlyExtsE e
   | otherwise = pure $ Core.VFree x
-evalElimWith g exts (Core.App' s t _) =
+evalElimWith g exts (Core.App s t _) =
   join $
     vapp <$> evalElimWith g exts s
       <*> evalTermWith g exts t
       <*> pure ()
-evalElimWith g exts (Core.Ann' _ s _ _ _) =
+evalElimWith g exts (Core.Ann _ s _ _ _) =
   evalTermWith g exts s
 evalElimWith g exts (Core.ElimX a) =
   eExtFun exts g a
@@ -194,8 +194,8 @@ evalTerm ::
   -- | Lookup function for globals that may be present in the term.
   LookupFun extG primTy primVal ->
   -- | Term to evaluate.
-  Core.Term' extT primTy primVal ->
-  Either (Error IR.T extT primTy primVal) (IR.Value primTy primVal)
+  Core.Term extT primTy primVal ->
+  Either (Error IR.T extT primTy primVal) (Core.Value IR.T primTy primVal)
 evalTerm g t = evalTermWith g rejectExts $ OnlyExts.onlyExtsT t
 
 -- | Translate a function termin into an elimination.
@@ -219,12 +219,12 @@ toLambda' ::
   -- | Usage information of the function.
   Core.GlobalUsage ->
   -- | The type of the function.
-  Core.Term' IR.T primTy primVal ->
+  Core.Term IR.T primTy primVal ->
   -- | List of arguments to the function.
-  [Core.Pattern' ext primTy primVal] ->
+  [Core.Pattern ext primTy primVal] ->
   -- | The body of the function.
-  Core.Term' ext primTy primVal ->
-  Maybe (Core.Elim' (OnlyExts.T ext') primTy primVal)
+  Core.Term ext primTy primVal ->
+  Maybe (Core.Elim (OnlyExts.T ext') primTy primVal)
 toLambda' π' ty' pats rhs = do
   patVars <- traverse singleVar pats
   let len = fromIntegral $ length patVars
@@ -238,26 +238,26 @@ toLambda' π' ty' pats rhs = do
   where
     applyN 0 _ x = x
     applyN n f x = applyN (n - 1) f (f $! x)
-    bound :: Core.BoundVar -> Core.Elim' (OnlyExts.T ext') primTy primVal
-    bound x = Core.Bound' x ()
+    bound :: Core.BoundVar -> Core.Elim (OnlyExts.T ext') primTy primVal
+    bound x = Core.Bound x ()
     lam ::
-      Core.Term' (OnlyExts.T z) primTy primVal ->
-      Core.Term' (OnlyExts.T z) primTy primVal
-    lam x = Core.Lam' x ()
+      Core.Term (OnlyExts.T z) primTy primVal ->
+      Core.Term (OnlyExts.T z) primTy primVal
+    lam x = Core.Lam x ()
 
 -- | Extract variable from a pattern definition.
-singleVar :: Alternative f => Core.Pattern' ext primTy primVal -> f Core.PatternVar
-singleVar (Core.PVar' p _) = pure p
+singleVar :: Alternative f => Core.Pattern ext primTy primVal -> f Core.PatternVar
+singleVar (Core.PVar p _) = pure p
 singleVar _ = empty
 
--- | Discard annotations from a `Term'`, but keeps the extended constructors.
+-- | Discard annotations from a `Term`, but keeps the extended constructors.
 -- Requires the input to be free from any extensions, allowing the result to
 -- have other extensions.
 toOnlyExtsT ::
   ( NoExtensions ext1 primTy primVal
   ) =>
-  Core.Term' ext1 primTy primVal ->
-  Core.Term' (OnlyExts.T ext2) primTy primVal
+  Core.Term ext1 primTy primVal ->
+  Core.Term (OnlyExts.T ext2) primTy primVal
 toOnlyExtsT = extTransformT $ OnlyExts.injector
 
 -- | Discard annotations from a `ELim'`, but keeps the extended constructors.
@@ -266,8 +266,8 @@ toOnlyExtsT = extTransformT $ OnlyExts.injector
 toOnlyExtsE ::
   ( NoExtensions ext1 primTy primVal
   ) =>
-  Core.Elim' ext1 primTy primVal ->
-  Core.Elim' (OnlyExts.T ext2) primTy primVal
+  Core.Elim ext1 primTy primVal ->
+  Core.Elim (OnlyExts.T ext2) primTy primVal
 toOnlyExtsE = extTransformE $ OnlyExts.injector
 
 -- | Translate a `Global'` function definition into an elimination,
@@ -288,8 +288,8 @@ toLambda ::
   ( EvalPatSubst ext' primTy primVal,
     NoExtensions ext primTy primVal
   ) =>
-  Core.Global' IR.T ext primTy primVal ->
-  Maybe (Core.Elim' (OnlyExts.T ext') primTy primVal)
+  Core.Global IR.T ext primTy primVal ->
+  Maybe (Core.Elim (OnlyExts.T ext') primTy primVal)
 toLambda (Core.GFunction (Core.Function {funUsage = π, funType = ty, funClauses}))
   | Core.FunClause _ pats rhs _ _ _ :| [] <- funClauses =
     toLambda' π (Core.quote ty) pats rhs
@@ -302,8 +302,8 @@ toLambdaR ::
   ( EvalPatSubst ext' primTy primVal,
     NoExtensions ext primTy primVal
   ) =>
-  Core.RawGlobal' ext primTy primVal ->
-  Maybe (Core.Elim' (OnlyExts.T ext') primTy primVal)
+  Core.RawGlobal ext primTy primVal ->
+  Maybe (Core.Elim (OnlyExts.T ext') primTy primVal)
 toLambdaR (Core.RawGFunction f)
   | Core.RawFunction {rawFunUsage = π, rawFunType = ty, rawFunClauses} <- f,
     Core.RawFunClause _ pats rhs _ :| [] <- rawFunClauses =
@@ -313,22 +313,20 @@ toLambdaR _ = Nothing
 -- | Given an environment of global definitions, and a name to lookup,
 -- translate the (possible) term into an elimination.
 lookupFun ::
-  forall ext' ext primTy primVal.
   ( EvalPatSubst ext' primTy primVal,
     NoExtensions ext primTy primVal
   ) =>
-  Core.Globals' IR.T ext primTy primVal ->
+  Core.Globals IR.T ext primTy primVal ->
   LookupFun (OnlyExts.T ext') primTy primVal
 lookupFun globals x =
   HashMap.lookup x globals >>= toLambda
 
 -- | Variant of `lookupFun` that works on `RawGlobals'`.
 rawLookupFun ::
-  forall ext' ext primTy primVal.
   ( EvalPatSubst ext' primTy primVal,
     NoExtensions ext primTy primVal
   ) =>
-  Core.RawGlobals' ext primTy primVal ->
+  Core.RawGlobals ext primTy primVal ->
   LookupFun (OnlyExts.T ext') primTy primVal
 rawLookupFun globals x =
   HashMap.lookup x globals >>= toLambdaR
@@ -336,13 +334,13 @@ rawLookupFun globals x =
 -- | Variant of `lookupFun` that creates a extension free elimination.
 lookupFun' ::
   EvalPatSubst IR.T primTy primVal =>
-  IR.Globals primTy primVal ->
+  Core.Globals IR.T IR.T primTy primVal ->
   LookupFun IR.T primTy primVal
 lookupFun' globals x = lookupFun @IR.T globals x >>| extForgetE
 
 -- | Variant of `lookupFun'` that works on `RawGlobals`.
 rawLookupFun' ::
   EvalPatSubst IR.T primTy primVal =>
-  IR.RawGlobals primTy primVal ->
+  Core.RawGlobals IR.T primTy primVal ->
   LookupFun IR.T primTy primVal
 rawLookupFun' globals x = rawLookupFun @IR.T globals x >>| extForgetE

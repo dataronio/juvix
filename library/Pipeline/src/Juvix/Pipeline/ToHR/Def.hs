@@ -1,19 +1,32 @@
-module Juvix.ToCore.FromFrontend.Transform.Def
-  ( transformDef,
+module Juvix.Pipeline.ToHR.Def
+  ( CoreDef (..),
+    CoreDefs,
+    defName,
+    transformDef,
   )
 where
 
+import Data.HashMap.Strict (HashMap)
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Context as Ctx
 import qualified Juvix.Core.Base as Core
+import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.HR as HR
+import qualified Juvix.Core.HR as IR
 import Juvix.Library
+import Juvix.Library hiding (show)
 import qualified Juvix.Library.NameSymbol as NameSymbol
+import qualified Juvix.Library.Usage as Usage
+import Juvix.Pipeline.ToHR.Env
+import Juvix.Pipeline.ToHR.Sig.Extract
+import Juvix.Pipeline.ToHR.Term (transformTermHR)
+import Juvix.Pipeline.ToHR.Types
 import qualified Juvix.Sexp as Sexp
-import Juvix.ToCore.FromFrontend.Transform.HR (transformTermHR)
-import Juvix.ToCore.FromFrontend.Transform.Helpers
-import Juvix.ToCore.Types
 import Prelude (error)
+
+---------------------
+-- Core Definition --
+---------------------
 
 transformDef ::
   ( ReduceEff HR.T primTy primVal m,
@@ -49,7 +62,7 @@ transformDef x def = do
           let getConSig' x = do ty <- getConSig q x; pure (x, ty, def)
           conSigs <- traverse getConSig' conNames
           cons <- traverse (uncurry3 transformCon) conSigs
-          (args, ℓ) <- splitDataTypeHR name ty
+          (args, ℓ) <- splitDataType name ty
           let dat' =
                 Core.RawDatatype
                   { rawDataName = name,
@@ -117,3 +130,29 @@ transformPat n
     HR.PPrim <$> getParamConstant n
   | otherwise =
     error "malformed match pattern"
+
+defName :: CoreDef ext primTy primVal -> NameSymbol.T
+defName = \case
+  CoreDef (Core.RawGDatatype Core.RawDatatype {rawDataName = x}) -> x
+  CoreDef (Core.RawGDataCon Core.RawDataCon {rawConName = x}) -> x
+  CoreDef (Core.RawGFunction Core.RawFunction {rawFunName = x}) -> x
+  CoreDef (Core.RawGAbstract Core.RawAbstract {rawAbsName = x}) -> x
+  SpecialDef x _ -> x
+
+splitDataType ::
+  (Show primTy, Show primVal, HasThrowFF ext primTy primVal m) =>
+  NameSymbol.T ->
+  HR.Term primTy primVal ->
+  m ([Core.RawDataArg HR.T primTy primVal], Core.Universe)
+splitDataType x ty0 = go ty0
+  where
+    go (HR.Pi π x s t) = first (arg :) <$> splitDataType x t
+      where
+        arg =
+          Core.RawDataArg
+            { rawArgName = x,
+              rawArgUsage = π,
+              rawArgType = s
+            }
+    go (HR.Star ℓ) = pure ([], ℓ)
+    go _ = throwFF $ InvalidDatatypeType x ty0

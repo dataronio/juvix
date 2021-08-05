@@ -130,7 +130,7 @@ irToHRWith pats t = fst $ exec pats (varsTerm t) $ irToHR' t
 -- | @irToHR'@ transforms an IR term into an HR one. works like
 -- @hrToIR'@ but in reverse. Namely we have binders introduce a newly
 -- generated name to the stack. Inside of @irToHR'@ we then call
--- @irElimToHR'@ for @Elim's@ that lookup the de Bruijn index to get
+-- @irElimToHR'@ for @Elims@ that lookup the de Bruijn index to get
 -- the correct generated name
 irToHR' ::
   (HasNames m, HasPatToSym m) =>

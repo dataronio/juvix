@@ -366,7 +366,7 @@ data ExpRecord = ExpressionRecord
 -- Symbol Binding
 --------------------------------------------------
 
-data Let = Let''
+data Let = Let'
   { letBindings :: FunctionLike Expression,
     letBody :: Expression
   }

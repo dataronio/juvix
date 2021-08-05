@@ -4,7 +4,6 @@ import qualified Easy
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.IR.Types as IR
 import Juvix.Library
-import qualified Juvix.ToCore.Types as Types
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 
@@ -66,12 +65,10 @@ patternVarTests =
 
 grabSingleBody
   ( Just
-      ( Types.CoreDef
-          ( Core.RawGFunction
-              Core.RawFunction
-                { Core.rawFunClauses = Core.RawFunClause {Core.rawClauseBody = body} :| []
-                }
-            )
+      ( Core.RawGFunction
+          Core.RawFunction
+            { Core.rawFunClauses = Core.RawFunClause {Core.rawClauseBody = body} :| []
+            }
         )
     ) =
     body

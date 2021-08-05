@@ -214,16 +214,16 @@ instance
   Monoid (Core.XVPrimTy ext (PrimTy f) primVal) =>
   Eval.HasSubstValue ext (PrimTy f) primVal (PrimTy f)
   where
-  substValueWith _ _ _ t = pure $ Core.VPrimTy' t mempty
+  substValueWith _ _ _ t = pure $ Core.VPrimTy t mempty
 
 instance
   Monoid (Core.XPrimTy ext (PrimTy f) primVal) =>
   Eval.HasPatSubstTerm ext (PrimTy f) primVal (PrimTy f)
   where
-  patSubstTerm' _ _ t = pure $ Core.PrimTy' t mempty
+  patSubstTerm' _ _ t = pure $ Core.PrimTy t mempty
 
 instance
   Monoid (Core.XPrim ext primTy (PrimVal f)) =>
   Eval.HasPatSubstTerm ext primTy (PrimVal f) (PrimVal f)
   where
-  patSubstTerm' _ _ t = pure $ Core.Prim' t mempty
+  patSubstTerm' _ _ t = pure $ Core.Prim t mempty

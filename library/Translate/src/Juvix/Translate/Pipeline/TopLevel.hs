@@ -1,4 +1,4 @@
-module Juvix.Frontend.Sexp where
+module Juvix.Translate.Pipeline.TopLevel where
 
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Frontend.Types.Base as Types
@@ -156,7 +156,7 @@ transLetType (Types.LetType'' bindings body) =
     (name, args, dat) = transTypeGen bindings
 
 transLet :: Types.Let -> Sexp.T
-transLet (Types.Let'' like rest) =
+transLet (Types.Let' like rest) =
   Sexp.list
     [Sexp.atom "let", name, args, body, transExpr rest]
   where

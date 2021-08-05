@@ -72,7 +72,7 @@ instance Bitraversable (Return' ext) where
     Return a s ->
       Return <$> f a <*> g s
 
--- | The representation of variables used in Core.Term' ext
+-- | The representation of variables used in Core.Term ext
 class IsParamVar ext where
   type ParamVar ext :: Type
 

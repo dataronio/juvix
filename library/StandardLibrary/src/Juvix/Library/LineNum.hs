@@ -1,7 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Juvix.Library.LineNum where
 
@@ -10,7 +9,7 @@ import Data.Hashable ()
 import Juvix.Library
 
 data T = T {tLine :: Int, tCol :: Int}
-  deriving (Show, Eq, Ord, Generic)
+  deriving (Show, Eq, Ord, Data, Generic)
 
 instance Hashable T where
   hash (T {tLine, tCol}) = hash (hash tLine, hash tCol)

@@ -11,7 +11,6 @@ import qualified Juvix.Contextify.Passes as Contextify
 import qualified Juvix.Desugar.Passes as Pass
 import qualified Juvix.Frontend as Frontend
 import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Sexp as SexpTrans
 import Juvix.Frontend.Types (ModuleOpen (..), TopLevel)
 import Juvix.Frontend.Types.Base (Header)
 import Juvix.Library
@@ -21,6 +20,7 @@ import Juvix.Library.Parser (Parser)
 import qualified Juvix.Library.Parser as J
 import Juvix.Library.Test.Golden
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Translate.Pipeline.TopLevel as TopLevel
 import qualified System.FilePath as FP
 import Test.Tasty
 import qualified Text.Megaparsec as P
@@ -306,7 +306,7 @@ sexp path = do
   fileRead <- liftIO $ Frontend.parseSingleFile path
   case fileRead of
     Right (names, top) ->
-      pure (names, fmap SexpTrans.transTopLevel top)
+      pure (names, fmap TopLevel.transTopLevel top)
     Left _ -> Feedback.fail "failed to turn into a sexp"
 
 fullyDesugarPath ::
@@ -315,5 +315,5 @@ fullyDesugarPath paths = do
   fileRead <- liftIO $ Frontend.parseFiles paths
   case fileRead of
     Right xs ->
-      pure $ fmap (\(names, top) -> (names, fullDesugar (fmap SexpTrans.transTopLevel top))) xs
+      pure $ fmap (\(names, top) -> (names, fullDesugar (fmap TopLevel.transTopLevel top))) xs
     Left _ -> Feedback.fail "failed to desugar"

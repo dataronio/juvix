@@ -72,6 +72,12 @@ dependencies:
   ###########################
   - pretty-simple
 
+  ###########################
+  # For Plonk depnencies
+  ###########################
+  - galois-field
+  - elliptic-curve
+
 default-extensions:
   - NoImplicitPrelude
   - OverloadedStrings

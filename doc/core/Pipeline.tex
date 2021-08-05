@@ -54,11 +54,86 @@
 
 
 
-\section{S-Expressions}
+\section{S-Expressions (Translate)}
+\subsection{Overview}
 
-TODO
+\usetikzlibrary{fit}
+\begin{tikzpicture}[node distance={14mm}, thick, main/.style = {draw, rectangle}] 
+\node[main] (1) {Frontend (ML AST)}; 
+\node[main] (2) [below of=1] {S-expression}; 
+\node[main] (3) [below of=2] {Desugared S-expression}; 
+\node[main] (4) [below of=3] {Contextified S-expression}; 
+\node[main] (5) [below of=4] {Core HR}; 
 
+\draw[->] (1) -- node[midway, right] {\href{}{Juvix.Translate.Pipeline.hs (transTopLevel)}} (2); 
+\draw[->] (2) -- node[midway, right] {\href{}{Juvix.Desugar.hs (op)}} (3); 
+\draw[->] (3) -- node[midway, right] {\href{}{Juvix.Contextify.hs (op)}} (4); 
+\draw[->] (4) -- node[midway, right] {\href{}{Juvix.Pipeline.hs (toHR)}}  (5); 
 
+\node[draw,dotted,fit=(2) (3) (4), label={[xshift=0mm]left:{Sexp}}] {};
+
+\end{tikzpicture} 
+\subsection{Desugar}
+
+\usetikzlibrary{fit}
+\usetikzlibrary{shapes.multipart}
+
+\begin{tikzpicture}[node distance={14mm}, thick, main/.style = {draw, rectangle}] 
+  \path (0, 0) node[main] (1) {ML AST (TopLevel)}
+       ++(0, -20mm) node[main] (2) {\begin{tabular}{c c c}
+  ModuleOpen $\rightarrow$ open & 
+  TypeClassInstance $\rightarrow$ instance & 
+  Declaration $\rightarrow$ declare \\
+  Signature $\rightarrow$ defsig  &
+  Function $\rightarrow$ defun &
+  Effect $\rightarrow$ defeff \\ 
+  Handler  $\rightarrow$ defhandler &
+  Module $\rightarrow$ defmodule &
+  TypeClass $\rightarrow$ type-class \\
+  Type $\rightarrow$ type & (Expressions$^*$)
+\end{tabular}}
+       ++(0, -24mm) node[main] (3) {\begin{tabular}{c c c}
+  & defmodule $\rightarrow$ defun & \\\cline{1-3}
+  defun $\rightarrow$ let &
+  type $\rightarrow$ let-type &
+  defsig  $\rightarrow$ let-sig \\
+  declare $\rightarrow$ declaim & 
+  open  $\rightarrow$ open-in &  
+  defmodule $\rightarrow$ let-mod 
+\end{tabular}}
+       ++(0, -24mm) node[main] (4) {\begin{tabular}{c c c}
+  & let-mod $\rightarrow$ let & \\\cline{1-3}
+  defun $\rightarrow$ let &
+  type $\rightarrow$ let-type &
+  defsig  $\rightarrow$ let-sig \\
+  declare $\rightarrow$ declaim & 
+  open  $\rightarrow$ open-in &  
+  defmodule $\rightarrow$ let-mod 
+\end{tabular}}
+       ++(0, -18mm) node[main] (5) {cond $\rightarrow$ if};
+\node[main] (6) [below of=5] {if $\rightarrow$ case};  
+\node[main] (7) [below of=6] {let $\rightarrow$ let-match}; 
+\node[main] (8) [below of=7] {defun $\rightarrow$ defun-match}; 
+\node[main] (9) [below of=8] {def-sig + defun-match $\rightarrow$ desig-match}; 
+\node[main] (10) [below of=9] {record $\rightarrow$ record-no-pun}; 
+\node[main] (11) [below of=10] {defHandler $\rightarrow$ let-handler}; 
+\node[main] (12) [below of=11] {...}; 
+\draw[->] (1) -- node[midway, right] {\href{}{\textbf{Translate Top Level}}} (2); 
+\draw[->] (2) -- node[midway, right] {\href{}{\textbf{Module transform}}} (3); 
+\draw[->] (3) -- node[midway, right] {\href{}{\textbf{Let Module transform}}} (4); 
+\draw[->] (4) -- node[midway, right] {\href{}{\textbf{Cond transform}}}  (5); 
+\draw[->] (5) -- node[midway, right] {\href{}{\textbf{If transform}}}  (6); 
+\draw[->] (6) -- node[midway, right] {\href{}{\textbf{Multiple Trans Let}}}  (7);
+\draw[->] (7) -- node[midway, right] {\href{}{\textbf{Multiple Trans Defun}}}  (8);
+\draw[->] (8) -- node[midway, right] {\href{}{\textbf{Combine Sig}}}  (9);
+\draw[->] (9) -- node[midway, right] {\href{}{\textbf{Remove Punned Records}}} (10);
+\draw[->] (10) -- node[midway, right] {\href{}{\textbf{Handler Transform}}} (11);
+\draw[->] (11) -- node[midway, right] {\href{}{\textbf{Contextify}}} (12);
+\node[draw,dotted,fit=(2) (3) (4) (5) (6) (7) (8) (9) (10) (11), label={[xshift=0mm]left:{S-expression}}] {};
+
+\end{tikzpicture} 
+
+\clearpage
 
 \section{Core}
 
@@ -70,21 +145,15 @@ TODO
 \draw[->] (1) -- node[midway, right] {\href{https://github.com/heliaxdev/juvix/blob/develop/library/Translate/src/Juvix/ToCore/FromFrontend.hs}{Translate: Juvix.ToCore.FromFrontend.hs}} (2); 
 \draw[->] (2) -- node[midway, right] {\href{https://github.com/heliaxdev/juvix/blob/develop/library/Core/src/Juvix/Core/Translate.hs}{Core: Juvix.Core.Translate.hs}} (3); 
 \end{tikzpicture} 
-% Relevant questions
-% Why does it exist?
-% Where is it placed in the pipeline?
-% How is it used?
-% How is the code in there?
+
 
 HR stands for Human Readable.
 
-This is a small module. It basically extends the Intermediate Representation (IR) base types to include names rather than De Bruijn indices.
+The goal is to use names instead of De Bruijn indices for identifiers of variables in binders. Names must be unique. Therefore, HR types extend the Core base type, in which binders have an extra field for the binding name.
 
 As with any module in Juvix Core, an understanding of the \href{https://heliaxdev.github.io/extensible-data/Extensible.html}{extensible-data} library is required.
 
-As mentioned, the goal is to use names instead of De Bruijn indices. Even though HR is a prior step in the pipeline than IR, the code is structured in a way that the \textit{base} types exist in IR and other modules \textit{extend} from it. These base types live in \href{https://github.com/heliaxdev/juvix/blob/develop/library/Core/src/Juvix/Core/IR/Types/Base.hs}{Juvix.Core.IR.Types.Base}. 
-    
-Do all types get affected by this distinction between HR and IR? No. Only \textit{binders} do. A binding is represented by an identifier. In the context of HR, this identifier is a name and this name is bound to a variable. Names must be unique. Binders in Juvix are:
+Binders in Juvix are:
 \begin{enumerate}
     \item \textbf{Pi}
 

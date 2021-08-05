@@ -1,9 +1,9 @@
-module Sexp (top) where
+module Test.ToSexp (top) where
 
 import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Sexp as Trans
 import qualified Juvix.Frontend.Types as Types
 import Juvix.Library hiding (head)
+import qualified Juvix.Pipeline.ToSexp as ToSexp
 import qualified Juvix.Sexp as Sexp
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
@@ -435,7 +435,7 @@ effectTest =
 --------------------------------------------------------------------------------
 
 singleEleErr :: Functor f => f (Types.Header Types.TopLevel) -> f Sexp.T
-singleEleErr = fmap (Trans.transTopLevel . head . noHeaderErr)
+singleEleErr = fmap (ToSexp.transTopLevel . head . noHeaderErr)
 
 noHeaderErr :: Types.Header topLevel -> [topLevel]
 noHeaderErr (Types.NoHeader xs) = xs

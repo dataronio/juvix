@@ -41,6 +41,7 @@ module Juvix.Core.HR.Pretty
   )
 where
 
+import qualified Juvix.Core.Base as Core
 import Juvix.Core.HR.Types
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
@@ -277,7 +278,7 @@ ppLet π x b t =
     in_ = pure $ PP.annotate' AValCon "in"
 
 -- | Print a star and universe level highlighted as a builtin type.
-ppStar :: PP.PrecReader m => Universe -> m Doc
+ppStar :: PP.PrecReader m => Core.Universe -> m Doc
 ppStar i =
   PP.app'
     APunct

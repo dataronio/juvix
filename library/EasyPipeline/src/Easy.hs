@@ -20,6 +20,8 @@
 -- with any stage of the compiler while modifying the source code.
 module Easy where
 
+import Data.Curve.Weierstrass.BLS12381 (Fr)
+import qualified Data.Field.Galois as Field
 import qualified Juvix.Backends.Michelson.Parameterisation as Michelson.Param
 import qualified Juvix.Backends.Plonk as Plonk
 import qualified Juvix.Context as Context
@@ -34,20 +36,19 @@ import qualified Juvix.Core.Parameterisation as Param
 import qualified Juvix.Desugar as Desugar
 import qualified Juvix.Frontend as Frontend
 import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Sexp as SexpTrans
 import qualified Juvix.Frontend.Types as FrontendT
 import qualified Juvix.Frontend.Types as Initial
 import qualified Juvix.Frontend.Types.Base as Frontend
-import qualified Juvix.FrontendDesugar as FrontDesugar
 import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymb
 import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Pipeline.Compile as Compile
-import qualified Juvix.Pipeline.Core as Core
+import qualified Juvix.Pipeline.ToHR as ToHR
+import qualified Juvix.Pipeline.ToIR as ToIR
 import qualified Juvix.Sexp as Sexp
-import qualified Juvix.ToCore.Types as ToCore.Types
+import qualified Juvix.Translate.Pipeline.TopLevel as SexpTrans
 import qualified Text.Pretty.Simple as Pretty
 import Prelude (error)
 import qualified Prelude (Show (..))
@@ -94,7 +95,10 @@ defMichelson =
 
 -- @defCircuit@ gives us the circuit prelude
 -- defCircuit :: Options
-defCircuit =
+defCircuitGeneric ::
+  Field.GaloisField f =>
+  Options (Plonk.PrimTy f) (Plonk.PrimVal f)
+defCircuitGeneric =
   def
     { prelude =
         [ "../../stdlib/Prelude.ju",
@@ -102,6 +106,9 @@ defCircuit =
         ],
       param = Plonk.param
     }
+
+defCircuit :: Options (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)
+defCircuit = defCircuitGeneric
 
 -- These functions help us stop at various part of the pipeline
 
@@ -330,19 +337,29 @@ coreify ::
   (Show primTy, Show primVal) =>
   ByteString ->
   Options primTy primVal ->
-  IO (ToCore.Types.CoreDefs IR.T primTy primVal)
+  IO (Core.RawGlobals IR.T primTy primVal)
 coreify juvix options = do
   Right ctx <- contextifyDesugar juvix options
-  pure $ Core.contextToDefsIR ctx (param options)
+  case ToHR.contextToHR ctx (param options) of
+    Left err -> do
+      printCompactParens err
+      error "failure at coreify"
+    Right env ->
+      pure . snd . ToIR.hrToIRDefs $ env
 
 coreifyFile ::
   (Show primTy, Show primVal) =>
   FilePath ->
   Options primTy primVal ->
-  IO (ToCore.Types.CoreDefs IR.T primTy primVal)
+  IO (Core.RawGlobals IR.T primTy primVal)
 coreifyFile juvix options = do
   Right ctx <- contextifyDesugarFile juvix options
-  pure $ Core.contextToDefsIR ctx (param options)
+  case ToHR.contextToHR ctx (param options) of
+    Left err -> do
+      printCompactParens err
+      error "failure at coreify"
+    Right env ->
+      pure . snd . ToIR.hrToIRDefs $ env
 
 ----------------------------------------
 -- Coreify Examples
@@ -384,10 +401,10 @@ printModule name ctx =
       pure ()
 
 lookupCoreFunction ::
-  ToCore.Types.CoreDefs ext primTy1 primVal1 ->
+  Core.RawGlobals ext primTy1 primVal1 ->
   Options primTy2 primVal2 ->
   Symbol ->
-  Maybe (ToCore.Types.CoreDef ext primTy1 primVal1)
+  Maybe (Core.RawGlobal ext primTy1 primVal1)
 lookupCoreFunction coreDefs option functionName =
   let name =
         currentContextName option <> NameSymb.fromSymbol functionName
@@ -395,7 +412,7 @@ lookupCoreFunction coreDefs option functionName =
 
 printCoreFunction ::
   (MonadIO m, Show primTy1, Show primVal1, Core.CoreShow ext primTy1 primVal1) =>
-  ToCore.Types.CoreDefs ext primTy1 primVal1 ->
+  Core.RawGlobals ext primTy1 primVal1 ->
   Options primTy2 primVal2 ->
   Symbol ->
   m ()

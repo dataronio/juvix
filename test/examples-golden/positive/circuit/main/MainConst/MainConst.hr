@@ -1,32 +1,30 @@
 fromList
     [
         ( "MainConst" :| [ "main" ]
-        , CoreDef
-            ( RawGFunction
-                ( RawFunction
-                    { rawFunName = "MainConst" :| [ "main" ]
-                    , rawFunUsage = GOmega
-                    , rawFunType = Elim'
-                        ( ElimX
-                            ( "Prelude" :|
-                                [ "Circuit"
-                                , "field"
-                                ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "MainConst" :| [ "main" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Elim
+                    ( ElimX
+                        ( "Prelude" :|
+                            [ "Circuit"
+                            , "field"
+                            ]
+                        )
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim
+                        ( PConst
+                            ( P
+                                ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
                             )
                         ) ()
-                    , rawFunClauses = RawFunClause
-                        { rawClauseTel = []
-                        , rawClausePats = []
-                        , rawClauseBody = Prim'
-                            ( PConst
-                                ( P
-                                    ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                )
-                            ) ()
-                        , rawClauseCatchall = False
-                        } :| []
-                    }
-                )
+                    , rawClauseCatchall = False
+                    } :| []
+                }
             )
         )
     ]

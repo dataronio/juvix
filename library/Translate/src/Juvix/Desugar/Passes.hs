@@ -40,7 +40,7 @@ import Prelude (error)
 -- | @condTransform@ - CondTransform turns the cond form of the fronted
 -- language into a series of ifs
 -- - BNF input form:
---   + (:Cond (pred-1 result-1) … (pred-n result-n))
+--   + (:cond (pred-1 result-1) … (pred-n result-n))
 -- - BNF output form:
 --   + (if pred-1 result-1 (if pred-2 result-2 (… (if pred-n result-n))))
 condTransform :: Sexp.T -> Sexp.T
@@ -302,23 +302,23 @@ removePunnedRecords xs = Sexp.foldPred xs (== Structure.nameRecord) removePunned
 -- - BNF Input Form
 --   1. (:defmodule name (arg1 … argn) toplevel-1 … toplevel-n)
 --   2. (:defmodule name (arg1 … argn)
---         (cond
+--         (:cond
 --           (pred-1 toplevel-11 … toplevel-1n)
 --           …
 --           (pred-n toplevel-n1 … toplevel-nn)))
 -- - BNF output form
---   1. (defun name (arg1 … argn)
+--   1. (:defun name (arg1 … argn)
 --        (expression-1 (… expression-n …
---                        (record (toplevel-1-name) … (toplevel-n-name)))))
---   2. (defun name (arg1 … argn)
---        (cond
+--                        (:record (toplevel-1-name) … (toplevel-n-name)))))
+--   2. (:defun name (arg1 … argn)
+--        (:cond
 --           (pred-1 (expression-11
 --                      (… expression-1n …
---                         (record (toplevel-11-name) … (toplevel-1n-name)))))
+--                         (:record (toplevel-11-name) … (toplevel-1n-name)))))
 --           …
 --           (pred-n (expression-n1
 --                      (… expression-nn …
---                         (record (toplevel-n1-name) … (toplevel-nn-name)))))))
+--                         (:record (toplevel-n1-name) … (toplevel-nn-name)))))))
 -- - Where Expression follows the Top level Transformation, and
 --   <foo-name> is the name of foo
 moduleTransform :: Sexp.T -> Sexp.T
@@ -328,7 +328,10 @@ moduleTransform xs = Sexp.foldPred xs (== Structure.nameDefModule) moduleToRecor
       Sexp.foldr combine (generatedRecord body) body
     moduleToRecord atom cdr
       | Just mod <- Structure.toDefModule (Sexp.Atom atom Sexp.:> cdr) =
-        Structure.Defun (mod ^. name) (mod ^. args) (ignoreCond (mod ^. body) intoRecord)
+        Structure.Defun
+          (mod ^. name)
+          (mod ^. args)
+          (ignoreCond (mod ^. body) intoRecord)
           |> Structure.fromDefun
           |> Sexp.addMetaToCar atom
       | otherwise = error "malformed defmodule"

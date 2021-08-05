@@ -3,20 +3,18 @@
 -- datatype and function declarations.
 module Juvix.Core.IR.CheckTerm
   ( module Juvix.Core.IR.CheckTerm,
-    module Typed,
-    module Error,
-    module Env,
   )
 where
 
 import qualified Data.IntMap.Strict as IntMap
 import Data.List.NonEmpty ((<|))
 import qualified Juvix.Core.Application as App
+import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.IR.Evaluator as Eval
-import Juvix.Core.IR.Typechecker.Env as Env
-import Juvix.Core.IR.Typechecker.Error as Error
-import Juvix.Core.IR.Typechecker.Types as Typed
+import qualified Juvix.Core.IR.Typechecker.Env as Env
+import qualified Juvix.Core.IR.Typechecker.Error as Error
+import qualified Juvix.Core.IR.Typechecker.Types as Typed
 import qualified Juvix.Core.IR.Types as IR
 import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library hiding (Datatype)
@@ -24,8 +22,8 @@ import qualified Juvix.Library.Usage as Usage
 
 data Leftovers a = Leftovers
   { loValue :: a,
-    loLocals :: UContext,
-    loPatVars :: PatUsages
+    loLocals :: Env.UContext,
+    loPatVars :: Env.PatUsages
   }
   deriving (Eq, Show, Generic)
 
@@ -39,7 +37,7 @@ leftoversOk (Leftovers {loLocals, loPatVars}) =
 leftoverOk :: Usage.T -> Bool
 leftoverOk ρ = ρ == Usage.Omega || ρ == mempty
 
--- | Checks a 'Term' against an annotation and returns a decorated term if
+-- | Checks a 'Term against an annotation and returns a decorated term if
 -- successful.
 typeTerm ::
   ( Eq primTy,
@@ -48,13 +46,18 @@ typeTerm ::
     Show primVal,
     Show ext,
     ShowExt ext primTy primVal,
-    CanTC' ext primTy primVal m,
+    Env.CanTC' ext primTy primVal m,
     Param.CanApply primTy,
-    Param.CanApply (TypedPrim primTy primVal)
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
   Param.Parameterisation primTy primVal ->
-  Core.Term' ext primTy primVal ->
-  AnnotationT primTy primVal ->
+  Core.Term ext primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   m (Typed.Term primTy primVal)
 typeTerm param t ann = loValue <$> typeTermWith param IntMap.empty [] t ann
 
@@ -65,20 +68,25 @@ typeTermWith ::
     Show primVal,
     Show ext,
     ShowExt ext primTy primVal,
-    CanTC' ext primTy primVal m,
+    Env.CanTC' ext primTy primVal m,
     Param.CanApply primTy,
-    Param.CanApply (TypedPrim primTy primVal)
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
   Param.Parameterisation primTy primVal ->
-  PatBinds primTy primVal ->
-  Context primTy primVal ->
-  Core.Term' ext primTy primVal ->
-  AnnotationT primTy primVal ->
+  Env.PatBinds primTy primVal ->
+  Env.Context primTy primVal ->
+  Core.Term ext primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   m (Leftovers (Typed.Term primTy primVal))
 typeTermWith param pats ctx t ann =
-  execInner (withLeftovers $ typeTerm' t ann) (InnerState param pats ctx)
+  Env.execInner (withLeftovers $ typeTerm' t ann) (Env.InnerState param pats ctx)
 
--- | Infers the type and usage for an 'Elim' and returns it decorated with this
+-- | Infers the type and usage for an 'Elim and returns it decorated with this
 -- information.
 typeElim ::
   ( Eq primTy,
@@ -87,12 +95,17 @@ typeElim ::
     Show primVal,
     Show ext,
     ShowExt ext primTy primVal,
-    CanTC' ext primTy primVal m,
+    Env.CanTC' ext primTy primVal m,
     Param.CanApply primTy,
-    Param.CanApply (TypedPrim primTy primVal)
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
   Param.Parameterisation primTy primVal ->
-  Core.Elim' ext primTy primVal ->
+  Core.Elim ext primTy primVal ->
   Usage.T ->
   m (Typed.Elim primTy primVal)
 typeElim param e σ =
@@ -105,27 +118,32 @@ typeElimWith ::
     Show primVal,
     Show ext,
     ShowExt ext primTy primVal,
-    CanTC' ext primTy primVal m,
+    Env.CanTC' ext primTy primVal m,
     Param.CanApply primTy,
-    Param.CanApply (TypedPrim primTy primVal)
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
   Param.Parameterisation primTy primVal ->
-  PatBinds primTy primVal ->
-  Context primTy primVal ->
-  Core.Elim' ext primTy primVal ->
+  Env.PatBinds primTy primVal ->
+  Env.Context primTy primVal ->
+  Core.Elim ext primTy primVal ->
   Usage.T ->
   m (Leftovers (Typed.Elim primTy primVal))
 typeElimWith param pats ctx e σ =
-  execInner (withLeftovers $ typeElim' e σ) (InnerState param pats ctx)
+  Env.execInner (withLeftovers $ typeElim' e σ) (Env.InnerState param pats ctx)
 
 withLeftovers ::
-  (HasBound primTy primVal m, HasPatBinds primTy primVal m) =>
+  (Env.HasBound primTy primVal m, Env.HasPatBinds primTy primVal m) =>
   m a ->
   m (Leftovers a)
 withLeftovers m =
   Leftovers <$> m
-    <*> fmap (fmap annUsage) (get @"bound")
-    <*> fmap (fmap annUsage) (get @"patBinds")
+    <*> fmap (fmap Typed.annUsage) (get @"bound")
+    <*> fmap (fmap Typed.annUsage) (get @"patBinds")
 
 typeTerm' ::
   ( Eq primTy,
@@ -136,76 +154,81 @@ typeTerm' ::
     (Show (Core.XAnn ext primTy primVal)),
     Show primTy,
     (Show (Core.ElimX ext primTy primVal)),
-    CanInnerTC' ext primTy primVal m,
+    Env.CanInnerTC' ext primTy primVal m,
     Param.CanApply primTy,
-    Param.CanApply (TypedPrim primTy primVal)
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
-  Core.Term' ext primTy primVal ->
-  AnnotationT primTy primVal ->
+  Core.Term ext primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   m (Typed.Term primTy primVal)
-typeTerm' term ann@(Annotation σ ty) =
+typeTerm' term ann@(Typed.Annotation σ ty) =
   case term of
-    Core.Star' i _ -> do
+    Core.Star i _ -> do
       requireZero σ
       _j <- requireStar ty
       -- requireUniverseLT i j
       pure $ Typed.Star i ann
-    Core.PrimTy' t _ -> do
+    Core.PrimTy t _ -> do
       requireZero σ
       void $ requireStar ty
       pure $ Typed.PrimTy t ann
-    Core.Prim' p _ -> do
+    Core.Prim p _ -> do
       p' <- typePrim p ty
-      pure $ Typed.Prim p' $ Annotation σ ty
-    Core.Pi' π a b _ -> do
+      pure $ Typed.Prim p' $ Typed.Annotation σ ty
+    Core.Pi π a b _ -> do
       requireZero σ
       void $ requireStar ty
       a' <- typeTerm' a ann
       av <- evalTC a'
-      b' <- withLocal (Annotation mempty av) $ typeTerm' b ann
+      b' <- withLocal (Typed.Annotation mempty av) $ typeTerm' b ann
       pure $ Typed.Pi π a' b' ann
-    Core.Lam' t _ -> do
+    Core.Lam t _ -> do
       (π, a, b) <- requirePi ty
-      let varAnn = Annotation (σ <.> π) a
-          tAnn = Annotation σ b
+      let varAnn = Typed.Annotation (σ <.> π) a
+          tAnn = Typed.Annotation σ b
       t' <- withLocal varAnn $ typeTerm' t tAnn
-      let anns = BindAnnotation {baBindAnn = varAnn, baResAnn = ann}
+      let anns = Typed.BindAnnotation {baBindAnn = varAnn, baResAnn = ann}
       pure $ Typed.Lam t' anns
-    Core.Sig' π a b _ -> do
+    Core.Sig π a b _ -> do
       requireZero σ
       void $ requireStar ty
       a' <- typeTerm' a ann
       av <- evalTC a'
-      b' <- withLocal (Annotation mempty av) $ typeTerm' b ann
+      b' <- withLocal (Typed.Annotation mempty av) $ typeTerm' b ann
       pure $ Typed.Sig π a' b' ann
-    Core.Pair' s t _ -> do
+    Core.Pair s t _ -> do
       (π, a, b) <- requireSig ty
-      let sAnn = Annotation (σ <.> π) a
+      let sAnn = Typed.Annotation (σ <.> π) a
       s' <- typeTerm' s sAnn
-      tAnn <- Annotation σ <$> substApp b s'
+      tAnn <- Typed.Annotation σ <$> substApp b s'
       t' <- typeTerm' t tAnn
       pure $ Typed.Pair s' t' ann
-    Core.UnitTy' _ -> do
+    Core.UnitTy _ -> do
       requireZero σ
       void $ requireStar ty
       pure $ Typed.UnitTy ann
-    Core.Unit' _ -> do
+    Core.Unit _ -> do
       requireUnitTy ty
       pure $ Typed.Unit ann
-    Core.Let' σb b t _ -> do
+    Core.Let σb b t _ -> do
       b' <- typeElim' b σb
-      let bAnn = getElimAnn b'
-          tAnn = Annotation σ (Eval.weak ty)
+      let bAnn = Typed.getElimAnn b'
+          tAnn = Typed.Annotation σ (Eval.weak ty)
       t' <- withLocal bAnn $ typeTerm' t tAnn
-      let anns = BindAnnotation {baBindAnn = bAnn, baResAnn = ann}
+      let anns = Typed.BindAnnotation {baBindAnn = bAnn, baResAnn = ann}
       pure $ Typed.Let σb b' t' anns
-    Core.Elim' e _ -> do
+    Core.Elim e _ -> do
       e' <- typeElim' e σ
-      let ty' = annType $ getElimAnn e'
+      let ty' = Typed.annType $ Typed.getElimAnn e'
       requireSubtype e ty ty'
       pure $ Typed.Elim e' ann
     Core.TermX x ->
-      throwTC $ UnsupportedTermExt x
+      Error.throwTC $ Error.UnsupportedTermExt x
 
 typeElim' ::
   ( Eq primTy,
@@ -214,224 +237,242 @@ typeElim' ::
     Show primVal,
     Show ext,
     ShowExt ext primTy primVal,
-    CanInnerTC' ext primTy primVal m,
+    Env.CanInnerTC' ext primTy primVal m,
     Param.CanApply primTy,
-    Param.CanApply (TypedPrim primTy primVal)
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
-  Core.Elim' ext primTy primVal ->
+  Core.Elim ext primTy primVal ->
   Usage.T ->
   m (Typed.Elim primTy primVal)
 typeElim' elim σ =
   case elim of
-    Core.Bound' i _ -> do
+    Core.Bound i _ -> do
       ty <- useLocal σ i
-      pure $ Typed.Bound i $ Annotation σ ty
-    Core.Free' px@(Core.Pattern x) _ -> do
+      pure $ Typed.Bound i $ Typed.Annotation σ ty
+    Core.Free px@(Core.Pattern x) _ -> do
       ty <- usePatVar σ x
-      pure $ Typed.Free px $ Annotation σ ty
-    Core.Free' gx@(Core.Global x) _ -> do
-      (ty, π') <- lookupGlobal x
+      pure $ Typed.Free px $ Typed.Annotation σ ty
+    Core.Free gx@(Core.Global x) _ -> do
+      (ty, π') <- Env.lookupGlobal x
       when (π' == Core.GZero) $ requireZero σ
-      pure $ Typed.Free gx $ Annotation σ ty
-    Core.App' s t _ -> do
+      pure $ Typed.Free gx $ Typed.Annotation σ ty
+    Core.App s t _ -> do
       s' <- typeElim' s σ
-      (π, a, b) <- requirePi $ annType $ getElimAnn s'
-      let tAnn = Annotation (σ <.> π) a
+      (π, a, b) <- requirePi $ Typed.annType $ Typed.getElimAnn s'
+      let tAnn = Typed.Annotation (σ <.> π) a
       t' <- typeTerm' t tAnn
       ty <- substApp b t'
-      pure $ Typed.App s' t' $ Annotation σ ty
-    Core.Ann' π s a ℓ _ -> do
-      a' <- typeTerm' a $ Annotation mempty (IR.VStar ℓ)
+      pure $ Typed.App s' t' $ Typed.Annotation σ ty
+    Core.Ann π s a ℓ _ -> do
+      a' <- typeTerm' a $ Typed.Annotation mempty (IR.VStar ℓ)
       ty <- evalTC a'
-      let ann = Annotation σ ty
+      let ann = Typed.Annotation σ ty
       s' <- typeTerm' s ann
       pure $ Typed.Ann π s' a' ℓ ann
     Core.ElimX x ->
-      throwTC $ UnsupportedElimExt x
+      Error.throwTC $ Error.UnsupportedElimExt x
 
 pushLocal ::
-  HasBound primTy primVal m =>
-  AnnotationT primTy primVal ->
+  Env.HasBound primTy primVal m =>
+  Typed.AnnotationT IR.T primTy primVal ->
   m ()
 pushLocal ann = modify @"bound" (ann :)
 
 popLocal ::
-  ( HasBound primTy primVal m,
-    HasThrowTC' IR.T ext primTy primVal m
+  ( Env.HasBound primTy primVal m,
+    Error.HasThrowTC' IR.T ext primTy primVal m
   ) =>
   m ()
 popLocal = do
   ctx <- get @"bound"
   case ctx of
-    Annotation ρ _ : ctx -> do
-      unless (leftoverOk ρ) $ throwTC (LeftoverUsage ρ)
+    Typed.Annotation ρ _ : ctx -> do
+      unless (leftoverOk ρ) $ Error.throwTC (Error.LeftoverUsage ρ)
       put @"bound" ctx
     [] -> do
-      throwTC (UnboundLocal 0)
+      Error.throwTC (Error.UnboundLocal 0)
 
 withLocal ::
-  ( HasBound primTy primVal m,
-    HasThrowTC' IR.T ext primTy primVal m
+  ( Env.HasBound primTy primVal m,
+    Error.HasThrowTC' IR.T ext primTy primVal m
   ) =>
-  AnnotationT primTy primVal ->
+  Typed.AnnotationT IR.T primTy primVal ->
   m a ->
   m a
 withLocal ann m = pushLocal ann *> m <* popLocal
 
 requireZero ::
-  HasThrowTC' IR.T ext primTy primVal m =>
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
   Usage.T ->
   m ()
 requireZero π =
   unless (π == mempty) $
-    throwTC (InsufficientUsage π (Usage.SNat 0))
+    Error.throwTC (Error.InsufficientUsage π (Usage.SNat 0))
 
 requireStar ::
-  HasThrowTC' IR.T ext primTy primVal m =>
-  Typed.ValueT primTy primVal ->
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
   m Core.Universe
 requireStar (IR.VStar j) = pure j
-requireStar ty = throwTC (ShouldBeStar ty)
+requireStar ty = Error.throwTC (Error.ShouldBeStar ty)
 
 requireUniverseLT ::
-  HasThrowTC' IR.T ext primTy primVal m =>
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
   Core.Universe ->
   Core.Universe ->
   m ()
-requireUniverseLT i j = unless (i < j) $ throwTC (UniverseMismatch i j)
+requireUniverseLT i j = unless (i < j) $ Error.throwTC (Error.UniverseMismatch i j)
 
 typePrim ::
-  CanInnerTC' ext primTy primVal m =>
+  Env.CanInnerTC' ext primTy primVal m =>
   primVal ->
-  Typed.ValueT primTy primVal ->
-  m (TypedPrim primTy primVal)
+  Typed.ValueT IR.T primTy primVal ->
+  m (Param.TypedPrim primTy primVal)
 typePrim p ty = do
   param <- ask @"param"
   ty' <- toPrimTy ty
   if (Param.hasType param p ty')
     then pure $ App.Return {retType = ty', retTerm = p}
-    else throwTC $ WrongPrimTy p ty'
+    else Error.throwTC $ Error.WrongPrimTy p ty'
 
 toPrimTy ::
-  CanInnerTC' ext primTy primVal m =>
-  Typed.ValueT primTy primVal ->
+  Env.CanInnerTC' ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
   m (Param.PrimType primTy)
-toPrimTy ty = maybe (throwTC $ NotPrimTy ty) (pure . Param.PrimType) $ go ty
+toPrimTy ty = maybe (Error.throwTC $ Error.NotPrimTy ty) (pure . Param.PrimType) $ go ty
   where
     go (IR.VPrimTy t) = pure $ t :| []
     go (IR.VPi _ (IR.VPrimTy s) t) = (s <|) <$> go t
     go _ = empty
 
 type TyParts primTy primVal =
-  (Usage.T, Typed.ValueT primTy primVal, Typed.ValueT primTy primVal)
+  (Usage.T, Typed.ValueT IR.T primTy primVal, Typed.ValueT IR.T primTy primVal)
 
 requirePi ::
-  HasThrowTC' IR.T ext primTy primVal m =>
-  Typed.ValueT primTy primVal ->
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
   m (TyParts primTy primVal)
 requirePi (IR.VPi π a b) = pure (π, a, b)
-requirePi ty = throwTC (ShouldBeFunctionType ty)
+requirePi ty = Error.throwTC (Error.ShouldBeFunctionType ty)
 
 requireSig ::
-  HasThrowTC' IR.T ext primTy primVal m =>
-  Typed.ValueT primTy primVal ->
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
   m (TyParts primTy primVal)
 requireSig (IR.VSig π a b) = pure (π, a, b)
-requireSig ty = throwTC (ShouldBePairType ty)
+requireSig ty = Error.throwTC (Error.ShouldBePairType ty)
 
 requireUnitTy ::
-  HasThrowTC' IR.T ext primTy primVal m =>
-  Typed.ValueT primTy primVal ->
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
   m ()
 requireUnitTy IR.VUnitTy = pure ()
-requireUnitTy ty = throwTC (ShouldBeUnitType ty)
+requireUnitTy ty = Error.throwTC (Error.ShouldBeUnitType ty)
 
 requireSubtype ::
-  (Eq primTy, Eq primVal, HasThrowTC' IR.T ext primTy primVal m) =>
-  Core.Elim' ext primTy primVal ->
-  Typed.ValueT primTy primVal ->
-  Typed.ValueT primTy primVal ->
+  (Eq primTy, Eq primVal, Error.HasThrowTC' IR.T ext primTy primVal m) =>
+  Core.Elim ext primTy primVal ->
+  Typed.ValueT IR.T primTy primVal ->
+  Typed.ValueT IR.T primTy primVal ->
   m ()
 requireSubtype subj exp got =
-  unless (got <: exp) $ throwTC (TypeMismatch subj exp got)
+  unless (got <: exp) $ Error.throwTC (Error.TypeMismatch subj exp got)
 
 useLocal ::
-  ( HasBound primTy primVal m,
-    HasThrowTC' IR.T ext primTy primVal m,
+  ( Env.HasBound primTy primVal m,
+    Error.HasThrowTC' IR.T ext primTy primVal m,
     Eval.HasWeak primTy,
     Eval.HasWeak primVal
   ) =>
   Usage.T ->
   Core.BoundVar ->
-  m (Typed.ValueT primTy primVal)
+  m (Typed.ValueT IR.T primTy primVal)
 useLocal π var = do
   ctx <- get @"bound"
   (ty, ctx) <- go 1 var ctx
   put @"bound" ctx
   pure ty
   where
-    go _ _ [] = throwTC (UnboundLocal var)
-    go w 0 (Annotation ρ ty : ctx) = do
+    go _ _ [] = Error.throwTC (Error.UnboundLocal var)
+    go w 0 (Typed.Annotation ρ ty : ctx) = do
       case ρ `Usage.minus` π of
-        Just ρ' -> pure (Eval.weakBy w ty, Annotation ρ' ty : ctx)
-        Nothing -> throwTC (InsufficientUsage π ρ)
+        Just ρ' -> pure (Eval.weakBy w ty, Typed.Annotation ρ' ty : ctx)
+        Nothing -> Error.throwTC (Error.InsufficientUsage π ρ)
     go w i (b : ctx) = second (b :) <$> go (w + 1) (i - 1) ctx
 
 usePatVar ::
-  ( HasPatBinds primTy primVal m,
-    HasThrowTC' IR.T ext primTy primVal m
+  ( Env.HasPatBinds primTy primVal m,
+    Error.HasThrowTC' IR.T ext primTy primVal m
   ) =>
   Usage.T ->
   Core.PatternVar ->
-  m (Typed.ValueT primTy primVal)
+  m (Typed.ValueT IR.T primTy primVal)
 usePatVar π var = do
   -- TODO a single traversal with alterF or something
   mAnn <- gets @"patBinds" $ IntMap.lookup var
   case mAnn of
-    Just (Annotation ρ ty)
+    Just (Typed.Annotation ρ ty)
       | Just ρ' <- ρ `Usage.minus` π -> do
-        modify @"patBinds" $ IntMap.insert var $ Annotation ρ' ty
+        modify @"patBinds" $ IntMap.insert var $ Typed.Annotation ρ' ty
         pure ty
       | otherwise -> do
-        throwTC (InsufficientUsage π ρ)
+        Error.throwTC (Error.InsufficientUsage π ρ)
     Nothing -> do
-      throwTC (UnboundPatVar var)
+      Error.throwTC (Error.UnboundPatVar var)
 
 liftEval ::
-  HasThrowTC' extV extT primTy primVal m =>
-  Either (Eval.Error IR.T T primTy (TypedPrim primTy primVal)) a ->
+  Error.HasThrowTC' extV extT primTy primVal m =>
+  Either (Eval.Error IR.T Typed.T primTy (Param.TypedPrim primTy primVal)) a ->
   m a
-liftEval = either (throwTC . EvalError) pure
+liftEval = either (Error.throwTC . Error.EvalError) pure
 
 substApp ::
-  ( HasParam primTy primVal m,
-    HasThrowTC' IR.T extT primTy primVal m,
-    HasGlobals primTy primVal m,
+  ( Env.HasParam primTy primVal m,
+    Error.HasThrowTC' IR.T extT primTy primVal m,
+    Env.HasGlobals primTy primVal m,
+    Eval.HasWeak primVal,
     Param.CanApply primTy,
-    Param.CanApply (TypedPrim primTy primVal),
-    PrimSubstValue primTy primVal,
-    PrimPatSubstTerm primTy primVal
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Env.PrimSubstValue primTy primVal,
+    Env.PrimPatSubstTerm primTy primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
-  Typed.ValueT primTy primVal ->
+  Typed.ValueT IR.T primTy primVal ->
   Typed.Term primTy primVal ->
-  m (Typed.ValueT primTy primVal)
+  m (Typed.ValueT IR.T primTy primVal)
 substApp ty arg = do
   arg' <- evalTC arg
   liftEval $ Eval.substV arg' ty
 
 evalTC ::
-  ( HasThrowTC' IR.T ext primTy primVal m,
-    HasGlobals primTy primVal m,
+  ( Error.HasThrowTC' IR.T ext primTy primVal m,
+    Env.HasGlobals primTy primVal m,
     Param.CanApply primTy,
-    Param.CanApply (TypedPrim primTy primVal),
-    PrimSubstValue primTy primVal,
-    PrimPatSubstTerm primTy primVal
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Eval.HasWeak primTy,
+    Eval.HasWeak primVal,
+    Env.PrimSubstValue primTy primVal,
+    Env.PrimPatSubstTerm primTy primVal,
+    Eval.HasPatSubstTerm
+      (OnlyExts.T Typed.T)
+      primTy
+      (Param.TypedPrim primTy primVal)
+      primTy
   ) =>
   Typed.Term primTy primVal ->
-  m (Typed.ValueT primTy primVal)
+  m (Typed.ValueT IR.T primTy primVal)
 evalTC t = do
   g <- ask @"globals"
-  liftEval $ Eval.evalTerm (Eval.lookupFun @T g) t
+  liftEval $ Eval.evalTerm (Eval.lookupFun @Typed.T g) t
 
 -- | Subtyping. If @s <: t@ then @s@ is a subtype of @t@, i.e. everything of
 -- type @s@ can also be checked against type @t@.
@@ -454,13 +495,13 @@ evalTC t = do
     Core.ValueAll Eq ext primTy primVal,
     Core.NeutralAll Eq ext primTy primVal
   ) =>
-  Core.Value' ext primTy primVal ->
-  Core.Value' ext primTy primVal ->
+  Core.Value ext primTy primVal ->
+  Core.Value ext primTy primVal ->
   Bool
-Core.VStar' _i _ <: Core.VStar' _j _ = True -- i <= j
-Core.VPi' π1 s1 t1 _ <: Core.VPi' π2 s2 t2 _ =
+Core.VStar _i _ <: Core.VStar _j _ = True -- i <= j
+Core.VPi π1 s1 t1 _ <: Core.VPi π2 s2 t2 _ =
   π2 `Usage.allows` π1 && s2 <: s1 && t1 <: t2
-Core.VSig' π1 s1 t1 _ <: Core.VSig' π2 s2 t2 _ =
+Core.VSig π1 s1 t1 _ <: Core.VSig π2 s2 t2 _ =
   -- TODO is this right???
   π1 `Usage.allows` π2
     && s1 <: s2

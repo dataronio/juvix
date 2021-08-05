@@ -4,8 +4,10 @@ module Test.Pipeline (top) where
 
 import qualified Juvix.Backends.Michelson as Michelson
 import qualified Juvix.Backends.Michelson.Compilation as M
+import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import qualified Juvix.Core.IR as IR
+import qualified Juvix.Core.IR.Typechecker as Typed
 import qualified Juvix.Core.Types as Core
 import Juvix.Library hiding (bool, identity, log)
 import qualified Juvix.Library.Usage as Usage
@@ -37,7 +39,7 @@ type MichelsonComp res =
 data Env primTy primVal = Env
   { parameterisation :: Core.Parameterisation primTy primVal,
     log :: [Core.PipelineLog primTy primVal],
-    globals :: IR.GlobalsT primTy primVal
+    globals :: Typed.GlobalsT IR.T IR.T primTy primVal
   }
   deriving (Generic)
 
@@ -60,13 +62,13 @@ newtype EnvExec primTy primVal compErr a
     )
     via ReaderField "parameterisation" (EnvExecAlias primTy primVal compErr)
   deriving
-    ( HasState "globals" (IR.GlobalsT primTy primVal),
-      HasSource "globals" (IR.GlobalsT primTy primVal),
-      HasSink "globals" (IR.GlobalsT primTy primVal)
+    ( HasState "globals" (Typed.GlobalsT IR.T IR.T primTy primVal),
+      HasSource "globals" (Typed.GlobalsT IR.T IR.T primTy primVal),
+      HasSink "globals" (Typed.GlobalsT IR.T IR.T primTy primVal)
     )
     via StateField "globals" (EnvExecAlias primTy primVal compErr)
   deriving
-    (HasReader "globals" (IR.GlobalsT primTy primVal))
+    (HasReader "globals" (Typed.GlobalsT IR.T IR.T primTy primVal))
     via ReaderField "globals" (EnvExecAlias primTy primVal compErr)
   deriving
     (HasThrow "error" (Core.PipelineError primTy primVal compErr))
@@ -99,7 +101,7 @@ coreToMichelsonContract term usage ty = do
 exec ::
   EnvExec primTy primVal Michelson.CompilationError a ->
   Core.Parameterisation primTy primVal ->
-  IR.GlobalsT primTy primVal ->
+  Typed.GlobalsT IR.T IR.T primTy primVal ->
   IO
     ( Either (Core.PipelineError primTy primVal Michelson.CompilationError) a,
       [Core.PipelineLog primTy primVal]
@@ -108,7 +110,7 @@ exec (EnvE env) param globals = do
   (ret, env) <- runStateT (runExceptT env) (Env param [] globals)
   pure (ret, log env)
 
-type Globals = IR.Globals Michelson.PrimTy Michelson.PrimValIR
+type Globals = Core.Globals IR.T IR.T Michelson.PrimTy Michelson.PrimValIR
 
 type AnnTuple = (RawMichelsonTerm, Usage.T, RawMichelsonTerm)
 

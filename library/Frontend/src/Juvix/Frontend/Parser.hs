@@ -560,7 +560,7 @@ let' :: Parser Types.Let
 let' = do
   binds <- functionModGen expression
   reserved "in"
-  Types.Let'' binds <$> expression
+  Types.Let' binds <$> expression
 
 letType :: Parser Types.LetType
 letType = do

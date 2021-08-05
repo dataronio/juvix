@@ -8,15 +8,15 @@ import qualified Data.Map as Map
 import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.IR.Evaluator as Eval
-import Juvix.Core.IR.Typechecker.Error
-import Juvix.Core.IR.Typechecker.Types
+import qualified Juvix.Core.IR.Typechecker.Error as Error
+import qualified Juvix.Core.IR.Typechecker.Types as Typed
 import qualified Juvix.Core.IR.Types as IR
 import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library hiding (Datatype)
 import qualified Juvix.Library.Usage as Usage
 
 data EnvCtx' ext primTy primVal = EnvCtx
-  { globals :: GlobalsT primTy primVal
+  { globals :: Typed.GlobalsT IR.T IR.T primTy primVal
   }
   deriving (Generic)
 
@@ -24,44 +24,44 @@ type EnvCtx = EnvCtx' IR.T
 
 type EnvAlias ext primTy primVal =
   ExceptT
-    (TypecheckError' IR.T ext primTy primVal)
+    (Error.TypecheckError' IR.T ext primTy primVal)
     (State (EnvCtx' ext primTy primVal))
 
 newtype EnvTypecheck' ext primTy primVal a
   = EnvTyp (EnvAlias ext primTy primVal a)
   deriving (Functor, Applicative, Monad)
   deriving
-    ( HasThrow "typecheckError" (TypecheckError' IR.T ext primTy primVal)
+    ( HasThrow "typecheckError" (Error.TypecheckError' IR.T ext primTy primVal)
     )
     via MonadError (EnvAlias ext primTy primVal)
   deriving
-    ( HasSource "globals" (GlobalsT primTy primVal),
-      HasReader "globals" (GlobalsT primTy primVal)
+    ( HasSource "globals" (Typed.GlobalsT IR.T IR.T primTy primVal),
+      HasReader "globals" (Typed.GlobalsT IR.T IR.T primTy primVal)
     )
     via ReaderField "globals" (EnvAlias ext primTy primVal)
 
 type EnvTypecheck = EnvTypecheck' IR.T
 
-type HasGlobals primTy primVal = HasReader "globals" (GlobalsT primTy primVal)
+type HasGlobals primTy primVal = HasReader "globals" (Typed.GlobalsT IR.T IR.T primTy primVal)
 
 type PrimSubstValue1 primTy primVal a =
-  Eval.HasSubstValue IR.T primTy (TypedPrim primTy primVal) a
+  Eval.HasSubstValue IR.T primTy (Typed.Prim primTy primVal) a
 
 type PrimSubstValue primTy primVal =
   ( PrimSubstValue1 primTy primVal primTy,
-    PrimSubstValue1 primTy primVal (TypedPrim primTy primVal)
+    PrimSubstValue1 primTy primVal (Typed.Prim primTy primVal)
   )
 
 type PrimPatSubstTerm1 primTy primVal a =
-  Eval.HasPatSubstTerm (OnlyExts.T T) primTy (TypedPrim primTy primVal) a
+  Eval.HasPatSubstTerm (OnlyExts.T IR.T) primTy (Typed.Prim primTy primVal) a
 
 type PrimPatSubstTerm primTy primVal =
   ( PrimPatSubstTerm1 primTy primVal primTy,
-    PrimPatSubstTerm1 primTy primVal (TypedPrim primTy primVal)
+    PrimPatSubstTerm1 primTy primVal (Typed.Prim primTy primVal)
   )
 
 type CanTC' ext primTy primVal m =
-  ( HasThrowTC' IR.T ext primTy primVal m,
+  ( Error.HasThrowTC' IR.T ext primTy primVal m,
     HasGlobals primTy primVal m,
     PrimSubstValue primTy primVal,
     PrimPatSubstTerm primTy primVal,
@@ -71,47 +71,49 @@ type CanTC' ext primTy primVal m =
 type CanTC primTy primVal m = CanTC' IR.T primTy primVal m
 
 exec ::
-  GlobalsT primTy primVal ->
+  Typed.GlobalsT IR.T IR.T primTy primVal ->
   EnvTypecheck primTy primVal a ->
-  (Either (TypecheckError primTy primVal) a, EnvCtx primTy primVal)
+  (Either (Error.TypecheckError primTy primVal) a, EnvCtx primTy primVal)
 exec globals (EnvTyp env) =
   runState (runExceptT env) $ EnvCtx globals
 
-type Context primTy primVal = [AnnotationT primTy primVal]
+type Context primTy primVal = [Typed.AnnotationT IR.T primTy primVal]
 
 lookupCtx ::
-  (Eval.HasWeak primTy, Eval.HasWeak primVal) =>
+  ( Eval.HasWeak primTy,
+    Eval.HasWeak primVal
+  ) =>
   Context primTy primVal ->
   Core.BoundVar ->
-  Maybe (AnnotationT primTy primVal)
+  Maybe (Typed.AnnotationT IR.T primTy primVal)
 lookupCtx gam x = do
-  Annotation π ty <- atMay gam (fromIntegral x)
-  pure $ Annotation π (Eval.weakBy (x + 1) ty)
+  Typed.Annotation π ty <- atMay gam (fromIntegral x)
+  pure $ Typed.Annotation π (Eval.weakBy (x + 1) ty)
 
 lookupGlobal ::
-  (HasGlobals primTy primVal m, HasThrowTC' IR.T ext primTy primVal m) =>
+  (HasGlobals primTy primVal m, Error.HasThrowTC' IR.T ext primTy primVal m) =>
   Core.GlobalName ->
-  m (ValueT primTy primVal, Core.GlobalUsage)
+  m (Typed.ValueT IR.T primTy primVal, Core.GlobalUsage)
 lookupGlobal x = do
   mdefn <- asks @"globals" $ HashMap.lookup x
   case mdefn of
     Just defn -> pure $ makeGAnn defn
-    Nothing -> throwTC (UnboundGlobal x)
+    Nothing -> Error.throwTC (Error.UnboundGlobal x)
   where
     makeGAnn (Core.GDatatype (Core.Datatype {dataArgs, dataLevel})) =
-      (foldr makePi (Core.VStar' dataLevel mempty) dataArgs, Core.GZero)
-    makeGAnn (Core.GDataCon (Core.DataCon {conType})) =
-      (conType, Core.GOmega)
+      (foldr makePi (Core.VStar dataLevel mempty) dataArgs, Core.GZero)
+    makeGAnn (Core.GDataCon (Core.DataCon {dataConType})) =
+      (dataConType, Core.GOmega)
     makeGAnn (Core.GFunction (Core.Function {funType, funUsage})) =
       (funType, funUsage)
     makeGAnn (Core.GAbstract (Core.Abstract {absUsage, absType})) =
       (absType, absUsage)
     makePi (Core.DataArg {argUsage, argType}) res =
-      Core.VPi' argUsage argType res mempty
+      Core.VPi argUsage argType res mempty
 
 type UContext = [Usage.T]
 
-type PatBinds primTy primVal = IntMap (AnnotationT primTy primVal)
+type PatBinds primTy primVal = IntMap (Typed.AnnotationT IR.T primTy primVal)
 
 type PatUsages = IntMap Usage.T
 
@@ -151,28 +153,28 @@ newtype InnerTCT ext primTy primVal m a
 deriving via
   Lift (InnerTCAlias ext primTy primVal m)
   instance
-    HasThrow "typecheckError" (TypecheckError' IR.T ext primTy primVal) m =>
+    HasThrow "typecheckError" (Error.TypecheckError' IR.T ext primTy primVal) m =>
     HasThrow
       "typecheckError"
-      (TypecheckError' IR.T ext primTy primVal)
+      (Error.TypecheckError' IR.T ext primTy primVal)
       (InnerTCT ext primTy primVal m)
 
 deriving via
   Lift (InnerTCAlias ext primTy primVal m)
   instance
-    HasSource "globals" (GlobalsT primTy primVal) m =>
+    HasSource "globals" (Typed.GlobalsT IR.T IR.T primTy primVal) m =>
     HasSource
       "globals"
-      (GlobalsT primTy primVal)
+      (Typed.GlobalsT IR.T IR.T primTy primVal)
       (InnerTCT ext primTy primVal m)
 
 deriving via
   Lift (InnerTCAlias ext primTy primVal m)
   instance
-    HasReader "globals" (GlobalsT primTy primVal) m =>
+    HasReader "globals" (Typed.GlobalsT IR.T IR.T primTy primVal) m =>
     HasReader
       "globals"
-      (GlobalsT primTy primVal)
+      (Typed.GlobalsT IR.T IR.T primTy primVal)
       (InnerTCT ext primTy primVal m)
 
 type InnerTC' ext primTy primVal =
@@ -220,15 +222,15 @@ type InnerTCSig ext primTy primVal =
 data SigDef ext primTy primVal
   = -- | function constant to its type, clauses
     FunSig
-      (Core.Value' ext primTy primVal)
+      (Core.Value ext primTy primVal)
       ( Either
-          (NonEmpty (Core.RawFunClause' ext primTy primVal))
-          (NonEmpty (Core.FunClause' ext ext primTy primVal))
+          (NonEmpty (Core.RawFunClause ext primTy primVal))
+          (NonEmpty (Core.FunClause ext ext primTy primVal))
       )
   | -- | constructor constant to its type
-    ConSig (Core.Value' ext primTy primVal)
+    ConSig (Core.Value ext primTy primVal)
   | -- | data type constant to # parameters, positivity of parameters, type
-    DataSig Int [Core.Pos] (Core.Value' ext primTy primVal)
+    DataSig Int [Core.Pos] (Core.Value ext primTy primVal)
 
 -- Return type of all type-checking functions.
 -- state monad for global signature
