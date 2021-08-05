@@ -175,7 +175,7 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
       pure $ Typed.Star i ann
     Core.PrimTy t _ -> do
       requireZero σ
-      void $ requireStar ty
+      void $ requirePrimStars (Param.arity t) ty
       pure $ Typed.PrimTy t ann
     Core.Prim p _ -> do
       p' <- typePrim p ty
@@ -320,6 +320,24 @@ requireStar ::
   m Core.Universe
 requireStar (IR.VStar j) = pure j
 requireStar ty = Error.throwTC (Error.ShouldBeStar ty)
+
+-- | Given the arity of a type, require all of them to be Star. We expect the
+-- arguments to be written in a right-associative way, e.g: @* -> (* -> *)@.
+-- TODO: check if being right-associative is enough (that all primitives are
+-- defined this way).
+-- TODO: check what to do with the information that we through away using
+-- @void@.
+-- TODO: what to do with the usage information.
+requirePrimStars ::
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Natural ->
+  Typed.ValueT IR.T primTy primVal ->
+  m Core.Universe
+requirePrimStars 0 ty = requireStar ty
+requirePrimStars n ty = do
+  (_π, l, r) <- requirePi ty
+  void $ requireStar l
+  requirePrimStars (n -1) r
 
 requireUniverseLT ::
   Error.HasThrowTC' IR.T ext primTy primVal m =>
