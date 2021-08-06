@@ -331,7 +331,8 @@ requirePrimStars ::
   m Core.Universe
 requirePrimStars 0 ty = requireStar ty
 requirePrimStars n ty = do
-  (_π, l, r) <- requirePi ty
+  (π, l, r) <- requirePi ty
+  requireZero π -- Existentially quantified variables should be 0.
   void $ requireStar l
   requirePrimStars (n -1) r
 
