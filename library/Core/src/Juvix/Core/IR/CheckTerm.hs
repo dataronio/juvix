@@ -323,10 +323,7 @@ requireStar ty = Error.throwTC (Error.ShouldBeStar ty)
 
 -- | Given the arity of a type, require all of them to be Star. We expect the
 -- arguments to be written in a right-associative way, e.g: @* -> (* -> *)@.
--- TODO: check if being right-associative is enough (that all primitives are
--- defined this way).
--- TODO: check what to do with the information that we throw away using @void@.
--- TODO: what to do with the usage information.
+-- TODO: check that pi == 0.
 requirePrimStars ::
   Error.HasThrowTC' IR.T ext primTy primVal m =>
   Natural ->
