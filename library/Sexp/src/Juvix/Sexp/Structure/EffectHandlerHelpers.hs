@@ -1,9 +1,11 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Juvix.Sexp.Structure.EffectHandlerHelpers where
 
 import Juvix.Library hiding (Handler)
 import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import qualified Control.Lens as Lens hiding ((|>))
+import Control.Lens hiding ((|>))
 
 data Effect = Effect
   { effectName :: Sexp.T,
@@ -41,12 +43,46 @@ data Do = Do
   }
   deriving (Show)
 
-Lens.makeLensesWith Lens.camelCaseFields ''DefHandler
-Lens.makeLensesWith Lens.camelCaseFields ''LetHandler
-Lens.makeLensesWith Lens.camelCaseFields ''Effect
-Lens.makeLensesWith Lens.camelCaseFields ''LetRet
-Lens.makeLensesWith Lens.camelCaseFields ''LetOp
-Lens.makeLensesWith Lens.camelCaseFields ''Do
+data DoDeep = DoDeep
+  { doDeepStatements :: [DoBodyFull]
+  }
+
+data DoBodyFull
+  = WithBinder { doBodyFullName :: NameSymbol.T,
+                 doBodyFullBBody :: DoClause
+               }
+  | NoBinder { doBodyFullBody :: DoClause }
+
+data DoClause = Op DoOp | Pure DoPure
+
+data DoBodyB = DoBodyB
+  { doBodyBName :: Sexp.T,
+    doBodyBBody :: Sexp.T
+  }
+
+data DoBody = DoBody
+  { bodyDoDoby :: Sexp.T
+  }
+
+data DoOp = DoOp
+  { doOpname :: Sexp.T,
+    doOpargs :: Sexp.T
+  }
+
+data DoPure = DoPure
+  { doPureArg :: Sexp.T
+  }
+
+makeLensesWith camelCaseFields ''DefHandler
+makeLensesWith camelCaseFields ''LetHandler
+makeLensesWith camelCaseFields ''Effect
+makeLensesWith camelCaseFields ''LetRet
+makeLensesWith camelCaseFields ''LetOp
+makeLensesWith camelCaseFields ''Do
+makeLensesWith camelCaseFields ''DoBodyB
+makeLensesWith camelCaseFields ''DoBody
+makeLensesWith camelCaseFields ''DoOp
+makeLensesWith camelCaseFields ''DoPure
 
 ----------------------------------------
 -- LetHandler
@@ -140,16 +176,16 @@ toLetRet :: Sexp.T -> Maybe LetRet
 toLetRet form
   | isLetRet form =
     case form of
-      _nameLetRet Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
-        LetRet sexp1 sexp2 |> Just
+      _nameLetRet Sexp.:> sexp Sexp.:> Sexp.Nil ->
+        LetRet sexp |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
 fromLetRet :: LetRet -> Sexp.T
-fromLetRet (LetRet sexp1 sexp2) =
-  Sexp.list [Sexp.atom nameLetRet, sexp1, sexp2]
+fromLetRet (LetRet sexp) =
+  Sexp.list [Sexp.atom nameLetRet, sexp]
 
 ----------------------------------------
 -- LetOp
@@ -181,12 +217,84 @@ fromLetOp (LetOp sexp1 sexp2 sexp3) =
 -- Do
 ----------------------------------------
 
+nameDoBody :: NameSymbol.T
+nameDoBody = ":do-body"
+
+nameDoBodyB :: NameSymbol.T
+nameDoBodyB = ":do-body-bind"
+
+nameDoOp :: NameSymbol.T
+nameDoOp = ":do-op"
+
+nameDoPure :: NameSymbol.T
+nameDoPure = ":do-pure"
+
 nameDo :: NameSymbol.T
 nameDo = ":do"
+
+isDoBody :: Sexp.T -> Bool
+isDoBody (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoBody
+isDoBody _ = False
+
+isDoBodyB :: Sexp.T -> Bool
+isDoBodyB (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoBodyB
+isDoBodyB _ = False
+
+isDoOp :: Sexp.T -> Bool
+isDoOp (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoOp
+isDoOp _ = False
+
+isDoPure :: Sexp.T -> Bool
+isDoPure (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoPure
+isDoPure _ = False
 
 isDo :: Sexp.T -> Bool
 isDo (Sexp.Cons form _) = Sexp.isAtomNamed form nameDo
 isDo _ = False
+
+toDoBody :: Sexp.T -> Maybe DoBody
+toDoBody form
+  | isDoBody form =
+    case form of
+      _nameDo Sexp.:> sexp1 ->
+        DoBody sexp1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+toDoBodyB :: Sexp.T -> Maybe DoBodyB
+toDoBodyB form
+  | isDoBodyB form =
+    case form of
+      _nameDo Sexp.:> sexp1 Sexp.:> sexp2 ->
+        DoBodyB sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+toDoOp :: Sexp.T -> Maybe DoOp
+toDoOp form
+  | isDoOp form =
+    case form of
+      _nameDo Sexp.:> sexp1 Sexp.:> sexp2 ->
+        DoOp sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+toDoPure :: Sexp.T -> Maybe DoPure
+toDoPure form
+  | isDoPure form =
+    case form of
+      _nameDo Sexp.:> sexp1 ->
+        DoPure sexp1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
 
 toDo :: Sexp.T -> Maybe Do
 toDo form
@@ -199,9 +307,85 @@ toDo form
   | otherwise =
     Nothing
 
+isDoDeep :: Sexp.T -> Bool
+isDoDeep (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoBodyB
+isDoDeep _ = False
+
+toDoDeep :: Sexp.T -> Maybe DoDeep
+toDoDeep form
+  | isDoDeep form =
+    case form of
+      _ Sexp.:> sexp1 ->
+        pure DoDeep <*> toDoBodyFull (Sexp.toList sexp1)
+      _ -> Nothing
+  | otherwise = Nothing
+
+toDoBodyFull :: Maybe [Sexp.T] -> Maybe [DoBodyFull]
+toDoBodyFull (Just sexps) = traverse toFullBodyFull' sexps
+  where toFullBodyFull' :: Sexp.T -> Maybe DoBodyFull
+        toFullBodyFull' sexp
+          | isDoBodyB sexp =
+            case sexp of
+              _ Sexp.:> name Sexp.:> body ->
+                pure WithBinder <*> Sexp.nameFromT name <*> toDoClause body
+              _ -> Nothing
+          | isDoBody sexp =
+             case sexp of
+              _ Sexp.:> body ->
+                pure NoBinder <*> toDoClause body
+              _ -> Nothing
+          | otherwise = Nothing
+toDoBodyFull Nothing = Nothing
+
+toDoClause :: Sexp.T -> Maybe DoClause
+toDoClause sexp
+  | isDoOp sexp = pure Op <*> toDoOp sexp
+  | isDoPure sexp = pure Pure <*> toDoPure sexp
+  | otherwise = Nothing
+
+fromDoBody :: DoBody -> Sexp.T
+fromDoBody (DoBody sexp1) =
+  Sexp.list [Sexp.atom nameDoBody, sexp1]
+
+fromDoBodyB :: DoBodyB -> Sexp.T
+fromDoBodyB (DoBodyB sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameDoBodyB, sexp1, sexp2]
+
+fromDoOp :: DoOp -> Sexp.T
+fromDoOp (DoOp sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameDoOp, sexp1, sexp2]
+
+fromDoPure :: DoPure -> Sexp.T
+fromDoPure (DoPure sexp1) =
+  Sexp.list [Sexp.atom nameDoPure, sexp1]
+
 fromDo :: Do -> Sexp.T
 fromDo (Do sexp1) =
-  Sexp.listStar [Sexp.atom nameDo, sexp1]
+  Sexp.list [Sexp.atom nameDo, sexp1]
+
+fromDoDeep :: DoDeep -> Sexp.T
+fromDoDeep (DoDeep stas) = Sexp.list (fromDoBodyFull <$> stas)
+fromDoBodyFull :: DoBodyFull -> Sexp.T
+fromDoBodyFull (WithBinder {..}) =
+  Sexp.list [ Sexp.atom nameDoBody,
+              Sexp.list [ Sexp.atom nameDoPure,
+                          Sexp.atom doBodyFullName,
+                          Sexp.list [ case doBodyFullBBody of
+                                        Op op -> fromDoOp op
+                                        Pure op -> fromDoPure op
+                                    ]
+                        ]
+            ]
+
+fromDoBodyFull (NoBinder {..}) =
+  Sexp.list [ Sexp.atom nameDoBody,
+              Sexp.list [ Sexp.atom nameDoPure,
+                          Sexp.list [ case doBodyFullBody of
+                                        Op op -> fromDoOp op
+                                        Pure op -> fromDoPure op
+                                    ]
+                        ]
+            ]
 
 ----------------------------------------
 -- Non-generated structures
@@ -234,18 +418,24 @@ toVia form
       _ -> Nothing
   | otherwise = Nothing
 
+fromVia :: Via -> Sexp.T
+fromVia (Via handler prog) =
+  Sexp.list [fromHandler handler, fromDo prog]
+
 toHandler :: Sexp.T -> Maybe Handler
 toHandler form =
-  let hand = toLetHandler form
-      ret  = letHandlerRet  <$> hand >>= toLetRet
-      ops  = letHandlerOps  <$> hand >>= toLetOps
-      name = letHandlerName <$> hand >>= toNameSymbol
-  in Handler <$> name <*> ret <*> ops
+  toLetHandler form >>= transform
+  where
+    transform :: LetHandler -> Maybe Handler
+    transform hand =
+      let ret_  = toLetRet (hand ^. ret)
+          ops_  = toLetOps (hand ^. ops)
+          name_ = Sexp.nameFromT (hand ^. name)
+      in pure Handler <*> name_ <*> ret_ <*> ops_
+
+fromHandler :: Handler -> Sexp.T
+fromHandler (Handler name ret ops) =
+  Sexp.list [Sexp.atom nameLetHandler, Sexp.atom name, fromLetRet ret, Sexp.list (fromLetOp <$> ops)]
 
 toLetOps :: Sexp.T -> Maybe [LetOp]
-toLetOps form =
-  let ops = Sexp.toList form
-  in undefined
-
-toNameSymbol :: Sexp.T -> Maybe NameSymbol.T
-toNameSymbol = undefined
+toLetOps form = Sexp.toList form >>= traverse toLetOp

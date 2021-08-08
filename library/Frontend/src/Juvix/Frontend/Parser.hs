@@ -691,16 +691,31 @@ doBind :: Parser [Types.DoBody]
 doBind = do
   name <- prefixSymbolSN
   spaceLiner (P.string "<-")
-  body <- expression'SN
+  body <- compParse
   pure [Types.DoBody (Just name) body]
 
 doNotBind :: Parser [Types.DoBody]
 doNotBind = do
-  body <- expression'SN
+  body <- compParse
   pure [Types.DoBody Nothing body]
 
 do'' :: Parser [Types.DoBody]
 do'' = Expr.makeExprParser (P.try doBind <|> doNotBind) table P.<?> "bind expr"
+
+compParse :: Parser Types.Computation
+compParse =  doPureParser <|> doOpParser
+
+doOpParser :: Parser Types.Computation
+doOpParser = do
+  name <- spaceLiner (expressionGen' (fail ""))
+  args <- J.many1H (spaceLiner expressionArguments)
+  pure (Types.DoOp $ Types.DoOp' name args)
+
+doPureParser :: Parser Types.Computation
+doPureParser = do
+  reserved "pure"
+  arg <- spaceLiner expressionArguments
+  pure (Types.DoPure $ Types.DoPure' arg)
 
 --------------------------------------------------------------------------------
 -- Symbol Handlers

@@ -366,9 +366,21 @@ transDo (Types.Do'' bs) =
 
 transDoBody :: Types.DoBody -> Sexp.T
 transDoBody (Types.DoBody Nothing expr) =
-  transExpr expr
+  Sexp.list [Sexp.atom ":do-body", transComp expr]
 transDoBody (Types.DoBody (Just n) expr) =
-  Sexp.list [Sexp.atom "%<-", Sexp.atom (NameSymbol.fromSymbol n), transExpr expr]
+  Sexp.list [Sexp.atom ":do-body-binder", Sexp.atom (NameSymbol.fromSymbol n), transComp expr]
+
+transComp :: Types.Computation -> Sexp.T
+transComp (Types.DoOp op) = transDoOp op
+transComp (Types.DoPure op) = transDoPure op
+
+transDoOp :: Types.DoOp -> Sexp.T
+transDoOp (Types.DoOp' name args) =
+  Sexp.list [Sexp.atom ":do-op", transExpr name, Sexp.list (NonEmpty.toList (transExpr <$> args))]
+
+transDoPure :: Types.DoPure -> Sexp.T
+transDoPure (Types.DoPure' arg) =
+   Sexp.list [Sexp.atom ":do-pure", transExpr arg]
 
 transArrowE :: Types.ArrowExp -> Sexp.T
 transArrowE (Types.Arr' l u r) =

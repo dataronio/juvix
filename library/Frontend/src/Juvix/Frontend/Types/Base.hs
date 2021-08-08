@@ -351,7 +351,23 @@ newtype Do
 -- promote this to a match!!!
 data DoBody = DoBody
   { doBodyName :: Maybe Symbol,
-    doBodyExpr :: Expression
+    doBodyExpr :: Computation -- computation as in effect
+  }
+  deriving (Show, Read, Eq)
+
+data Computation
+  = DoOp DoOp
+  | DoPure DoPure
+  deriving (Show, Read, Eq)
+
+data DoOp = DoOp'
+ { opName :: Expression,
+   opArgs :: NonEmpty Expression
+ }
+ deriving (Show, Read, Eq)
+
+data DoPure = DoPure'
+  { pureArg :: Expression
   }
   deriving (Show, Read, Eq)
 

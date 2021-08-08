@@ -5,164 +5,160 @@ module Juvix.Sexp.Structure
   , Structure
   ) where
 
-import Juvix.Library
-import qualified Juvix.Sexp.Structure.Frontend as Str
-import qualified Juvix.Sexp.Structure.Transition as Str
-import qualified Juvix.Sexp.Structure.EffectHandlerHelpers as Str
+import Juvix.Library hiding (Type, Handler)
+import Juvix.Sexp.Structure.Frontend
+import Juvix.Sexp.Structure.Transition
+import Juvix.Sexp.Structure.EffectHandlerHelpers
 import qualified Juvix.Sexp as Sexp
 
 class Structure a where
-  to :: Sexp.T -> a
+  to :: Sexp.T -> Maybe a
   from :: a -> Sexp.T
 
-instance Structure Str.Defun where
-  to = Str.toDefun
-  from = Str.fromDefun
+instance Structure Defun where
+  to = toDefun
+  from = fromDefun
 
-instance Structure Str.Type where
-  to = Str.toType
-  from = Str.fromType
+instance Structure Type where
+  to = toType
+  from = fromType
 
-instance Structure Str.PredAns where
-  to = Str.toPredAns
-  from = Str.fromPredAns
+instance Structure PredAns where
+  to = toPredAns
+  from = fromPredAns
 
-instance Structure Str.Cond where
-  to = Str.toCond
-  from = Str.fromCond
+instance Structure Cond where
+  to = toCond
+  from = fromCond
 
-instance Structure Str.Signature where
-  to = Str.toSignature
-  from = Str.fromSignature
+instance Structure Signature where
+  to = toSignature
+  from = fromSignature
 
-instance Structure Str.LetSignature where
-  to = Str.toLetSignature
-  from = Str.fromLetSignature
+instance Structure LetSignature where
+  to = toLetSignature
+  from = fromLetSignature
 
-instance Structure Str.LetType where
-  to = Str.toLetType
-  from = Str.fromLetType
+instance Structure LetType where
+  to = toLetType
+  from = fromLetType
 
-instance Structure Str.Let where
-  to = Str.toLet
-  from = Str.fromLet
+instance Structure Let where
+  to = toLet
+  from = fromLet
 
-instance Structure Str.Case where
-  to = Str.toCase
-  from = Str.fromCase
+instance Structure Case where
+  to = toCase
+  from = fromCase
 
-instance Structure Str.Arrow where
-  to = Str.toArrow
-  from = Str.fromArrow
+instance Structure Arrow where
+  to = toArrow
+  from = fromArrow
 
-instance Structure Str.Lambda where
-  to = Str.toLambda
-  from = Str.fromLambda
+instance Structure Lambda where
+  to = toLambda
+  from = fromLambda
 
-instance Structure Str.NameBind where
-  to = Str.toNameBind
-  from = Str.fromNameBind
+instance Structure NameBind where
+  to = toNameBind
+  from = fromNameBind
 
-instance Structure Str.NotPunned where
-  to = Str.toNotPunned
-  from = Str.fromNotPunned
+instance Structure NotPunned where
+  to = toNotPunned
+  from = fromNotPunned
 
-instance Structure Str.Punned where
-  to = Str.toPunned
-  from = Str.fromPunned
+instance Structure Punned where
+  to = toPunned
+  from = fromPunned
 
-instance Structure Str.Record where
-  to = Str.toRecord
-  from = Str.fromRecord
+instance Structure Record where
+  to = toRecord
+  from = fromRecord
 
-instance Structure Str.Infix where
-  to = Str.toInfix
-  from = Str.fromInfix
+instance Structure Infix where
+  to = toInfix
+  from = fromInfix
 
-instance Structure Str.Open where
-  to = Str.toOpen
-  from = Str.fromOpen
+instance Structure Open where
+  to = toOpen
+  from = fromOpen
 
-instance Structure Str.OpenIn where
-  to = Str.toOpenIn
-  from = Str.fromOpenIn
+instance Structure OpenIn where
+  to = toOpenIn
+  from = fromOpenIn
 
-instance Structure Str.Declare where
-  to = Str.toDeclare
-  from = Str.fromDeclare
+instance Structure Declare where
+  to = toDeclare
+  from = fromDeclare
 
-instance Structure Str.Declaim where
-  to = Str.toDeclaim
-  from = Str.fromDeclaim
+instance Structure Declaim where
+  to = toDeclaim
+  from = fromDeclaim
 
-instance Structure Str.DefModule where
-  to = Str.toDefModule
-  from = Str.fromDefModule
+instance Structure DefModule where
+  to = toDefModule
+  from = fromDefModule
 
-instance Structure Str.LetModule where
-  to = Str.toLetModule
-  from = Str.fromLetModule
+instance Structure LetModule where
+  to = toLetModule
+  from = fromLetModule
 
-instance Structure Str.DefunMatch where
-  to = Str.toDefunMatch
-  from = Str.fromDefunMatch
+instance Structure DefunMatch where
+  to = toDefunMatch
+  from = fromDefunMatch
 
-instance Structure Str.ArgBody where
-  to = Str.toArgBody
-  from = Str.fromArgBody
+instance Structure ArgBody where
+  to = toArgBody
+  from = fromArgBody
 
-instance Structure Str.If where
-  to = Str.toIf
-  from = Str.fromIf
+instance Structure If where
+  to = toIf
+  from = fromIf
 
-instance Structure Str.IfNoElse where
-  to = Str.toIfNoElse
-  from = Str.fromIfNoElse
+instance Structure IfNoElse where
+  to = toIfNoElse
+  from = fromIfNoElse
 
-instance Structure Str.IfFull where
-  to = Str.toIfFull
-  from = Str.fromIfFull
+instance Structure DefunSigMatch where
+  to = toDefunSigMatch
+  from = fromDefunSigMatch
 
-instance Structure Str.DefunSigMatch where
-  to = Str.toDefunSigMatch
-  from = Str.fromDefunSigMatch
+instance Structure LetMatch where
+  to = toLetMatch
+  from = fromLetMatch
 
-instance Structure Str.LetMatch where
-  to = Str.toLetMatch
-  from = Str.fromLetMatch
+instance Structure RecordNoPunned where
+  to = toRecordNoPunned
+  from = fromRecordNoPunned
 
-instance Structure Str.RecordNoPunned where
-  to = Str.toRecordNoPunned
-  from = Str.fromRecordNoPunned
+instance Structure Effect where
+  to = toEffect
+  from = fromEffect
 
-instance Structure Str.Effect where
-  to = Str.toEffect
-  from = Str.fromEffect
+instance Structure DefHandler where
+  to = toDefHandler
+  from = fromDefHandler
 
-instance Structure Str.DefHandler where
-  to = Str.toDefHandler
-  from = Str.fromDefHandler
+instance Structure LetHandler where
+  to = toLetHandler
+  from = fromLetHandler
 
-instance Structure Str.LetHandler where
-  to = Str.toLetHandler
-  from = Str.fromLetHandler
+instance Structure LetOp where
+  to = toLetOp
+  from = fromLetOp
 
-instance Structure Str.LetOp where
-  to = Str.toLetOp
-  from = Str.fromLetOp
+instance Structure LetRet where
+  to = toLetRet
+  from = fromLetRet
 
-instance Structure Str.LetRet where
-  to = Str.toLetRet
-  from = Str.fromLetRet
+instance Structure Do where
+  to = toDo
+  from = fromDo
 
-instance Structure Str.Do where
-  to = Str.toDo
-  from = Str.fromDo
+instance Structure Via where
+  to = toVia
+  from = fromVia
 
-instance Structure Str.Via where
-  to = Str.toVia
-  from = Str.fromVia
-
-instance Structure Str.Handler where
-  to = Str.toHandler
-  from = Str.fromHandler
+instance Structure Handler where
+  to = toHandler
+  from = fromHandler

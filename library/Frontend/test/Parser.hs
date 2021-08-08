@@ -54,7 +54,8 @@ allParserTests =
       effect,
       fullEffect,
       ret,
-      via_
+      via_,
+      do_
     ]
 
 infixTests :: T.TestTree
@@ -141,9 +142,8 @@ many1FunctionsParser =
         <> "  case check of \n"
         <> "  | seven -> 11 \n"
         <> "  | eleven -> 7 \n"
-        <> "  | f  -> open Fails in \n"
-        <> "          print failed; \n"
-        <> "          fail"
+        <> "  | f  -> print failed;"
+        <> "          fail unit"
     )
     [ ( AST.Inf (AST.Name "a") "+" (AST.Name "b")
           |> AST.Infix
@@ -214,14 +214,17 @@ many1FunctionsParser =
                      --
 
                      (AST.Name "failed" :| [])
-                       |> AST.App (AST.Name "print")
-                       |> AST.Application
+                       |> AST.DoOp' (AST.Name "print")
+                       |> AST.DoOp
                        |> AST.DoBody Nothing
-                       |> (:| [AST.DoBody Nothing (AST.Name "fail")])
+                       |> (:| [ (AST.Name "unit" :| [])
+                                  |> AST.DoOp' (AST.Name "fail")
+                                  |> AST.DoOp
+                                  |> AST.DoBody Nothing
+                              ]
+                          )
                        |> AST.Do''
                        |> AST.Do
-                       |> AST.OpenExpress "Fails"
-                       |> AST.OpenExpr
                        |> AST.MatchL (AST.MatchLogic (AST.MatchName "f") Nothing)
                    ]
             )
@@ -409,9 +412,9 @@ via_ =
     Parser.parse
     "let foo = prog via print"
     $ AST.NoHeader
-      [ AST.Name ("prog" :| []) :| []
-          |> AST.App (AST.Name ("print" :| []))
-          |> AST.Application
+      [ AST.Name ("prog" :| [])
+          |> AST.Via (AST.Name ("print" :| []))
+          |> AST.EffApp
           |> AST.Body
           |> AST.Like "foo" []
           |> AST.Func
@@ -423,7 +426,6 @@ handler =
   shouldParseAs
     "effect handler with op"
     Parser.parse
-    ]
     "handler printer = let print x = print x let pure x = toString x"
     $ AST.NoHeader
       [ [ AST.Name ("x" :| []) :| []
@@ -450,6 +452,32 @@ handler =
           |> AST.Hand "printer"
           |> AST.Handler
       ]
+
+do_ :: T.TestTree
+do_ =
+  shouldParseAs
+    "effect usage in programs"
+    Parser.parse
+    "let prog = print hello-world; pure \"hi\""
+    $ AST.NoHeader
+    [ (AST.Name "hello-world" :| [])
+      |> AST.DoOp' (AST.Name "print")
+      |> AST.DoOp
+      |> AST.DoBody Nothing
+      |> (:| [ AST.Constant (AST.String (AST.Sho "hi"))
+               |> AST.DoPure'
+               |> AST.DoPure
+               |> AST.DoBody Nothing
+             ]
+         )
+      |> AST.Do''
+      |> AST.Do
+      |> AST.Body
+      |> AST.Like "prog" []
+      |> AST.Func
+      |> AST.Function
+    ]
+    -- [ AST.Function (AST.Func (AST.Like "prog" [] (AST.Body (AST.Do (AST.Do'' (AST.DoBody Nothing (AST.DoOp (AST.DoOp' (AST.Name ("print" :| [])) (AST.Constant (AST.String (AST.Sho "hello world"))) :| [])) :| [AST.DoBody Nothing (AST.DoPure (AST.DoPure' {pureArg = ))]))))))]
 
 --------------------------------------------------------------------------------
 -- Type tests

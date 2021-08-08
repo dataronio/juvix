@@ -767,36 +767,3 @@ toLetModule form
 fromLetModule :: LetModule -> Sexp.T
 fromLetModule (LetModule sexp1 sexp2 sexp3 sexp4) =
   Sexp.list [Sexp.atom nameLetModule, sexp1, sexp2, sexp3, sexp4]
-
-----------------------------------------
--- Tuple
-----------------------------------------
-nameTuple :: NameSymbol.T
-nameTuple = ":tuple"
-
-isTuple :: Sexp.T -> Bool
-isTuple (Sexp.Cons form _) = Sexp.isAtomNamed form nameTuple
-
-toTuple :: Sexp.T -> Maybe Tuple
-toTuple = undefined
-
-fromTuple :: Tuple -> Sexp.T
-fromTuple = undefined
-
-----------------------------------------
--- Application
-----------------------------------------
-isApp :: Sexp.T -> Bool
-isApp (Sexp.Cons (Sexp.Atom _) _) = False
-isApp (Sexp.Cons _ _) = True
-
-toApp :: Sexp.T -> Maybe App
-toApp form
-  | isApp form =
-    case form of
-    f Sexp.:> args -> App (Sexp.toList args) f
-    _ -> Nothing
-  | otherwise = Nothing
-
-fromApp :: App -> Sexp.T
-fromApp (App args fun) = Sexp.listStar [fun, (Sexp.fromList args)]

@@ -27,8 +27,8 @@ instance Name T where
   fromSym = fromSymbol
 
 instance Name Symbol where
-  toSym   = id
-  fromSym = id
+  toSym   x = x
+  fromSym x = x
 
 toSymbol :: T -> Symbol
 toSymbol =

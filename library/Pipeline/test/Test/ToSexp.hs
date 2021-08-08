@@ -29,7 +29,6 @@ top =
       tupleTest,
       listTest,
       recordTest,
-      doTest,
       lambdaTest,
       openTest,
       parenTest,
@@ -264,26 +263,6 @@ recordTest =
   where
     basic = Parser.parse "let foo = {a, b = 2}" |> singleEleErr
     basicE = Sexp.parse "(:defun foo () (:record (a) (b 2)))"
-
-doTest :: T.TestTree
-doTest =
-  T.testGroup
-    "do parser"
-    [T.testCase "basic" (basic T.@=? basicE)]
-  where
-    basic =
-      Parser.parse
-        "let foo xs = \
-        \  a <- xs; \
-        \  more-comp; \
-        \  pure a"
-        |> singleEleErr
-    basicE =
-      Sexp.parse
-        "(:defun foo (xs) \
-        \    (:do (%<- a xs) \
-        \         more-comp \
-        \         (pure a)))"
 
 lambdaTest :: T.TestTree
 lambdaTest =
