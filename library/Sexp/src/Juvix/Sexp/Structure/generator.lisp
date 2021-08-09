@@ -124,8 +124,8 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
         (t
          (format nil
                  (if new-line
-                     "~%| ~a,~%~{  ~a~^~% ~} ->~%  ~a"
-                     "~%| ~a,~%~{  ~a~^~% ~} -> ~a")
+                     "~%| ~a,~%~{  ~a~^,~% ~} ->~%  ~a"
+                     "~%| ~a,~%~{  ~a~^,~% ~} -> ~a")
                  (car guards)
                  (cdr guards)
                  (indent-new-lines-by 2 body)))))
@@ -361,4 +361,7 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Meta" '("sexp" "integer") nil)
 
-  (generate-haskell "RawFunClause" (repeat 4 "sexp") nil))
+  (generate-haskell "Field" (list "nameSymbol" "sexp") nil)
+  (generate-haskell "RecordDeclaration" (list "nameSymbol" "sexp" "integer" "field")
+                    ":record-declaration"
+                    :list-star t))
