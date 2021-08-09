@@ -30,7 +30,7 @@
 --        can automatically fill in this meta data
 module Juvix.Sexp.Structure.CoreNamed where
 
-import Juvix.Library hiding (Meta, fromInteger, toInteger)
+import Juvix.Library hiding (Field, Meta, fromInteger, toInteger)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import Juvix.Sexp.Structure.Helpers
@@ -110,6 +110,20 @@ data RawFunClause = RawFunClause
     rawFunClausePats :: Sexp.T,
     rawFunClauseBody :: Sexp.T,
     rawFunClauseCatchAll :: Sexp.T
+  }
+  deriving (Show)
+
+data RecordDeclaration = RecordDeclaration
+  { recordDeclarationName :: NameSymbol.T,
+    recordDeclarationArgs :: Sexp.T,
+    recordDeclarationLevel :: Integer,
+    recordDeclarationField :: [Field]
+  }
+  deriving (Show)
+
+data Field = Field
+  { fieldName :: NameSymbol.T,
+    fieldType :: Sexp.T
   }
   deriving (Show)
 
@@ -425,17 +439,47 @@ fromMeta (Meta sexp1 integer2) =
   Sexp.list [sexp1, fromInteger integer2]
 
 ----------------------------------------
--- RawFunClause
+-- Field
 ----------------------------------------
 
-toRawFunClause :: Sexp.T -> Maybe RawFunClause
-toRawFunClause form =
+toField :: Sexp.T -> Maybe Field
+toField form =
   case form of
-    sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> sexp4 Sexp.:> Sexp.Nil ->
-      RawFunClause sexp1 sexp2 sexp3 sexp4 |> Just
+    nameSymbol1 Sexp.:> sexp2 Sexp.:> Sexp.Nil
+      | Just nameSymbol1 <- toNameSymbol nameSymbol1 ->
+        Field nameSymbol1 sexp2 |> Just
     _ ->
       Nothing
 
-fromRawFunClause :: RawFunClause -> Sexp.T
-fromRawFunClause (RawFunClause sexp1 sexp2 sexp3 sexp4) =
-  Sexp.list [sexp1, sexp2, sexp3, sexp4]
+fromField :: Field -> Sexp.T
+fromField (Field nameSymbol1 sexp2) =
+  Sexp.list [fromNameSymbol nameSymbol1, sexp2]
+
+----------------------------------------
+-- RecordDeclaration
+----------------------------------------
+
+nameRecordDeclaration :: NameSymbol.T
+nameRecordDeclaration = ":record-declaration"
+
+isRecordDeclaration :: Sexp.T -> Bool
+isRecordDeclaration (Sexp.Cons form _) = Sexp.isAtomNamed form nameRecordDeclaration
+isRecordDeclaration _ = False
+
+toRecordDeclaration :: Sexp.T -> Maybe RecordDeclaration
+toRecordDeclaration form
+  | isRecordDeclaration form =
+    case form of
+      _nameRecordDeclaration Sexp.:> nameSymbol1 Sexp.:> sexp2 Sexp.:> integer3 Sexp.:> field4
+        | Just nameSymbol1 <- toNameSymbol nameSymbol1,
+          Just integer3 <- toInteger integer3,
+          Just field4 <- toField `fromStarList` field4 ->
+          RecordDeclaration nameSymbol1 sexp2 integer3 field4 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromRecordDeclaration :: RecordDeclaration -> Sexp.T
+fromRecordDeclaration (RecordDeclaration nameSymbol1 sexp2 integer3 field4) =
+  Sexp.listStar [Sexp.atom nameRecordDeclaration, fromNameSymbol nameSymbol1, sexp2, fromInteger integer3, fromField `toStarList` field4]
