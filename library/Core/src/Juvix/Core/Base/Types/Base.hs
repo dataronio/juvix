@@ -62,8 +62,10 @@ extensibleWith
         Let Usage (Elim primTy primVal) (Term primTy primVal)
       | -- | Unit type.
         UnitTy
-      | -- | Unit Value
+      | -- | Unit Value.
         Unit
+      | -- | Constructor for a record type.
+        Record [(Symbol, Term primTy primVal)]
       | -- | CONV conversion rule. TODO make sure 0Γ ⊢ S≡T
         -- Elim is the constructor that embeds Elim to Term
         Elim (Elim primTy primVal)
@@ -71,12 +73,14 @@ extensibleWith
 
     -- inferable terms
     data Elim primTy primVal
-      = -- | Bound variables, in de Bruijn indices
+      = -- | Bound variables, as de Bruijn indices.
         Bound BoundVar
-      | -- | Free variables of type name (see above)
+      | -- | Free variables.
         Free Name
       | -- | elimination rule of PI (APP).
         App (Elim primTy primVal) (Term primTy primVal)
+      | -- | Project an element from a record type.
+        Lookup (Elim primTy primVal) Symbol
       | -- | Annotation with usage.
         Ann Usage (Term primTy primVal) (Term primTy primVal) Universe
       deriving (Eq, Show, Generic, Data, NFData)
