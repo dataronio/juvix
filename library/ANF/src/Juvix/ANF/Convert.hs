@@ -8,116 +8,78 @@ import qualified Juvix.Closure as Closure
 import qualified Juvix.ANF.AnonymClosure as Stack
 import qualified Juvix.Contextify.Environment as Env
 
-type FXClosure m n = ( HasReader "pure" Closure.T m
-                     , HasReader "effectful" Closure.T n)
-
-data EffectContextI = FXContextI
-  { pure :: Stack.T
-  , effectful :: Stack.T
-  , vars :: Closure.T
-  }
-
-data ErrorEff = NoEffect
-
-type EffectContextA = ExceptT Env.ErrorS (State EffectContextI)
-
-newtype EffectContext = FXContext { run :: EffectContextA }
-  deriving (Functor, Applicative, Monad)
-  deriving
-    (HasReader "pure" Closure.T,
-     HasSource "pure" Closure.T
-    )
-    via ReaderField "pure" EffectContextA
-  deriving
-    (HasReader "effectful" Closure.T,
-     HasSource "effectful" Closure.T
-    )
-    via ReaderField "effectful" EffectContextA
-  deriving
-    (HasThrow "error" Env.ErrorS)
-    via MonadError EffectContextA
-
-nextPureCont = do
-  p <- get@"pure"
-  let cont = Stack.head p
-  set @"pure" (Stack.tail p)
-  return cont
-
-nextEffectCont = do
-  k <- get@"effectful"
-  let cont = Stack.head p
-  set @"effectful" (Stack.tail k)
-  return cont
-
-addPureCont cont =
-  ps <- get@"pure"
-  set @"pure" (Stack.cons (convert cont) ps)
-  return ()
-
-addEffectConts cont =
-  ks <- get@"effectful"
-  set @"effectful" (addToStack conts ks)
-  return ()
-  where
-    addToStack conts ks =
-      let ks' = convert <$> Sexp.toList conts
-      in Stack.append ks' ks
-
+convert :: Sexp.T -> Sexp.T
 convert sexp = Sexp.foldPred sexp isEffectful conv
   where
-    convVia = convertVia . mapViaStr . toVia
+    convVia = convertVia . toVia
+    conDo = convertDo . toDoDeep
+    conDoOp = convertDoOp . toDoOp
+    conDoPure = convertDoPure . toDoPure
     conv atom cdr
-      | Str.isVia     = Sexp.Cons cdr <$> conVia atom
-      | Str.isHandler = undefined
-      | Str.isLetOp   = undefined
-      | Str.isLetRet  = undefined
-      | otherwise     = return sexp -- if no effectful code, no CPS transformation
+      | Str.isDo atom     = Sexp.Cons (conDo atom) (convert cdr)
+      | Str.isVia atom    = Sexp.Cons (conVia atom) (convert cdr)
+      | Str.isDoOp atom   = Sexp.Cons (conDoOp atom) (convert cdr)
+      | Str.isDoPure atom = Sexp.Cons (conDoPure atom) (convert cdr)
 
-convHandler prog = do
-  return $ Sexp.list
-    [ Sexp.atom Str.nameLetMatch,
-      undefined,
-      matchCases prog,
-      forward prog
-    ]
+      -- if no effectful code, no CPS transformation
+      | otherwise         = Sexp.Cons atom cdr
+
+convertDo (Str.DoDeep {doStatements}) = undefined
+
+convertVia (Str.Via dos@(Str.Do {..}) (Str.LetHandler {..})) =
+  app' (convert dos) [handRet, handLet]
   where
-    matchCases Str.LetOp  = undefined
-    matchCases Str.LetRet = undefined
+    handRet =
+      -- \k. k [[V]]
+      lam (var "k")
+      $ app (var "k") (convert letRetBody)
 
-    forward prog = do
-      h <- nextPCont
-      k <- nextECont
-      h' <- nextPCont
-      k' <- nextECont
-      return $ undefined
+    handLet = letMatch handlerName (matchCases <$> letHandlerOp) skip
 
--- convertDo :: Has2Closures m n => HandlerContext m n -> HandlerContext m n
-convertDo (Str.Do {doStatements})= do
-   h <- nextPCont
-   k <- nextECont
-   return $ undefined -- l (V, \x -> k x h)
+    matchCases (Str.LetOp {..}) = Str.fromArgBody $ Str.ArgBody undefined undefined
 
 
-convertVia (Str.Via dos@(Str.Do {..}) lh@(Str.LetHandler {letHandlerOps, letHandlerRet})) =
-  do
-  add
-  Str.App (convert dos) (convert lh)
+    -- reshapes operation to match outer handler
+    mForward = lam (Sexp.atom "k1")
+               $ lam (Sexp.atom "h1")
+               vmap (lam () (app (var "k") (pair (var "p") (lam (var "x") ())))) (var "y") (var "h1")
 
+    -- vmap relays continuations to outer handlers if necessary
+    vmap f op k
+      | isPair op =
+        case op of
+          _ Sexp.:> label Sexp.:> value ->
+            -- f value (\x k. k (label x)) k
+            app' f [value, lam' [var "x", var "k"] (app (var "k") (app label (var "x"))), k]
+          _ -> error "shouldn't happen"
 
-convertLetRet (Str.LetRet {letRetBody}) = do
-  k <- nextPCont
-  return (Str.App k letRetBody)
+convertDoPure (Str.DoPure {..}) =
+  -- \k. k [[V]]
+  lam (var "k") $ app (var "k") (convert doPureArg)
 
--- vmap relays continuations to outer handlers if necessary
--- vmap :: Has2Closures m n => HandlerContext m n -> HandlerContext m n
-vmap f val prog = do
-  h <- get @"pure"
-  return $ f val (\x -> k x) prog
+convertDoOp (Str.DoOp {..}) =
+  -- \k.\h.h (l <[[v]], \x. k x h)
+  lam' [var "k", var "h"]
+  $ app (var "h")
+  $ triple doOpName (convert doOpArgs)
+  $ lam (var "x")
+  $ app' (var "k") [var "x", var "h"]
+
 
 isEffectful :: Sexp.T -> Bool
-isEffectful sexp = foldr (||) False ([ Str.isHandler sexp
-                                     , Str.isLetHandler sexp
+isEffectful sexp = foldr (||) False ([ Str.isDo sexp
                                      , Str.isVia sexp
-                                     , Str.isLetRet sexp
-                                     , Str.isLetOp sexp
+                                     , Str.isDoOp sexp
+                                     , Str.isDoPure sexp
                                      ])
+
+lam = Str.fromLam $ Str.Lam
+app = Str.fromApp $ Str.App
+letMatch = Str.fromLetMatch $ Str.LetMatch
+pair = Str.fromPair $ Str.Pair
+-- move to record
+triple name value = Str.fromPair $ Str.Pair name (Str.fromPair $ Str.Pair value cont)
+app' f args = Sexp.fold (\acc arg -> app acc arg) f args
+lam' args body = undefined
+var = Sexp.atom
+skip = Sexp.nil

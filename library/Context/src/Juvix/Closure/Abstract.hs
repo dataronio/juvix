@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, AllowAmbiguousTypes #-}
 
 -- | Closure.T serves as the data structure in which we will store
 -- temporary lexical bindings as our code encounters binders.
@@ -12,33 +12,33 @@ import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NS
 import qualified Juvix.Sexp as Sexp
 
-type HashableAndName a b =  (Hashable a, NS.Name b)
+type MonHashAndName a =  (Monoid a, Hashable a, Show a)
 
-data T a where
-  T :: Hashable a b => Map.T b a -> T (Map.T b a)
+data T a
+  = T (Map.T Int a)
   deriving (Show, Eq, Generic)
 
-insert :: HashableAndName a b => b -> a -> T -> T
+insert :: (MonHashAndName a, Hashable b) => b -> a -> T a -> T a
 insert k info (T m) =
-  T $ Map.insert k info m
+  T $ Map.insert (hash k) info m
 
-insertGeneric :: Name a => a -> T -> T
+insertGeneric :: (MonHashAndName a, Hashable b) => Int -> T a -> T a
 insertGeneric name (T m) =
-  T $ Map.insert name (Info Nothing [] Nothing) m
+  T $ Map.insert name mempty m
 
-keys :: Name a => T -> Set.HashSet a
+keys :: T a -> Set.HashSet Int
 keys (T m) = Map.keysSet m
 
-lookup :: HashableAndName a b => b -> T -> Maybe a
-lookup k (T m) = Map.lookup k m
+lookup :: (MonHashAndName a, Hashable b) => b -> T a -> Maybe a
+lookup k (T m) = Map.lookup (hash k) m
 
-empty :: T
+empty :: MonHashAndName a => T a
 empty = T Map.empty
 
-insertHash :: HashableAndName a b => a -> T -> (b, T)
+insertHash :: MonHashAndName a => a -> T a -> (Int, T a)
 insertHash info t =
-  let name = intern . show $ hash info
-   in (name, insertGeneric name info t)
+  let name = hash info
+   in (name, insert name info t)
 
-merge :: T -> T -> T
-merge = fmap Map.union
+merge :: MonHashAndName a => T a -> T a -> T a
+merge (T m) (T m') = T $ Map.union m m'

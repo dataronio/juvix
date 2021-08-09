@@ -56,7 +56,7 @@ empty = T Map.empty
 insertHash :: Information -> T -> (Symbol, T)
 insertHash info t =
   let name = intern . show $ hash info
-   in (name, insertGeneric name info t)
+   in (name, insert name info t)
 
 merge :: T -> T -> T
-merge = fmap Map.union
+merge (T m) (T m') = T $ Map.union m m'

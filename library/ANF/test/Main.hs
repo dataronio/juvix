@@ -1,34 +1,26 @@
 module Main where
 
-import qualified Context.Environment
-import qualified Contextify
-import qualified Contextualise.Contextify
-import Contextualise.Infix.ShuntYard (allInfixTests)
-import qualified Desugar.Sexp as Sexp
-import Golden (contractFiles)
 import Juvix.Library (IO)
 import qualified Test.Tasty as T
 
-frontEndTests :: T.TestTree
-frontEndTests =
+effectHandlerTests :: T.TestTree
+effectHandlerTests =
   T.testGroup
-    "frontend tests"
-    [contractFiles]
+    "CPS translation"
+    []
 
-translationPasses :: T.TestTree
-translationPasses =
+anfTransTests :: T.TestTree
+anfTransTests =
   T.testGroup
-    "translation passes from Frontend to Core"
-    [Sexp.top, Context.Environment.top, Contextify.top]
+    "ANF translation"
+    []
 
 allCheckedTests :: T.TestTree
 allCheckedTests =
   T.testGroup
     "All tests that are checked"
-    [ frontEndTests,
-      allInfixTests,
-      Contextualise.Contextify.top,
-      translationPasses
+    [ effectHandlerTests,
+      anfTransTests
     ]
 
 main :: IO ()

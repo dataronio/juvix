@@ -65,8 +65,8 @@ data DoBody = DoBody
   }
 
 data DoOp = DoOp
-  { doOpname :: Sexp.T,
-    doOpargs :: Sexp.T
+  { doOpName :: Sexp.T,
+    doOpArgs :: Sexp.T
   }
 
 data DoPure = DoPure

@@ -45,7 +45,6 @@ transExpr (Types.Name n) = Sexp.atom n
 transExpr (Types.Let l) = transLet l
 transExpr (Types.Do d) = transDo d
 
-
 --------------------------------------------------------------------------------
 -- Types
 --------------------------------------------------------------------------------
