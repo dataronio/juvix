@@ -15,6 +15,7 @@ import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Pipeline as Pipeline
 import Options
+import Version (infoVersionRepo, progNameVersionTag)
 import Options.Applicative
 import System.Directory
 import Text.Pretty.Simple (pPrint)
@@ -32,14 +33,15 @@ instance A.ToJSON Fr where
 
 context :: IO Context
 context = do
-  pwd <- getCurrentDirectory
+  pwd  <- getCurrentDirectory
   home <- getHomeDirectory
-  return (Context pwd home)
+  return $ Context pwd home
 
 main :: IO ()
 main = do
   ctx <- context
-  let opts = info (options ctx <**> helper) (fullDesc <> headerDoc (Just aboutDoc))
+  progVersion <- progNameVersionTag 
+  let opts = info (options ctx <**> helper) (fullDesc <> headerDoc (Just progVersion))
   run ctx =<< execParser opts
 
 disclaimerDoc :: Doc
@@ -69,50 +71,6 @@ aboutDoc =
       disclaimerDoc
     ]
 
-versionDoc :: Doc
-versionDoc =
-  mconcat
-    [ aboutDoc,
-      line <> line,
-      mconcat ["Prerelease version.", line],
-      mconcat
-        [ "Built from branch ",
-          white $(gitBranch),
-          " at commit ",
-          magenta $(gitHash),
-          " (commit date ",
-          cyan $(gitCommitDate),
-          ").",
-          line
-        ]
-    ]
-
-interactiveDoc :: Doc
-interactiveDoc =
-  mconcat
-    [ aboutDoc,
-      line,
-      white
-        [r|
-     | \ \   / /\ \/ (_)
-  _  | |\ \ / /  \  /| |
- | |_| | \ V /   /  \| |
-  \___/   \_/   /_/\_\_|
-|],
-      mconcat
-        [ line,
-          "Juvix interactive alpha.",
-          line,
-          "Currently supported backends: "
-            <> "in-process interpreter, in-process interaction net.",
-          line,
-          "Coming soon: Michelson, LLVM, WASM.",
-          line,
-          "Enter :? for help. Enter :tutorial for an interactive tutorial.",
-          line
-        ]
-    ]
-
 -- | Run the main program.
 run :: Context -> Options -> IO ()
 run ctx opt = do
@@ -130,16 +88,30 @@ run ctx opt = do
           Michelson b -> g b
           Plonk b -> g b
           where
-            g :: forall b. (Show (Pipeline.Ty b), Show (Pipeline.Val b), Pipeline.HasBackend b) => b -> Pipeline.Pipeline ()
+            g ::
+              forall b.
+              ( Show (Pipeline.Ty b),
+                Show (Pipeline.Val b),
+                Pipeline.HasBackend b
+              ) =>
+              b ->
+              Pipeline.Pipeline ()
             g b = runCmd' fin b (\b -> Pipeline.parse b >=> Pipeline.typecheck @b)
-        Compile fin fout backend -> case backend of
-          LLVM b -> g b
-          Michelson b -> g b
-          Plonk b -> g b
+        Compile fin fout backend ->
+          case backend of
+            LLVM b -> g b
+            Michelson b -> g b
+            Plonk b -> g b
           where
-            g :: forall b. Pipeline.HasBackend b => b -> Pipeline.Pipeline ()
+            g ::
+              forall b.
+              Pipeline.HasBackend b =>
+              b ->
+              Pipeline.Pipeline ()
             g b = runCmd' fin b (\b -> Pipeline.parse b >=> Pipeline.typecheck @b >=> Pipeline.compile @b fout)
-        Version -> liftIO $ putDoc versionDoc
+        Version -> do
+          infoVersion <- liftIO infoVersionRepo
+          liftIO $ putDoc infoVersion
         _ -> Feedback.fail "Not implemented yet."
 
 runCmd ::
