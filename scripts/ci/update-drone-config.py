@@ -13,7 +13,7 @@ import boto3
 
 DRONE_FILE: str = ".drone"
 DRONE_FILE_SUFFIX: str = ".yml"
-REPOSITORY: str = "anomanetwork/juvix"
+REPOSITORY: str = "anoma/juvix"
 
 STEP_NAME = 'script-integrity-check'
 

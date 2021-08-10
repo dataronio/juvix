@@ -5,7 +5,7 @@ name: juvix-ci-build-pr
 node: {project: juvix}
 steps:
 - commands: [echo "e3420e6c66604c53d26292db4a2ba4130d017db1b2e9652d796410e4a9305a04  Makefile"
-      | sha256sum -c -, echo "af9f4680265165bc8d80b21defe779f4616558177837f5f3658cd1493d11acbd  scripts/push-changes.sh"
+      | sha256sum -c -, echo "5a98fa83fad2edecfd48d18aed2adbd5ceccf6afee1594a3ed3f2e26932dbdbb  scripts/push-changes.sh"
       | sha256sum -c -, echo "d04e32c725b9316805e85d2e8d26d9aaa7010f00e98cd933e4a16c64c0533a6f  scripts/format-and-org-gen.sh"
       | sha256sum -c -, echo "b6ad65e92d1f6f47516586281d55b27794f3bc368d06473781925397f27e7932  scripts/check-formatting.sh"
       | sha256sum -c -, echo "4b2678ee3159c1ee1d4879384163af17d388f0ce1f716bbc6f891e2b32483d3e  scripts/check-org-gen.sh"
@@ -94,7 +94,7 @@ name: juvix-ci-build-push-develop
 node: {project: juvix}
 steps:
 - commands: [echo "e3420e6c66604c53d26292db4a2ba4130d017db1b2e9652d796410e4a9305a04  Makefile"
-      | sha256sum -c -, echo "af9f4680265165bc8d80b21defe779f4616558177837f5f3658cd1493d11acbd  scripts/push-changes.sh"
+      | sha256sum -c -, echo "5a98fa83fad2edecfd48d18aed2adbd5ceccf6afee1594a3ed3f2e26932dbdbb  scripts/push-changes.sh"
       | sha256sum -c -, echo "d04e32c725b9316805e85d2e8d26d9aaa7010f00e98cd933e4a16c64c0533a6f  scripts/format-and-org-gen.sh"
       | sha256sum -c -, echo "b6ad65e92d1f6f47516586281d55b27794f3bc368d06473781925397f27e7932  scripts/check-formatting.sh"
       | sha256sum -c -, echo "4b2678ee3159c1ee1d4879384163af17d388f0ce1f716bbc6f891e2b32483d3e  scripts/check-org-gen.sh"
@@ -178,6 +178,6 @@ type: docker
 workspace: {path: /drone/workspace}
 ---
 kind: signature
-hmac: ac56d0742978ab8a3766f9bf4eb537e8bf88787c129dcd81a8e59116f14d8850
+hmac: d907afd95d0fe977c1edb3b29d3733c79577eef07e0a160743961094c1a38cb6
 
 ...

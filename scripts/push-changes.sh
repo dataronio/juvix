@@ -10,10 +10,16 @@ REMOTE=$(git remote get-url origin | cut -c 9-)
 PUSH_URL="https://${GITHUB_TOKEN}@${REMOTE}"
 
 git fetch --all
-git checkout $DRONE_SOURCE_BRANCH
+CHECKOUT_OUTPUT=$(git checkout $DRONE_SOURCE_BRANCH  2>&1)
 
 if [ $? -ne 0 ]; then
-    echo "Can't checkout $DRONE_SOURCE_BRANCH. Manually run org-gen and formatting."
+    CHECKOUT_PATHSPEC_ERROR="error: pathspec '$DRONE_SOURCE_BRANCH' did not match any file(s) known to git"
+    if [[ "$CHECKOUT_OUTPUT" == "$CHECKOUT_PATHSPEC_ERROR" ]];
+    then
+        echo "Can't checkout $DRONE_SOURCE_BRANCH, because $DRONE_SOURCE_BRANCH is probably not part of $REMOTE. You should manually run org-gen and formatting."
+    else
+        echo "Can't checkout $DRONE_SOURCE_BRANCH. Unknown reason. Manually run org-gen and formatting."
+    fi
     exit 1
 fi
 
