@@ -123,7 +123,7 @@ data RecordDeclaration = RecordDeclaration
 
 data Field = Field
   { fieldName :: NameSymbol.T,
-    fieldType :: Sexp.T
+    fieldTy :: Sexp.T
   }
   deriving (Show)
 

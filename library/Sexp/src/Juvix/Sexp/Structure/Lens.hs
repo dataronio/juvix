@@ -56,3 +56,5 @@ Lens.makeLensesWith Lens.camelCaseFields ''Named.App
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Ann
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Meta
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Dot
+Lens.makeLensesWith Lens.camelCaseFields ''Named.RecordDeclaration
+Lens.makeLensesWith Lens.camelCaseFields ''Named.Field

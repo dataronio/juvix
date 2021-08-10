@@ -1,4 +1,6 @@
 * Changelog for Juvix
+** 0.1.1.10
+- Adds record declarations to the Core S-expression representation.
 ** 0.1.1.9
 - Added explicit exports for the IR/Evaluator modules.
 - Removed unused functions in the IR/Evaluator modules.
