@@ -15,12 +15,12 @@ import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Pipeline as Pipeline
 import Options
-import Version (infoVersionRepo, progNameVersionTag)
 import Options.Applicative
 import System.Directory
 import Text.Pretty.Simple (pPrint)
 import Text.PrettyPrint.ANSI.Leijen hiding ((<>))
 import Text.RawString.QQ
+import Version (infoVersionRepo, progNameVersionTag)
 
 instance A.FromJSON Fr where
   parseJSON (A.Number n) = case S.floatingOrInteger n of
@@ -33,14 +33,14 @@ instance A.ToJSON Fr where
 
 context :: IO Context
 context = do
-  pwd  <- getCurrentDirectory
+  pwd <- getCurrentDirectory
   home <- getHomeDirectory
   return $ Context pwd home
 
 main :: IO ()
 main = do
   ctx <- context
-  progVersion <- progNameVersionTag 
+  progVersion <- progNameVersionTag
   let opts = info (options ctx <**> helper) (fullDesc <> headerDoc (Just progVersion))
   run ctx =<< execParser opts
 
