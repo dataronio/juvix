@@ -28,6 +28,7 @@ Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Do
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Arrow
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Lambda
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Record
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.RecordDec
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Punned
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.NotPunned
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Infix

@@ -13,19 +13,40 @@ import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Juvix.Sexp.Structure.Lens
 import qualified StmContainers.Map as STM
 
+type ExpressionIO m = (Env.ErrS m, Env.HasClosure m, MonadIO m)
+
+type Expression m = (Env.ErrS m, Env.HasClosure m)
+
+--------------------------------------------------------------------------------
+-- Open Transformation
+--------------------------------------------------------------------------------
+
+-- The resolveModule pass, looks over any S-expression, searching for
+-- Atoms or open forms. In the case for Atoms, we see if there is any
+-- module that it should be qualified to.
+
+-- So for example if we have @sig foo : int -> int@ the @int@ atom
+-- really belongs to perhaps @Prelude.Michelson.int@. Thus we will do
+-- the conversion there. Further we change the @->@ atom into
+-- @Prelude.->@ for the same reason.
+
+-- In the open case we note the open into the closure, and then remove
+-- the open from the source code
+
+-- - BNF input form:
+--   1. (:open-in Foo body)
+--   2. unqualified-foo
+-- - BNF output form:
+--   1. body
+--   2. qualified-foo
+
+-- Note that the qualification of foo to Bar.foo if the symbol is from
+-- an open module
+
 resolveModule ::
   ExpressionIO m => Env.SexpContext -> m Env.SexpContext
 resolveModule context =
   Env.passContextSingle context (\x -> x == ":atom" || x == Structure.nameOpenIn) openResolution
-
-inifixSoloPass ::
-  Expression m => Env.SexpContext -> m Env.SexpContext
-inifixSoloPass context =
-  Env.passContextSingle context (== Structure.nameInfix) infixConversion
-
-type ExpressionIO m = (Env.ErrS m, Env.HasClosure m, MonadIO m)
-
-type Expression m = (Env.ErrS m, Env.HasClosure m)
 
 openResolution ::
   ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom -> Sexp.T -> m Sexp.T
@@ -53,6 +74,25 @@ atomResolution context atom@Sexp.A {atomName = name} sexpAtom = do
           pure $ Sexp.addMetaToCar atom (Sexp.atom (prefix <> name))
         Nothing -> pure sexpAtom
 atomResolution _ _ s = pure s
+
+--------------------------------------------------------------------------------
+-- Infix Form Transformation
+--------------------------------------------------------------------------------
+
+-- TODO ∷ add comment about infixl vs infix vs infixr, and explain how
+-- this isn't a real bnf
+
+-- | @infixSoloPass@ resolves the infix precedence of a given form into
+-- a properly ordered prefix ordering via the shuntyard algorithm.
+-- - BNF input form:
+--   1. (:infix infix-3 3 (:infix infix-4 1 (:infix infix-2 5 7)))
+-- - BNF output form:
+--   1. (:infix-3 3 (:infix-2 (:infix-4 1 5) 7))
+-- - Note :: infix-<num> stands for precedent <num>
+inifixSoloPass ::
+  Expression m => Env.SexpContext -> m Env.SexpContext
+inifixSoloPass context =
+  Env.passContextSingle context (== Structure.nameInfix) infixConversion
 
 infixConversion ::
   (Env.ErrS m, Env.HasClosure m) => Context.T t y s -> Sexp.Atom -> Sexp.T -> m Sexp.T
