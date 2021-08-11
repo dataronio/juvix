@@ -222,79 +222,46 @@ Right
         , Type
             ( Typ
                 { typeUsage = Nothing
-                , typeName' = "Bar"
+                , typeName' = "VerySimpleType"
                 , typeArgs = []
-                , typeForm = Arrowed
-                    { dataArrow = Name
-                        ( "ty" :| [] )
-                    , dataAdt' = Sum
+                , typeForm = NonArrowed
+                    { dataAdt = Sum
                         ( S
-                            { sumConstructor = "P"
+                            { sumConstructor = "One"
                             , sumValue = Just
                                 ( ADTLike
                                     [ Name
                                         ( "field" :| [] )
-                                    , Name
-                                        ( "field" :| [] )
                                     ]
                                 )
-                            } :|
-                            [ S
-                                { sumConstructor = "Q"
-                                , sumValue = Just
-                                    ( ADTLike
-                                        [ Name
-                                            ( "field" :| [] )
-                                        , Name
-                                            ( "field" :| [] )
-                                        , Name
-                                            ( "field" :| [] )
-                                        ]
-                                    )
-                                }
-                            ]
+                            } :| []
                         )
                     }
                 }
             )
         , Signature
             ( Sig
-                { signatureName = "t"
+                { signatureName = "verySimpleTerm"
                 , signatureUsage = Nothing
-                , signatureArrowType = Infix
-                    ( Inf
-                        { infixLeft = Name
-                            ( "field" :| [] )
-                        , infixOp = "->" :| []
-                        , infixRight = Name
-                            ( "field" :| [] )
-                        }
-                    )
+                , signatureArrowType = Name
+                    ( "VerySimpleType" :| [] )
                 , signatureConstraints = []
                 }
             )
         , Function
             ( Func
                 ( Like
-                    { functionLikedName = "t"
-                    , functionLikeArgs =
-                        [ ConcreteA
-                            ( MatchLogic
-                                { matchLogicContents = MatchName "x"
-                                , matchLogicNamed = Nothing
-                                }
-                            )
-                        ]
+                    { functionLikedName = "verySimpleTerm"
+                    , functionLikeArgs = []
                     , functionLikeBody = Body
-                        ( Infix
-                            ( Inf
-                                { infixLeft = Name
-                                    ( "x" :| [] )
-                                , infixOp = "+" :| []
-                                , infixRight = Constant
+                        ( Application
+                            ( App
+                                { applicationName = Name
+                                    ( "One" :| [] )
+                                , applicationArgs = Constant
                                     ( Number
-                                        ( Integer' 5 )
-                                    )
+                                        ( Integer' 0 )
+                                    ) :| []
                                 }
                             )
                         )
@@ -303,7 +270,7 @@ Right
             )
         , Signature
             ( Sig
-                { signatureName = "norm"
+                { signatureName = "patternMatch"
                 , signatureUsage = Nothing
                 , signatureArrowType = Infix
                     ( Inf
@@ -320,7 +287,7 @@ Right
         , Function
             ( Func
                 ( Like
-                    { functionLikedName = "norm"
+                    { functionLikedName = "patternMatch"
                     , functionLikeArgs =
                         [ ConcreteA
                             ( MatchLogic
@@ -374,7 +341,7 @@ Right
         , Function
             ( Func
                 ( Like
-                    { functionLikedName = "norm"
+                    { functionLikedName = "patternMatch"
                     , functionLikeArgs =
                         [ ConcreteA
                             ( MatchLogic
@@ -445,6 +412,44 @@ Right
                     }
                 )
             )
+        , Type
+            ( Typ
+                { typeUsage = Nothing
+                , typeName' = "Bar"
+                , typeArgs = []
+                , typeForm = Arrowed
+                    { dataArrow = Name
+                        ( "ty" :| [] )
+                    , dataAdt' = Sum
+                        ( S
+                            { sumConstructor = "P"
+                            , sumValue = Just
+                                ( ADTLike
+                                    [ Name
+                                        ( "field" :| [] )
+                                    , Name
+                                        ( "field" :| [] )
+                                    ]
+                                )
+                            } :|
+                            [ S
+                                { sumConstructor = "Q"
+                                , sumValue = Just
+                                    ( ADTLike
+                                        [ Name
+                                            ( "field" :| [] )
+                                        , Name
+                                            ( "field" :| [] )
+                                        , Name
+                                            ( "field" :| [] )
+                                        ]
+                                    )
+                                }
+                            ]
+                        )
+                    }
+                }
+            )
         , Signature
             ( Sig
                 { signatureName = "main"
@@ -460,9 +465,58 @@ Right
                     { functionLikedName = "main"
                     , functionLikeArgs = []
                     , functionLikeBody = Body
-                        ( Constant
-                            ( Number
-                                ( Integer' 3 )
+                        ( Let
+                            ( Let'
+                                { letBindings = Like
+                                    { functionLikedName = "vst"
+                                    , functionLikeArgs = []
+                                    , functionLikeBody = Body
+                                        ( Name
+                                            ( "verySimpleTerm" :| [] )
+                                        )
+                                    }
+                                , letBody = Let
+                                    ( Let'
+                                        { letBindings = Like
+                                            { functionLikedName = "pm"
+                                            , functionLikeArgs = []
+                                            , functionLikeBody = Body
+                                                ( Application
+                                                    ( App
+                                                        { applicationName = Name
+                                                            ( "patternMatch" :| [] )
+                                                        , applicationArgs = Parened
+                                                            ( Application
+                                                                ( App
+                                                                    { applicationName = Name
+                                                                        ( "Q" :| [] )
+                                                                    , applicationArgs = Constant
+                                                                        ( Number
+                                                                            ( Integer' 0 )
+                                                                        ) :|
+                                                                        [ Constant
+                                                                            ( Number
+                                                                                ( Integer' 1 )
+                                                                            )
+                                                                        , Constant
+                                                                            ( Number
+                                                                                ( Integer' 2 )
+                                                                            )
+                                                                        ]
+                                                                    }
+                                                                )
+                                                            ) :| []
+                                                        }
+                                                    )
+                                                )
+                                            }
+                                        , letBody = Constant
+                                            ( Number
+                                                ( Integer' 3 )
+                                            )
+                                        }
+                                    )
+                                }
                             )
                         )
                     }

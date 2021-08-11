@@ -1,0 +1,38 @@
+mod Datatypes where
+
+open Prelude
+open Circuit
+
+sig field : ty
+let field = %Circuit.field
+
+sig (+) : field -> field -> field
+let (+) = %Circuit.add
+declare infixl (+) 5
+
+sig (==) : field -> field -> bool
+let (==) = %Circuit.eq
+declare infixl (==) 2
+
+type VerySimpleType = One field
+
+sig verySimpleTerm : VerySimpleType
+let verySimpleTerm = One 0
+
+type Bar : ty = | P field field | Q field field field
+
+sig patternMatch : Bar -> field
+let patternMatch (P x y) = x + y
+let patternMatch (Q x y z) = x + y + z
+
+sig main : field
+let main =
+  -- Fails to typecheck:
+  --  "Error: TypecheckerError
+  --  ( InsufficientUsage
+  --      { usageNeeded = Omega
+  --      , usageActual = SNat 0
+  --      }
+  let vs = VerySimpleType in
+
+  0

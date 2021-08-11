@@ -8,6 +8,6 @@ ArithCircuit
             ( P
                 ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
             )
-        , mulO = OutputWire 0
+        , mulO = OutputWire 2
         }
     ]
