@@ -1,0 +1,41 @@
+mod Datatypes where
+
+open Prelude
+open LLVM
+
+sig (+) : int -> int -> int
+let (+) = %LLVM.add
+declare infixl (+) 5
+
+type VerySimpleType = One int
+
+sig verySimpleTerm : VerySimpleType
+let verySimpleTerm = One 0
+
+type Bar : ty = | P int int | Q int int int
+
+sig patternMatch : Bar -> int
+let patternMatch (P x y) = x + y
+let patternMatch (Q x y z) = x + y + z
+
+sig main : int
+let main =
+  -- Fails to typecheck:
+  --  "Error: TypecheckerError
+  --  ( InsufficientUsage
+  --      { usageNeeded = Omega
+  --      , usageActual = SNat 0
+  --      }
+  let vs = VerySimpleType in
+
+  -- Typechecks, but fails to compile:
+  -- juvix: src/Juvix/Backends/LLVM/Compilation.hs:(48,36)-(49,45):
+  -- Non-exhaustive patterns in case
+  let vst = verySimpleTerm in
+
+  -- Typechecks, but fails to compile:
+  -- juvix: src/Juvix/Backends/LLVM/Compilation.hs:(48,36)-(49,45):
+  -- Non-exhaustive patterns in case
+  let pm = patternMatch (Q 0 1 2) in
+
+  0

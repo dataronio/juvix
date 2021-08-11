@@ -38,25 +38,33 @@ compileTests :: IO TestTree
 compileTests =
   testGroup "LLVM compile"
     <$> sequence
-      [ discoverGoldenTestsCompile "test/examples/positive/llvm",
-        discoverGoldenTestsCompile "test/examples/negative/llvm"
+      [ compileTestPos "test/examples/positive/llvm",
+        compileTestNeg "test/examples/negative/llvm"
       ]
+  where
+    compileTestPos = compileTest (expectSuccess . compile)
+    compileTestNeg = compileTest (expectFailure . compile)
+    compile file = LLVM.compileProgram . ErasedAnn.toRaw =<< typecheck file
 
 typecheckTests :: IO TestTree
 typecheckTests =
   testGroup "LLVM typecheck"
     <$> sequence
-      [ discoverGoldenTestsTypecheck "test/examples/positive/llvm",
-        discoverGoldenTestsTypecheck "test/examples/negative/llvm"
+      [ typecheckTestPos "test/examples/positive/llvm",
+        typecheckTestNeg "test/examples/negative/llvm"
       ]
+  where
+    typecheckTestPos = typecheckTest (expectSuccess . toNoQuotes typecheck)
+    typecheckTestNeg = typecheckTest (expectFailure . toNoQuotes typecheck)
 
 -- | Discover golden tests for input files with extension @.ju@ and output
 -- files with extension @.typecheck@.
-discoverGoldenTestsTypecheck ::
+typecheckTest ::
+  (FilePath -> IO NoQuotes) ->
   -- | the directory in which to recursively look for golden tests
   FilePath ->
   IO TestTree
-discoverGoldenTestsTypecheck (withJuvixRootPath -> p) = discoverGoldenTests [".ju"] ".typecheck" getGolden (expectSuccess . typecheck) p
+typecheckTest f (withJuvixRootPath -> p) = discoverGoldenTests [".ju"] ".typecheck" getGolden f p
 
 typecheck ::
   FilePath ->
@@ -72,10 +80,10 @@ typecheck file = do
 
 -- | Discover golden tests for input files with extension @.ju@ and output
 -- files with extension @.llvm@.
-discoverGoldenTestsCompile ::
+compileTest ::
+  (Show b, Eq b, Read b) =>
+  (FilePath -> IO b) ->
   -- | the directory in which to recursively look for golden tests
   FilePath ->
   IO TestTree
-discoverGoldenTestsCompile (withJuvixRootPath -> p) = discoverGoldenTests [".ju"] ".llvm" getGolden (expectSuccess . compile) p
-  where
-    compile file = LLVM.compileProgram . ErasedAnn.toRaw =<< typecheck file
+compileTest f (withJuvixRootPath -> p) = discoverGoldenTests [".ju"] ".llvm" getGolden f p

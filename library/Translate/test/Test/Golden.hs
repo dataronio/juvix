@@ -258,22 +258,25 @@ contextifySexp names = do
 
 resolveModuleContext ::
   (MonadIO m, MonadFail m) => NonEmpty (NameSymbol.T, [Sexp.T]) -> m Environment.SexpContext
-resolveModuleContext names = do
-  ctx <- contextifySexp names
-  (newCtx, _) <- liftIO $ Environment.runMIO (Contextify.resolveModule ctx)
-  case newCtx of
-    Right ctx -> pure ctx
-    Left _err -> Feedback.fail "not valid pass"
+resolveModuleContext =
+  runPass (contextifySexp, Contextify.resolveModule) "not valid pass"
 
 resolveInfixContext ::
   (MonadIO m, MonadFail m) =>
   NonEmpty (NameSymbol.T, [Sexp.T]) ->
   m Environment.SexpContext
-resolveInfixContext names = do
-  ctx <- resolveModuleContext names
-  let (infix', _) = Environment.runM (Contextify.inifixSoloPass ctx)
-  case infix' of
-    Left _err -> Feedback.fail "can't resolve infix symbols"
+resolveInfixContext =
+  "can't resolve infix symbols"
+    |> runPass (resolveModuleContext, Contextify.inifixSoloPass)
+
+runPass ::
+  (MonadIO m, MonadFail m) => (t1 -> m t2, t2 -> Environment.MinimalMIO b) -> String -> t1 -> m b
+runPass (previousPass, currentPass) errString names = do
+  ctx <- previousPass names
+  -- Only the module transform requires IO here!
+  (record, _) <- liftIO $ Environment.runMIO (currentPass ctx)
+  case record of
+    Left _err -> Feedback.fail errString
     Right ctx -> pure ctx
 
 ----------------------------------------------------------------------

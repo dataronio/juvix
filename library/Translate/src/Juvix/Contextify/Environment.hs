@@ -49,7 +49,7 @@ type ErrS m = HasThrow "error" ErrorS m
 -- Runner environment
 ------------------------------------------------------------
 
-data Minimal = Minimal
+newtype Minimal = Minimal
   { closure :: Closure.T
   }
   deriving (Generic, Show)

@@ -44,8 +44,21 @@ Rec
                         { defUsage = Nothing
                         , defMTy = Just "field"
                         , defTerm =
-                            ( ":lambda-case" ( () 3 ) )
+                            ( ":lambda-case"
+                                ( ()
+                                    ( ":let-match" "vst"
+                                        ( () "verySimpleTerm" )
+                                        ( ":let-match" "pm"
+                                            ( ()
+                                                ( "patternMatch"
+                                                    ( ":paren"
+                                                        ( "Q" 0 1 2 ) ) ) ) 3 ) ) ) )
                         , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "VerySimpleType"
+                , TypeDeclar
+                    { definitionRepr =
+                        ( "VerySimpleType" () ( "One" "field" ) ) } )
             ,
                 ( "^"
                 , Def
@@ -59,40 +72,11 @@ Rec
                                 ( () ( ":primitive" "Circuit.exp" ) ) )
                         , defPrecedence = Pred Left 8 } ) )
             ,
-                ( "norm"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "Bar" "field" )
-                        , defTerm =
-                            ( ":lambda-case"
-                                (
-                                    ( ( "P" "x" "y" ) )
-                                    ( ":infix" "^" "x"
-                                        ( ":infix" "+" 2
-                                            ( ":infix" "^" "y" 2 ) ) ) )
-                                (
-                                    ( ( "Q" "x" "y" "z" ) )
-                                    ( ":infix" "^" "x"
-                                        ( ":infix" "+" 2
-                                            ( ":infix" "^" "y"
-                                                ( ":infix" "+" 2
-                                                    ( ":infix" "^" "z" 2 ) ) ) ) ) ) )
-                        , defPrecedence = Pred Left 9 } ) )
-            ,
                 ( "Q", SumCon ( Sum { sumTDef = Nothing, sumTName = "Bar" } ) )
             ,
-                ( "t"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "field" "field" )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( ( "x" ) ( ":infix" "+" "x" 5 ) ) )
-                        , defPrecedence = Pred Left 9 } ) )
+                ( "One"
+                , SumCon
+                    ( Sum { sumTDef = Nothing, sumTName = "VerySimpleType" } ) )
             ,
                 ( "x"
                 , Def
@@ -114,6 +98,37 @@ Rec
                             ( ":lambda-case"
                                 ( () ( ":primitive" "Circuit.eq" ) ) )
                         , defPrecedence = Pred Left 2 } ) )
+            ,
+                ( "verySimpleTerm"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "VerySimpleType"
+                        , defTerm =
+                            ( ":lambda-case" ( () ( "One" 0 ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "patternMatch"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "Bar" "field" )
+                        , defTerm =
+                            ( ":lambda-case"
+                                (
+                                    ( ( "P" "x" "y" ) )
+                                    ( ":infix" "^" "x"
+                                        ( ":infix" "+" 2
+                                            ( ":infix" "^" "y" 2 ) ) ) )
+                                (
+                                    ( ( "Q" "x" "y" "z" ) )
+                                    ( ":infix" "^" "x"
+                                        ( ":infix" "+" 2
+                                            ( ":infix" "^" "y"
+                                                ( ":infix" "+" 2
+                                                    ( ":infix" "^" "z" 2 ) ) ) ) ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "Bar"
                 , TypeDeclar

@@ -1,6 +1,9 @@
 * Changelog for Juvix
-** 0.1.1.10
+** 0.1.1.11
 - Adds record declarations to the Core S-expression representation.
+** 0.1.1.10
+- Put =Contextify= passes into proper sections
+- Minor cleanup in running the =Contextify= passes
 ** 0.1.1.9
 - Added explicit exports for the IR/Evaluator modules.
 - Removed unused functions in the IR/Evaluator modules.

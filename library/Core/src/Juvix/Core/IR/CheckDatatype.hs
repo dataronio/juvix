@@ -257,7 +257,7 @@ checkParams ::
   Core.RawTelescope extT primTy primVal ->
   Core.Term extT primTy primVal ->
   m ()
-checkParams tel@(hd : tl) para@(Core.Elim elim _) =
+checkParams (hd : tl) para@(Core.Elim elim _) =
   let n = Core.rawName hd
    in case elim of
         Core.Free (Core.Global n') _ | n == n' -> return ()

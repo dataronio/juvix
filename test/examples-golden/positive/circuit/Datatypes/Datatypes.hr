@@ -1,9 +1,94 @@
 fromList
     [
-        ( "Datatypes" :| [ "norm" ]
+        ( "Datatypes" :| [ "VerySimpleType" ]
+        , RawGDatatype
+            ( RawDatatype
+                { rawDataName = "Datatypes" :| [ "VerySimpleType" ]
+                , rawDataPos = []
+                , rawDataArgs = []
+                , rawDataLevel = 0
+                , rawDataCons =
+                    [ RawDataCon
+                        { rawConName = "Datatypes" :| [ "One" ]
+                        , rawConType = Pi Omega
+                            ( Elim
+                                ( ElimX
+                                    ( "Datatypes" :| [ "field" ] )
+                                ) ()
+                            )
+                            ( Elim
+                                ( ElimX
+                                    ( "Datatypes" :| [ "VerySimpleType" ] )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        , rawConDef = Nothing
+                        }
+                    ]
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "One" ]
+        , RawGDataCon
+            ( RawDataCon
+                { rawConName = "Datatypes" :| [ "One" ]
+                , rawConType = Pi Omega
+                    ( Elim
+                        ( ElimX
+                            ( "Datatypes" :| [ "field" ] )
+                        ) ()
+                    )
+                    ( Elim
+                        ( ElimX
+                            ( "Datatypes" :| [ "VerySimpleType" ] )
+                        ) ()
+                    )
+                    ( "" :| [] )
+                , rawConDef = Nothing
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "+" ]
         , RawGFunction
             ( RawFunction
-                { rawFunName = "Datatypes" :| [ "norm" ]
+                { rawFunName = "Datatypes" :| [ "+" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( ElimX
+                            ( "Datatypes" :| [ "field" ] )
+                        ) ()
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( ElimX
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        )
+                        ( Elim
+                            ( ElimX
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        )
+                        ( "" :| [] )
+                    )
+                    ( "" :| [] )
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim PAdd ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "patternMatch" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "patternMatch" ]
                 , rawFunUsage = GOmega
                 , rawFunType = Pi Omega
                     ( Elim
@@ -180,90 +265,6 @@ fromList
             )
         )
     ,
-        ( "Datatypes" :| [ "t" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "t" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
-                        ) ()
-                    )
-                    ( Elim
-                        ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
-                        ) ()
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats =
-                        [ PatternX
-                            ( "x" :| [] )
-                        ]
-                    , rawClauseBody = Elim
-                        ( App
-                            ( App
-                                ( ElimX
-                                    ( "Datatypes" :| [ "+" ] )
-                                )
-                                ( Elim
-                                    ( ElimX
-                                        ( "Datatypes" :| [ "x" ] )
-                                    ) ()
-                                ) ()
-                            )
-                            ( Prim
-                                ( PConst
-                                    ( P
-                                        ( 5 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                    )
-                                ) ()
-                            ) ()
-                        ) ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "+" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "+" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PAdd ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "P" ]
         , RawGDataCon
             ( RawDataCon
@@ -289,6 +290,37 @@ fromList
                     )
                     ( "" :| [] )
                 , rawConDef = Nothing
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "verySimpleTerm" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "verySimpleTerm" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Elim
+                    ( ElimX
+                        ( "Datatypes" :| [ "VerySimpleType" ] )
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Elim
+                        ( App
+                            ( ElimX
+                                ( "Datatypes" :| [ "One" ] )
+                            )
+                            ( Prim
+                                ( PConst
+                                    ( P
+                                        ( 0 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                    )
+                                ) ()
+                            ) ()
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
                 }
             )
         )
@@ -502,12 +534,58 @@ fromList
                 , rawFunClauses = RawFunClause
                     { rawClauseTel = []
                     , rawClausePats = []
-                    , rawClauseBody = Prim
-                        ( PConst
-                            ( P
-                                ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                    , rawClauseBody = Let Omega
+                        ( ElimX
+                            ( "Datatypes" :| [ "verySimpleTerm" ] )
+                        )
+                        ( Let Omega
+                            ( App
+                                ( ElimX
+                                    ( "Datatypes" :| [ "patternMatch" ] )
+                                )
+                                ( Elim
+                                    ( App
+                                        ( App
+                                            ( App
+                                                ( ElimX
+                                                    ( "Datatypes" :| [ "Q" ] )
+                                                )
+                                                ( Prim
+                                                    ( PConst
+                                                        ( P
+                                                            ( 0 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                        )
+                                                    ) ()
+                                                ) ()
+                                            )
+                                            ( Prim
+                                                ( PConst
+                                                    ( P
+                                                        ( 1 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                    )
+                                                ) ()
+                                            ) ()
+                                        )
+                                        ( Prim
+                                            ( PConst
+                                                ( P
+                                                    ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                )
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                ) ()
                             )
-                        ) ()
+                            ( Prim
+                                ( PConst
+                                    ( P
+                                        ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                    )
+                                ) ()
+                            )
+                            ( "pm" :| [] )
+                        )
+                        ( "vst" :| [] )
                     , rawClauseCatchall = False
                     } :| []
                 }

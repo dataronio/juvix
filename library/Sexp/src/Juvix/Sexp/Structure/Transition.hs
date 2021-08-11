@@ -142,7 +142,7 @@ fromNotPunnedGroup :: [Frontend.NotPunned] -> Sexp.T
 fromNotPunnedGroup = Sexp.unGroupBy2 . toStarList Frontend.fromNotPunned
 
 toNotPunnedGroup :: Sexp.T -> Maybe [Frontend.NotPunned]
-toNotPunnedGroup = fromStarList Frontend.toNotPunned . Sexp.groupBy2
+toNotPunnedGroup = Frontend.toNotPunnedGroup
 
 ----------------------------------------
 -- Generated

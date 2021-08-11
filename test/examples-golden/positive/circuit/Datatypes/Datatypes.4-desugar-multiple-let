@@ -39,28 +39,34 @@
 ,
     ( ":defun" "x" () 3 )
 ,
-    ( "type"
-        ( "Bar" ":type" "ty" ) ()
-        ( "P" "field" "field" )
-        ( "Q" "field" "field" "field" ) )
+    ( "type" "VerySimpleType" () ( "One" "field" ) )
 ,
-    ( ":defsig" "t" ( ":infix" "->" "field" "field" ) )
+    ( ":defsig" "verySimpleTerm" "VerySimpleType" )
 ,
-    ( ":defun" "t" ( "x" ) ( ":infix" "+" "x" 5 ) )
+    ( ":defun" "verySimpleTerm" () ( "One" 0 ) )
 ,
-    ( ":defsig" "norm" ( ":infix" "->" "Bar" "field" ) )
+    ( ":defsig" "patternMatch" ( ":infix" "->" "Bar" "field" ) )
 ,
-    ( ":defun" "norm"
+    ( ":defun" "patternMatch"
         ( ( "P" "x" "y" ) )
         ( ":infix" "^" "x" ( ":infix" "+" 2 ( ":infix" "^" "y" 2 ) ) ) )
 ,
-    ( ":defun" "norm"
+    ( ":defun" "patternMatch"
         ( ( "Q" "x" "y" "z" ) )
         ( ":infix" "^" "x"
             ( ":infix" "+" 2
                 ( ":infix" "^" "y"
                     ( ":infix" "+" 2 ( ":infix" "^" "z" 2 ) ) ) ) ) )
 ,
+    ( "type"
+        ( "Bar" ":type" "ty" ) ()
+        ( "P" "field" "field" )
+        ( "Q" "field" "field" "field" ) )
+,
     ( ":defsig" "main" "field" )
 ,
-    ( ":defun" "main" () 3 ) ]
+    ( ":defun" "main" ()
+        ( ":let-match" "vst"
+            ( () "verySimpleTerm" )
+            ( ":let-match" "pm"
+                ( () ( "patternMatch" ( ":paren" ( "Q" 0 1 2 ) ) ) ) 3 ) ) ) ]
