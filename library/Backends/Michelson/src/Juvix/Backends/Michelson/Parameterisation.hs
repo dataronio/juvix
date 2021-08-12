@@ -121,12 +121,14 @@ arityRaw prim =
 -- Continuations can't be translated, but returns do.
 toArg :: PrimVal' ext -> Maybe (Arg' ext)
 toArg App.Cont {} =
-  traceShow "hit cont"
-  Nothing
+  traceShow
+    "hit cont"
+    Nothing
 toArg App.Return {retType, retTerm} =
-  traceShow "hit return"
-  Just $
-    App.TermArg $
+  traceShow
+    "hit return"
+    Just
+    $ App.TermArg $
       App.Take
         { usage = Usage.Omega,
           type' = retType,
@@ -168,8 +170,6 @@ instance Core.CanApply PrimTy where
   arity x =
     Run.lengthType x
 
-
-
   apply (Application fn args1) args2 =
     Application fn (args1 <> args2)
       |> Right
@@ -187,10 +187,10 @@ instance App.IsParamVar ext => Core.CanApply (PrimVal' ext) where
 
   freeArg _ =
     traceShow "hit free arg" $
-    fmap App.VarArg . App.freeVar (Proxy @ext)
+      fmap App.VarArg . App.freeVar (Proxy @ext)
   boundArg _ =
     traceShow "hit bound arg" $
-    fmap App.VarArg . App.boundVar (Proxy @ext)
+      fmap App.VarArg . App.boundVar (Proxy @ext)
 
   arity App.Cont {numLeft} = traceShow "arity cont" numLeft
   arity App.Return {retTerm} = traceShow "arity Return" $ arityRaw retTerm
@@ -364,10 +364,11 @@ michelson =
   P.Parameterisation
     { hasType = \x y ->
         traceShow "calling hasType" $
-        let ans = hasType x y in
-          traceShow "Resulting type has" $
-          traceShow ans
-          ans,
+          let ans = hasType x y
+           in traceShow "Resulting type has" $
+                traceShow
+                  ans
+                  ans,
       builtinTypes,
       builtinValues,
       stringVal = Just . Constant . M.ValueString . M.mkMTextUnsafe, -- TODO ?

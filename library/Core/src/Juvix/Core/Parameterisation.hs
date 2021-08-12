@@ -128,14 +128,16 @@ class CanApply a where
   freeArg :: Proxy a -> GlobalName -> Maybe (Arg a)
   -- TODO: This may be removed
   freeArg _ _ =
-    traceShow "hit free arg"
-    Nothing
+    traceShow
+      "hit free arg"
+      Nothing
 
   -- | Create a reference to a bound variable.
   boundArg :: Proxy a -> BoundVar -> Maybe (Arg a)
   boundArg _ _ =
-    traceShow "hit default"
-    Nothing
+    traceShow
+      "hit default"
+      Nothing
 
   -- | Arity of the function.
   arity :: a -> Natural

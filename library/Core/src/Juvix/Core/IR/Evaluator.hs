@@ -180,10 +180,10 @@ evalElimWith g exts (Core.Free x _)
   | otherwise = pure $ Core.VFree x
 evalElimWith g exts (Core.App s t _) =
   traceShow "hitting eval with" $
-  join $
-    vapp <$> evalElimWith g exts s
-      <*> evalTermWith g exts t
-      <*> pure ()
+    join $
+      vapp <$> evalElimWith g exts s
+        <*> evalTermWith g exts t
+        <*> pure ()
 evalElimWith g exts (Core.Ann _ s _ _ _) =
   evalTermWith g exts s
 evalElimWith g exts (Core.ElimX a) =
