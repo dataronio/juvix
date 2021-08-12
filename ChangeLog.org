@@ -1,4 +1,6 @@
 * Changelog for Juvix
+** 0.1.1.11
+- Extended EasyPipeline to support inline and erasure
 ** 0.1.1.10
 - Put =Contextify= passes into proper sections
 - Minor cleanup in running the =Contextify= passes
