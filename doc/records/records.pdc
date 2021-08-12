@@ -1,0 +1,354 @@
+---
+# pandoc -s --mathjax rec.md -o rec.html
+title: Records (partially) in core
+...
+
+# Syntax changes
+
+tl;dr: Add a new kind of datatype for records, a new term for constructing them,
+and a new elim for looking up. A usage context is a tree now since we're
+tracking fields of records separately.
+
+```haskell
+-- in Juvix.Core.Base.Types.Base
+
+data Term primTy primVal
+  = ...
+  | Record [(Symbol, Term primTy primVal)]
+
+data Elim primTy primVal
+  = ...
+  -- Having an arbitrary elimination as the head is in principle possible, but
+  -- will only be typeable in a non-'Name' case if the record only has that one
+  -- nonzero, non-ω field. If it is a name then it is in the context and it will
+  -- be possible to count the usages of the fields individually.
+  -- Even so it would be possible to change the head to a general 'Elim' and
+  -- so that an immediate lookup is possible for records with one relevant
+  -- field bundled with some proofs for example.
+  | Lookups Name [Symbol]
+
+data Value primTy primVal
+  = ...
+  | VRecord [(Symbol, Value primTy primVal)]
+
+data Neutral primTy primVal
+  = ...
+  | NLookup (Neutral primTy primVal) Symbol
+
+-- in Juvix.Core.Base.Types.Globals
+
+data Record ext primTy primVal = RecordTy
+  { recordName :: GlobalName,
+    recordArgs :: [DataArg ext primTy primVal],
+    recordLevel :: Natural,
+    recordFields :: [Field ext primTy primVal]
+  }
+
+data Global extV extT primTy primVal
+  = ...
+  | GRecord (Record extV primTy primVal)
+
+-- in Juvix.Core.IR.Typechecker.Types
+
+data Annotation ext primTy primVal = Annotation
+  { annUsage :: UsageTree, -- was Usage.T
+    annType :: Core.Value ext primTy primVal
+  }
+
+data UsageTree
+  = UOne Usage.T
+  | -- | second field is the usage of any field not mentioned in the map
+    URecord (Map Symbol UsageTree) UsageTree
+```
+
+
+# Type rules
+
+$$
+\let\Kw\mathsf \let\Con\mathbf
+\renewcommand\.{\mathord.}
+\newcommand\EQ{\mathrel\Coloneqq}
+\newcommand\OR[1][]{\mathrel{\mathrlap{\mkern{8mu}#1|}{\hphantom\Coloneqq}}}
+\newcommand\Or{\mathrel|}
+\begin{aligned}
+w,x,y,z &\EQ \dotsb & \text{term variables} \\[.5em]
+\pi,\rho,\sigma &\EQ 0 \Or 1 \Or \dotsb \Or \omega
+  & \text{atomic usages} \\[.5em]
+\alpha, \beta &\EQ \pi & \text{usage trees: atomic} \\
+                &\OR \{\hat\xi\} & \text{nested} \\[.5em]
+\xi &\EQ \bullet \Or \xi, \alpha \cdot x
+  & \text{usage contexts} \\[.5em]
+\hat\xi &\EQ \xi; \beta \cdot \_ & \text{usage contexts with default} \\[.5em]
+\Gamma, \Delta &\EQ \bullet \Or \Gamma, \pi \cdot x : A
+          & \text{contexts \& telescopes} \\[.5em]
+\delta &\EQ \bullet \Or \delta, x = s
+          & \text{lists of fields} \\[.5em]
+s, t, A, B &\EQ \dotsb & \text{terms} \\
+           &\OR \{ \delta \} & \text{records} \\[.5em]
+e, f &\EQ \dotsb & \text{eliminations} \\
+     &\OR y\.p & \text{field lookup} \\[.5em]
+p &\EQ x \Or p\.x & \text{paths} \\[.5em]
+\mathbb{D} &\EQ \dotsb & \text{declarations} \\
+           &\OR \Kw{type}\: \Con{R} \: \Delta_1 : \Kw{ty}_i =
+              \{ \Delta_2 \}
+              & \text{records}
+\end{aligned}
+%
+\newcommand\Q{\mathrel|}
+\newcommand\I{\textcolor{blue}} \newcommand\O{\textcolor{green}}
+\let\Rec\Con
+\let\Rule\mathsf
+\newcommand{rule}[3]{\frac{\begin{gathered}#2\end{gathered}}{#3}\:\Rule{#1}}
+\let\Chk\Leftarrow \let\Syn\Rightarrow
+$$
+
+Due to bidirectional type checking we automatically get the information we need
+to disambiguate types with shared field names:
+
+- A record literal is a term, which means the type to check it against is also
+  given upfront. (The type needs to be definitionally equal to a declared record
+  type.)
+
+- A field access is performed on a name, which is an elimination, whose type can
+  be inferred and we know which particular record type we're looking up into.
+
+- Due to record lookups being scattered throughout an expression, we now need to
+  account for usages of fields individually. For example the usage
+  $\{\pi_1 \cdot x_1, \dotsc, \pi_n \cdot x_n; \rho \cdot \_\}$
+  denotes that each $x_i$ has been used $\pi_i$ times, and any fields not
+  listed among the $x_i$ (if any) are used $\rho$ times.
+
+This does mean that somewhere between record construction and lookup, there will
+need to be some type signature, but this is inevitable anyway due to reused field
+names, as well as the fact that the fields' definitions might not be inferrable
+themselves. It is also already the case for functions and pairs, due to
+dependency making inference infeasible.
+
+- The judgement
+  $\I\Gamma \Q \I{\xi_I} \vdash \I{\sigma} \cdot \I{s}
+      \Chk \I{A} \dashv \O{\xi_O}$
+  means that in type context $\Gamma$ and usage context $\xi_I$, $\sigma$ uses of
+  the term $s$ can be checked against the type $A$, with the output usage
+  context $\xi_O$ left over. Here the blue parts are inputs and the green parts
+  outputs.
+
+- The judgement
+  $\I\Gamma \Q \I{\xi_I} \vdash \I{\sigma} \cdot \I{e}
+      \Syn \O{A} \dashv \O{\xi_O}$
+  means that under the same conditions, the elimination $e$ can be inferred to
+  have type $A$.
+
+- "$\I{A}$ is a record with fields $\O\Delta$" means that $A$ must evaluate to
+  an application $\Rec{R}\:\overline{B}$ of some declared record type $\Rec{R}$
+  applied to some parameters, and its fields, *after* substituting in the
+  parameters, are $\Delta$.
+
+The difference between a "context" $\Gamma$ and a "telescope" $\Delta$ is that a
+telescope may already have some bindings in scope (e.g. record fields have the
+parameters in scope).
+
+## Construction
+
+$$
+\begin{gathered}
+\rule{record}{
+  \text{$A$ is a record with fields $\Delta$} \qquad
+  \Gamma \Q \xi \vdash \sigma \cdot \delta \Chk \Delta \dashv \xi_\delta
+}{
+  \Gamma \Q \xi \vdash \sigma \cdot \{\delta\} \Chk A \dashv \xi_\delta
+}
+\\[1em]
+\rule{rnil}{}{
+  \Gamma \Q \xi \vdash \sigma \cdot \bullet \Chk \bullet \dashv \xi
+}
+\\[.5em]
+\rule{rcons}{
+  \Gamma \Q \xi \vdash \sigma \cdot \delta \Chk \Delta \dashv \xi_\delta \qquad
+  (\Gamma, \Delta) \Q (\xi_\delta, 0\Delta) \vdash \sigma\rho \cdot s
+      \Chk A \dashv (\xi_s, 0\Delta)
+}{
+  \Gamma \Q \xi \vdash \sigma \cdot (\delta, x = s) \Chk
+    (\Delta, \rho \cdot x : A) \dashv \xi_s
+}
+\end{gathered}
+$$
+
+Things to note:
+
+- This formulation of $\Rule{record}$ does not allow earlier fields to occur
+  nonzero in later ones. That's probably fixable by making the rule more complex
+  but I haven't figured out the details yet and it's is possible to add in
+  future.
+
+- The order of type dependency follows the record declaration rather than the
+  order the fields are listed.
+
+- The telescope checking from functions can probably be reused for checking
+  a record declaration.
+
+## Lookup
+
+__TODO path lookup__
+
+$$
+\rule{look}{
+  \Gamma \Q 0\Gamma \vdash 0 \cdot w \Syn A \dashv 0\Gamma \qquad
+  \text{$A$ is a record with fields $\Delta$} \\
+  \mathsf{names}(\Delta) = \overline{x_i}, y, \overline{z_j}
+}{
+  \Gamma \Q \xi \vdash \sigma \cdot w\.y \Syn
+    B\overline{[y\.x_i / x_i]}
+    \dashv \xi_w \ominus (\{\sigma \cdot y; 0 \cdot \_\} \cdot w)
+}
+$$
+
+- The weirdest-looking part of this is probably that $w$ is checked in a zero
+  context. That's because it's only the subfield $w\.y$ that is being consumed,
+  not the whole record.
+
+- Since records can be dependent, the output type has the previous fields
+  substituted with more lookups into the same record.
+
+- Like in construction, the $\mathsf{names}$ function returns the field names in
+  the order in the original type declaration.
+
+- The output usage is the same as that of the record itself but with the extra
+  use of the field $x$ also subtracted.
+
+- This rule currently only allows a single level of lookup, meaning it's
+  necessary to replace `x.y.z` with `let xy = x.y in xy.z`. This could be done
+  in an extra desugaring step, or if necessary this rule can also be extended. I
+  just don't have a nice way to do the nested usage counting yet.
+
+# Usage compatibility & subtraction
+
+Since usages are trees now, compatibility $\let\Comp\preceq\Comp$ and
+subtraction $\ominus$ are more complicated than before. The order of fields in
+$\xi$ is unimportant since there are no dependent usages, so the rules for
+$\Comp$ assume they are in the same order in both arguments.
+
+Essentially both compatibility and subtraction recurse through both trees in
+lockstep, duplicating out an atomic usage when one tree stops earlier than the
+other.
+
+A subtree is compatible with an atomic usage when all of its leaves are
+compatible with it (in either direction).
+
+$$
+\begin{gathered}
+\rule{urefl}{}{\sigma \Comp \sigma}
+\qquad
+\rule{uomega}{}{\sigma \Comp \omega}
+\\[.5em]
+\rule{ucons}{
+  \{\hat\xi_1\} \Comp \{\hat\xi_2\} \qquad
+  \pi_1 \Comp \pi_2
+}{
+  \{\pi_1 \cdot x, \hat\xi_1\} \Comp \{\pi_2 \cdot x, \hat\xi_2\}
+}
+\qquad
+\rule{uskip}{
+  \{\hat\xi_1\} \Comp \{\hat\xi_2\} \qquad
+  0 \Comp \pi
+}{
+  \{\pi \cdot x, \hat\xi_1\} \Comp \{\hat\xi_2\}
+}
+\\[.5em]
+\rule{uend}{
+  \pi \Comp \rho
+}{
+  \{\bullet; \pi \cdot \_\} \Comp \{\bullet; \rho \cdot \_\}
+}
+\\[.5em]
+\rule{uall1}{
+  \overline{\pi_i \Comp \sigma} \qquad
+  \rho \Comp \sigma
+}{
+  \{\overline{\pi_i \cdot x_i}; \rho \cdot \_\} \Comp \sigma
+}
+\qquad
+\rule{uall2}{
+  \overline{\sigma \Comp \pi_i} \qquad
+  \sigma \Comp \rho
+}{
+  \sigma \Comp \{\overline{\pi_i \cdot x_i}; \rho \cdot \_\}
+}
+\end{gathered}
+$$
+
+Similarly, a subtraction between a tree and an atomic usage duplicates the
+atom into a tree of the same shape and does each subtraction in turn. This was
+easier to just write in haskell, so:
+
+```haskell
+treeMinus :: CanTC m => UsageTree -> UsageTree -> m UsageTree
+UOne π `treeMinus` UOne ρ =
+  maybe _TypeError (pure . UOne) $ π `minus` ρ
+UOne π `treeMinus` URecord fs o =
+  URecord <$> traverse (UOne π `treeMinus`) fs
+          <*> (UOne π `treeMinus` o)
+URecord fs o `treeMinus` UOne ρ =
+  URecord <$> traverse (`treeMinus` UOne ρ) fs
+          <*> (o `treeMinus` UOne ρ)
+URecord fs1 o1 `treeMinus` URecord fs2 o2 =
+  URecord <$> (Map.fromList <$> traverse minusField fs)
+          <*> (o1 `treeMinus` o2)
+ where
+  fs = Set.toList $ keysSet fs1 <> keysSet fs2
+  minusField f = (f,) <$>
+    Map.findWithDefault o1 f fs1 `treeMinus`
+    Map.findWithDefault o2 f fs2
+```
+
+
+# Evaluation
+
+$$
+\begin{aligned}
+\bar\delta &\EQ \bullet \Or \bar\delta, x = v
+  & \text{list of value fields}
+\\[.5em]
+u, v &\EQ \dotsb & \text{values} \\
+     &\OR \{\bar\delta\} & \text{record}
+\\[.5em]
+n &\EQ \dotsb & \text{neutrals} \\
+  &\OR n\.p & \text{lookup}
+\end{aligned}
+$$
+
+Honestly this part is just what you think it is. To evaluate a record evaluate
+its contents and to evaluate a lookup project out the appropriate bit. Plus
+congruence rules that are omitted here.
+
+$$
+\let\Eval\Longrightarrow
+\begin{gathered}
+\rule{erecord}{
+  \overline{s_i \Eval v_i}
+}{
+  \{\overline{x_i = s_i}\} \Eval
+  \{\overline{x_i = v_i}\}
+}
+\qquad
+\rule{elook}{
+  e \Eval \{\bar\delta_1, x = u, \bar\delta_2\}
+}{
+  e\.x \Eval u
+}
+\end{gathered}
+$$
+
+
+# Other stuff
+
+- We could have anonymous record types if that's preferable. As long as we don't
+  have subtyping etc it's just a matter of replacing "$s \Chk A$ and $A$ is a
+  record with fields $\Delta$" with something like "$s \Chk \{\Delta\}$".
+
+- If we do have anonymous record types, we could also replace $\square_\pi\:A$
+  with something like $\{\pi \cdot \mathsf{val}: A\}$.
+
+- As mentioned in the comment at the beginning, it would be possible to have the
+  head of a lookup expression be any elimination, especially if we foresee
+  having lots of records with a single relevant field and a package of proofs
+  that will only sometimes be needed.
