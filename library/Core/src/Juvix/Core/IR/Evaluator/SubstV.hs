@@ -22,7 +22,8 @@ import qualified Juvix.Library.Usage as Usage
 
 -- | Class of values that support substitution, allows failure using @Either@.
 class HasWeak a => HasSubstV extV primTy primVal a where
-  substVWith ::
+  substVWith :: -- ( Core.TermAll Show extT primTy primVal,
+               --   Core.ElimAll Show extV primTy primVal) =>
     -- | How many bindings have been traversed so far.
     Natural ->
     -- | Variable to substitute.
@@ -35,6 +36,8 @@ class HasWeak a => HasSubstV extV primTy primVal a where
   default substVWith ::
     ( Generic a,
       GHasSubstV extV primTy primVal (Rep a)
+      -- Core.TermAll Show extT primTy primVal,
+      -- Core.ElimAll Show extV primTy primVal
     ) =>
     Natural ->
     Core.BoundVar ->
@@ -79,7 +82,11 @@ type AllSubstV extV primTy primVal =
     HasSubstValue extV primTy primVal primTy,
     HasSubstValue extV primTy primVal primVal,
     Param.CanApply primTy,
-    Param.CanApply primVal
+    Param.CanApply primVal,
+    Show primVal,
+    Show primTy
+    -- Core.TermAll Show extV primTy primVal,
+    -- Core.ElimAll Show extV primTy primVal
   )
 
 instance
@@ -88,6 +95,8 @@ instance
     Monoid (Core.XVLam extV primTy primVal),
     Monoid (Core.XVPrimTy extV primTy primVal),
     Monoid (Core.XVPrim extV primTy primVal)
+    -- Core.TermAll Show extT primTy primVal,
+    -- Core.ElimAll Show extV primTy primVal
   ) =>
   HasSubstV extV primTy primVal (Core.Value extV primTy primVal)
   where
@@ -130,7 +139,11 @@ substNeutralWith ::
     Monoid (Core.XVNeutral extV primTy primVal),
     Monoid (Core.XVLam extV primTy primVal),
     Monoid (Core.XVPrimTy extV primTy primVal),
-    Monoid (Core.XVPrim extV primTy primVal)
+    Monoid (Core.XVPrim extV primTy primVal),
+    Show primTy,
+    Show primVal
+    -- Core.TermAll Show extT primTy primVal,
+    -- Core.ElimAll Show extV primTy primVal
   ) =>
   -- | How many bindings have been traversed so far.
   Natural ->
@@ -170,7 +183,11 @@ vapp ::
     Monoid (Core.XVNeutral extV primTy primVal),
     Monoid (Core.XVLam extV primTy primVal),
     Monoid (Core.XVPrimTy extV primTy primVal),
-    Monoid (Core.XVPrim extV primTy primVal)
+    Monoid (Core.XVPrim extV primTy primVal),
+    Show primVal,
+    Show primTy
+    -- Core.TermAll Show extT primTy primVal,
+    -- Core.ElimAll Show extV primTy primVal
   ) =>
   -- | Function value.
   Core.Value extV primTy primVal ->
@@ -181,16 +198,32 @@ vapp ::
   Core.XNApp extV primTy primVal ->
   Either (Error extV extT primTy primVal) (Core.Value extV primTy primVal)
 vapp s t ann =
+  traceShow "vapp" $
+  traceShow "-------------------" $
+  -- traceShow t $
+  -- traceShow "-------------------" $
+  -- traceShow s $
+  -- traceShow "-------------------" $
   case s of
     Core.VLam s _ -> substV t s
     Core.VNeutral f _ -> pure $ Core.VNeutral (Core.NApp f s ann) mempty
-    Core.VPrimTy p _ -> case t of
+    Core.VPrimTy p _ ->
+      traceShow "hit VPrimTy for s"
+      traceShow "for value p"
+      traceShow "-------------------"
+      traceShow p $
+      traceShow "-------------------"
+      case t of
       Core.VPrimTy q _ ->
+        traceShow "hit vprimty" $
         app' ApplyErrorT Core.VPrimTy (\_ -> Param.pureArg) p q
       Core.VNeutral (Core.NFree (Core.Global y) _) _ ->
+        traceShow "hit here" $
         -- TODO pattern vars also
         app' ApplyErrorT Core.VPrimTy Param.freeArg p y
-      Core.VNeutral (Core.NBound i _) _ ->
+      Core.VNeutral v@(Core.NBound i _) _ ->
+        traceShow "hit here last"
+        traceShow "here is what t becomes"
         app' ApplyErrorT Core.VPrimTy Param.boundArg p i
       _ ->
         Left $ CannotApply s t NoApplyError
@@ -209,7 +242,7 @@ vapp s t ann =
   where
     app' ::
       forall ann arg fun.
-      (Param.CanApply fun, Monoid ann) =>
+      (Param.CanApply fun, Monoid ann, Show arg) =>
       (Param.ApplyError fun -> ApplyError primTy primVal) ->
       (fun -> ann -> Core.Value extV primTy primVal) ->
       (Proxy fun -> arg -> Maybe (Param.Arg fun)) ->
@@ -217,6 +250,7 @@ vapp s t ann =
       arg ->
       Either (Error extV extT primTy primVal) (Core.Value extV primTy primVal)
     app' err con mkArg p y =
+      traceShow y $
       case mkArg Proxy y of
         Nothing -> Left $ CannotApply s t NoApplyError
         Just y ->
@@ -384,7 +418,9 @@ instance
     HasWeak primVal,
     HasSubstValue IR.T primTy (Param.TypedPrim primTy primVal) primTy,
     Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal)
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Show primTy,
+    Show primVal
   ) =>
   HasSubstValue
     IR.T

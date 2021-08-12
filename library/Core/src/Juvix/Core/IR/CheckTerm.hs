@@ -444,7 +444,9 @@ substApp ::
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
-      primTy
+      primTy,
+    Show primVal,
+    Show primTy
   ) =>
   Typed.ValueT IR.T primTy primVal ->
   Typed.Term primTy primVal ->
@@ -466,7 +468,9 @@ evalTC ::
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
-      primTy
+      primTy,
+    Show primTy,
+    Show primVal
   ) =>
   Typed.Term primTy primVal ->
   m (Typed.ValueT IR.T primTy primVal)

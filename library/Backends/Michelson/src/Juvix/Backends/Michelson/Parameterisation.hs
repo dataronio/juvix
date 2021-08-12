@@ -120,8 +120,11 @@ arityRaw prim =
 -- | Try to translate the value into a function argument.
 -- Continuations can't be translated, but returns do.
 toArg :: PrimVal' ext -> Maybe (Arg' ext)
-toArg App.Cont {} = Nothing
+toArg App.Cont {} =
+  traceShow "hit cont"
+  Nothing
 toArg App.Return {retType, retTerm} =
+  traceShow "hit return"
   Just $
     App.TermArg $
       App.Take
@@ -165,6 +168,8 @@ instance Core.CanApply PrimTy where
   arity x =
     Run.lengthType x
 
+
+
   apply (Application fn args1) args2 =
     Application fn (args1 <> args2)
       |> Right
@@ -180,11 +185,15 @@ instance App.IsParamVar ext => Core.CanApply (PrimVal' ext) where
 
   pureArg = toArg
 
-  freeArg _ = fmap App.VarArg . App.freeVar (Proxy @ext)
-  boundArg _ = fmap App.VarArg . App.boundVar (Proxy @ext)
+  freeArg _ =
+    traceShow "hit free arg" $
+    fmap App.VarArg . App.freeVar (Proxy @ext)
+  boundArg _ =
+    traceShow "hit bound arg" $
+    fmap App.VarArg . App.boundVar (Proxy @ext)
 
-  arity App.Cont {numLeft} = numLeft
-  arity App.Return {retTerm} = arityRaw retTerm
+  arity App.Cont {numLeft} = traceShow "arity cont" numLeft
+  arity App.Return {retTerm} = traceShow "arity Return" $ arityRaw retTerm
 
   -- The following implementation follows the eval/apply method for curried
   -- function application. A description of this can be found in 'How to make a
@@ -194,6 +203,7 @@ instance App.IsParamVar ext => Core.CanApply (PrimVal' ext) where
   -- arguments to the function. The function is of type 'PrimVal''/'Return'',
   -- so either a continuation or a fully evaluated term.
   apply fun' args2 = do
+    traceShowM "calling apply"
     let (fun, args1, ar) = toTakes fun' -- 'args1' are part of continuation fun'
         argLen = lengthN args2 -- Nr. of free arguments.
         args = foldr NonEmpty.cons args2 args1 -- List of all arguments.
@@ -352,7 +362,12 @@ builtinValues =
 michelson :: P.Parameterisation PrimTy RawPrimVal
 michelson =
   P.Parameterisation
-    { hasType,
+    { hasType = \x y ->
+        traceShow "calling hasType" $
+        let ans = hasType x y in
+          traceShow "Resulting type has" $
+          traceShow ans
+          ans,
       builtinTypes,
       builtinValues,
       stringVal = Just . Constant . M.ValueString . M.mkMTextUnsafe, -- TODO ?
