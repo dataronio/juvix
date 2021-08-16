@@ -8,5 +8,4 @@ let (+) = %Circuit.add
 declare infixl (+) 5
 
 sig main : field -> field -> field
-let main x y = x + y 
-
+let main x y = x + y

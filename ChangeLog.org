@@ -1,6 +1,10 @@
 * Changelog for Juvix
-** 0.1.1.11
+** 0.1.1.13
 - Adds record declarations to the Core S-expression representation.
+** 0.1.1.12
+- Disables modules which are not explicitly named
+** 0.1.1.11
+- Extended EasyPipeline to support inline and erasure
 ** 0.1.1.10
 - Put =Contextify= passes into proper sections
 - Minor cleanup in running the =Contextify= passes
