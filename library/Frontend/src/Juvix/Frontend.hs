@@ -1,4 +1,9 @@
-module Juvix.Frontend where
+module Juvix.Frontend
+  ( Error (..),
+    parseFiles,
+    parseSingleFile,
+  )
+where
 
 import qualified Data.ByteString as ByteString
 import qualified Data.Char as Char
@@ -10,29 +15,37 @@ import Juvix.Library.Parser (ParserError)
 import qualified System.FilePath as FilePath
 import Prelude (String)
 
+data Error
+  = NoHeaderErr FilePath
+  | ParseError ParserError
+  deriving (Show)
+
 -- we abuse laziness here
 -- TODO ∷ add directory option
 -- this will add top level to the thing, and properly handle paths
 
 -- | Parse multiple files into ML AST
-parseFiles :: [FilePath] -> IO (Either ParserError [(NameSymbol.T, [Types.TopLevel])])
+parseFiles :: [FilePath] -> IO (Either Error [(NameSymbol.T, [Types.TopLevel])])
 parseFiles =
   -- fmap gets through the IO, so that sequenceA flips the either and list
   fmap sequenceA . traverse parseSingleFile
 
 -- | Parse single file into ML AST
-parseSingleFile :: FilePath -> IO (Either ParserError (NameSymbol.T, [Types.TopLevel]))
+parseSingleFile :: FilePath -> IO (Either Error (NameSymbol.T, [Types.TopLevel]))
 parseSingleFile file = do
   read <- ByteString.readFile file
-  case Parser.parse read of
-    Left x ->
-      pure (Left x)
-    Right (Types.Header name xs) ->
-      pure (Right (name, xs))
-    Right (Types.NoHeader xs) ->
-      let toName =
-            NameSymbol.fromSymbol . intern . toUpper . FilePath.takeBaseName
-       in pure (Right (toName file, xs))
+  pure $
+    case Parser.parse read of
+      Left x ->
+        Left (ParseError x)
+      Right (Types.NoHeader _xs) ->
+        Left (NoHeaderErr file)
+      Right (Types.Header name xs) ->
+        Right (name, xs)
+
+_fileNameToModuleName :: FilePath -> NameSymbol.T
+_fileNameToModuleName =
+  NameSymbol.fromSymbol . intern . toUpper . FilePath.takeBaseName
 
 toUpper :: String -> String
 toUpper (x : xs) = Char.toUpper x : xs

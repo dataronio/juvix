@@ -74,7 +74,7 @@ type Constraints b =
 
 data Error
   = FrontendErr ToSexp.Error
-  | ParseErr ParserError
+  | ParseErr Frontend.Error
   -- TODO: CoreError
   deriving (Show)
 
@@ -98,7 +98,15 @@ class HasBackend b where
     fp <- createTmpPath code
     e <- Frontend.parseFiles (libs ++ [fp])
     case e of
-      Left err -> Feedback.fail . toS . pShowNoColor . P.errorBundlePretty $ err
+      Left (Frontend.NoHeaderErr file) ->
+        Feedback.fail
+          ( "File "
+              <> file
+              <> " does not contain a module header"
+              <> ", please specify module name in the file"
+          )
+      Left (Frontend.ParseError err) ->
+        Feedback.fail $ toS $ pShowNoColor $ P.errorBundlePretty err
       Right x -> pure x
 
   -- | Parse juvix source code using prelude and the default set of libraries of the backend
