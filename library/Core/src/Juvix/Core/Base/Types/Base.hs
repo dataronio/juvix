@@ -64,6 +64,9 @@ extensibleWith
         UnitTy
       | -- | Unit Value.
         Unit
+      | -- | Record type. (It's a list not a map because the dependency order
+        -- needs to be preserved.)
+        RecordTy [(Symbol, Usage, Term primTy primVal)]
       | -- | Constructor for a record type.
         Record [(Symbol, Term primTy primVal)]
       | -- | CONV conversion rule. TODO make sure 0Γ ⊢ S≡T
@@ -80,7 +83,7 @@ extensibleWith
       | -- | elimination rule of PI (APP).
         App (Elim primTy primVal) (Term primTy primVal)
       | -- | Project an element from a record type.
-        Lookup (Elim primTy primVal) Symbol
+        Lookup Name Symbol
       | -- | Annotation with usage.
         Ann Usage (Term primTy primVal) (Term primTy primVal) Universe
       deriving (Eq, Show, Generic, Data, NFData)
@@ -96,6 +99,8 @@ extensibleWith
       | VUnitTy
       | VUnit
       | VNeutral (Neutral primTy primVal)
+      | VRecordTy [(Symbol, Usage, Value primTy primVal)]
+      | VRecord (Map Symbol (Value primTy primVal))
       | VPrim primVal
       deriving (Eq, Show, Generic, Data, NFData)
 
@@ -104,6 +109,7 @@ extensibleWith
     data Neutral primTy primVal
       = NBound BoundVar
       | NFree Name
+      | NLookups (Neutral primTy primVal) [Symbol]
       | NApp (Neutral primTy primVal) (Value primTy primVal)
       deriving (Eq, Show, Generic, Data, NFData)
 

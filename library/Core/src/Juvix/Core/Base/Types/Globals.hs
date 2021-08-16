@@ -191,99 +191,6 @@ deriving instance
   GlobalAll NFData extV extT primTy primVal =>
   NFData (DataCon extV extT primTy primVal)
 
-data RawRecord ext primTy primVal = RawRecordTy
-  { rawRecordName :: GlobalName,
-    rawRecordArgs :: [RawDataArg ext primTy primVal],
-    rawRecordLevel :: Natural,
-    rawRecordFields :: [RawField ext primTy primVal]
-  }
-  deriving Generic
-
-deriving instance
-  RawGlobalAll Show ext primTy primVal =>
-  Show (RawRecord ext primTy primVal)
-
-deriving instance
-  RawGlobalAll Eq ext primTy primVal =>
-  Eq (RawRecord ext primTy primVal)
-
-deriving instance
-  (Data ext, RawGlobalAll Data ext primTy primVal) =>
-  Data (RawRecord ext primTy primVal)
-
-deriving instance
-  RawGlobalAll NFData ext primTy primVal =>
-  NFData (RawRecord ext primTy primVal)
-
-data RawField ext primTy primVal = RawField
-  { rawFieldName :: Symbol,
-    rawFieldType :: Term ext primTy primVal
-  }
-  deriving Generic
-
-deriving instance
-  RawGlobalAll Show ext primTy primVal =>
-  Show (RawField ext primTy primVal)
-
-deriving instance
-  RawGlobalAll Eq ext primTy primVal =>
-  Eq (RawField ext primTy primVal)
-
-deriving instance
-  (Data ext, RawGlobalAll Data ext primTy primVal) =>
-  Data (RawField ext primTy primVal)
-
-deriving instance
-  RawGlobalAll NFData ext primTy primVal =>
-  NFData (RawField ext primTy primVal)
-
-data Record ext primTy primVal = RecordTy
-  { recordName :: GlobalName,
-    recordArgs :: [DataArg ext primTy primVal],
-    recordLevel :: Natural,
-    recordFields :: [Field ext primTy primVal]
-  }
-  deriving Generic
-
-deriving instance
-  GlobalAllV Show ext primTy primVal =>
-  Show (Record ext primTy primVal)
-
-deriving instance
-  GlobalAllV Eq ext primTy primVal =>
-  Eq (Record ext primTy primVal)
-
-deriving instance
-  (Data ext, GlobalAllV Data ext primTy primVal) =>
-  Data (Record ext primTy primVal)
-
-deriving instance
-  GlobalAllV NFData ext primTy primVal =>
-  NFData (Record ext primTy primVal)
-
-data Field ext primTy primVal = Field
-  { fieldName :: Symbol,
-    fieldType :: Value ext primTy primVal
-  }
-  deriving Generic
-
-deriving instance
-  GlobalAllV Show ext primTy primVal =>
-  Show (Field ext primTy primVal)
-
-deriving instance
-  GlobalAllV Eq ext primTy primVal =>
-  Eq (Field ext primTy primVal)
-
-deriving instance
-  (Data ext, GlobalAllV Data ext primTy primVal) =>
-  Data (Field ext primTy primVal)
-
-deriving instance
-  GlobalAllV NFData ext primTy primVal =>
-  NFData (Field ext primTy primVal)
-
-
 data RawFunction ext primTy primVal = RawFunction
   { rawFunName :: GlobalName,
     rawFunUsage :: GlobalUsage,
@@ -399,7 +306,6 @@ deriving instance
 
 data RawGlobal ext primTy primVal
   = RawGDatatype (RawDatatype ext primTy primVal)
-  | RawGRecord (RawRecord ext primTy primVal)
   | RawGDataCon (RawDataCon ext primTy primVal)
   | RawGFunction (RawFunction ext primTy primVal)
   | RawGAbstract (RawAbstract ext primTy primVal)
