@@ -1,0 +1,11 @@
+mod TooManyArguments where
+
+open Prelude
+open LLVM
+
+type VerySimpleType = One int
+
+sig main : int
+let main =
+  let tooManyArguments = One 0 1 in
+  0

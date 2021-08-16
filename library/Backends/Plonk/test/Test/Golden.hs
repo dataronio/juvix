@@ -49,7 +49,7 @@ compileTests =
   testGroup "Plonk compile"
     <$> sequence
       [ compileTestsPos "test/examples/positive/circuit",
-        compileTestsNeg "test/examples/negative/circuit"
+        compileTestsNeg "test/examples/negative/circuit/compile"
       ]
   where
     compileTestsPos = plonkGoldenTests ".circuit" (expectSuccess . compile)
@@ -61,7 +61,7 @@ typecheckTests =
   testGroup "Plonk typecheck"
     <$> sequence
       [ typecheckTestsPos "test/examples/positive/circuit",
-        typecheckTestsNeg "test/examples/negative/circuit"
+        typecheckTestsNeg "test/examples/negative/circuit/typecheck"
       ]
   where
     typecheckTestsPos = plonkGoldenTests ".typecheck" (expectSuccess . typecheck)
@@ -77,11 +77,11 @@ hrTests =
   testGroup "Plonk HR"
     <$> sequence
       [ hrTestsPos "test/examples/positive/circuit",
-        hrTestsNeg "test/examples/negative/circuit"
+        hrTestsNeg "test/examples/negative/circuit/hr"
       ]
   where
     hrTestsPos = plonkGoldenTestsNoQuotes ".hr" (expectSuccess . toNoQuotes pipelineToHR)
-    hrTestsNeg = plonkGoldenTestsNoQuotes ".hr" (expectFailure . toNoQuotes pipelineToHR)
+    hrTestsNeg = plonkGoldenTestsNoQuotes ".hr" (expectFailure . toNoQuotesEmpty pipelineToHR)
 
 pipelineToHR file =
   do
@@ -101,22 +101,22 @@ irTests =
   testGroup "Plonk IR"
     <$> sequence
       [ hrTestsPos "test/examples/positive/circuit",
-        hrTestsNeg "test/examples/negative/circuit"
+        hrTestsNeg "test/examples/negative/circuit/ir"
       ]
   where
     hrTestsPos = plonkGoldenTestsNoQuotes ".ir" (expectSuccess . toNoQuotes pipelineToIR)
-    hrTestsNeg = plonkGoldenTestsNoQuotes ".ir" (expectFailure . toNoQuotes pipelineToIR)
+    hrTestsNeg = plonkGoldenTestsNoQuotes ".ir" (expectFailure . toNoQuotesEmpty pipelineToIR)
 
 erasedTests :: IO TestTree
 erasedTests =
   testGroup "Plonk Erased"
     <$> sequence
       [ hrTestsPos "test/examples/positive/circuit",
-        hrTestsNeg "test/examples/negative/circuit"
+        hrTestsNeg "test/examples/negative/circuit/erased"
       ]
   where
     hrTestsPos = plonkGoldenTestsNoQuotes ".erased" (expectSuccess . toNoQuotes toErased)
-    hrTestsNeg = plonkGoldenTestsNoQuotes ".erased" (expectFailure . toNoQuotes toErased)
+    hrTestsNeg = plonkGoldenTestsNoQuotes ".erased" (expectFailure . toNoQuotesEmpty toErased)
     toErased file =
       do
         liftIO (readFile file)

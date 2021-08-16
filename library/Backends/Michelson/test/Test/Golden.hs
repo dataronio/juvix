@@ -32,7 +32,7 @@ compileTests =
   testGroup "Michelson compile"
     <$> sequence
       [ compileTestPos "test/examples/positive/michelson",
-        compileTestNeg "test/examples/negative/michelson"
+        compileTestNeg "test/examples/negative/michelson/compile"
       ]
   where
     compileTestPos = compileTest (expectSuccess . compile)
@@ -44,11 +44,11 @@ typecheckTests =
   testGroup "Michelson typecheck"
     <$> sequence
       [ typecheckTestPos "test/examples/positive/michelson",
-        typecheckTestNeg "test/examples/negative/michelson"
+        typecheckTestNeg "test/examples/negative/michelson/typecheck"
       ]
   where
     typecheckTestPos = typecheckTest (expectSuccess . toNoQuotes typecheck)
-    typecheckTestNeg = typecheckTest (expectFailure . toNoQuotes typecheck)
+    typecheckTestNeg = typecheckTest (expectFailure . toNoQuotesEmpty typecheck)
 
 -- | Discover golden tests for input files with extension @.ju@ and output
 -- files with extension @.typecheck@.

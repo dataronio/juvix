@@ -1,0 +1,22 @@
+mod TooManyArguments where
+
+open Prelude
+open Circuit
+
+sig field : ty
+let field = %Circuit.field
+
+sig (+) : field -> field -> field
+let (+) = %Circuit.add
+declare infixl (+) 5
+
+sig (==) : field -> field -> bool
+let (==) = %Circuit.eq
+declare infixl (==) 2
+
+type VerySimpleType = One field
+
+sig main : field
+let main =
+  let tooManyArguments = One 0 1 in
+  0

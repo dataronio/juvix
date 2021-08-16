@@ -1,0 +1,21 @@
+mod TooManyArguments where
+
+open Prelude
+open Michelson
+
+sig (+) : nat -> nat -> nat
+let (+) = %Michelson.add
+declare infixl (+) 5
+
+sig nil : list operation
+let nil = %Michelson.nil
+
+sig make-pair : list operation -> nat -> pair (list operation) nat
+let make-pair = %Michelson.pair
+
+type VerySimpleType = One nat
+
+sig main : pair nat nat -> pair (list operation) nat
+let main =
+  let tooManyArguments = One 0 1 in
+  \_ -> make-pair nil 0

@@ -39,7 +39,7 @@ compileTests =
   testGroup "LLVM compile"
     <$> sequence
       [ compileTestPos "test/examples/positive/llvm",
-        compileTestNeg "test/examples/negative/llvm"
+        compileTestNeg "test/examples/negative/llvm/compile"
       ]
   where
     compileTestPos = compileTest (expectSuccess . compile)
@@ -51,11 +51,11 @@ typecheckTests =
   testGroup "LLVM typecheck"
     <$> sequence
       [ typecheckTestPos "test/examples/positive/llvm",
-        typecheckTestNeg "test/examples/negative/llvm"
+        typecheckTestNeg "test/examples/negative/llvm/typecheck"
       ]
   where
     typecheckTestPos = typecheckTest (expectSuccess . toNoQuotes typecheck)
-    typecheckTestNeg = typecheckTest (expectFailure . toNoQuotes typecheck)
+    typecheckTestNeg = typecheckTest (expectFailure . toNoQuotesEmpty typecheck)
 
 -- | Discover golden tests for input files with extension @.ju@ and output
 -- files with extension @.typecheck@.

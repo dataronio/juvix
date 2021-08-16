@@ -38,6 +38,9 @@ module Juvix.Library.Test.Golden
     getGolden,
     expectSuccess,
     expectFailure,
+
+    -- * For tests which only care about success/failure, not exact output
+    toNoQuotesEmpty,
   )
 where
 
@@ -61,6 +64,9 @@ type FileExtension = String
 
 newtype NoQuotes = NoQuotes Text
 
+emptyNoQuotes :: NoQuotes
+emptyNoQuotes = NoQuotes ""
+
 instance Show NoQuotes where
   show (NoQuotes t) = toS t
 
@@ -75,7 +81,8 @@ instance Eq NoQuotes where
       t2 = Text.filter (/= '"') . Text.strip <$> lines s2
 
 toNoQuotes,
-  toNoQuotesCompact ::
+  toNoQuotesCompact,
+  toNoQuotesEmpty ::
     (Monad m, Show a) =>
     (FilePath -> m a) ->
     FilePath ->
@@ -86,6 +93,9 @@ toNoQuotes f filepath = do
 toNoQuotesCompact f filepath = do
   t <- f filepath
   pure $ NoQuotes $ toS $ printCompactParens t
+toNoQuotesEmpty f filepath = do
+  _t <- f filepath
+  pure emptyNoQuotes
 
 getGolden :: (Read a, Show a) => FilePath -> IO (Maybe a)
 getGolden file = do
@@ -233,7 +243,7 @@ expectFailure v = do
   feedback <- Feedback.runFeedbackT v
   case feedback of
     Feedback.Success _msgs r -> panic $ "Expected failure but succeeded with: " <> show r
-    Feedback.Fail msgs -> pure $ NoQuotes $ show msgs
+    Feedback.Fail _msgs -> pure emptyNoQuotes
 
 printCompactParens :: Show a => a -> TLazy.Text
 printCompactParens =
