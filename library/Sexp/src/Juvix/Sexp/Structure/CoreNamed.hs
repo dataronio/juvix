@@ -113,17 +113,15 @@ data RawFunClause = RawFunClause
   }
   deriving (Show)
 
-data RecordDeclaration = RecordDeclaration
-  { recordDeclarationName :: NameSymbol.T,
-    recordDeclarationArgs :: Sexp.T,
-    recordDeclarationLevel :: Integer,
-    recordDeclarationField :: [Field]
+data Field = Field
+  { fieldName :: NameSymbol.T,
+    fieldUsage :: Sexp.T,
+    fieldTy :: Sexp.T
   }
   deriving (Show)
 
-data Field = Field
-  { fieldName :: NameSymbol.T,
-    fieldTy :: Sexp.T
+newtype RecordTy = RecordTy
+  { recordTyFields :: [Field]
   }
   deriving (Show)
 
@@ -445,41 +443,39 @@ fromMeta (Meta sexp1 integer2) =
 toField :: Sexp.T -> Maybe Field
 toField form =
   case form of
-    nameSymbol1 Sexp.:> sexp2 Sexp.:> Sexp.Nil
+    nameSymbol1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil
       | Just nameSymbol1 <- toNameSymbol nameSymbol1 ->
-        Field nameSymbol1 sexp2 |> Just
+        Field nameSymbol1 sexp2 sexp3 |> Just
     _ ->
       Nothing
 
 fromField :: Field -> Sexp.T
-fromField (Field nameSymbol1 sexp2) =
-  Sexp.list [fromNameSymbol nameSymbol1, sexp2]
+fromField (Field nameSymbol1 sexp2 sexp3) =
+  Sexp.list [fromNameSymbol nameSymbol1, sexp2, sexp3]
 
 ----------------------------------------
--- RecordDeclaration
+-- RecordTy
 ----------------------------------------
 
-nameRecordDeclaration :: NameSymbol.T
-nameRecordDeclaration = ":record-declaration"
+nameRecordTy :: NameSymbol.T
+nameRecordTy = ":record-ty"
 
-isRecordDeclaration :: Sexp.T -> Bool
-isRecordDeclaration (Sexp.Cons form _) = Sexp.isAtomNamed form nameRecordDeclaration
-isRecordDeclaration _ = False
+isRecordTy :: Sexp.T -> Bool
+isRecordTy (Sexp.Cons form _) = Sexp.isAtomNamed form nameRecordTy
+isRecordTy _ = False
 
-toRecordDeclaration :: Sexp.T -> Maybe RecordDeclaration
-toRecordDeclaration form
-  | isRecordDeclaration form =
+toRecordTy :: Sexp.T -> Maybe RecordTy
+toRecordTy form
+  | isRecordTy form =
     case form of
-      _nameRecordDeclaration Sexp.:> nameSymbol1 Sexp.:> sexp2 Sexp.:> integer3 Sexp.:> field4
-        | Just nameSymbol1 <- toNameSymbol nameSymbol1,
-          Just integer3 <- toInteger integer3,
-          Just field4 <- toField `fromStarList` field4 ->
-          RecordDeclaration nameSymbol1 sexp2 integer3 field4 |> Just
+      _nameRecordTy Sexp.:> field1
+        | Just field1 <- toField `fromStarList` field1 ->
+          RecordTy field1 |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
-fromRecordDeclaration :: RecordDeclaration -> Sexp.T
-fromRecordDeclaration (RecordDeclaration nameSymbol1 sexp2 integer3 field4) =
-  Sexp.listStar [Sexp.atom nameRecordDeclaration, fromNameSymbol nameSymbol1, sexp2, fromInteger integer3, fromField `toStarList` field4]
+fromRecordTy :: RecordTy -> Sexp.T
+fromRecordTy (RecordTy field1) =
+  Sexp.listStar [Sexp.atom nameRecordTy, fromField `toStarList` field1]

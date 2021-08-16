@@ -364,7 +364,5 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Meta" '("sexp" "integer") nil)
 
-  (generate-haskell "Field" (list "nameSymbol" "sexp") nil)
-  (generate-haskell "RecordDeclaration" (list "nameSymbol" "sexp" "integer" "field")
-                    ":record-declaration"
-                    :list-star t))
+  (generate-haskell "Field" (list "nameSymbol" "sexp" "sexp") nil)
+  (generate-haskell "RecordTy" (list "field") ":record-ty" :list-star t))
