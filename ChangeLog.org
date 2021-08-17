@@ -1,4 +1,6 @@
 * Changelog for Juvix
+** 0.1.1.13
+- Creates generic tooling for Context Pass transformations
 ** 0.1.1.12
 - Disables modules which are not explicitly named
 ** 0.1.1.11

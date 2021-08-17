@@ -46,7 +46,10 @@ type Expression m = (Env.ErrS m, Env.HasClosure m)
 resolveModule ::
   ExpressionIO m => Env.SexpContext -> m Env.SexpContext
 resolveModule context =
-  Env.passContextSingle context (\x -> x == ":atom" || x == Structure.nameOpenIn) openResolution
+  Env.passContext
+    context
+    (\x -> x == ":atom" || x == Structure.nameOpenIn)
+    (Env.singlePass openResolution)
 
 openResolution ::
   ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom -> Sexp.T -> m Sexp.T
@@ -92,7 +95,7 @@ atomResolution _ _ s = pure s
 inifixSoloPass ::
   Expression m => Env.SexpContext -> m Env.SexpContext
 inifixSoloPass context =
-  Env.passContextSingle context (== Structure.nameInfix) infixConversion
+  Env.passContext context (== Structure.nameInfix) (Env.singlePass infixConversion)
 
 infixConversion ::
   (Env.ErrS m, Env.HasClosure m) => Context.T t y s -> Sexp.Atom -> Sexp.T -> m Sexp.T

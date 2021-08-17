@@ -12,6 +12,7 @@ where
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Context as Context
+import qualified Juvix.Context.Traversal as Context
 import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.Common.Context.Traverse as Context
 import qualified Juvix.Core.HR as HR

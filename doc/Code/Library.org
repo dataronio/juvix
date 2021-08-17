@@ -440,6 +440,14 @@ temporary lexical bindings as our code encounters binders.
 ***** Precedence
 - _Relies on_
   + [[Library]]
+***** Traversal
+Traversals serves as generic Context Traversal modules.
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[NameSpace]]
+  + [[Context/Types]]
+  + [[Library]]
+  + [[HashMap]]
 ***** Types <<Context/Types>>
 - _Relies on_
   + [[NameSpace]]
@@ -1116,6 +1124,7 @@ with any stage of the compiler while modifying the source code.
 ***** ToHR
 - _Relies on_
   + [[Juvix/Context]]
+  + [[Traversal]]
   + [[Core/Base]]
   + [[Traverse]]
   + [[HR]]
@@ -1564,6 +1573,7 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Closure]]
   + [[Juvix/Context]]
   + [[NameSpace]]
+  + [[Traversal]]
   + [[InfixPrecedence/ShuntYard]]
   + [[Library]]
   + [[NameSymbol]]

@@ -200,7 +200,7 @@ openTest =
                 :| [("A", parseDesugarSexp "let bar = 3")]
             )
         let (_, Cap _ [Closure.T capture]) =
-              runCtx (Env.passContextSingle ctx trigger recordClosure) emptyClosure
+              runCtx (Env.passContext ctx trigger (Env.singlePass recordClosure)) emptyClosure
         Map.toList capture T.@=? [("bar", Closure.Info Nothing [] (Just "A"))]
     ]
   where
@@ -212,7 +212,7 @@ capture str trigger = do
   Right (ctx, _) <-
     contextualizeFoo str
   let (_, Cap _ capture) =
-        runCtx (Env.passContextSingle ctx trigger recordClosure) emptyClosure
+        runCtx (Env.passContext ctx trigger (Env.singlePass recordClosure)) emptyClosure
   pure capture
 
 -- Right (ctx,_) <- contextualizeFoo "let f = 3"

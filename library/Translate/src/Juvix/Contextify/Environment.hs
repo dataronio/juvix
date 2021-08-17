@@ -1,9 +1,12 @@
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 module Juvix.Contextify.Environment
   ( ErrorS (..),
     ErrS,
     SexpContext,
     HasClosure,
-    passContextSingle,
     passContext,
     Pass (..),
     extractInformation,
@@ -17,6 +20,7 @@ module Juvix.Contextify.Environment
     runM,
     namedForms,
     onExpression,
+    singlePass,
   )
 where
 
@@ -24,6 +28,7 @@ import Control.Lens hiding ((|>))
 import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Context
 import qualified Juvix.Context.NameSpace as NameSpace
+import qualified Juvix.Context.Traversal as Context
 import qualified Juvix.Contextify.InfixPrecedence.ShuntYard as Shunt
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
@@ -92,48 +97,18 @@ runM (Ctx c) = runState (runExceptT c) (Minimal Closure.empty)
 -- Main Functionality
 ------------------------------------------------------------
 
-data Pass m = Pass
-  { sumF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T,
-    termF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T,
-    tyF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T
-  }
-
--- | @passContextSingle@ Traverses the context firing off sexp
--- traversals based on the given trigger.
-passContextSingle ::
-  (HasClosure m, ErrS m) =>
-  -- | the context in which our code resides in
-  SexpContext ->
-  -- | the trigger function that states what forms to fire off
-  -- on. :atom for firing on every atom
-  (NameSymbol.T -> Bool) ->
-  -- | Our transformation function that is responsible for handling the triggers
-  (SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T) ->
-  m SexpContext
-passContextSingle ctx trigger f =
-  passContext ctx trigger (Pass f f f)
-
 -- | @passContext@ like @passContextSingle@ but we supply a different
 -- function for each type term and sum representation form.
 passContext ::
-  (HasClosure m, ErrS m) => SexpContext -> (NameSymbol.T -> Bool) -> Pass m -> m SexpContext
-passContext ctx trigger Pass {sumF, termF, tyF} =
+  (ToContextTraversal pass _f, HasClosure m, ErrS m) =>
+  Context.T Sexp.T Sexp.T Sexp.T ->
+  (NameSymbol.T -> Bool) ->
+  pass m ->
+  m (Context.T Sexp.T Sexp.T Sexp.T)
+passContext ctx trigger pass =
   Context.mapWithContext
     ctx
-    Context.CtxForm
-      { -- Need to do this consing of type to figure out we are in a type
-        -- we then need to remove it, as it shouldn't be there
-        sumF = \form ->
-          fmap Sexp.cdr . pass sumF (Sexp.Cons (Sexp.atom "type") form),
-        termF = pass termF,
-        tyF = pass tyF
-      }
-  where
-    pass func form ctx =
-      Sexp.foldSearchPred
-        form
-        (trigger, func ctx)
-        (bindingForms, searchAndClosure ctx)
+    (promotePass pass trigger)
 
 -- | @onExpression@ runs an algorithm similar to @passContext@ however
 -- only on a single expression instead of an entire context. For this
@@ -150,6 +125,59 @@ onExpression form trigger func =
     form
     (trigger, func)
     (bindingForms, searchAndClosureNoCtx)
+
+------------------------------------------------------------
+-- Pass infrastructure
+------------------------------------------------------------
+
+data Pass m = Pass
+  { sumF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T,
+    termF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T,
+    tyF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T
+  }
+
+singlePass :: (SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T) -> Pass m
+singlePass f = Pass f f f
+
+class
+  Context.ToContextFormGeneral contextTo =>
+  ToContextTraversal (pass :: (* -> *) -> *) contextTo
+    | pass -> contextTo
+  where
+  promotePass ::
+    (HasReader "closure" Closure.T m, HasThrow "error" ErrorS m) =>
+    pass m ->
+    (NameSymbol.T -> Bool) ->
+    contextTo m Sexp.T Sexp.T Sexp.T
+
+instance ToContextTraversal Pass Context.ContextForms where
+  promotePass Pass {sumF, termF, tyF} trigger =
+    Context.CtxForm
+      { -- Need to do this consing of type to figure out we are in a type
+        -- we then need to remove it, as it shouldn't be there
+        sumF = \form ->
+          fmap Sexp.cdr
+            . foldSearchContextClosure sumF trigger (Sexp.Cons (Sexp.atom "type") form),
+        termF = foldSearchContextClosure termF trigger,
+        tyF = foldSearchContextClosure tyF trigger
+      }
+
+foldSearchContextClosure ::
+  (HasReader "closure" Closure.T f, HasThrow "error" ErrorS f) =>
+  (Context.T Sexp.T Sexp.T Sexp.T -> Sexp.Atom -> Sexp.T -> f Sexp.T) ->
+  (NameSymbol.T -> Bool) ->
+  Sexp.T ->
+  Context.T Sexp.T Sexp.T Sexp.T ->
+  f Sexp.T
+foldSearchContextClosure func trigger form ctx =
+  Sexp.foldSearchPred
+    form
+    (trigger, func ctx)
+    (bindingForms, searchAndClosure ctx)
+
+------------------------------------------------------------
+-- Binding form infrastructure
+------------------------------------------------------------
 
 -- | @bindingForms@ is a predicate that answers true for every form
 -- that instantiates a new variable
