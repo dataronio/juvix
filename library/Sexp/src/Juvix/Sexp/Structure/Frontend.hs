@@ -40,15 +40,6 @@ import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import Juvix.Sexp.Structure.Helpers
 
-data App = App
-  { appArg :: [Sexp.T]
-  , appFun :: Sexp.T
-  }
-
-data Tuple = Tuple
- { tuple :: [Sexp.T]
- }
-
 -- | @Defun@ is the base defun structure
 -- currently it does not have matching
 data Defun = Defun

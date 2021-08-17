@@ -49,9 +49,9 @@ data DoDeep = DoDeep
 
 data DoBodyFull
   = WithBinder { doBodyFullName :: NameSymbol.T,
-                 doBodyFullBBody :: DoClause
+                 doBodyFullBBody :: Sexp.T
                }
-  | NoBinder { doBodyFullBody :: DoClause }
+  | NoBinder { doBodyFullBody :: Sexp.T }
 
 data DoClause = Op DoOp | Pure DoPure
 
@@ -327,21 +327,15 @@ toDoBodyFull (Just sexps) = traverse toFullBodyFull' sexps
           | isDoBodyB sexp =
             case sexp of
               _ Sexp.:> name Sexp.:> body ->
-                pure WithBinder <*> Sexp.nameFromT name <*> toDoClause body
+                pure WithBinder <*> Sexp.nameFromT name <*> pure body
               _ -> Nothing
           | isDoBody sexp =
              case sexp of
               _ Sexp.:> body ->
-                pure NoBinder <*> toDoClause body
+                pure NoBinder <*> pure body
               _ -> Nothing
           | otherwise = Nothing
 toDoBodyFull Nothing = Nothing
-
-toDoClause :: Sexp.T -> Maybe DoClause
-toDoClause sexp
-  | isDoOp sexp = pure Op <*> toDoOp sexp
-  | isDoPure sexp = pure Pure <*> toDoPure sexp
-  | otherwise = Nothing
 
 fromDoBody :: DoBody -> Sexp.T
 fromDoBody (DoBody sexp1) =
@@ -365,26 +359,18 @@ fromDo (Do sexp1) =
 
 fromDoDeep :: DoDeep -> Sexp.T
 fromDoDeep (DoDeep stas) = Sexp.list (fromDoBodyFull <$> stas)
+
 fromDoBodyFull :: DoBodyFull -> Sexp.T
 fromDoBodyFull (WithBinder {..}) =
   Sexp.list [ Sexp.atom nameDoBody,
               Sexp.list [ Sexp.atom nameDoPure,
-                          Sexp.atom doBodyFullName,
-                          Sexp.list [ case doBodyFullBBody of
-                                        Op op -> fromDoOp op
-                                        Pure op -> fromDoPure op
-                                    ]
+                          doBodyFullBBody
                         ]
             ]
 
 fromDoBodyFull (NoBinder {..}) =
   Sexp.list [ Sexp.atom nameDoBody,
-              Sexp.list [ Sexp.atom nameDoPure,
-                          Sexp.list [ case doBodyFullBody of
-                                        Op op -> fromDoOp op
-                                        Pure op -> fromDoPure op
-                                    ]
-                        ]
+              doBodyFullBody
             ]
 
 ----------------------------------------

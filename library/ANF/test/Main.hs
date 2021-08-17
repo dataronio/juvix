@@ -2,12 +2,13 @@ module Main where
 
 import Juvix.Library (IO)
 import qualified Test.Tasty as T
+import qualified Convert as Conv
 
 effectHandlerTests :: T.TestTree
 effectHandlerTests =
   T.testGroup
     "CPS translation"
-    []
+    [ Conv.top ]
 
 anfTransTests :: T.TestTree
 anfTransTests =

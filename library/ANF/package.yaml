@@ -84,3 +84,5 @@ tests:
     - text
     - bytestring
     - pretty-simple
+    - ANF-IR
+    - Pipeline

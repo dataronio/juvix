@@ -409,6 +409,21 @@ effectTest =
       Sexp.parse
         "(:defeff Print ((print (:infix -> string unit)) (pure (:infix -> x string))))"
 
+doTest :: T.TestTree
+doTest =
+   T.testGroup
+    "effect sexp parser"
+    [ T.testCase "basic" (basic T.@=? basicExpected)
+    ]
+  where
+    basic =
+      Parser.parse
+        "let prog = do print \"yolo\"; pure 42"
+        |> singleEleErr
+    basicExpected =
+      Sexp.parse
+        ""
+
 --------------------------------------------------------------------------------
 -- Helpers
 --------------------------------------------------------------------------------

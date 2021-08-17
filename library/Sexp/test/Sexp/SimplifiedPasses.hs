@@ -18,7 +18,6 @@ top =
     [ condWorksAsExpected,
       ifWorksAsExpected,
       letWorksAsExpected,
-      doWorksAsExpected,
       recordWorksAsExpected,
       sigandDefunWorksAsExpetcted,
       moduleExpandsAsExpected
@@ -181,29 +180,6 @@ multipleTransLet xs = Sexp.foldPred xs (== "let") letToLetMatch
     spliceBindingBody _ _ =
       error "doesn't happen"
 
-translateDo :: Sexp.T -> Sexp.T
-translateDo xs = Sexp.foldPred xs (== "do") doToBind
-  where
-    doToBind atom sexp =
-      Sexp.foldr generation acc (Sexp.butLast sexp)
-        |> Sexp.addMetaToCar atom
-      where
-        acc =
-          case Sexp.last sexp of
-            -- toss away last %<-... we should likely throw a warning for this
-            Sexp.List [Sexp.Atom (Sexp.A "%<-" _), _name, body] -> body
-            xs -> xs
-        generation body acc =
-          case body of
-            Sexp.List [Sexp.Atom (Sexp.A "%<-" _), name, body] ->
-              Sexp.list
-                [ Sexp.atom "Prelude.>>=",
-                  body,
-                  Sexp.list [Sexp.atom "lambda", Sexp.list [name], acc]
-                ]
-            notBinding ->
-              Sexp.list [Sexp.atom "Prelude.>>", notBinding, acc]
-
 removePunnedRecords :: Sexp.T -> Sexp.T
 removePunnedRecords xs = Sexp.foldPred xs (== "record") removePunned
   where
@@ -256,20 +232,6 @@ letWorksAsExpected =
       "(let-match foo ((Nil b) body-1 ((Cons a xs) b) body-2) \
       \   (let-match bar (((Cons a xs) b) body-2) \
       \     &rest))"
-
-doWorksAsExpected :: T.TestTree
-doWorksAsExpected =
-  T.testCase
-    "do expansion works propelry"
-    (Sexp.parse expected T.@=? Right (translateDo testDo))
-  where
-    expected =
-      "(Prelude.>>= computation \
-      \    (lambda (x) \
-      \       (Prelude.>> computation \
-      \                   (Prelude.>>= more-comp \
-      \                                (lambda (y) \
-      \                                   (Prelude.return (+ x y)))))))"
 
 recordWorksAsExpected :: T.TestTree
 recordWorksAsExpected =
@@ -333,12 +295,6 @@ testLet =
   "(let foo ((Nil b) body-1)\
   \   (let foo (((Cons a xs) b) body-2) \
   \      (let bar (((Cons a xs) b) body-2) &rest)))"
-    |> Sexp.parse
-    |> rightErr
-
-testDo :: Sexp.T
-testDo =
-  "(do (%<- x computation) computation (%<- y more-comp) (Prelude.return (+ x y)))"
     |> Sexp.parse
     |> rightErr
 

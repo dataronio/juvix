@@ -2,14 +2,20 @@ module Juvix.Sexp.Structure
   ( module Juvix.Sexp.Structure.Frontend
   , module Juvix.Sexp.Structure.Transition
   , module Juvix.Sexp.Structure.EffectHandlerHelpers
+  , module Juvix.Sexp.Structure.CoreNamed
   , Structure
+  , to
+  , from
   ) where
 
-import Juvix.Library hiding (Type, Handler)
-import Juvix.Sexp.Structure.Frontend
+import Juvix.Library hiding (Type, Handler, to, from, Meta)
+import Juvix.Sexp.Structure.Frontend hiding (nameLet, isLet, fromLet, toLet, Let, letBody)
 import Juvix.Sexp.Structure.Transition
 import Juvix.Sexp.Structure.EffectHandlerHelpers
+import Juvix.Sexp.Structure.CoreNamed hiding (Let, fromLet, toLet)
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Sexp.Structure.Frontend as Frontend
+import qualified Juvix.Sexp.Structure.CoreNamed as Core
 
 class Structure a where
   to :: Sexp.T -> Maybe a
@@ -43,9 +49,9 @@ instance Structure LetType where
   to = toLetType
   from = fromLetType
 
-instance Structure Let where
-  to = toLet
-  from = fromLet
+instance Structure Frontend.Let where
+  to = Frontend.toLet
+  from = Frontend.fromLet
 
 instance Structure Case where
   to = toCase
@@ -162,3 +168,43 @@ instance Structure Via where
 instance Structure Handler where
   to = toHandler
   from = fromHandler
+
+instance Structure Pi where
+  to = toPi
+  from = fromPi
+
+instance Structure Binder where
+  to = toBinder
+  from = fromBinder
+
+instance Structure Lam where
+  to = toLam
+  from = fromLam
+
+instance Structure Sigma where
+  to = toSigma
+  from = fromSigma
+
+instance Structure Pair where
+  to = toPair
+  from = fromPair
+
+instance Structure Core.Let where
+  to = Core.toLet
+  from = Core.fromLet
+
+instance Structure App where
+  to = toApp
+  from = fromApp
+
+instance Structure Ann where
+  to = toAnn
+  from = fromAnn
+
+instance Structure Meta where
+  to = toMeta
+  from = fromMeta
+
+instance Structure RawFunClause where
+  to = toRawFunClause
+  from = fromRawFunClause
