@@ -13,16 +13,47 @@ let nil = %Michelson.nil
 sig make-pair : list operation -> nat -> pair (list operation) nat
 let make-pair = %Michelson.pair
 
-type VerySimpleType = One int
+type verySimpleType = One int
 
-sig verySimpleTerm : VerySimpleType
+sig verySimpleTerm : verySimpleType
 let verySimpleTerm = One 0
 
-type Bar : ty = | P nat nat | Q nat nat nat
+type bar : ty = | P nat nat | Q nat nat nat
 
-sig patternMatch : Bar -> nat
+sig patternMatch : bar -> nat
 let patternMatch (P x y) = x + y
 let patternMatch (Q x y z) = x + y + z
+
+type functionTypeInConstructor :
+  ty = FTIC_Left nat | FTIC_Right nat -> nat
+
+sig fticTestFunc : nat -> nat
+let fticTestFunc x = x
+
+sig fticTestTerm : functionTypeInConstructor
+let fticTestTerm = FTIC_Right fticTestFunc
+
+type sExpNat = Atom nat | SPair sExpNat sExpNat
+
+sig s1 : sExpNat
+let s1 = SPair (Atom 1) (SPair (SPair (Atom 2) (Atom 3)) (Atom 4))
+
+sig ssize : sExpNat -> nat
+let ssize (Atom x) = 1
+let ssize (SPair x y) = ssize x + ssize y
+
+-- Fails to typecheck:
+-- "Error on toHR: Name "atomExp" :| [] not in scope
+-- ( probably a bug in the elaborator from frontend )"
+type atomExp a = Atom a
+
+sig testAExp : atomExp int
+let testAExp = Atom 1
+
+-- Fails to typecheck:
+-- "Error on toHR: Name "sExp" :| [] not in scope
+-- ( probably a bug in the elaborator from frontend )"
+type sExp a = Atom a | SPair (sExp a) (sExp a)
 
 sig main : pair nat nat -> pair (list operation) nat
 let main =
@@ -32,7 +63,7 @@ let main =
   --      { usageNeeded = Omega
   --      , usageActual = SNat 0
   --      }
-  let vs = VerySimpleType in
+  let vs = verySimpleType in
 
   -- Typechecks, but fails to compile:
   --  juvix: src/Juvix/Backends/Michelson/Compilation.hs:53:13-75:
@@ -43,5 +74,33 @@ let main =
   --  juvix: src/Juvix/Backends/Michelson/Compilation.hs:53:13-75:
   --  Non-exhaustive patterns in Ann _ (Pi argUsage _ _) (LamM _ [name] body)
   let pm = patternMatch (Q 0 1 2) in
+
+  -- Typechecks, but fails to compile:
+  --  juvix: src/Juvix/Backends/Michelson/Compilation.hs:53:13-75:
+  --  Non-exhaustive patterns in Ann _ (Pi argUsage _ _) (LamM _ [name] body)
+  let ftict = fticTestTerm in
+
+  -- Typechecks, but fails to compile:
+  --  juvix: src/Juvix/Backends/Michelson/Compilation.hs:53:13-75:
+  --  Non-exhaustive patterns in Ann _ (Pi argUsage _ _) (LamM _ [name] body)
+  let sexpTest = ssize s1 in
+
+  -- Fails to typecheck:
+  --  "Error: TypecheckerError
+  --  ( NotPrimTy
+  --      { typeActual = VNeutral
+  --          ( NFree
+  --              ( Global
+  --                  ( "a" :| [] )
+  --              ) ()
+  --          ) ()
+  --      }
+  --  ) on Term: Let Omega
+  --  ( Free
+  --      ( Global
+  --          ( "Datatypes" :| [ "testAExp" ] )
+  --      ) ()
+  --  )
+  let ta = testAExp in
 
   \_ -> make-pair nil 0

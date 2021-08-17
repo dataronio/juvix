@@ -1,0 +1,18 @@
+mod ConflictingConstructorName where
+
+open Prelude
+open Michelson
+
+type atomExpParameterized a = Atom a
+
+-- This should fail because of the redeclared constructor name, but
+-- currently does not (at least, not for the right reason).
+type atomExpNonParameterized = Atom nat
+
+sig aen1 : atomExpNonParameterized
+let aen1 = Atom 1
+
+sig main : pair nat nat -> pair (list operation) nat
+let main =
+  let aen = aen1 in
+  \_ -> make-pair nil 0

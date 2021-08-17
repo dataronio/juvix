@@ -14,16 +14,29 @@ sig (==) : field -> field -> bool
 let (==) = %Circuit.eq
 declare infixl (==) 2
 
-type VerySimpleType = One field
+type verySimpleType = One field
 
-sig verySimpleTerm : VerySimpleType
+sig verySimpleTerm : verySimpleType
 let verySimpleTerm = One 0
 
-type Bar : ty = | P field field | Q field field field
+type bar : ty = | P field field | Q field field field
 
-sig patternMatch : Bar -> field
+sig patternMatch : bar -> field
 let patternMatch (P x y) = x + y
 let patternMatch (Q x y z) = x + y + z
+
+-- Fails to typecheck:
+-- "Error on toHR: Name "atomExp" :| [] not in scope
+-- ( probably a bug in the elaborator from frontend )"
+type atomExp a = Atom a
+
+sig testAExp : atomExp field
+let testAExp = Atom 1
+
+-- Fails to typecheck:
+-- "Error on toHR: Name "sExp" :| [] not in scope
+-- ( probably a bug in the elaborator from frontend )"
+type sExp a = Atom a | SPair (sExp a) (sExp a)
 
 sig main : field
 let main =
@@ -33,6 +46,24 @@ let main =
   --      { usageNeeded = Omega
   --      , usageActual = SNat 0
   --      }
-  let vs = VerySimpleType in
+  let vs = verySimpleType in
+
+  -- Fails to typecheck:
+  --  "Error: TypecheckerError
+  --  ( NotPrimTy
+  --      { typeActual = VNeutral
+  --          ( NFree
+  --              ( Global
+  --                  ( "a" :| [] )
+  --              ) ()
+  --          ) ()
+  --      }
+  --  ) on Term: Let Omega
+  --  ( Free
+  --      ( Global
+  --          ( "Datatypes" :| [ "testAExp" ] )
+  --      ) ()
+  --  )
+  let ta = testAExp in
 
   0

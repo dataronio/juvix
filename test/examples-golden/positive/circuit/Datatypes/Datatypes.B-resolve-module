@@ -2,6 +2,17 @@ Rec
     { recordContents = T
         { public = fromList
             [
+                ( "sExpField"
+                , TypeDeclar
+                    { definitionRepr =
+                        ( "sExpField" ()
+                            ( "Atom" "field" )
+                            ( "SPair" "sExpField" "sExpField" ) ) } )
+            ,
+                ( "Atom"
+                , SumCon
+                    ( Sum { sumTDef = Nothing, sumTName = "sExpField" } ) )
+            ,
                 ( "*"
                 , Def
                     ( D
@@ -14,6 +25,28 @@ Rec
                                 ( () ( ":primitive" "Circuit.mul" ) ) )
                         , defPrecedence = Pred Left 7 } ) )
             ,
+                ( "s1"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "sExpField"
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( ()
+                                    ( "SPair"
+                                        ( ":paren" ( "Atom" 1 ) )
+                                        ( ":paren"
+                                            ( "SPair"
+                                                ( ":paren"
+                                                    ( "SPair"
+                                                        ( ":paren"
+                                                            ( "Atom" 2 ) )
+                                                        ( ":paren"
+                                                            ( "Atom" 3 ) ) ) )
+                                                ( ":paren"
+                                                    ( "Atom" 4 ) ) ) ) ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
                 ( "field"
                 , Def
                     ( D
@@ -24,7 +57,36 @@ Rec
                                 ( () ( ":primitive" "Circuit.field" ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
-                ( "P", SumCon ( Sum { sumTDef = Nothing, sumTName = "Bar" } ) )
+                ( "functionTypeInConstructor"
+                , TypeDeclar
+                    { definitionRepr =
+                        (
+                            ( "functionTypeInConstructor" ":type" "TopLevel.Prelude.ty" ) ()
+                            ( "FTIC_Left" "field" )
+                            ( "FTIC_Right"
+                                ( ":infix" "TopLevel.Prelude.->" "field" "field" ) ) ) } )
+            ,
+                ( "P", SumCon ( Sum { sumTDef = Nothing, sumTName = "bar" } ) )
+            ,
+                ( "fticTestFunc"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "field" "field" )
+                        , defTerm =
+                            ( ":lambda-case" ( ( "x" ) "x" ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "fticTestTerm"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "functionTypeInConstructor"
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( () ( "FTIC_Right" "fticTestFunc" ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "+"
                 , Def
@@ -52,13 +114,29 @@ Rec
                                             ( ()
                                                 ( "patternMatch"
                                                     ( ":paren"
-                                                        ( "Q" 0 1 2 ) ) ) ) 3 ) ) ) )
+                                                        ( "Q" 0 1 2 ) ) ) )
+                                            ( ":let-match" "ftict"
+                                                ( () "fticTestTerm" )
+                                                ( ":let-match" "sexpTest"
+                                                    ( ()
+                                                        ( "ssize" "s1" ) ) 3 ) ) ) ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
-                ( "VerySimpleType"
-                , TypeDeclar
-                    { definitionRepr =
-                        ( "VerySimpleType" () ( "One" "field" ) ) } )
+                ( "ssize"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "sExpField" "field" )
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( ( ( "Atom" "x" ) ) 1 )
+                                (
+                                    ( ( "SPair" "x" "y" ) )
+                                    ( ":infix" "+"
+                                        ( "ssize" "x" )
+                                        ( "ssize" "y" ) ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "^"
                 , Def
@@ -72,11 +150,32 @@ Rec
                                 ( () ( ":primitive" "Circuit.exp" ) ) )
                         , defPrecedence = Pred Left 8 } ) )
             ,
-                ( "Q", SumCon ( Sum { sumTDef = Nothing, sumTName = "Bar" } ) )
+                ( "verySimpleType"
+                , TypeDeclar
+                    { definitionRepr =
+                        ( "verySimpleType" () ( "One" "field" ) ) } )
+            ,
+                ( "SPair"
+                , SumCon
+                    ( Sum { sumTDef = Nothing, sumTName = "sExpField" } ) )
+            ,
+                ( "Q", SumCon ( Sum { sumTDef = Nothing, sumTName = "bar" } ) )
+            ,
+                ( "FTIC_Left"
+                , SumCon
+                    ( Sum
+                        { sumTDef = Nothing
+                        , sumTName = "functionTypeInConstructor" } ) )
             ,
                 ( "One"
                 , SumCon
-                    ( Sum { sumTDef = Nothing, sumTName = "VerySimpleType" } ) )
+                    ( Sum { sumTDef = Nothing, sumTName = "verySimpleType" } ) )
+            ,
+                ( "FTIC_Right"
+                , SumCon
+                    ( Sum
+                        { sumTDef = Nothing
+                        , sumTName = "functionTypeInConstructor" } ) )
             ,
                 ( "x"
                 , Def
@@ -103,7 +202,7 @@ Rec
                 , Def
                     ( D
                         { defUsage = Nothing
-                        , defMTy = Just "VerySimpleType"
+                        , defMTy = Just "verySimpleType"
                         , defTerm =
                             ( ":lambda-case" ( () ( "One" 0 ) ) )
                         , defPrecedence = Pred Left 9 } ) )
@@ -113,7 +212,7 @@ Rec
                     ( D
                         { defUsage = Nothing
                         , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "Bar" "field" )
+                            ( ":infix" "TopLevel.Prelude.->" "bar" "field" )
                         , defTerm =
                             ( ":lambda-case"
                                 (
@@ -130,11 +229,11 @@ Rec
                                                     ( ":infix" "^" "z" 2 ) ) ) ) ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
-                ( "Bar"
+                ( "bar"
                 , TypeDeclar
                     { definitionRepr =
                         (
-                            ( "Bar" ":type" "TopLevel.Prelude.ty" ) ()
+                            ( "bar" ":type" "TopLevel.Prelude.ty" ) ()
                             ( "P" "field" "field" )
                             ( "Q" "field" "field" "field" ) ) } ) ]
         , private = fromList [] }

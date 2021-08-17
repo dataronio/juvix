@@ -1,10 +1,10 @@
 ( fromList []
 , fromList
     [
-        ( "Datatypes" :| [ "VerySimpleType" ]
+        ( "Datatypes" :| [ "verySimpleType" ]
         , RawGDatatype
             ( RawDatatype
-                { rawDataName = "Datatypes" :| [ "VerySimpleType" ]
+                { rawDataName = "Datatypes" :| [ "verySimpleType" ]
                 , rawDataPos = []
                 , rawDataArgs = []
                 , rawDataLevel = 0
@@ -22,13 +22,37 @@
                             ( Elim
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "VerySimpleType" ] )
+                                        ( "Datatypes" :| [ "verySimpleType" ] )
                                     ) ()
                                 ) ()
                             ) ()
                         , rawConDef = Nothing
                         }
                     ]
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "Atom" ]
+        , RawGDataCon
+            ( RawDataCon
+                { rawConName = "Datatypes" :| [ "Atom" ]
+                , rawConType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "sExpField" ] )
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawConDef = Nothing
                 }
             )
         )
@@ -48,11 +72,211 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "VerySimpleType" ] )
+                                ( "Datatypes" :| [ "verySimpleType" ] )
                             ) ()
                         ) ()
                     ) ()
                 , rawConDef = Nothing
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "FTIC_Left" ]
+        , RawGDataCon
+            ( RawDataCon
+                { rawConName = "Datatypes" :| [ "FTIC_Left" ]
+                , rawConType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "functionTypeInConstructor" ] )
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawConDef = Nothing
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "functionTypeInConstructor" ]
+        , RawGDatatype
+            ( RawDatatype
+                { rawDataName = "Datatypes" :| [ "functionTypeInConstructor" ]
+                , rawDataPos = []
+                , rawDataArgs = []
+                , rawDataLevel = 0
+                , rawDataCons =
+                    [ RawDataCon
+                        { rawConName = "Datatypes" :| [ "FTIC_Left" ]
+                        , rawConType = Pi Omega
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "field" ] )
+                                    ) ()
+                                ) ()
+                            )
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "functionTypeInConstructor" ] )
+                                    ) ()
+                                ) ()
+                            ) ()
+                        , rawConDef = Nothing
+                        }
+                    , RawDataCon
+                        { rawConName = "Datatypes" :| [ "FTIC_Right" ]
+                        , rawConType = Pi Omega
+                            ( Pi Omega
+                                ( Elim
+                                    ( Free
+                                        ( Global
+                                            ( "Datatypes" :| [ "field" ] )
+                                        ) ()
+                                    ) ()
+                                )
+                                ( Elim
+                                    ( Free
+                                        ( Global
+                                            ( "Datatypes" :| [ "field" ] )
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            )
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "functionTypeInConstructor" ] )
+                                    ) ()
+                                ) ()
+                            ) ()
+                        , rawConDef = Nothing
+                        }
+                    ]
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "s1" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "s1" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Datatypes" :| [ "sExpField" ] )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Elim
+                        ( App
+                            ( App
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "SPair" ] )
+                                    ) ()
+                                )
+                                ( Elim
+                                    ( App
+                                        ( Free
+                                            ( Global
+                                                ( "Datatypes" :| [ "Atom" ] )
+                                            ) ()
+                                        )
+                                        ( Prim
+                                            ( PConst
+                                                ( P
+                                                    ( 1 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                )
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            )
+                            ( Elim
+                                ( App
+                                    ( App
+                                        ( Free
+                                            ( Global
+                                                ( "Datatypes" :| [ "SPair" ] )
+                                            ) ()
+                                        )
+                                        ( Elim
+                                            ( App
+                                                ( App
+                                                    ( Free
+                                                        ( Global
+                                                            ( "Datatypes" :| [ "SPair" ] )
+                                                        ) ()
+                                                    )
+                                                    ( Elim
+                                                        ( App
+                                                            ( Free
+                                                                ( Global
+                                                                    ( "Datatypes" :| [ "Atom" ] )
+                                                                ) ()
+                                                            )
+                                                            ( Prim
+                                                                ( PConst
+                                                                    ( P
+                                                                        ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                                    )
+                                                                ) ()
+                                                            ) ()
+                                                        ) ()
+                                                    ) ()
+                                                )
+                                                ( Elim
+                                                    ( App
+                                                        ( Free
+                                                            ( Global
+                                                                ( "Datatypes" :| [ "Atom" ] )
+                                                            ) ()
+                                                        )
+                                                        ( Prim
+                                                            ( PConst
+                                                                ( P
+                                                                    ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                                )
+                                                            ) ()
+                                                        ) ()
+                                                    ) ()
+                                                ) ()
+                                            ) ()
+                                        ) ()
+                                    )
+                                    ( Elim
+                                        ( App
+                                            ( Free
+                                                ( Global
+                                                    ( "Datatypes" :| [ "Atom" ] )
+                                                ) ()
+                                            )
+                                            ( Prim
+                                                ( PConst
+                                                    ( P
+                                                        ( 4 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                    )
+                                                ) ()
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            ) ()
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
                 }
             )
         )
@@ -105,7 +329,7 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "Bar" ] )
+                                ( "Datatypes" :| [ "bar" ] )
                             ) ()
                         ) ()
                     )
@@ -317,7 +541,7 @@
                         ( Elim
                             ( Free
                                 ( Global
-                                    ( "Datatypes" :| [ "Bar" ] )
+                                    ( "Datatypes" :| [ "bar" ] )
                                 ) ()
                             ) ()
                         ) ()
@@ -335,7 +559,7 @@
                 , rawFunType = Elim
                     ( Free
                         ( Global
-                            ( "Datatypes" :| [ "VerySimpleType" ] )
+                            ( "Datatypes" :| [ "verySimpleType" ] )
                         ) ()
                     ) ()
                 , rawFunClauses = RawFunClause
@@ -405,10 +629,10 @@
             )
         )
     ,
-        ( "Datatypes" :| [ "Bar" ]
+        ( "Datatypes" :| [ "bar" ]
         , RawGDatatype
             ( RawDatatype
-                { rawDataName = "Datatypes" :| [ "Bar" ]
+                { rawDataName = "Datatypes" :| [ "bar" ]
                 , rawDataPos = []
                 , rawDataArgs = []
                 , rawDataLevel = 0
@@ -434,7 +658,7 @@
                                 ( Elim
                                     ( Free
                                         ( Global
-                                            ( "Datatypes" :| [ "Bar" ] )
+                                            ( "Datatypes" :| [ "bar" ] )
                                         ) ()
                                     ) ()
                                 ) ()
@@ -470,13 +694,104 @@
                                     ( Elim
                                         ( Free
                                             ( Global
-                                                ( "Datatypes" :| [ "Bar" ] )
+                                                ( "Datatypes" :| [ "bar" ] )
                                             ) ()
                                         ) ()
                                     ) ()
                                 ) ()
                             ) ()
                         , rawConDef = Nothing
+                        }
+                    ]
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "ssize" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "ssize" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "sExpField" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats =
+                        [ PCon
+                            ( "Atom" :| [] )
+                            [ PVar 0 () ] ()
+                        ]
+                    , rawClauseBody = Prim
+                        ( PConst
+                            ( P
+                                ( 1 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                            )
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :|
+                    [ RawFunClause
+                        { rawClauseTel = []
+                        , rawClausePats =
+                            [ PCon
+                                ( "SPair" :| [] )
+                                [ PVar 1 ()
+                                , PVar 2 ()
+                                ] ()
+                            ]
+                        , rawClauseBody = Elim
+                            ( App
+                                ( App
+                                    ( Free
+                                        ( Global
+                                            ( "Datatypes" :| [ "+" ] )
+                                        ) ()
+                                    )
+                                    ( Elim
+                                        ( App
+                                            ( Free
+                                                ( Global
+                                                    ( "Datatypes" :| [ "ssize" ] )
+                                                ) ()
+                                            )
+                                            ( Elim
+                                                ( Free
+                                                    ( Global
+                                                        ( "Datatypes" :| [ "x" ] )
+                                                    ) ()
+                                                ) ()
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                )
+                                ( Elim
+                                    ( App
+                                        ( Free
+                                            ( Global
+                                                ( "Datatypes" :| [ "ssize" ] )
+                                            ) ()
+                                        )
+                                        ( Elim
+                                            ( Free
+                                                ( Pattern 2 ) ()
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            ) ()
+                        , rawClauseCatchall = False
                         }
                     ]
                 }
@@ -518,6 +833,99 @@
                     , rawClauseBody = Prim PExp ()
                     , rawClauseCatchall = False
                     } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "FTIC_Right" ]
+        , RawGDataCon
+            ( RawDataCon
+                { rawConName = "Datatypes" :| [ "FTIC_Right" ]
+                , rawConType = Pi Omega
+                    ( Pi Omega
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "field" ] )
+                                ) ()
+                            ) ()
+                        )
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "field" ] )
+                                ) ()
+                            ) ()
+                        ) ()
+                    )
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "functionTypeInConstructor" ] )
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawConDef = Nothing
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "sExpField" ]
+        , RawGDatatype
+            ( RawDatatype
+                { rawDataName = "Datatypes" :| [ "sExpField" ]
+                , rawDataPos = []
+                , rawDataArgs = []
+                , rawDataLevel = 0
+                , rawDataCons =
+                    [ RawDataCon
+                        { rawConName = "Datatypes" :| [ "Atom" ]
+                        , rawConType = Pi Omega
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "field" ] )
+                                    ) ()
+                                ) ()
+                            )
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "sExpField" ] )
+                                    ) ()
+                                ) ()
+                            ) ()
+                        , rawConDef = Nothing
+                        }
+                    , RawDataCon
+                        { rawConName = "Datatypes" :| [ "SPair" ]
+                        , rawConType = Pi Omega
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "sExpField" ] )
+                                    ) ()
+                                ) ()
+                            )
+                            ( Pi Omega
+                                ( Elim
+                                    ( Free
+                                        ( Global
+                                            ( "Datatypes" :| [ "sExpField" ] )
+                                        ) ()
+                                    ) ()
+                                )
+                                ( Elim
+                                    ( Free
+                                        ( Global
+                                            ( "Datatypes" :| [ "sExpField" ] )
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            ) ()
+                        , rawConDef = Nothing
+                        }
+                    ]
                 }
             )
         )
@@ -644,11 +1052,69 @@
                                     ) ()
                                 ) ()
                             )
-                            ( Prim
-                                ( PConst
-                                    ( P
-                                        ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                            ( Let Omega
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "fticTestTerm" ] )
+                                    ) ()
+                                )
+                                ( Let Omega
+                                    ( App
+                                        ( Free
+                                            ( Global
+                                                ( "Datatypes" :| [ "ssize" ] )
+                                            ) ()
+                                        )
+                                        ( Elim
+                                            ( Free
+                                                ( Global
+                                                    ( "Datatypes" :| [ "s1" ] )
+                                                ) ()
+                                            ) ()
+                                        ) ()
                                     )
+                                    ( Prim
+                                        ( PConst
+                                            ( P
+                                                ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                            )
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            ) ()
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "fticTestTerm" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "fticTestTerm" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Datatypes" :| [ "functionTypeInConstructor" ] )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Elim
+                        ( App
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "FTIC_Right" ] )
+                                ) ()
+                            )
+                            ( Elim
+                                ( Free
+                                    ( Global
+                                        ( "Datatypes" :| [ "fticTestFunc" ] )
+                                    ) ()
                                 ) ()
                             ) ()
                         ) ()
@@ -677,6 +1143,42 @@
                             ( P
                                 ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
                             )
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "fticTestFunc" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Datatypes" :| [ "fticTestFunc" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "field" ] )
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats =
+                        [ PVar 0 () ]
+                    , rawClauseBody = Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "x" ] )
+                            ) ()
                         ) ()
                     , rawClauseCatchall = False
                     } :| []
@@ -715,8 +1217,41 @@
                             ( Elim
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "Bar" ] )
+                                        ( "Datatypes" :| [ "bar" ] )
                                     ) ()
+                                ) ()
+                            ) ()
+                        ) ()
+                    ) ()
+                , rawConDef = Nothing
+                }
+            )
+        )
+    ,
+        ( "Datatypes" :| [ "SPair" ]
+        , RawGDataCon
+            ( RawDataCon
+                { rawConName = "Datatypes" :| [ "SPair" ]
+                , rawConType = Pi Omega
+                    ( Elim
+                        ( Free
+                            ( Global
+                                ( "Datatypes" :| [ "sExpField" ] )
+                            ) ()
+                        ) ()
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "sExpField" ] )
+                                ) ()
+                            ) ()
+                        )
+                        ( Elim
+                            ( Free
+                                ( Global
+                                    ( "Datatypes" :| [ "sExpField" ] )
                                 ) ()
                             ) ()
                         ) ()

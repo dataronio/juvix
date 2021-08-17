@@ -26,30 +26,50 @@ declare infixl (==) 2
 sig x : field
 let x = 3
 
-type VerySimpleType = One field
+type verySimpleType = One field
 
-sig verySimpleTerm : VerySimpleType
+sig verySimpleTerm : verySimpleType
 let verySimpleTerm = One 0
 
-sig patternMatch : Bar -> field
+sig patternMatch : bar -> field
 let patternMatch (P x y) = x^2 + y^2
 let patternMatch (Q x y z) = x^2 + y^2 + z^2
 
-type Bar : ty = | P field field |  Q field field field
+type bar : ty = | P field field |  Q field field field
 
--- type Point : ty = Po2 { x : field, y : field } | Po3 { x : field , y: field, z: field}
+-- type point : ty = Po2 { x : field, y : field } | Po3 { x : field , y: field, z: field}
 
--- sig norm : Point -> field
+-- sig norm : point -> field
 -- let norm sp = case sp of
 --     | Po2 x y -> x^2 + y^2
 --     | Po3 x y z -> x^2 + y^2 + z^2 
 
--- sig norm : Point -> field
+-- sig norm : point -> field
 -- let norm (Po2 x y) = x^2 + y^2
 -- let norm (Po3 x y z) = x^2 + y^2 
+
+type functionTypeInConstructor :
+  ty = FTIC_Left field | FTIC_Right field -> field
+
+sig fticTestFunc : field -> field
+let fticTestFunc x = x
+
+sig fticTestTerm : functionTypeInConstructor
+let fticTestTerm = FTIC_Right fticTestFunc
+
+type sExpField = Atom field | SPair sExpField sExpField
+
+sig s1 : sExpField
+let s1 = SPair (Atom 1) (SPair (SPair (Atom 2) (Atom 3)) (Atom 4))
+
+sig ssize : sExpField -> field
+let ssize (Atom x) = 1
+let ssize (SPair x y) = ssize x + ssize y
 
 sig main : field  -- -> field -> field -> field
 let main =
   let vst = verySimpleTerm in
   let pm = patternMatch (Q 0 1 2) in
+  let ftict = fticTestTerm in
+  let sexpTest = ssize s1 in
   3

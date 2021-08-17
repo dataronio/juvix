@@ -39,13 +39,13 @@
 ,
     ( ":defun" "x" () 3 )
 ,
-    ( "type" "VerySimpleType" () ( "One" "field" ) )
+    ( "type" "verySimpleType" () ( "One" "field" ) )
 ,
-    ( ":defsig" "verySimpleTerm" "VerySimpleType" )
+    ( ":defsig" "verySimpleTerm" "verySimpleType" )
 ,
     ( ":defun" "verySimpleTerm" () ( "One" 0 ) )
 ,
-    ( ":defsig" "patternMatch" ( ":infix" "->" "Bar" "field" ) )
+    ( ":defsig" "patternMatch" ( ":infix" "->" "bar" "field" ) )
 ,
     ( ":defun" "patternMatch"
         ( ( "P" "x" "y" ) )
@@ -59,9 +59,47 @@
                     ( ":infix" "+" 2 ( ":infix" "^" "z" 2 ) ) ) ) ) )
 ,
     ( "type"
-        ( "Bar" ":type" "ty" ) ()
+        ( "bar" ":type" "ty" ) ()
         ( "P" "field" "field" )
         ( "Q" "field" "field" "field" ) )
+,
+    ( "type"
+        ( "functionTypeInConstructor" ":type" "ty" ) ()
+        ( "FTIC_Left" "field" )
+        ( "FTIC_Right" ( ":infix" "->" "field" "field" ) ) )
+,
+    ( ":defsig" "fticTestFunc" ( ":infix" "->" "field" "field" ) )
+,
+    ( ":defun" "fticTestFunc" ( "x" ) "x" )
+,
+    ( ":defsig" "fticTestTerm" "functionTypeInConstructor" )
+,
+    ( ":defun" "fticTestTerm" () ( "FTIC_Right" "fticTestFunc" ) )
+,
+    ( "type" "sExpField" ()
+        ( "Atom" "field" )
+        ( "SPair" "sExpField" "sExpField" ) )
+,
+    ( ":defsig" "s1" "sExpField" )
+,
+    ( ":defun" "s1" ()
+        ( "SPair"
+            ( ":paren" ( "Atom" 1 ) )
+            ( ":paren"
+                ( "SPair"
+                    ( ":paren"
+                        ( "SPair"
+                            ( ":paren" ( "Atom" 2 ) )
+                            ( ":paren" ( "Atom" 3 ) ) ) )
+                    ( ":paren" ( "Atom" 4 ) ) ) ) ) )
+,
+    ( ":defsig" "ssize" ( ":infix" "->" "sExpField" "field" ) )
+,
+    ( ":defun" "ssize" ( ( "Atom" "x" ) ) 1 )
+,
+    ( ":defun" "ssize"
+        ( ( "SPair" "x" "y" ) )
+        ( ":infix" "+" ( "ssize" "x" ) ( "ssize" "y" ) ) )
 ,
     ( ":defsig" "main" "field" )
 ,
@@ -69,4 +107,8 @@
         ( ":let-match" "vst"
             ( () "verySimpleTerm" )
             ( ":let-match" "pm"
-                ( () ( "patternMatch" ( ":paren" ( "Q" 0 1 2 ) ) ) ) 3 ) ) ) ]
+                ( () ( "patternMatch" ( ":paren" ( "Q" 0 1 2 ) ) ) )
+                ( ":let-match" "ftict"
+                    ( () "fticTestTerm" )
+                    ( ":let-match" "sexpTest"
+                        ( () ( "ssize" "s1" ) ) 3 ) ) ) ) ) ]

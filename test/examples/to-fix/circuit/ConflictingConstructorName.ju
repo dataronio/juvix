@@ -1,0 +1,18 @@
+mod ConflictingConstructorName where
+
+open Prelude
+open Circuit
+
+type atomExpParameterized a = Atom a
+
+-- This should fail because of the redeclared constructor name, but
+-- currently does not.
+type atomExpNonParameterized = Atom field
+
+sig aen1 : atomExpNonParameterized
+let aen1 = Atom 1
+
+sig main : field
+let main =
+  let aen = aen1 in
+  0

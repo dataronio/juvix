@@ -222,7 +222,7 @@ Right
         , Type
             ( Typ
                 { typeUsage = Nothing
-                , typeName' = "VerySimpleType"
+                , typeName' = "verySimpleType"
                 , typeArgs = []
                 , typeForm = NonArrowed
                     { dataAdt = Sum
@@ -244,7 +244,7 @@ Right
                 { signatureName = "verySimpleTerm"
                 , signatureUsage = Nothing
                 , signatureArrowType = Name
-                    ( "VerySimpleType" :| [] )
+                    ( "verySimpleType" :| [] )
                 , signatureConstraints = []
                 }
             )
@@ -275,7 +275,7 @@ Right
                 , signatureArrowType = Infix
                     ( Inf
                         { infixLeft = Name
-                            ( "Bar" :| [] )
+                            ( "bar" :| [] )
                         , infixOp = "->" :| []
                         , infixRight = Name
                             ( "field" :| [] )
@@ -415,7 +415,7 @@ Right
         , Type
             ( Typ
                 { typeUsage = Nothing
-                , typeName' = "Bar"
+                , typeName' = "bar"
                 , typeArgs = []
                 , typeForm = Arrowed
                     { dataArrow = Name
@@ -449,6 +449,322 @@ Right
                         )
                     }
                 }
+            )
+        , Type
+            ( Typ
+                { typeUsage = Nothing
+                , typeName' = "functionTypeInConstructor"
+                , typeArgs = []
+                , typeForm = Arrowed
+                    { dataArrow = Name
+                        ( "ty" :| [] )
+                    , dataAdt' = Sum
+                        ( S
+                            { sumConstructor = "FTIC_Left"
+                            , sumValue = Just
+                                ( ADTLike
+                                    [ Name
+                                        ( "field" :| [] )
+                                    ]
+                                )
+                            } :|
+                            [ S
+                                { sumConstructor = "FTIC_Right"
+                                , sumValue = Just
+                                    ( ADTLike
+                                        [ Infix
+                                            ( Inf
+                                                { infixLeft = Name
+                                                    ( "field" :| [] )
+                                                , infixOp = "->" :| []
+                                                , infixRight = Name
+                                                    ( "field" :| [] )
+                                                }
+                                            )
+                                        ]
+                                    )
+                                }
+                            ]
+                        )
+                    }
+                }
+            )
+        , Signature
+            ( Sig
+                { signatureName = "fticTestFunc"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "field" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Name
+                            ( "field" :| [] )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "fticTestFunc"
+                    , functionLikeArgs =
+                        [ ConcreteA
+                            ( MatchLogic
+                                { matchLogicContents = MatchName "x"
+                                , matchLogicNamed = Nothing
+                                }
+                            )
+                        ]
+                    , functionLikeBody = Body
+                        ( Name
+                            ( "x" :| [] )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "fticTestTerm"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "functionTypeInConstructor" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "fticTestTerm"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Application
+                            ( App
+                                { applicationName = Name
+                                    ( "FTIC_Right" :| [] )
+                                , applicationArgs = Name
+                                    ( "fticTestFunc" :| [] ) :| []
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        , Type
+            ( Typ
+                { typeUsage = Nothing
+                , typeName' = "sExpField"
+                , typeArgs = []
+                , typeForm = NonArrowed
+                    { dataAdt = Sum
+                        ( S
+                            { sumConstructor = "Atom"
+                            , sumValue = Just
+                                ( ADTLike
+                                    [ Name
+                                        ( "field" :| [] )
+                                    ]
+                                )
+                            } :|
+                            [ S
+                                { sumConstructor = "SPair"
+                                , sumValue = Just
+                                    ( ADTLike
+                                        [ Name
+                                            ( "sExpField" :| [] )
+                                        , Name
+                                            ( "sExpField" :| [] )
+                                        ]
+                                    )
+                                }
+                            ]
+                        )
+                    }
+                }
+            )
+        , Signature
+            ( Sig
+                { signatureName = "s1"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "sExpField" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "s1"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Application
+                            ( App
+                                { applicationName = Name
+                                    ( "SPair" :| [] )
+                                , applicationArgs = Parened
+                                    ( Application
+                                        ( App
+                                            { applicationName = Name
+                                                ( "Atom" :| [] )
+                                            , applicationArgs = Constant
+                                                ( Number
+                                                    ( Integer' 1 )
+                                                ) :| []
+                                            }
+                                        )
+                                    ) :|
+                                    [ Parened
+                                        ( Application
+                                            ( App
+                                                { applicationName = Name
+                                                    ( "SPair" :| [] )
+                                                , applicationArgs = Parened
+                                                    ( Application
+                                                        ( App
+                                                            { applicationName = Name
+                                                                ( "SPair" :| [] )
+                                                            , applicationArgs = Parened
+                                                                ( Application
+                                                                    ( App
+                                                                        { applicationName = Name
+                                                                            ( "Atom" :| [] )
+                                                                        , applicationArgs = Constant
+                                                                            ( Number
+                                                                                ( Integer' 2 )
+                                                                            ) :| []
+                                                                        }
+                                                                    )
+                                                                ) :|
+                                                                [ Parened
+                                                                    ( Application
+                                                                        ( App
+                                                                            { applicationName = Name
+                                                                                ( "Atom" :| [] )
+                                                                            , applicationArgs = Constant
+                                                                                ( Number
+                                                                                    ( Integer' 3 )
+                                                                                ) :| []
+                                                                            }
+                                                                        )
+                                                                    )
+                                                                ]
+                                                            }
+                                                        )
+                                                    ) :|
+                                                    [ Parened
+                                                        ( Application
+                                                            ( App
+                                                                { applicationName = Name
+                                                                    ( "Atom" :| [] )
+                                                                , applicationArgs = Constant
+                                                                    ( Number
+                                                                        ( Integer' 4 )
+                                                                    ) :| []
+                                                                }
+                                                            )
+                                                        )
+                                                    ]
+                                                }
+                                            )
+                                        )
+                                    ]
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "ssize"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "sExpField" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Name
+                            ( "field" :| [] )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "ssize"
+                    , functionLikeArgs =
+                        [ ConcreteA
+                            ( MatchLogic
+                                { matchLogicContents = MatchCon
+                                    ( "Atom" :| [] )
+                                    [ MatchLogic
+                                        { matchLogicContents = MatchName "x"
+                                        , matchLogicNamed = Nothing
+                                        }
+                                    ]
+                                , matchLogicNamed = Nothing
+                                }
+                            )
+                        ]
+                    , functionLikeBody = Body
+                        ( Constant
+                            ( Number
+                                ( Integer' 1 )
+                            )
+                        )
+                    }
+                )
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "ssize"
+                    , functionLikeArgs =
+                        [ ConcreteA
+                            ( MatchLogic
+                                { matchLogicContents = MatchCon
+                                    ( "SPair" :| [] )
+                                    [ MatchLogic
+                                        { matchLogicContents = MatchName "x"
+                                        , matchLogicNamed = Nothing
+                                        }
+                                    , MatchLogic
+                                        { matchLogicContents = MatchName "y"
+                                        , matchLogicNamed = Nothing
+                                        }
+                                    ]
+                                , matchLogicNamed = Nothing
+                                }
+                            )
+                        ]
+                    , functionLikeBody = Body
+                        ( Infix
+                            ( Inf
+                                { infixLeft = Application
+                                    ( App
+                                        { applicationName = Name
+                                            ( "ssize" :| [] )
+                                        , applicationArgs = Name
+                                            ( "x" :| [] ) :| []
+                                        }
+                                    )
+                                , infixOp = "+" :| []
+                                , infixRight = Application
+                                    ( App
+                                        { applicationName = Name
+                                            ( "ssize" :| [] )
+                                        , applicationArgs = Name
+                                            ( "y" :| [] ) :| []
+                                        }
+                                    )
+                                }
+                            )
+                        )
+                    }
+                )
             )
         , Signature
             ( Sig
@@ -510,9 +826,39 @@ Right
                                                     )
                                                 )
                                             }
-                                        , letBody = Constant
-                                            ( Number
-                                                ( Integer' 3 )
+                                        , letBody = Let
+                                            ( Let'
+                                                { letBindings = Like
+                                                    { functionLikedName = "ftict"
+                                                    , functionLikeArgs = []
+                                                    , functionLikeBody = Body
+                                                        ( Name
+                                                            ( "fticTestTerm" :| [] )
+                                                        )
+                                                    }
+                                                , letBody = Let
+                                                    ( Let'
+                                                        { letBindings = Like
+                                                            { functionLikedName = "sexpTest"
+                                                            , functionLikeArgs = []
+                                                            , functionLikeBody = Body
+                                                                ( Application
+                                                                    ( App
+                                                                        { applicationName = Name
+                                                                            ( "ssize" :| [] )
+                                                                        , applicationArgs = Name
+                                                                            ( "s1" :| [] ) :| []
+                                                                        }
+                                                                    )
+                                                                )
+                                                            }
+                                                        , letBody = Constant
+                                                            ( Number
+                                                                ( Integer' 3 )
+                                                            )
+                                                        }
+                                                    )
+                                                }
                                             )
                                         }
                                     )

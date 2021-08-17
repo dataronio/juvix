@@ -6,12 +6,17 @@ Ann
             { usage = Omega
             , type' = Pi Omega
                 ( SymT
-                    ( "Datatypes" :| [ "VerySimpleType" ] )
+                    ( "Datatypes" :| [ "verySimpleType" ] )
                 ) ( PrimTy PField )
             , term = LamM
                 { capture =
-                    [ "Datatypes" :| [ "Q" ]
+                    [ "Datatypes" :| [ "Atom" ]
+                    , "Datatypes" :| [ "FTIC_Right" ]
+                    , "Datatypes" :| [ "Q" ]
+                    , "Datatypes" :| [ "SPair" ]
+                    , "Datatypes" :| [ "fticTestFunc" ]
                     , "Datatypes" :| [ "patternMatch" ]
+                    , "Datatypes" :| [ "ssize" ]
                     ]
                 , arguments =
                     [ "0" :| [] ]
@@ -23,22 +28,306 @@ Ann
                             { usage = Omega
                             , type' = Pi Omega ( PrimTy PField ) ( PrimTy PField )
                             , term = LamM
-                                { capture = []
+                                { capture =
+                                    [ "Datatypes" :| [ "Atom" ]
+                                    , "Datatypes" :| [ "FTIC_Right" ]
+                                    , "Datatypes" :| [ "SPair" ]
+                                    , "Datatypes" :| [ "fticTestFunc" ]
+                                    , "Datatypes" :| [ "ssize" ]
+                                    ]
                                 , arguments =
                                     [ "1" :| [] ]
                                 , body = Ann
                                     { usage = Omega
                                     , type' = PrimTy PField
-                                    , term = Prim
-                                        ( Return
-                                            { retType = PrimType
-                                                { getPrimType = PField :| [] }
-                                            , retTerm = PConst
-                                                ( P
-                                                    ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                                                )
+                                    , term = AppM
+                                        ( Ann
+                                            { usage = Omega
+                                            , type' = Pi Omega
+                                                ( SymT
+                                                    ( "Datatypes" :| [ "functionTypeInConstructor" ] )
+                                                ) ( PrimTy PField )
+                                            , term = LamM
+                                                { capture =
+                                                    [ "Datatypes" :| [ "Atom" ]
+                                                    , "Datatypes" :| [ "SPair" ]
+                                                    , "Datatypes" :| [ "ssize" ]
+                                                    ]
+                                                , arguments =
+                                                    [ "2" :| [] ]
+                                                , body = Ann
+                                                    { usage = Omega
+                                                    , type' = PrimTy PField
+                                                    , term = AppM
+                                                        ( Ann
+                                                            { usage = Omega
+                                                            , type' = Pi Omega ( PrimTy PField ) ( PrimTy PField )
+                                                            , term = LamM
+                                                                { capture = []
+                                                                , arguments =
+                                                                    [ "3" :| [] ]
+                                                                , body = Ann
+                                                                    { usage = Omega
+                                                                    , type' = PrimTy PField
+                                                                    , term = Prim
+                                                                        ( Return
+                                                                            { retType = PrimType
+                                                                                { getPrimType = PField :| [] }
+                                                                            , retTerm = PConst
+                                                                                ( P
+                                                                                    ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                                                )
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                }
+                                                            }
+                                                        )
+                                                        [ Ann
+                                                            { usage = Omega
+                                                            , type' = PrimTy PField
+                                                            , term = AppM
+                                                                ( Ann
+                                                                    { usage = Omega
+                                                                    , type' = Pi Omega
+                                                                        ( SymT
+                                                                            ( "Datatypes" :| [ "sExpField" ] )
+                                                                        ) ( PrimTy PField )
+                                                                    , term = Var
+                                                                        ( "Datatypes" :| [ "ssize" ] )
+                                                                    }
+                                                                )
+                                                                [ Ann
+                                                                    { usage = Omega
+                                                                    , type' = SymT
+                                                                        ( "Datatypes" :| [ "sExpField" ] )
+                                                                    , term = AppM
+                                                                        ( Ann
+                                                                            { usage = Omega
+                                                                            , type' = Pi Omega
+                                                                                ( SymT
+                                                                                    ( "Datatypes" :| [ "sExpField" ] )
+                                                                                )
+                                                                                ( Pi Omega
+                                                                                    ( SymT
+                                                                                        ( "Datatypes" :| [ "sExpField" ] )
+                                                                                    )
+                                                                                    ( SymT
+                                                                                        ( "Datatypes" :| [ "sExpField" ] )
+                                                                                    )
+                                                                                )
+                                                                            , term = Var
+                                                                                ( "Datatypes" :| [ "SPair" ] )
+                                                                            }
+                                                                        )
+                                                                        [ Ann
+                                                                            { usage = Omega
+                                                                            , type' = SymT
+                                                                                ( "Datatypes" :| [ "sExpField" ] )
+                                                                            , term = AppM
+                                                                                ( Ann
+                                                                                    { usage = Omega
+                                                                                    , type' = Pi Omega ( PrimTy PField )
+                                                                                        ( SymT
+                                                                                            ( "Datatypes" :| [ "sExpField" ] )
+                                                                                        )
+                                                                                    , term = Var
+                                                                                        ( "Datatypes" :| [ "Atom" ] )
+                                                                                    }
+                                                                                )
+                                                                                [ Ann
+                                                                                    { usage = Omega
+                                                                                    , type' = PrimTy PField
+                                                                                    , term = Prim
+                                                                                        ( Return
+                                                                                            { retType = PrimType
+                                                                                                { getPrimType = PField :| [] }
+                                                                                            , retTerm = PConst
+                                                                                                ( P
+                                                                                                    ( 1 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                                                                )
+                                                                                            }
+                                                                                        )
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        , Ann
+                                                                            { usage = Omega
+                                                                            , type' = SymT
+                                                                                ( "Datatypes" :| [ "sExpField" ] )
+                                                                            , term = AppM
+                                                                                ( Ann
+                                                                                    { usage = Omega
+                                                                                    , type' = Pi Omega
+                                                                                        ( SymT
+                                                                                            ( "Datatypes" :| [ "sExpField" ] )
+                                                                                        )
+                                                                                        ( Pi Omega
+                                                                                            ( SymT
+                                                                                                ( "Datatypes" :| [ "sExpField" ] )
+                                                                                            )
+                                                                                            ( SymT
+                                                                                                ( "Datatypes" :| [ "sExpField" ] )
+                                                                                            )
+                                                                                        )
+                                                                                    , term = Var
+                                                                                        ( "Datatypes" :| [ "SPair" ] )
+                                                                                    }
+                                                                                )
+                                                                                [ Ann
+                                                                                    { usage = Omega
+                                                                                    , type' = SymT
+                                                                                        ( "Datatypes" :| [ "sExpField" ] )
+                                                                                    , term = AppM
+                                                                                        ( Ann
+                                                                                            { usage = Omega
+                                                                                            , type' = Pi Omega
+                                                                                                ( SymT
+                                                                                                    ( "Datatypes" :| [ "sExpField" ] )
+                                                                                                )
+                                                                                                ( Pi Omega
+                                                                                                    ( SymT
+                                                                                                        ( "Datatypes" :| [ "sExpField" ] )
+                                                                                                    )
+                                                                                                    ( SymT
+                                                                                                        ( "Datatypes" :| [ "sExpField" ] )
+                                                                                                    )
+                                                                                                )
+                                                                                            , term = Var
+                                                                                                ( "Datatypes" :| [ "SPair" ] )
+                                                                                            }
+                                                                                        )
+                                                                                        [ Ann
+                                                                                            { usage = Omega
+                                                                                            , type' = SymT
+                                                                                                ( "Datatypes" :| [ "sExpField" ] )
+                                                                                            , term = AppM
+                                                                                                ( Ann
+                                                                                                    { usage = Omega
+                                                                                                    , type' = Pi Omega ( PrimTy PField )
+                                                                                                        ( SymT
+                                                                                                            ( "Datatypes" :| [ "sExpField" ] )
+                                                                                                        )
+                                                                                                    , term = Var
+                                                                                                        ( "Datatypes" :| [ "Atom" ] )
+                                                                                                    }
+                                                                                                )
+                                                                                                [ Ann
+                                                                                                    { usage = Omega
+                                                                                                    , type' = PrimTy PField
+                                                                                                    , term = Prim
+                                                                                                        ( Return
+                                                                                                            { retType = PrimType
+                                                                                                                { getPrimType = PField :| [] }
+                                                                                                            , retTerm = PConst
+                                                                                                                ( P
+                                                                                                                    ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                                                                                )
+                                                                                                            }
+                                                                                                        )
+                                                                                                    }
+                                                                                                ]
+                                                                                            }
+                                                                                        , Ann
+                                                                                            { usage = Omega
+                                                                                            , type' = SymT
+                                                                                                ( "Datatypes" :| [ "sExpField" ] )
+                                                                                            , term = AppM
+                                                                                                ( Ann
+                                                                                                    { usage = Omega
+                                                                                                    , type' = Pi Omega ( PrimTy PField )
+                                                                                                        ( SymT
+                                                                                                            ( "Datatypes" :| [ "sExpField" ] )
+                                                                                                        )
+                                                                                                    , term = Var
+                                                                                                        ( "Datatypes" :| [ "Atom" ] )
+                                                                                                    }
+                                                                                                )
+                                                                                                [ Ann
+                                                                                                    { usage = Omega
+                                                                                                    , type' = PrimTy PField
+                                                                                                    , term = Prim
+                                                                                                        ( Return
+                                                                                                            { retType = PrimType
+                                                                                                                { getPrimType = PField :| [] }
+                                                                                                            , retTerm = PConst
+                                                                                                                ( P
+                                                                                                                    ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                                                                                )
+                                                                                                            }
+                                                                                                        )
+                                                                                                    }
+                                                                                                ]
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                , Ann
+                                                                                    { usage = Omega
+                                                                                    , type' = SymT
+                                                                                        ( "Datatypes" :| [ "sExpField" ] )
+                                                                                    , term = AppM
+                                                                                        ( Ann
+                                                                                            { usage = Omega
+                                                                                            , type' = Pi Omega ( PrimTy PField )
+                                                                                                ( SymT
+                                                                                                    ( "Datatypes" :| [ "sExpField" ] )
+                                                                                                )
+                                                                                            , term = Var
+                                                                                                ( "Datatypes" :| [ "Atom" ] )
+                                                                                            }
+                                                                                        )
+                                                                                        [ Ann
+                                                                                            { usage = Omega
+                                                                                            , type' = PrimTy PField
+                                                                                            , term = Prim
+                                                                                                ( Return
+                                                                                                    { retType = PrimType
+                                                                                                        { getPrimType = PField :| [] }
+                                                                                                    , retTerm = PConst
+                                                                                                        ( P
+                                                                                                            ( 4 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                                                                        )
+                                                                                                    }
+                                                                                                )
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                }
                                             }
                                         )
+                                        [ Ann
+                                            { usage = Omega
+                                            , type' = SymT
+                                                ( "Datatypes" :| [ "functionTypeInConstructor" ] )
+                                            , term = AppM
+                                                ( Ann
+                                                    { usage = Omega
+                                                    , type' = Pi Omega
+                                                        ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+                                                        ( SymT
+                                                            ( "Datatypes" :| [ "functionTypeInConstructor" ] )
+                                                        )
+                                                    , term = Var
+                                                        ( "Datatypes" :| [ "FTIC_Right" ] )
+                                                    }
+                                                )
+                                                [ Ann
+                                                    { usage = Omega
+                                                    , type' = Pi Omega ( PrimTy PField ) ( PrimTy PField )
+                                                    , term = Var
+                                                        ( "Datatypes" :| [ "fticTestFunc" ] )
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     }
                                 }
                             }
@@ -51,7 +340,7 @@ Ann
                                     { usage = Omega
                                     , type' = Pi Omega
                                         ( SymT
-                                            ( "Datatypes" :| [ "Bar" ] )
+                                            ( "Datatypes" :| [ "bar" ] )
                                         ) ( PrimTy PField )
                                     , term = Var
                                         ( "Datatypes" :| [ "patternMatch" ] )
@@ -60,7 +349,7 @@ Ann
                                 [ Ann
                                     { usage = Omega
                                     , type' = SymT
-                                        ( "Datatypes" :| [ "Bar" ] )
+                                        ( "Datatypes" :| [ "bar" ] )
                                     , term = AppM
                                         ( Ann
                                             { usage = Omega
@@ -68,7 +357,7 @@ Ann
                                                 ( Pi Omega ( PrimTy PField )
                                                     ( Pi Omega ( PrimTy PField )
                                                         ( SymT
-                                                            ( "Datatypes" :| [ "Bar" ] )
+                                                            ( "Datatypes" :| [ "bar" ] )
                                                         )
                                                     )
                                                 )
@@ -130,13 +419,13 @@ Ann
         [ Ann
             { usage = Omega
             , type' = SymT
-                ( "Datatypes" :| [ "VerySimpleType" ] )
+                ( "Datatypes" :| [ "verySimpleType" ] )
             , term = AppM
                 ( Ann
                     { usage = Omega
                     , type' = Pi Omega ( PrimTy PField )
                         ( SymT
-                            ( "Datatypes" :| [ "VerySimpleType" ] )
+                            ( "Datatypes" :| [ "verySimpleType" ] )
                         )
                     , term = Var
                         ( "Datatypes" :| [ "One" ] )

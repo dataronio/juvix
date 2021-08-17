@@ -7,16 +7,47 @@ sig (+) : int -> int -> int
 let (+) = %LLVM.add
 declare infixl (+) 5
 
-type VerySimpleType = One int
+type verySimpleType = One int
 
-sig verySimpleTerm : VerySimpleType
+sig verySimpleTerm : verySimpleType
 let verySimpleTerm = One 0
 
-type Bar : ty = | P int int | Q int int int
+type bar : ty = | P int int | Q int int int
 
-sig patternMatch : Bar -> int
+sig patternMatch : bar -> int
 let patternMatch (P x y) = x + y
 let patternMatch (Q x y z) = x + y + z
+
+type functionTypeInConstructor :
+  ty = FTIC_Left int | FTIC_Right int -> int
+
+sig fticTestFunc : int -> int
+let fticTestFunc x = x
+
+sig fticTestTerm : functionTypeInConstructor
+let fticTestTerm = FTIC_Right fticTestFunc
+
+type sExpInt = Atom int | SPair sExpInt sExpInt
+
+sig s1 : sExpInt
+let s1 = SPair (Atom 1) (SPair (SPair (Atom 2) (Atom 3)) (Atom 4))
+
+sig ssize : sExpInt -> int
+let ssize (Atom x) = 1
+let ssize (SPair x y) = ssize x + ssize y
+
+-- Fails to typecheck:
+-- "Error on toHR: Name "atomExp" :| [] not in scope
+-- ( probably a bug in the elaborator from frontend )"
+type atomExp a = atom a
+
+sig testAExp : atomExp int
+let testAExp = Atom 1
+
+-- Fails to typecheck:
+-- "Error on toHR: Name "sExp" :| [] not in scope
+-- ( probably a bug in the elaborator from frontend )"
+type sExp a = Atom a | SPair (sExp a) (sExp a)
 
 sig main : int
 let main =
@@ -26,7 +57,7 @@ let main =
   --      { usageNeeded = Omega
   --      , usageActual = SNat 0
   --      }
-  let vs = VerySimpleType in
+  let vs = verySimpleType in
 
   -- Typechecks, but fails to compile:
   -- juvix: src/Juvix/Backends/LLVM/Compilation.hs:(48,36)-(49,45):
@@ -37,5 +68,33 @@ let main =
   -- juvix: src/Juvix/Backends/LLVM/Compilation.hs:(48,36)-(49,45):
   -- Non-exhaustive patterns in case
   let pm = patternMatch (Q 0 1 2) in
+
+  -- Typechecks, but fails to compile:
+  -- juvix: src/Juvix/Backends/LLVM/Compilation.hs:(48,36)-(49,45):
+  -- Non-exhaustive patterns in case
+  let ftict = fticTestTerm in
+
+  -- Typechecks, but fails to compile:
+  -- juvix: src/Juvix/Backends/LLVM/Compilation.hs:(48,36)-(49,45):
+  -- Non-exhaustive patterns in case
+  let sexpTest = ssize s1 in
+
+  -- Fails to typecheck:
+  --  "Error: TypecheckerError
+  --  ( NotPrimTy
+  --      { typeActual = VNeutral
+  --          ( NFree
+  --              ( Global
+  --                  ( "a" :| [] )
+  --              ) ()
+  --          ) ()
+  --      }
+  --  ) on Term: Let Omega
+  --  ( Free
+  --      ( Global
+  --          ( "Datatypes" :| [ "testAExp" ] )
+  --      ) ()
+  --  )
+  let ta = testAExp in
 
   0
