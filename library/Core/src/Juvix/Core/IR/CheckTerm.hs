@@ -453,7 +453,7 @@ substApp ::
   m (Typed.ValueT IR.T primTy primVal)
 substApp ty arg = do
   arg' <- evalTC arg
-  liftEval $ Eval.substV arg' ty
+  liftEval $ first Eval.ErrorValue (Eval.substV arg' ty)
 
 evalTC ::
   ( Error.HasThrowTC' IR.T ext primTy primVal m,
