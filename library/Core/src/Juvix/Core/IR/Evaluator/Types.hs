@@ -85,12 +85,11 @@ data Error extV extT primTy primVal
     UnsupportedElimExt (Core.ElimX extT primTy primVal)
 
 -- | Errors that can occur during evaluation.
-data ErrorValue extV primTy primVal
-  = -- | Error during application.
-    CannotApply
-      { fun, arg :: Core.Value extV primTy primVal,
-        paramErr :: ApplyError primTy primVal
-      }
+data ErrorValue extV primTy primVal = -- | Error during application.
+  CannotApply
+  { fun, arg :: Core.Value extV primTy primVal,
+    paramErr :: ApplyError primTy primVal
+  }
 
 type instance PP.Ann (Error IR.T TC.T _ _) = HR.PPAnn
 
@@ -98,21 +97,20 @@ type instance PP.Ann (Error IR.T TC.T _ _) = HR.PPAnn
 
 type instance PP.Ann (ErrorValue IR.T _ _) = HR.PPAnn
 
-
 instance
   ApplyErrorPretty primTy primVal =>
   PP.PrettyText (ErrorValue IR.T primTy primVal)
   where
-    prettyT CannotApply {fun, arg, paramErr} =
-      PP.vcat
-        [ PP.sepIndent'
-            [ (False, "Cannot apply"),
-              (True, PP.pretty0 $ irToHR $ Core.quote fun),
-              (False, "to argument"),
-              (True, PP.pretty0 $ irToHR $ Core.quote arg)
-            ],
-          PP.prettyT paramErr
-        ]
+  prettyT CannotApply {fun, arg, paramErr} =
+    PP.vcat
+      [ PP.sepIndent'
+          [ (False, "Cannot apply"),
+            (True, PP.pretty0 $ irToHR $ Core.quote fun),
+            (False, "to argument"),
+            (True, PP.pretty0 $ irToHR $ Core.quote arg)
+          ],
+        PP.prettyT paramErr
+      ]
 
 -- | Pretty-printer intance for errors.
 instance
@@ -161,7 +159,6 @@ deriving instance
     Show (Param.ApplyErrorExtra primVal)
   ) =>
   Show (ErrorValue extV primTy primVal)
-
 
 deriving instance
   ( Show primTy,

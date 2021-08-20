@@ -186,14 +186,14 @@ evalElimWith g exts (Core.Free x _)
   | otherwise = pure $ Core.VFree x
 evalElimWith g exts (Core.App s t _) =
   traceShow "hitting eval with" $
-  traceShow "===================" $
-  traceShow ("function:", s) $
-  traceShow ("argument:", t) $
-  traceShow "===================" $
-    join $
-    (\s t -> first ErrorValue (vapp s t ()))
-        <$> evalElimWith g exts s
-        <*> evalTermWith g exts t
+    traceShow "===================" $
+      traceShow ("function:", s) $
+        traceShow ("argument:", t) $
+          traceShow "===================" $
+            join $
+              (\s t -> first ErrorValue (vapp s t ()))
+                <$> evalElimWith g exts s
+                <*> evalTermWith g exts t
 evalElimWith g exts (Core.Ann _ s _ _ _) =
   evalTermWith g exts s
 evalElimWith g exts (Core.ElimX a) =

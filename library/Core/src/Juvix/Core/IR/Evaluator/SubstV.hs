@@ -204,53 +204,58 @@ vapp ::
 vapp s t ann =
   traceShow "vapp" $
     traceShow "===================" $
-    traceShow ("term: ", t) $
-    traceShow "===================" $
-      traceShow "===================" $
-      traceShow ("symbol:", s) $
-      traceShow "===================" $
-      case s of
-        Core.VLam s _ -> substV t s
-        Core.VNeutral f _ -> pure $ Core.VNeutral (Core.NApp f s ann) mempty
-        Core.VPrimTy p _ ->
-          traceShow
-            "hit VPrimTy for s"
-            traceShow
-            "for value p"
-            traceShow
-            "-------------------"
-            traceShow
-            p
-            $ traceShow
-              "-------------------"
-              case t of
-                Core.VPrimTy q _ ->
-                  traceShow "hit vprimty" $
-                    app' ApplyErrorT Core.VPrimTy (\_ -> Param.pureArg) p q
-                Core.VNeutral (Core.NFree (Core.Global y) _) _ ->
-                  traceShow "hit here" $
-                    -- TODO pattern vars also
-                    app' ApplyErrorT Core.VPrimTy Param.freeArg p y
-                Core.VNeutral v@(Core.NBound i _) _ ->
-                  traceShow
-                    "hit here last"
+      traceShow ("term: ", t) $
+        traceShow "===================" $
+          traceShow "===================" $
+            traceShow ("symbol:", s) $
+              traceShow "===================" $
+                case s of
+                  Core.VLam s _ -> substV t s
+                  Core.VNeutral f _ -> pure $ Core.VNeutral (Core.NApp f s ann) mempty
+                  Core.VPrimTy p _ ->
                     traceShow
-                    "here is what t becomes"
-                    app' ApplyErrorT Core.VPrimTy Param.boundArg p i
-                _ ->
-                  Left $ CannotApply s t NoApplyError
-        Core.VPrim p _ -> case t of
-          Core.VPrim q _ ->
-            app' ApplyErrorV Core.VPrim (\_ -> Param.pureArg) p q
-          Core.VNeutral (Core.NFree (Core.Global y) _) _ ->
-            -- TODO pattern vars also
-            app' ApplyErrorV Core.VPrim Param.freeArg p y
-          Core.VNeutral (Core.NBound i _) _ ->
-            app' ApplyErrorV Core.VPrim Param.boundArg p i
-          _ ->
-            Left $ CannotApply s t NoApplyError
-        _ ->
-          Left $ CannotApply s t NoApplyError
+                      "hit VPrimTy for s"
+                      traceShow
+                      "for value p"
+                      traceShow
+                      "-------------------"
+                      traceShow
+                      p
+                      $ traceShow
+                        "-------------------"
+                        case t of
+                          Core.VPrimTy q _ ->
+                            traceShow "hit vprimty" $
+                              app' ApplyErrorT Core.VPrimTy (\_ -> Param.pureArg) p q
+                          Core.VNeutral (Core.NFree (Core.Global y) _) _ ->
+                            traceShow "hit here" $
+                              -- TODO pattern vars also
+                              app' ApplyErrorT Core.VPrimTy Param.freeArg p y
+                          Core.VNeutral v@(Core.NBound i _) _ ->
+                            traceShow
+                              "hit here last"
+                              traceShow
+                              "here is what t becomes"
+                              app'
+                              ApplyErrorT
+                              Core.VPrimTy
+                              Param.boundArg
+                              p
+                              i
+                          _ ->
+                            Left $ CannotApply s t NoApplyError
+                  Core.VPrim p _ -> case t of
+                    Core.VPrim q _ ->
+                      app' ApplyErrorV Core.VPrim (\_ -> Param.pureArg) p q
+                    Core.VNeutral (Core.NFree (Core.Global y) _) _ ->
+                      -- TODO pattern vars also
+                      app' ApplyErrorV Core.VPrim Param.freeArg p y
+                    Core.VNeutral (Core.NBound i _) _ ->
+                      app' ApplyErrorV Core.VPrim Param.boundArg p i
+                    _ ->
+                      Left $ CannotApply s t NoApplyError
+                  _ ->
+                    Left $ CannotApply s t NoApplyError
   where
     app' ::
       forall ann arg fun.
