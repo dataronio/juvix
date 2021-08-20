@@ -364,6 +364,7 @@ Surface language
   + [[Ann]]
   + [[Library]]
   + [[Feedback]]
+  + [[NameSymbol]]
 ******* Parameterization <<LLVM/Parameterization>>
 Parameterization and application of the LLVM backend primitives.
 - _Relies on_
