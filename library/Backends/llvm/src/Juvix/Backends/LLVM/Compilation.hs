@@ -28,7 +28,7 @@ compileProgram t@(ErasedAnn.Ann usage ty _) = do
           LLVM.ret out
   return $ toStrict $ LLVM.ppllvm llvmmod
 
-type Env = [(NameSymbol.T, LLVM.Name)]
+type Env = [(NameSymbol.T, LLVM.Operand)]
 
 compileTerm ::
   Env ->
@@ -37,7 +37,7 @@ compileTerm ::
 compileTerm env (ErasedAnn.Ann usage ty t) = case t of
   ErasedAnn.Var symbol -> case P.lookup symbol env of
     Nothing -> P.error "Variable not found." -- TODO improve error message.
-    Just var -> undefined -- TODO: return variable var
+    Just var -> return var
   ErasedAnn.Prim t' -> mkPrim env t
   ErasedAnn.AppM f xs -> mkApp env (ErasedAnn.term f) ty xs
 
