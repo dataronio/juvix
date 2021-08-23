@@ -161,10 +161,8 @@ Module that implements the backend parameters for the Michelson backend.
 - _Relies on_
   + [[Instructions]]
   + [[Untyped]]
-  + [[Ann/Types]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[Library/Usage]]
 *** test
 **** Main <<Michelson/test/Main>>
 - _Relies on_
@@ -266,6 +264,8 @@ Surface language
   + [[Plonk/Types]]
   + [[Application]]
   + [[Core/Base/Types]]
+  + [[Conversion]]
+  + [[Prim]]
   + [[Ann/Types]]
   + [[Evaluator]]
   + [[Core/Parameterisation]]
@@ -311,7 +311,6 @@ Surface language
 **** Test
 ***** AnnTerm
 - _Relies on_
-  + [[Plonk]]
   + [[Plonk]]
   + [[Ann]]
   + [[Library]]

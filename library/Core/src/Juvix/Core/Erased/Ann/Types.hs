@@ -64,6 +64,35 @@ data AnnTerm primTy primVal = Ann
   }
   deriving (Show, Read, Eq, Generic)
 
+-- TODO ∷ make usageFromType Fold!
+usageFromType :: Type primTy -> [Usage.T]
+usageFromType (Pi usage _x xs) = usage : usageFromType xs
+usageFromType Sig {} = []
+usageFromType SymT {} = []
+usageFromType Star {} = []
+usageFromType PrimTy {} = []
+usageFromType UnitTy {} = []
+
+piToReturnType :: Type primTy -> Type primTy
+piToReturnType (Pi _ _ rest) = piToReturnType rest
+piToReturnType last = last
+
+piToList :: Type primTy -> [(Usage.T, Type primTy)]
+piToList (Pi usage aType rest) = (usage, aType) : piToList rest
+piToList Sig {} = []
+piToList SymT {} = []
+piToList Star {} = []
+piToList PrimTy {} = []
+piToList UnitTy {} = []
+
+piToListTy :: Type primTy -> [Type primTy]
+piToListTy (Pi _usage ty xs) = ty : piToListTy xs
+piToListTy Sig {} = []
+piToListTy SymT {} = []
+piToListTy Star {} = []
+piToListTy PrimTy {} = []
+piToListTy UnitTy {} = []
+
 instance (A.ToJSON ty, A.ToJSON val) => A.ToJSON (AnnTerm ty val) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 

@@ -278,8 +278,10 @@ argToTerm ::
   App.Arg (Param.PrimType primTy) primVal ->
   Core.Term (OnlyExts.T ext) primTy (Param.TypedPrim primTy primVal)
 argToTerm = \case
-  App.TermArg (App.Take {type', term}) ->
-    IR.Prim $ App.Return {retType = type', retTerm = term}
+  App.TermArg (App.Return {retType, retTerm}) ->
+    IR.Prim $ App.Return {retType, retTerm}
+  App.TermArg (App.Cont {fun, args, numLeft}) ->
+    notImplemented
   App.BoundArg i -> IR.Elim $ IR.Bound i
   App.FreeArg x -> IR.Elim $ IR.Free $ Core.Global x
 

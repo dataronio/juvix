@@ -2,18 +2,6 @@ Rec
     { recordContents = T
         { public = fromList
             [
-                ( "+"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "->" "field"
-                                ( ":infix" "->" "field" "field" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "Circuit.add" ) ) )
-                        , defPrecedence = Pred Left 5 } ) )
-            ,
                 ( "main"
                 , Def
                     ( D

@@ -143,6 +143,7 @@ discoverGoldenTestsContext =
     handleDiscoverFunction contextPass filePath = do
       let directory = FP.dropFileName filePath
       deps <- liftIO (fmap (directory <>) <$> findFileDependencies filePath)
+      print deps
       desugaredPath <- fullyDesugarPath (filePath : (deps <> library))
       handleContextPass desugaredPath contextPass
 
@@ -163,11 +164,13 @@ fromOpen (Open s) = List.intercalate "/" (unintern <$> NonEmpty.toList s) <> ".j
 findFileDependencies :: FilePath -> IO [FilePath]
 findFileDependencies f = do
   contract <- ByteString.readFile f
+  print contract
   pure $ either (const []) (filter (\f -> not $ elem f stdlibs) . fmap fromOpen) (parseOpen contract)
 
 stdlibs :: [FilePath]
 stdlibs =
   [ "Circuit.ju",
+    "Circuit/Field.ju",
     "LLVM.ju",
     "MichelsonAlias.ju",
     "Michelson.ju",

@@ -364,6 +364,17 @@ instance
   substValueWith b i e (App.TermArg t) = substValueWith b i e t
 
 instance
+  ( HasWeak ty,
+    HasWeak (App.ParamVar ext),
+    HasSubstValue ext primTy primVal term
+  ) =>
+  HasSubstValue ext primTy primVal (App.Return' ext ty term)
+  where
+  substValueWith b i e App.Return {retTerm} = substValueWith b i e retTerm
+  substValueWith b i e (App.Cont fun@App.Take {usage, type', term} args numLeft) =
+    substValueWith b i e fun
+
+instance
   ( HasSubstValue ext primTy primVal a,
     Core.ValueAll HasWeak ext primTy primVal,
     Core.NeutralAll HasWeak ext primTy primVal,
@@ -380,6 +391,7 @@ instance
 
 -- TODO generalise @IR.T@
 instance
+  {-# OVERLAPS #-}
   ( HasWeak primTy,
     HasWeak primVal,
     HasSubstValue IR.T primTy (Param.TypedPrim primTy primVal) primTy,
@@ -405,7 +417,9 @@ argToValue ::
   App.Arg (Param.PrimType primTy) primVal ->
   IR.Value primTy (Param.TypedPrim primTy primVal)
 argToValue = \case
-  App.TermArg (App.Take {type', term}) ->
-    IR.VPrim $ App.Return {retType = type', retTerm = term}
+  App.TermArg (App.Return {retType, retTerm}) ->
+    IR.VPrim $ App.Return {retType, retTerm}
+  App.TermArg (App.Cont {fun, args, numLeft}) ->
+    notImplemented
   App.BoundArg i -> Core.VBound i
   App.FreeArg x -> Core.VFree $ Core.Global x

@@ -1,52 +1,5 @@
 fromList
     [
-        ( "MainMultArgs" :| [ "+" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "MainMultArgs" :| [ "+" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Prelude" :|
-                                [ "Circuit"
-                                , "field"
-                                ]
-                            )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PAdd ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "MainMultArgs" :| [ "main" ]
         , RawGFunction
             ( RawFunction
@@ -96,7 +49,12 @@ fromList
                         ( App
                             ( App
                                 ( ElimX
-                                    ( "MainMultArgs" :| [ "+" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "Field"
+                                        , "+"
+                                        ]
+                                    )
                                 )
                                 ( Elim
                                     ( ElimX

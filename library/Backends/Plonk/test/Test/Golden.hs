@@ -28,7 +28,7 @@ juvixRootPath :: FilePath
 juvixRootPath = "../../../"
 
 libs :: IsString a => [a]
-libs = ["stdlib/Prelude.ju", "stdlib/Circuit.ju"]
+libs = ["stdlib/Prelude.ju", "stdlib/Circuit.ju", "stdlib/Circuit/Field.ju"]
 
 withJuvixRootPath :: FilePath -> FilePath
 withJuvixRootPath p = juvixRootPath <> p

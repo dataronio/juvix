@@ -31,7 +31,7 @@ import qualified Data.Aeson as A
 import qualified Juvix.Core.Application as App
 import Juvix.Core.Base.Types (BoundVar, GlobalName)
 import qualified Juvix.Core.HR.Pretty as HR
-import Juvix.Core.IR.Types (T)
+import qualified Juvix.Core.IR.Types as IR
 import Juvix.Library
 import Juvix.Library.HashMap (HashMap)
 import qualified Juvix.Library.NameSymbol as NameSymbol
@@ -180,7 +180,7 @@ apply1Maybe f x = applyMaybe f (x :| [])
 type TypedPrim' ext ty val = App.Return' ext (PrimType ty) val
 
 -- | A typed primitive.
-type TypedPrim ty val = TypedPrim' T ty val
+type TypedPrim ty val = TypedPrim' IR.T ty val
 
 data PPAnn' primTy
   = PAArrow

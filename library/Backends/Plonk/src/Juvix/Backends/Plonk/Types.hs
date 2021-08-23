@@ -2,9 +2,9 @@
 
 module Juvix.Backends.Plonk.Types
   ( CompilationError (..),
-    FFAnnTerm,
-    FFTerm,
-    FFType,
+    AnnTerm,
+    Term,
+    Type,
     PrimValHR,
     PrimValIR,
     PrimVal',
@@ -17,6 +17,8 @@ module Juvix.Backends.Plonk.Types
     Return',
     PrimTy (..),
     PrimVal (..),
+    isConst,
+    isBinOp,
   )
 where
 
@@ -95,12 +97,33 @@ type PrimValIR f = PrimVal' IR.T f
 
 type PrimValHR f = PrimVal' ErasedAnn.T f
 
-type FFType f = ErasedAnn.Type (PrimTy f)
+type Type f = ErasedAnn.Type (PrimTy f)
 
-type FFTerm f = ErasedAnn.Term (PrimTy f) (PrimVal f)
+type Term f = ErasedAnn.Term (PrimTy f) (PrimVal f)
 
-type FFAnnTerm f = ErasedAnn.AnnTerm (PrimTy f) (PrimVal f)
+type AnnTerm f = ErasedAnn.AnnTerm (PrimTy f) (PrimVal f)
 
 newtype CompilationError f
   = NotYetImplemented Text
   deriving (Show, Eq, Generic)
+
+isConst :: PrimVal f -> Bool
+isConst (PConst _) = True
+isConst _ = False
+
+isBinOp :: PrimVal f -> Bool
+isBinOp = \case
+  PAdd -> True
+  PSub -> True
+  PMul -> True
+  PDiv -> True
+  PExp -> True
+  PMod -> True
+  PAnd -> True
+  POr -> True
+  PXor -> True
+  PGt -> True
+  PGte -> True
+  PLt -> True
+  PLte -> True
+  PEq -> True

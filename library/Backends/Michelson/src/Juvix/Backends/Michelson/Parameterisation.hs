@@ -124,10 +124,9 @@ toArg App.Cont {} = Nothing
 toArg App.Return {retType, retTerm} =
   Just $
     App.TermArg $
-      App.Take
-        { usage = Usage.Omega,
-          type' = retType,
-          term = retTerm
+      App.Return
+        { retType = retType,
+          retTerm = retTerm
         }
 
 -- | Translate a value into a  'Take' and the arguments to pass.
@@ -136,6 +135,9 @@ toTakes App.Cont {fun, args, numLeft} = (fun, args, numLeft)
 toTakes App.Return {retType, retTerm} = (fun, [], arityRaw retTerm)
   where
     fun = App.Take {usage = Usage.Omega, type' = retType, term = retTerm}
+
+takeToReturn :: App.Take ty term -> App.Return' ext ty term
+takeToReturn (App.Take {type', term}) = App.Return {retType = type', retTerm = term}
 
 -- | Datatype that is used for describing errors during the application process.
 data ApplyError
@@ -205,8 +207,8 @@ instance App.IsParamVar ext => Core.CanApply (PrimVal' ext) where
       -- If there are exactly enough arguments to apply, do so.
       -- In case there aren't any arguments, return a continuation.
       EQ
-        | Just takes <- traverse App.argToTake args ->
-          applyProper fun takes |> first Core.Extra
+        | Just returns <- traverse App.argToReturn args ->
+          applyProper (takeToReturn fun) returns |> first Core.Extra
         | otherwise ->
           Right $ App.Cont {fun, args = toList args, numLeft = 0}
       -- If there are too many arguments to apply, raise an error.
@@ -214,24 +216,29 @@ instance App.IsParamVar ext => Core.CanApply (PrimVal' ext) where
 
 -- | Apply arguments to a function. Requires that the right number of arguments
 -- are passed.
-applyProper :: Take -> NonEmpty Take -> Either ApplyError (Return' ext)
-applyProper fun args =
+applyProper :: Return' ext -> NonEmpty (Return' ext) -> Either ApplyError (Return' ext)
+applyProper ret args =
   case compd >>= Interpreter.dummyInterpret of
     Right x -> do
       retType <- toPrimType $ ErasedAnn.type' newTerm
       pure $ App.Return {retType, retTerm = Constant x}
     Left err -> Left $ CompilationError err
   where
-    fun' = takeToTerm fun
-    args' = takeToTerm <$> toList args
+    fun' = returnToTerm ret
+    args' = returnToTerm <$> toList args
     newTerm = Run.applyPrimOnArgs fun' args'
     -- TODO ∷ do something with the logs!?
     (compd, _log) = Compilation.compileExpr newTerm
 
--- | Translate a 'Take' into a 'RawTerm'.
-takeToTerm :: Take -> RawTerm
-takeToTerm (App.Take {usage, type', term}) =
-  Ann {usage, type' = ErasedAnn.fromPrimType type', term = ErasedAnn.Prim term}
+-- | Translate a 'Return' into a 'RawTerm'.
+returnToTerm :: Return' ext -> RawTerm
+returnToTerm (App.Return {retType, retTerm}) =
+  Ann
+    { usage = Usage.Omega, -- TODO: Is Omega correct here?
+      type' = ErasedAnn.fromPrimType retType,
+      term = ErasedAnn.Prim retTerm
+    }
+returnToTerm (App.Cont take args nat) = notImplemented
 
 -- | Given a type, translate it to a type in the Michelson backend.
 toPrimType :: ErasedAnn.Type PrimTy -> Either ApplyError (P.PrimType PrimTy)

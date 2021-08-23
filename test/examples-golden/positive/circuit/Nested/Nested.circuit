@@ -1,0 +1,49 @@
+ArithCircuit
+    [ MulGate
+        { mulL = Var
+            ( InputWire 0 )
+        , mulR = Var
+            ( InputWire 0 )
+        , mulO = IntermediateWire 3
+        }
+    , MulGate
+        { mulL = Var
+            ( InputWire 1 )
+        , mulR = Var
+            ( InputWire 1 )
+        , mulO = IntermediateWire 4
+        }
+    , MulGate
+        { mulL = Var
+            ( InputWire 2 )
+        , mulR = Var
+            ( InputWire 2 )
+        , mulO = IntermediateWire 5
+        }
+    , MulGate
+        { mulL = ConstGate
+            ( P
+                ( 1 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+            )
+        , mulR = Add
+            ( Var
+                ( IntermediateWire 3 )
+            )
+            ( Add
+                ( Var
+                    ( IntermediateWire 4 )
+                )
+                ( Add
+                    ( Var
+                        ( IntermediateWire 5 )
+                    )
+                    ( ConstGate
+                        ( P
+                            ( 5 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                        )
+                    )
+                )
+            )
+        , mulO = OutputWire 6
+        }
+    ]

@@ -3,33 +3,7 @@
 ,
     ( "open" "Circuit" )
 ,
-    ( ":defsig" "+"
-        ( ":infix" "->" "field" ( ":infix" "->" "field" "field" ) ) )
-,
-    ( ":defun" "+" () ( ":primitive" "Circuit.add" ) )
-,
-    ( "declare" "infixl" "+" 5 )
-,
-    ( ":defsig" "^"
-        ( ":infix" "->" "field" ( ":infix" "->" "field" "field" ) ) )
-,
-    ( ":defun" "^" () ( ":primitive" "Circuit.exp" ) )
-,
-    ( "declare" "infixl" "^" 8 )
-,
-    ( ":defsig" "*"
-        ( ":infix" "->" "field" ( ":infix" "->" "field" "field" ) ) )
-,
-    ( ":defun" "*" () ( ":primitive" "Circuit.mul" ) )
-,
-    ( "declare" "infixl" "*" 7 )
-,
-    ( ":defsig" "=="
-        ( ":infix" "->" "field" ( ":infix" "->" "field" "bool" ) ) )
-,
-    ( ":defun" "==" () ( ":primitive" "Circuit.eq" ) )
-,
-    ( "declare" "infixl" "==" 2 )
+    ( "open" "Circuit.Field" )
 ,
     ( ":defsig" "main"
         ( ":infix" "->" "field" ( ":infix" "->" "field" "bool" ) ) )
