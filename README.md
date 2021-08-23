@@ -1,9 +1,9 @@
 # Juvix
 <img src="Juvix_logo.png" width="250" height="250">
 
-![GitHub](https://img.shields.io/github/license/metastatedev/juvix)
-![Build status](https://img.shields.io/circleci/build/github/metastatedev/juvix?token=abc123def456)
-![GitHub issues](https://img.shields.io/github/issues/metastatedev/juvix)
+![GitHub](https://img.shields.io/github/license/anoma/juvix)
+[![Build Status](https://ci.heliax.dev/api/badges/anoma/anoma/status.svg)](https://ci.heliax.dev/anoma/anoma)
+![GitHub issues](https://img.shields.io/github/issues/anoma/juvix)
 
 ## Overview
 
