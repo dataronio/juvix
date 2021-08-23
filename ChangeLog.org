@@ -1,4 +1,7 @@
 * Changelog for Juvix
+** 0.1.1.16
+- Add a test suite and tooling to =Juvix.Library.Test.Golden= for
+  expecting at least 1 test to fail.
 ** 0.1.1.15
 - Added module 'Juvix.Library.BLS12381' to remove Orphan related files.
 - New instances and reviews for 'Juvix.Library.Usage'.

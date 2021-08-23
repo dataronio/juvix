@@ -1524,9 +1524,13 @@ _TODO_
 This structure allows us to have golden tests that are based around
 show instances instead of normal read instances.
 ** test
+*** Golden <<test/Golden>>
+- _Relies on_
+  + [[Library]]
 *** Main <<StandardLibrary/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Library/Test/Golden]]
 *** NameSymb
 - _Relies on_
   + [[Library]]
