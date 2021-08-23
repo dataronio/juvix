@@ -62,7 +62,15 @@ type CanEval extT extG primTy primVal =
     -- no extensions (only annotations) allowed in global context
     NoExtensions extG primTy primVal,
     HasSubstValue IR.T primTy primVal primTy,
-    HasSubstValue IR.T primTy primVal primVal
+    HasSubstValue IR.T primTy primVal primVal,
+    ShowAllV extT primTy primVal
+  )
+
+type ShowAllV extT primTy primVal =
+  ( Core.ElimAll Show extT primTy primVal,
+    Core.TermAll Show extT primTy primVal,
+    Show primVal,
+    Show primTy
   )
 
 -- | Perform inlining of variables to globals in the input program.
@@ -152,7 +160,7 @@ evalTermWith _ _ (Core.Unit _) =
 evalTermWith g exts (Core.Let _ l b _) = do
   l' <- evalElimWith g exts l
   b' <- evalTermWith g exts b
-  substV l' b'
+  first ErrorValue (substV l' b')
 evalTermWith g exts (Core.Elim e _) =
   evalElimWith g exts e
 evalTermWith g exts (Core.TermX a) =
@@ -178,9 +186,9 @@ evalElimWith g exts (Core.Free x _)
   | otherwise = pure $ Core.VFree x
 evalElimWith g exts (Core.App s t _) =
   join $
-    vapp <$> evalElimWith g exts s
+    (\s t -> first ErrorValue (vapp s t ()))
+      <$> evalElimWith g exts s
       <*> evalTermWith g exts t
-      <*> pure ()
 evalElimWith g exts (Core.Ann _ s _ _ _) =
   evalTermWith g exts s
 evalElimWith g exts (Core.ElimX a) =
