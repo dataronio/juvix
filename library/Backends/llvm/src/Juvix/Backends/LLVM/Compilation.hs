@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Juvix.Backends.LLVM.Compilation
@@ -39,7 +40,7 @@ compileTerm env (ErasedAnn.Ann usage ty t) = case t of
     Nothing -> P.error "Variable not found." -- TODO improve error message.
     Just var -> return var
   ErasedAnn.Prim t' -> mkPrim env t
-  ErasedAnn.AppM f xs -> mkApp env (ErasedAnn.term f) ty xs
+  ErasedAnn.AppM f xs -> mkApp env f ty xs
 
 mkPrim ::
   Env ->
@@ -51,13 +52,14 @@ mkPrim _ (ErasedAnn.Prim prim) = case prim of
 mkApp ::
   Env ->
   -- | The function term of an application.
-  ErasedAnn.Term PrimTy RawPrimVal ->
+  ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   ErasedAnn.Type PrimTy ->
   -- | The arguments to the application.
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
-mkApp env f (ErasedAnn.PrimTy ty) xs = case f of
-  ErasedAnn.Prim prim -> applyPrim env prim ty xs
+mkApp env (ErasedAnn.Ann {ErasedAnn.term}) (ErasedAnn.PrimTy ty) xs =
+  case term of
+    ErasedAnn.Prim prim -> applyPrim env prim ty xs
 
 applyPrim ::
   Env ->
