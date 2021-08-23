@@ -7,21 +7,20 @@ module Options
   )
 where
 
-import Data.Curve.Weierstrass.BLS12381 (Fr)
+------------------------------------------------------------------------------
+
 import qualified Juvix.Backends.LLVM as LLVM
 import qualified Juvix.Backends.Michelson as Michelson
 import qualified Juvix.Backends.Plonk as Plonk
 import Juvix.Library hiding (option)
+import Juvix.Library.BLS12381 (Fr)
 import Options.Applicative
+
+------------------------------------------------------------------------------
 
 data Context = Context
   { contextWorkingDirectory :: FilePath,
     contextHomeDirectory :: FilePath
-  }
-
-data Options = Options
-  { optionsCommand :: Command,
-    optionsConfigPath :: FilePath
   }
 
 data Backend
@@ -29,6 +28,11 @@ data Backend
   | Michelson Michelson.BMichelson
   | LLVM LLVM.BLLVM
   deriving (Eq, Show)
+
+data Options = Options
+  { optionsCommand :: Command,
+    optionsConfigPath :: FilePath
+  }
 
 data Command
   = Version

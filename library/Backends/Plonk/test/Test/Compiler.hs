@@ -2,17 +2,16 @@
 
 module Test.Compiler where
 
-import Data.Curve.Weierstrass.BLS12381 (Fr)
 import Data.Field.Galois (GaloisField, PrimeField (..))
 import qualified Data.Map as Map
 import Juvix.Backends.Plonk (AnnTerm)
 import qualified Juvix.Backends.Plonk as P
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library hiding (Type, exp)
+import Juvix.Library.BLS12381 (Fr)
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Pipeline as Pipeline
 import qualified Test.Example.Polynomial as Example
-import Test.Orphan ()
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 

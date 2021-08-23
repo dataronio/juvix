@@ -13,6 +13,8 @@ module Version
   )
 where
 
+------------------------------------------------------------------------------
+
 import Data.Char (toUpper)
 import Data.String (String)
 import Data.Version (Version, showVersion, versionTags)
@@ -22,9 +24,7 @@ import Paths_juvix (version)
 import System.Environment (getProgName)
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>), (<>))
 
-toUpperFirst :: String -> String
-toUpperFirst [] = []
-toUpperFirst (x : xs) = toUpper x : xs
+------------------------------------------------------------------------------
 
 versionDoc :: Doc
 versionDoc = text (showVersion version)

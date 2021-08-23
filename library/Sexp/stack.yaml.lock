@@ -3,46 +3,68 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-snapshots:
-- original: lts-17.3
-  completed:
-    sha256: 1e9f31ec160a144f796bc49b91dfc2bab5eca88b1dcc93da569108febaf5b382
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/17/3.yaml
-    size: 563099
 packages:
-- original:
+- completed:
     hackage: capability-0.4.0.0@sha256:d86d85a1691ef0165c77c47ea72eac75c99d21fb82947efe8b2f758991cf1837,3345
-  completed:
     pantry-tree:
-      sha256: 21bf502c888f32bd6aabeeef05bc2a362cf72bf694b432a0eda9431ac4cfea9b
       size: 2581
+      sha256: 21bf502c888f32bd6aabeeef05bc2a362cf72bf694b432a0eda9431ac4cfea9b
+  original:
     hackage: capability-0.4.0.0@sha256:d86d85a1691ef0165c77c47ea72eac75c99d21fb82947efe8b2f758991cf1837,3345
-- original:
-    url: https://github.com/jyp/prettiest/archive/e5ce6cd6b4da71860c3d97da84bed4a827fa00ef.tar.gz
-  completed:
-    pantry-tree:
-      sha256: c768b2faa4e5d7b791d987679616d8f90f169a73ae3fd38c20f37f08d02d930d
-      size: 2327
-    version: '3.0'
-    name: pretty-compact
-    sha256: 27a4b2e7ee8f4768b27e7173f758fd0af83b1d8e3c3af9711b5fed2b27ef54ec
-    url: https://github.com/jyp/prettiest/archive/e5ce6cd6b4da71860c3d97da84bed4a827fa00ef.tar.gz
+- completed:
     size: 359995
-- original:
-    url: https://github.com/phile314/tasty-silver/archive/f1f90ac3113cd445e2a7ade43ebb29f0db38ab9b.tar.gz
-  completed:
+    url: https://github.com/jyp/prettiest/archive/e5ce6cd6b4da71860c3d97da84bed4a827fa00ef.tar.gz
+    name: pretty-compact
+    version: '3.0'
+    sha256: 27a4b2e7ee8f4768b27e7173f758fd0af83b1d8e3c3af9711b5fed2b27ef54ec
     pantry-tree:
-      sha256: 540333aa07ba4f46c8bfb2e7cf75f756f908aa3f163f7c621cec10186238f27d
-      size: 784
-    version: 3.2.1
-    name: tasty-silver
-    sha256: 666b911fb302ef1e2ddb7562e3347674a91cae01b632958527f376c576e27852
-    url: https://github.com/phile314/tasty-silver/archive/f1f90ac3113cd445e2a7ade43ebb29f0db38ab9b.tar.gz
+      size: 2327
+      sha256: c768b2faa4e5d7b791d987679616d8f90f169a73ae3fd38c20f37f08d02d930d
+  original:
+    url: https://github.com/jyp/prettiest/archive/e5ce6cd6b4da71860c3d97da84bed4a827fa00ef.tar.gz
+- completed:
     size: 18968
-- original:
-    hackage: tasty-1.4.1@sha256:69e90e965543faf0fc2c8e486d6c1d8cf81fd108e2c4541234c41490f392f94f,2638
-  completed:
+    url: https://github.com/phile314/tasty-silver/archive/f1f90ac3113cd445e2a7ade43ebb29f0db38ab9b.tar.gz
+    name: tasty-silver
+    version: 3.2.1
+    sha256: 666b911fb302ef1e2ddb7562e3347674a91cae01b632958527f376c576e27852
     pantry-tree:
-      sha256: 0c8fb1ece12aa96b9e884a2c382bfe5f3688c0f7a69bc165bdae64674b4ffe83
-      size: 1873
+      size: 784
+      sha256: 540333aa07ba4f46c8bfb2e7cf75f756f908aa3f163f7c621cec10186238f27d
+  original:
+    url: https://github.com/phile314/tasty-silver/archive/f1f90ac3113cd445e2a7ade43ebb29f0db38ab9b.tar.gz
+- completed:
     hackage: tasty-1.4.1@sha256:69e90e965543faf0fc2c8e486d6c1d8cf81fd108e2c4541234c41490f392f94f,2638
+    pantry-tree:
+      size: 1873
+      sha256: 0c8fb1ece12aa96b9e884a2c382bfe5f3688c0f7a69bc165bdae64674b4ffe83
+  original:
+    hackage: tasty-1.4.1@sha256:69e90e965543faf0fc2c8e486d6c1d8cf81fd108e2c4541234c41490f392f94f,2638
+- completed:
+    name: elliptic-curve
+    version: 0.3.1
+    git: https://github.com/serokell/elliptic-curve.git
+    pantry-tree:
+      size: 12030
+      sha256: f4f032b7ef9a23afbd65a765e3a335ec8cdd219a5dfe6ee276f72e15d644a0fd
+    commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
+  original:
+    git: https://github.com/serokell/elliptic-curve.git
+    commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
+- completed:
+    name: galois-field
+    version: 1.0.4
+    git: https://github.com/serokell/galois-field.git
+    pantry-tree:
+      size: 4657
+      sha256: 1c5f35fa2f128d1341fffb29300ebc09f2ac463220bf76425fe12ffc2d171d48
+    commit: 576ba98ec947370835a1f308895037c7aa7f8b71
+  original:
+    git: https://github.com/serokell/galois-field.git
+    commit: 576ba98ec947370835a1f308895037c7aa7f8b71
+snapshots:
+- completed:
+    size: 563099
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/17/3.yaml
+    sha256: 1e9f31ec160a144f796bc49b91dfc2bab5eca88b1dcc93da569108febaf5b382
+  original: lts-17.3

@@ -1,14 +1,14 @@
 name:                juvix
-version:             0.0.0
-github:              "cryptiumlabs/juvix"
+version:             0.1.1.15
+github:              "anoma/juvix"
 license:             GPL-3
-homepage:            https://github.com/cryptiumlabs/juvix#readme
+homepage:            https://github.com/anoma/juvix#readme
 synopsis:            Juvix smart contract language compiler, debugging toolkit, & stateful deployment system
 category:            Web3
-description:         Please see the README on GitHub at <https://github.com/cryptiumlabs/juvix#readme>
+description:         Please see the README on GitHub at <https://github.com/anoma/juvix#readme>
 author:              Cryptium Labs
-maintainer:          cwgoes@cryptium.ch, jeremy@cryptium.ch, marty@cryptium.ch, andy@cryptium.ch
-copyright:           2018 Christopher Goes, 2018-2019 Cryptium Labs
+maintainer:          cwgoes@heliax.dev, jeremy@heliax.dev, marty@heliax.dev, andy@heliax.dev
+copyright:           2018 Christopher Goes, 2018-2019 Cryptium Labs, 2019- Heliax AG
 
 extra-source-files:
 - README.md

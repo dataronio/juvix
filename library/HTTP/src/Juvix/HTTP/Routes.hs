@@ -11,7 +11,6 @@ module Juvix.HTTP.Routes where
 
 import qualified Control.Monad.State.Lazy as State
 import qualified Data.Aeson as A
-import Data.Curve.Weierstrass.BLS12381 (Fr)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Backends.Plonk as Plonk
@@ -22,9 +21,9 @@ import qualified Juvix.Core.HR as HR
 import qualified Juvix.Core.IR as IR
 import qualified Juvix.Frontend.Types as Frontend
 import Juvix.Library hiding (All)
+import Juvix.Library.BLS12381 (Fr)
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import Juvix.Orphan ()
 import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Sexp as Sexp
 import Servant

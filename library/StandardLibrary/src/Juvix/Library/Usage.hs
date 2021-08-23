@@ -3,90 +3,94 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Juvix.Library.Usage
-  ( Usage,
-    NatAndw (..),
+  ( Usage (..),
     T,
-    numToNat,
-    allowsUsageOf,
+    toUsage,
     allows,
     pred,
     minus,
   )
 where
 
+------------------------------------------------------------------------------
+
 import qualified Data.Aeson as A
 import Juvix.Library hiding (pred, show)
 import qualified Juvix.Library.PrettyPrint as PP
 
--- | Usage is an alias for the semiring representation
-type T = NatAndw
+------------------------------------------------------------------------------
 
-type Usage = NatAndw
-
--- | NatAndw is the choice of the semiring for ({ℕ, ω}, (+), 0, (*), 1)
-data NatAndw
-  = -- | semiring of (Nat,w) for usage annotation
-    -- 0, 1, or n usage
-    SNat Natural
-  | -- | unspecified usage
-    Omega
+-- | Usage is the type ℕ + ω.
+data Usage = SNat Natural | Omega
   deriving (Eq, Show, Read, Generic, Data, NFData)
 
-instance A.ToJSON NatAndw where
-  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+type T = Usage
 
-instance A.FromJSON NatAndw where
-  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+------------------------------------------------------------------------------
+-- Usage forms an ordered semiring (ℕ+ω, (+), 0, (*), 1).
+------------------------------------------------------------------------------
 
--- Addition is the semi-Ring/Monoid instance
-instance Semigroup NatAndw where
+instance Semigroup Usage where
   SNat x <> SNat y = SNat (x + y)
   Omega <> _ = Omega
   _ <> Omega = Omega
 
-instance Monoid NatAndw where
+instance Monoid Usage where
   mempty = SNat 0
 
--- Semiring instance is thus multiplication
-instance Semiring NatAndw where
+instance Semiring Usage where
   one = SNat 1
 
+  -- Operation
   SNat x <.> SNat y = SNat (x * y)
   Omega <.> _ = Omega
   _ <.> Omega = Omega
 
-type instance PP.Ann NatAndw = ()
+instance Ord Usage where
+  compare (SNat a) (SNat b) = compare a b
+  compare (SNat _) Omega = LT
+  compare Omega (SNat _) = GT
+  compare Omega Omega = EQ
 
-instance PP.PrettySyntax NatAndw where
-  pretty' (SNat π) = pure $ PP.show π
+------------------------------------------------------------------------------
+
+type instance PP.Ann Usage = ()
+
+instance PP.PrettySyntax Usage where
+  pretty' (SNat π) = pure . PP.show $ π
   pretty' Omega = pure "ω"
 
-pred :: NatAndw -> NatAndw
+instance A.ToJSON Usage where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Usage where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+------------------------------------------------------------------------------
+-- Utils
+------------------------------------------------------------------------------
+
+-- | toUsage is a helper function that converts an integer to NatAndW
+toUsage :: Integer -> Usage
+toUsage = SNat . fromInteger
+
+pred :: Usage -> Usage
 pred (SNat x) = SNat (x - 1)
 pred Omega = Omega
 
 minus :: Usage -> Usage -> Maybe Usage
+minus (SNat i) (SNat j)
+  | i >= j = Just . SNat $ i - j
 minus Omega _ = Just Omega
-minus (SNat i) (SNat j) | i >= j = Just $ SNat $ i - j
 minus _ _ = Nothing
 
-infixl 6 `minus` -- same as -
+infixl 6 `minus`
 
--- | numToNat is a helper function that converts an integer to NatAndW
-numToNat :: Integer -> NatAndw
-numToNat = SNat . fromInteger
-
--- variables annotated with n can be used n times.
--- variables annotated with Omega can be used any times.
-
--- | allowsUsageOf is the function that checks usage compatibility
-allowsUsageOf :: Usage -> Usage -> Bool
-allowsUsageOf (SNat x) (SNat y) = x == y
-allowsUsageOf Omega (SNat _) = True
-allowsUsageOf Omega Omega = True
-allowsUsageOf (SNat _) Omega = False
-
+-- | allows is the function that checks usage compatibility
 allows :: Usage -> Usage -> Bool
-allows = allowsUsageOf
+allows (SNat x) (SNat y) = x == y
+allows (SNat _) Omega = False
+allows Omega (SNat _) = True
+allows Omega Omega = True
 
-infix 4 `allowsUsageOf`, `allows` -- same as <=
+infix 4 `allows`

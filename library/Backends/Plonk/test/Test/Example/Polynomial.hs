@@ -1,10 +1,10 @@
 module Test.Example.Polynomial where
 
-import Data.Curve.Weierstrass.BLS12381 (Fr)
 import Juvix.Backends.Plonk (AnnTerm)
 import qualified Juvix.Backends.Plonk as P
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library hiding (Type, exp)
+import Juvix.Library.BLS12381 (Fr)
 import qualified Juvix.Library.Usage as Usage
 import Test.AnnTerm
 

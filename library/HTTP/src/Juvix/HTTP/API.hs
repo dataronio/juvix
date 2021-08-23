@@ -17,7 +17,6 @@ where
 import Data.Aeson.Types ()
 import qualified Juvix.HTTP.Routes as Routes
 import Juvix.Library
-import Juvix.Orphan ()
 import Network.Wai.Handler.Warp
 import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.RequestLogger (logStdoutDev)

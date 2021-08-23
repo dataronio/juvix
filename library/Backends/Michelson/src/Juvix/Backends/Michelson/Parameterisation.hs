@@ -84,9 +84,9 @@ hasType' (Inst (M.IF_CONS _ _)) (bool :| rest)
 hasType' (Inst (M.IF _ _)) (bool :| rest)
   | empty == rest = False
   | otherwise = isBool bool && P.check2Equal (NonEmpty.fromList rest)
--- todo check this properly
+-- TODO: check this property
 hasType' (Inst M.PAIR {}) (_ :| (_ : (_ : []))) = True
--- todo check this properly
+-- TODO: check this property
 hasType' (Inst (M.CAR _ _)) (_ :| (_ : [])) = True
 hasType' (Inst (M.CDR _ _)) (_ :| (_ : [])) = True
 hasType' (Inst M.SENDER {}) (_ :| []) = True

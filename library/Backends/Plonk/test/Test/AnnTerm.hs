@@ -1,10 +1,11 @@
 -- Finite fields example
 module Test.AnnTerm where
 
-import Data.Curve.Weierstrass.BLS12381 (Fr)
+import Juvix.Backends.Plonk (AnnTerm, PrimVal (..))
 import qualified Juvix.Backends.Plonk as P
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library hiding (Type, exp)
+import Juvix.Library.BLS12381 (Fr, toP)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 

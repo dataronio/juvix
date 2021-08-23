@@ -312,8 +312,10 @@ Surface language
 ***** AnnTerm
 - _Relies on_
   + [[Plonk]]
+  + [[Plonk]]
   + [[Ann]]
   + [[Library]]
+  + [[BLS12381]]
   + [[NameSymbol]]
   + [[Library/Usage]]
 ***** Compiler <<Test/Compiler>>
@@ -322,6 +324,7 @@ Surface language
   + [[Plonk]]
   + [[Ann]]
   + [[Library]]
+  + [[BLS12381]]
   + [[Feedback]]
   + [[Juvix/Pipeline]]
 ***** Golden <<Plonk/test/Test/Golden>>
@@ -331,13 +334,11 @@ Surface language
   + [[HR]]
   + [[Core/IR]]
   + [[Library]]
+  + [[BLS12381]]
   + [[Feedback]]
   + [[Library/Test/Golden]]
   + [[Juvix/Pipeline]]
   + [[Juvix/Pipeline]]
-***** Orphan <<Test/Orphan>>
-- _Relies on_
-  + [[Library]]
 ***** Example
 ****** Polynomial
 - _Relies on_
@@ -345,6 +346,7 @@ Surface language
   + [[Plonk]]
   + [[Ann]]
   + [[Library]]
+  + [[BLS12381]]
   + [[Library/Usage]]
 ** llvm
 *** Setup <<llvm/Setup>>
@@ -976,6 +978,7 @@ with any stage of the compiler while modifying the source code.
   + [[Frontend/Types]]
   + [[Frontend/Types/Base]]
   + [[Library]]
+  + [[BLS12381]]
   + [[Feedback]]
   + [[HashMap]]
   + [[NameSymbol]]
@@ -1061,15 +1064,11 @@ with any stage of the compiler while modifying the source code.
   + [[API]]
   + [[Library]]
 *** Juvix
-**** Orphan <<Juvix/Orphan>>
-- _Relies on_
-  + [[Library]]
 **** HTTP
 ***** API
 - _Relies on_
   + [[Routes]]
   + [[Library]]
-  + [[Juvix/Orphan]]
 ***** Routes
 - _Relies on_
   + [[Plonk]]
@@ -1080,9 +1079,9 @@ with any stage of the compiler while modifying the source code.
   + [[Core/IR]]
   + [[Frontend/Types]]
   + [[Library]]
+  + [[BLS12381]]
   + [[Feedback]]
   + [[NameSymbol]]
-  + [[Juvix/Orphan]]
   + [[Juvix/Pipeline]]
   + [[Juvix/Sexp]]
 ** test
@@ -1465,6 +1464,9 @@ _TODO_
   + _Changes_
     * The Capability library is imported and replaces the standard =MTL=
       constructs in =Protolude=
+***** BLS12381
+- _Relies on_
+  + [[Library]]
 ***** Feedback
 - _Relies on_
   + [[Library]]

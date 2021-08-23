@@ -1,13 +1,7 @@
-module Main
-  ( main,
-  )
-where
+module Main (main) where
 
-import qualified Data.Aeson as A
-import Data.Curve.Weierstrass.BLS12381 (Fr)
-import Data.Field.Galois (fromP, toP)
-import qualified Data.Scientific as S
-import Development.GitRev
+------------------------------------------------------------------------------
+
 import qualified Juvix.Backends.LLVM as LLVM
 import qualified Juvix.Backends.Michelson as Michelson
 import qualified Juvix.Backends.Plonk as Plonk
@@ -16,106 +10,59 @@ import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Pipeline as Pipeline
 import Options
 import Options.Applicative
-import System.Directory
+import System.Directory (getCurrentDirectory, getHomeDirectory)
 import Text.Pretty.Simple (pPrint)
-import Text.PrettyPrint.ANSI.Leijen hiding ((<>))
-import Text.RawString.QQ
+import Text.PrettyPrint.ANSI.Leijen (putDoc)
 import Version (infoVersionRepo, progNameVersionTag)
 
-instance A.FromJSON Fr where
-  parseJSON (A.Number n) = case S.floatingOrInteger n of
-    Left d -> panic $ "Can't parse floating:" <> show (d :: Double)
-    Right f -> pure $ toP f
-  parseJSON j = panic $ "Can't parse non-number:" <> show j
+------------------------------------------------------------------------------
+-- Run commands
+------------------------------------------------------------------------------
 
-instance A.ToJSON Fr where
-  toJSON f = A.Number $ S.scientific (fromP f) 0
+run' :: Context -> Options -> Pipeline.Pipeline ()
+run' _ (Options cmd _) = do
+  case cmd of
+    Parse fin backend -> runCmd fin backend Pipeline.parse
+    Typecheck fin backend -> case backend of
+      LLVM b -> g b
+      Michelson b -> g b
+      Plonk b -> g b
+      where
+        g ::
+          forall b.
+          ( Show (Pipeline.Ty b),
+            Show (Pipeline.Val b),
+            Pipeline.HasBackend b
+          ) =>
+          b ->
+          Pipeline.Pipeline ()
+        g b = runCmd' fin b (\b -> Pipeline.parse b >=> Pipeline.typecheck @b)
+    Compile fin fout backend ->
+      case backend of
+        LLVM b -> g b
+        Michelson b -> g b
+        Plonk b -> g b
+      where
+        g ::
+          forall b.
+          Pipeline.HasBackend b =>
+          b ->
+          Pipeline.Pipeline ()
+        g b = runCmd' fin b (\b -> Pipeline.parse b >=> Pipeline.typecheck @b >=> Pipeline.compile @b fout)
+    Version -> do
+      infoVersion <- liftIO infoVersionRepo
+      liftIO $ putDoc infoVersion
+    _ -> Feedback.fail "Not implemented yet."
 
-context :: IO Context
-context = do
-  pwd <- getCurrentDirectory
-  home <- getHomeDirectory
-  return $ Context pwd home
-
-main :: IO ()
-main = do
-  ctx <- context
-  progVersion <- progNameVersionTag
-  let opts = info (options ctx <**> helper) (fullDesc <> headerDoc (Just progVersion))
-  run ctx =<< execParser opts
-
-disclaimerDoc :: Doc
-disclaimerDoc =
-  mconcat
-    [ "This is ",
-      red "experimental",
-      " software released for research purposes only – use at your own risk.",
-      line,
-      "Juvix may diverge from canonical"
-        <> "protocol implementations in unexpected ways."
-    ]
-
-aboutDoc :: Doc
-aboutDoc =
-  mconcat
-    [ text
-        ( "Juvix smart contract language compiler,"
-            <> "debugging toolkit, & stateful deployment system"
-        ),
-      line,
-      text
-        ( "(c) Christopher Goes 2018-2019, "
-            <> "(c) Cryptium Labs / Metastate 2019-2020 • https://juvix.org"
-        ),
-      line,
-      disclaimerDoc
-    ]
-
--- | Run the main program.
 run :: Context -> Options -> IO ()
 run ctx opt = do
   feedback <- Feedback.runFeedbackT $ run' ctx opt
   case feedback of
     Feedback.Success msgs _ -> mapM_ pPrint msgs >> exitSuccess
     Feedback.Fail msgs -> mapM_ pPrint msgs >> exitFailure
-  where
-    run' :: Context -> Options -> Pipeline.Pipeline ()
-    run' _ (Options cmd _) = do
-      case cmd of
-        Parse fin backend -> runCmd fin backend Pipeline.parse
-        Typecheck fin backend -> case backend of
-          LLVM b -> g b
-          Michelson b -> g b
-          Plonk b -> g b
-          where
-            g ::
-              forall b.
-              ( Show (Pipeline.Ty b),
-                Show (Pipeline.Val b),
-                Pipeline.HasBackend b
-              ) =>
-              b ->
-              Pipeline.Pipeline ()
-            g b = runCmd' fin b (\b -> Pipeline.parse b >=> Pipeline.typecheck @b)
-        Compile fin fout backend ->
-          case backend of
-            LLVM b -> g b
-            Michelson b -> g b
-            Plonk b -> g b
-          where
-            g ::
-              forall b.
-              Pipeline.HasBackend b =>
-              b ->
-              Pipeline.Pipeline ()
-            g b = runCmd' fin b (\b -> Pipeline.parse b >=> Pipeline.typecheck @b >=> Pipeline.compile @b fout)
-        Version -> do
-          infoVersion <- liftIO infoVersionRepo
-          liftIO $ putDoc infoVersion
-        _ -> Feedback.fail "Not implemented yet."
 
 runCmd ::
-  (Show a) =>
+  Show a =>
   FilePath ->
   Backend ->
   (forall b. Pipeline.HasBackend b => b -> Text -> Pipeline.Pipeline a) ->
@@ -133,3 +80,16 @@ runCmd' ::
   (forall b. Pipeline.HasBackend b => b -> Text -> Pipeline.Pipeline a) ->
   Pipeline.Pipeline ()
 runCmd' fin b f = liftIO (readFile fin) >>= f b >>= liftIO . pPrint
+
+------------------------------------------------------------------------------
+-- Main
+------------------------------------------------------------------------------
+
+main :: IO ()
+main = do
+  pwd <- getCurrentDirectory
+  home <- getHomeDirectory
+  let ctx = Context pwd home
+  progVersion <- progNameVersionTag
+  let opts = info (options ctx <**> helper) (fullDesc <> headerDoc (Just progVersion))
+  run ctx =<< execParser opts

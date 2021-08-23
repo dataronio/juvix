@@ -35,6 +35,7 @@ module Juvix.Library
     foldMapA,
     traverseM,
     Symbol (..),
+    toUpperFirst,
     internText,
     intern,
     unintern,
@@ -150,6 +151,10 @@ newtype Symbol = Sym Text
 
 instance IsString Symbol where
   fromString = intern
+
+toUpperFirst :: String -> String
+toUpperFirst [] = []
+toUpperFirst (x : xs) = toUpper x : xs
 
 internText :: Text -> Symbol
 internText = Sym

@@ -3,12 +3,16 @@
 
 module Juvix.Core.Base.Types.Base where
 
+------------------------------------------------------------------------------
+
 import qualified Data.Aeson as A
 import Data.Kind (Constraint)
 import Extensible (Config (..), NameAffix (..), defaultConfig, extensibleWith)
 import Juvix.Library hiding (Pos, datatypeName)
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import Juvix.Library.Usage (Usage)
+import Juvix.Library.Usage
+
+------------------------------------------------------------------------------
 
 type Universe = Natural
 
@@ -46,6 +50,8 @@ instance A.ToJSON GlobalUsage where
 
 instance A.FromJSON GlobalUsage where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+------------------------------------------------------------------------------
 
 extensibleWith
   defaultConfig

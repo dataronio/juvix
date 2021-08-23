@@ -1,4 +1,8 @@
 * Changelog for Juvix
+** 0.1.1.15
+- Added module 'Juvix.Library.BLS12381' to remove Orphan related files.
+- New instances and reviews for 'Juvix.Library.Usage'.
+- Other minor fixes and clean-ups.
 ** 0.1.1.14
 - Creates an HTTP server to debug code.
   + goto the http library and read the README to run

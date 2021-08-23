@@ -7,6 +7,7 @@ module Juvix.Pipeline
   )
 where
 
+------------------------------------------------------------------------------
 import Control.Arrow (left)
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
@@ -47,6 +48,8 @@ import qualified Text.Megaparsec as P
 import Text.Pretty.Simple (pShowNoColor)
 import qualified Text.PrettyPrint.Leijen.Text as Pretty
 
+------------------------------------------------------------------------------
+
 -- TODO: Change error type to Error
 type Pipeline = Feedback.FeedbackT [] [Char] IO
 
@@ -78,11 +81,17 @@ data Error
   -- TODO: CoreError
   deriving (Show)
 
+------------------------------------------------------------------------------
+
 createTmpPath :: Text -> IO FilePath
 createTmpPath code = Temp.writeSystemTempFile "juvix-tmp.ju" (Text.unpack code)
 
 prelude :: FilePath
 prelude = "stdlib/Prelude.ju"
+
+-- ! This should be given as a default for the command-line.
+
+------------------------------------------------------------------------------
 
 class HasBackend b where
   type Ty b = ty | ty -> b
