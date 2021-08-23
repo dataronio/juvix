@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Juvix.Backends.Plonk.Types
   ( CompilationError (..),
     FFAnnTerm,
@@ -18,6 +20,7 @@ module Juvix.Backends.Plonk.Types
   )
 where
 
+import qualified Data.Aeson as A
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import qualified Juvix.Core.IR.Types as IR
@@ -53,12 +56,24 @@ data PrimVal f
   | PEq
   deriving (Show, Read, Eq, Generic, Data)
 
+instance A.ToJSON f => A.ToJSON (PrimVal f) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON f => A.FromJSON (PrimVal f) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 data PrimTy f
   = PField
   | PInt
   | PBool
   | PApplication (PrimTy f) (NonEmpty (PrimTy f))
   deriving (Show, Read, Eq, Generic)
+
+instance A.ToJSON f => A.ToJSON (PrimTy f) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON f => A.FromJSON (PrimTy f) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 type Return' ext f = App.Return' ext (P.PrimType (PrimTy f)) (PrimVal f)
 

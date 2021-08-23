@@ -10,17 +10,30 @@ module Juvix.Context.Precedence
   )
 where
 
+import qualified Data.Aeson as A
 import Data.Data
-import Juvix.Library (Eq, Int, Read, Show, Symbol)
+import Juvix.Library (Eq, Generic, Int, Read, Show, Symbol)
 
 data Associativity
   = Left
   | Right
   | NonAssoc
-  deriving (Eq, Show, Read, Data)
+  deriving (Eq, Show, Read, Data, Generic)
+
+instance A.ToJSON Associativity where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Associativity where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 data Precedence = Pred Associativity Int
-  deriving (Eq, Show, Read, Data)
+  deriving (Eq, Show, Read, Data, Generic)
+
+instance A.ToJSON Precedence where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Precedence where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 default' :: Precedence
 default' = Pred Left 9

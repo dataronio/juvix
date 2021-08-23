@@ -172,7 +172,7 @@
            "monoidal-containers-0.6.0.1@sha256:7d776942659eb4d70d8b8da5d734396374a6eda8b4622df9e61e26b24e9c8e40,2501"))))
 
 ;; --------------------------------------
-;; LLVM Extra Depenecy groups
+;; LLVM Extra Dependency groups
 ;; --------------------------------------
 
 (defparameter *llvm-hs-deps*
@@ -182,7 +182,7 @@
                       (make-dependency-bare :name "llvm-hs-pretty-0.9.0.0"))))
 
 ;; --------------------------------------
-;; Interaction Net Groups Depencenies
+;; Interaction Net Groups Dependencies
 ;; --------------------------------------
 
 (defparameter *interaction-net-extra-deps*
@@ -191,6 +191,15 @@
                       (make-dependency-github
                        :name "cryptiumlabs/jsonschema-gen"
                        :commit "0639cd166ec59a04d07a3a7d49bdf343e567000e"))))
+
+;; --------------------------------------
+;; Servant extra dependency groups
+;; --------------------------------------
+
+(defparameter *servant-deps*
+  (make-groups :comment "For HTTP server"
+               :deps (list (make-dependency-bare :name "servant-static-th-1.0.0.0"))))
+
 
 ;; --------------------------------------
 ;; General Extra Groups
@@ -405,6 +414,23 @@ common ones to include"
    :extra-deps (big-dep-list)
    :extra "allow-newer: true"))
 
+(defparameter *http*
+  (make-stack-yaml
+   :packages (list *standard-library*
+                   *frontend*
+                   *core*
+                   *translate*
+                   *pipeline*
+                   *michelson*
+                   *Context*
+                   *plonk*
+                   *sexp*)
+   ;; hack name, for sub dirs
+   :name "HTTP"
+   :extra-deps 
+   (cons *servant-deps* (big-dep-list))
+   :extra "allow-newer: true"))
+
 (defparameter *juvix*
   (make-stack-yaml
    :name "Juvix"
@@ -415,12 +441,13 @@ common ones to include"
                    *translate*
                    *michelson*
                    *easy-pipeline*
+                   *http*
                    *plonk*
                    *llvm*
                    *Context*
                    *sexp*)
    :path-to-other "./library/"
    :extra-deps
-   (cons *llvm-hs-deps* (big-dep-list))
+   (cons *servant-deps* (cons *llvm-hs-deps* (big-dep-list)))
    :extra "allow-newer: true"))
 

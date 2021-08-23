@@ -1,4 +1,7 @@
 * Changelog for Juvix
+** 0.1.1.14
+- Creates an HTTP server to debug code.
+  + goto the http library and read the README to run
 ** 0.1.1.13
 - Creates generic tooling for Context Pass transformations
 ** 0.1.1.12

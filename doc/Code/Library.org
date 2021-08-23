@@ -336,7 +336,7 @@ Surface language
   + [[Library/Test/Golden]]
   + [[Juvix/Pipeline]]
   + [[Juvix/Pipeline]]
-***** Orphan
+***** Orphan <<Test/Orphan>>
 - _Relies on_
   + [[Library]]
 ***** Example
@@ -1054,6 +1054,42 @@ with any stage of the compiler while modifying the source code.
   + [[NameSymbol]]
   + [[Library/Parser]]
   + [[Library/Parser]]
+* HTTP
+** Setup <<HTTP/Setup>>
+** src
+*** Main <<src/Main>>
+- _Relies on_
+  + [[API]]
+  + [[Library]]
+*** Juvix
+**** Orphan <<Juvix/Orphan>>
+- _Relies on_
+  + [[Library]]
+**** HTTP
+***** API
+- _Relies on_
+  + [[Routes]]
+  + [[Library]]
+  + [[Juvix/Orphan]]
+***** Routes
+- _Relies on_
+  + [[Plonk]]
+  + [[Juvix/Context]]
+  + [[Core/Base]]
+  + [[Ann]]
+  + [[HR]]
+  + [[Core/IR]]
+  + [[Frontend/Types]]
+  + [[Library]]
+  + [[Feedback]]
+  + [[NameSymbol]]
+  + [[Juvix/Orphan]]
+  + [[Juvix/Pipeline]]
+  + [[Juvix/Sexp]]
+** test
+*** Main <<HTTP/test/Main>>
+- _Relies on_
+  + [[Library]]
 * Pipeline
 ** Setup <<Pipeline/Setup>>
 ** src

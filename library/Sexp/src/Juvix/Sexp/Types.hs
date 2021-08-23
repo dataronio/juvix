@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -6,6 +7,7 @@
 module Juvix.Sexp.Types where
 
 import Control.Lens hiding (List, (:>), (|>))
+import qualified Data.Aeson as A
 import Juvix.Library hiding (foldr, show, toList)
 import qualified Juvix.Library.LineNum as LineNum
 import qualified Juvix.Library.NameSymbol as NameSymbol
@@ -17,12 +19,24 @@ data T
   = Atom Atom
   | Cons {tCar :: T, tCdr :: T}
   | Nil
-  deriving (Eq, Data)
+  deriving (Eq, Data, Generic)
+
+instance A.ToJSON T where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON T where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 data Atom
   = A {atomName :: NameSymbol.T, atomLineNum :: Maybe LineNum.T}
   | N {atomNum :: Integer, atomLineNum :: Maybe LineNum.T}
-  deriving (Show, Data)
+  deriving (Show, Data, Generic)
+
+instance A.ToJSON Atom where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Atom where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 instance Eq Atom where
   A n1 _ == A n2 _ = n1 == n2

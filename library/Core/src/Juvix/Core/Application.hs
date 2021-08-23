@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -16,6 +17,7 @@ module Juvix.Core.Application
   )
 where
 
+import qualified Data.Aeson as A
 import Data.Bifoldable
 import Data.Bitraversable
 import qualified Juvix.Core.Base.Types as Core
@@ -56,6 +58,18 @@ deriving instance
 deriving instance
   (Eq (ParamVar ext), Eq ty, Eq term) =>
   Eq (Return' ext ty term)
+
+instance
+  (A.ToJSON (ParamVar ext), A.ToJSON ty, A.ToJSON term) =>
+  A.ToJSON (Return' ext ty term)
+  where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance
+  (A.FromJSON (ParamVar ext), A.FromJSON ty, A.FromJSON term) =>
+  A.FromJSON (Return' ext ty term)
+  where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 instance Bifunctor (Return' ext) where
   bimap = bimapDefault
@@ -130,6 +144,18 @@ deriving instance
   (Eq (ParamVar ext), Eq ty, Eq term) =>
   Eq (Arg' ext ty term)
 
+instance
+  (A.ToJSON (ParamVar ext), A.ToJSON ty, A.ToJSON term) =>
+  A.ToJSON (Arg' ext ty term)
+  where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance
+  (A.FromJSON (ParamVar ext), A.FromJSON ty, A.FromJSON term) =>
+  A.FromJSON (Arg' ext ty term)
+  where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 instance Bifunctor (Arg' ext) where bimap = bimapDefault
 
 instance Bifoldable (Arg' ext) where bifoldMap = bifoldMapDefault
@@ -149,6 +175,18 @@ data Take ty term = Take
     term :: term
   }
   deriving (Show, Read, Eq, Generic, Functor, Foldable, Traversable)
+
+instance
+  (A.ToJSON ty, A.ToJSON term) =>
+  A.ToJSON (Take ty term)
+  where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance
+  (A.FromJSON ty, A.FromJSON term) =>
+  A.FromJSON (Take ty term)
+  where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 instance Bifunctor Take where
   bimap = bimapDefault

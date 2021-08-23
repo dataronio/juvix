@@ -20,4 +20,5 @@
   (generate-yaml-file *plonk*              "library/Backends/Plonk/stack.yaml")
   (generate-yaml-file *easy-pipeline*      "library/EasyPipeline/stack.yaml")
   (generate-yaml-file *Pipeline*           "library/Pipeline/stack.yaml")
+  (generate-yaml-file *http*               "library/HTTP/stack.yaml")
   (generate-yaml-file *juvix*              "stack.yaml"))

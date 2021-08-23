@@ -14,6 +14,7 @@ module Juvix.Library.Usage
   )
 where
 
+import qualified Data.Aeson as A
 import Juvix.Library hiding (pred, show)
 import qualified Juvix.Library.PrettyPrint as PP
 
@@ -30,6 +31,12 @@ data NatAndw
   | -- | unspecified usage
     Omega
   deriving (Eq, Show, Read, Generic, Data, NFData)
+
+instance A.ToJSON NatAndw where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON NatAndw where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 -- Addition is the semi-Ring/Monoid instance
 instance Semigroup NatAndw where

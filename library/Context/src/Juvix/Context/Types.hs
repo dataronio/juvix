@@ -4,6 +4,7 @@
 module Juvix.Context.Types where
 
 import Control.Lens hiding ((|>))
+import qualified Data.Aeson as A
 import GHC.Show
 import qualified Juvix.Context.NameSpace as NameSpace
 import qualified Juvix.Context.Open as Open
@@ -23,6 +24,12 @@ data T term ty sumRep = T
     reverseLookup :: ReverseLookup
   }
   deriving (Show, Read, Eq, Generic)
+
+instance (A.ToJSON term, A.ToJSON ty, A.ToJSON sumRep) => A.ToJSON (T term ty sumRep) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON term, A.FromJSON ty, A.FromJSON sumRep) => A.FromJSON (T term ty sumRep) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 type NameSpace term ty sumRep = NameSpace.T (Definition term ty sumRep)
 
@@ -55,6 +62,12 @@ data Definition term ty sumRep
   | SumCon (SumT term ty)
   deriving (Show, Read, Generic, Eq)
 
+instance (A.ToJSON term, A.ToJSON ty, A.ToJSON sumRep) => A.ToJSON (Definition term ty sumRep) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON term, A.FromJSON ty, A.FromJSON sumRep) => A.FromJSON (Definition term ty sumRep) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 data Def term ty = D
   { defUsage :: Maybe Usage.T,
     defMTy :: Maybe ty,
@@ -63,11 +76,23 @@ data Def term ty = D
   }
   deriving (Show, Read, Generic, Eq, Data)
 
+instance (A.ToJSON term, A.ToJSON ty) => A.ToJSON (Def term ty) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON term, A.FromJSON ty) => A.FromJSON (Def term ty) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 data SumT term ty = Sum
   { sumTDef :: Maybe (Def term ty),
     sumTName :: Symbol
   }
   deriving (Show, Read, Generic, Eq, Data)
+
+instance (A.ToJSON term, A.ToJSON ty) => A.ToJSON (SumT term ty) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON term, A.FromJSON ty) => A.FromJSON (SumT term ty) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 data Record term ty sumRep = Rec
   { recordContents :: NameSpace.T (Definition term ty sumRep),
@@ -79,13 +104,21 @@ data Record term ty sumRep = Rec
   }
   deriving (Show, Read, Generic, Eq)
 
+instance (A.ToJSON term, A.ToJSON ty, A.ToJSON sumRep) => A.ToJSON (Record term ty sumRep) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON term, A.FromJSON ty, A.FromJSON sumRep) => A.FromJSON (Record term ty sumRep) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 newtype Information
   = Prec Precedence
   deriving (Show, Read, Generic, Eq, Data)
+  deriving newtype (A.ToJSON, A.FromJSON)
 
 newtype PathError
   = VariableShared NameSymbol.T
-  deriving (Show, Read, Eq)
+  deriving (Show, Read, Eq, Generic)
+  deriving newtype (A.ToJSON, A.FromJSON)
 
 data WhoUses = Who
   { impExplict :: Open.T,
@@ -93,6 +126,12 @@ data WhoUses = Who
     symbolMap :: SymbolMap
   }
   deriving (Show, Read, Eq, Generic)
+
+instance A.ToJSON WhoUses where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON WhoUses where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 type SymbolMap = STM.Map Symbol SymbolInfo
 
@@ -128,6 +167,13 @@ instance Eq (STM a) where
 
 instance Eq (STM.Map a b) where
   _ == _ = True
+
+instance A.ToJSON (STM.Map a b) where
+  toJSON _ = A.object []
+
+instance A.FromJSON (STM.Map a b) where
+  -- I'm sorry, too
+  parseJSON = pure $ pure (unsafePerformIO $ atomically STM.new)
 
 -- not using lenses anymore but leaving this here anyway
 makeLensesWith camelCaseFields ''Definition

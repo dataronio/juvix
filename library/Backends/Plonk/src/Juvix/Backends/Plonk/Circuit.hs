@@ -15,7 +15,7 @@ module Juvix.Backends.Plonk.Circuit
   )
 where
 
-import Data.Aeson (FromJSON, ToJSON)
+import qualified Data.Aeson as A
 import qualified Data.Map as Map
 import Juvix.Library
 import Text.PrettyPrint.Leijen.Text hiding ((<$>))
@@ -28,7 +28,7 @@ data AffineCircuit i f
   | ConstGate f
   | Var i
   deriving stock (Read, Eq, Show, Generic)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving anyclass (A.FromJSON, A.ToJSON)
 
 fetchVars :: AffineCircuit Wire f -> [Wire]
 fetchVars (Var i) = [i]
@@ -98,7 +98,12 @@ data Wire
   | IntermediateWire Int
   | OutputWire Int
   deriving stock (Ord, Eq, Show, Read, Generic)
-  deriving anyclass (FromJSON, ToJSON)
+
+instance A.ToJSON Wire where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Wire where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 instance Pretty Wire where
   pretty (InputWire v) = text "input_" <> pretty v
@@ -107,7 +112,7 @@ instance Pretty Wire where
 
 newtype ArithCircuit f = ArithCircuit [Gate Wire f]
   deriving stock (Eq, Show, Read, Generic)
-  deriving newtype (FromJSON, ToJSON)
+  deriving newtype (A.FromJSON, A.ToJSON)
 
 instance Show f => Pretty (ArithCircuit f) where
   pretty (ArithCircuit gs) = vcat . map pretty $ gs
@@ -146,7 +151,7 @@ data Gate i f
         eqO :: i
       }
   deriving stock (Eq, Show, Read, Generic)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving anyclass (A.FromJSON, A.ToJSON)
 
 instance (Pretty i, Show i, Show f) => Pretty (Gate i f) where
   pretty (MulGate l r o) =

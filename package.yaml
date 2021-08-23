@@ -59,6 +59,12 @@ dependencies:
   - fgl
   - fgl-visualize
   - bytestring
+    ###########################
+  # Dependency for Server
+  ###########################
+  - servant
+  - servant-server
+  - servant-static-th
 
   ###########################
   # Dependency for Morley
