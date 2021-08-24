@@ -285,18 +285,25 @@ common ones to include"
 ;;; stack-yaml for the YAML generation
 ;;; ----------------------------------------------------------------------
 
+(defun general-dependencies (&rest more-deps)
+  (apply #'make-general-dependencies
+         (append (list *capability*
+                       *prettiest*
+                       *galois-field*
+                       *elliptic-curve*)
+                 more-deps)))
+
 (defparameter *standard-library*
   (make-stack-yaml
    :name "StandardLibrary"
-   :extra-deps (list (make-general-dependencies *capability* *prettiest*) *standard-library-extra-deps*)))
+   :extra-deps (list (general-dependencies) *standard-library-extra-deps*)))
 
 (defparameter *sexp*
   (make-stack-yaml
    :name "Sexp"
    :packages (list *standard-library*)
-   :extra-deps (list (make-general-dependencies *capability* *prettiest*)
+   :extra-deps (list (general-dependencies)
                      *standard-library-extra-deps*)))
-
 
 (defparameter *frontend*
   (make-stack-yaml
@@ -304,20 +311,20 @@ common ones to include"
    :resolver   17.9
    :name       "Frontend"
    :packages   (list *standard-library*)
-   :extra-deps (list (make-general-dependencies *capability* *prettiest*) *standard-library-extra-deps*)))
+   :extra-deps (list (general-dependencies) *standard-library-extra-deps*)))
 
 (defparameter *Context*
   (make-stack-yaml
    :name     "Context"
    :packages (list *standard-library* *sexp*)
-   :extra-deps (list (make-general-dependencies *capability* *prettiest*)
+   :extra-deps (list (general-dependencies)
                      *standard-library-extra-deps*)))
 
 (defparameter *core*
   (make-stack-yaml
    :name       "Core"
    :packages   (list *standard-library* *sexp*)
-   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+   :extra-deps (list (general-dependencies *extensible*)
                       *standard-library-extra-deps*
                       *eac-solver*)))
 
@@ -325,7 +332,7 @@ common ones to include"
   (make-stack-yaml
    :name "Translate"
    :packages   (list *core* *frontend* *standard-library* *sexp* *Context*)
-   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+   :extra-deps (list (general-dependencies *extensible*)
                      *standard-library-extra-deps*
                      *eac-solver*)))
 
@@ -349,7 +356,7 @@ common ones to include"
    :resolver 17.3
    :path-to-other "../../"
    :packages (list *standard-library* *core* *Context* *pipeline* *translate* *frontend*)
-   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+   :extra-deps (list (general-dependencies *extensible*)
                      *llvm-hs-deps*
 
                      ;; for pipeline
