@@ -35,7 +35,6 @@ type Log = [Stack]
 
 data StackChain
   = Empty
-  | Root Stack
   | StackChain
       { parent :: StackChain,
         currentStack :: Stack
@@ -77,22 +76,26 @@ Lens.makeLensesWith Lens.camelCaseFields ''Stack
 Lens.makeLensesWith Lens.camelCaseFields ''T
 Lens.makeLensesWith Lens.camelCaseFields ''MetaInfo
 
+--------------------------------------------------------------------------------
+-- Core API
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- Helper Functionality
+--------------------------------------------------------------------------------
+
+startScope :: T -> Stack -> T
+startScope t stack =
+  over current (`StackChain` stack) t
+
 finishScope :: T -> T
 finishScope t =
   case t ^. current of
-    Empty ->
-      t
-    Root stack ->
-      t
-        |> over traces (stack :)
-        |> set current Empty
-    StackChain parent current' ->
-      case parent of
-        Empty -> finishScope (set current (Root current') t)
-        Root stack ->
-          set current (Root (consLog current' stack)) t
-        StackChain grandParent parent ->
-          set current (StackChain grandParent (consLog current' parent)) t
+    Empty -> t
+    StackChain Empty stack ->
+      t |> over traces (stack :) |> set current Empty
+    StackChain (StackChain grandParent parent) stack ->
+      set current (StackChain grandParent (consLog stack parent)) t
 
 consLog :: HasBetween t [a] => a -> t -> t
 consLog currentStack =
