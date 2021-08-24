@@ -2,7 +2,7 @@
 <img src="Juvix_logo.png" width="250" height="250">
 
 ![GitHub](https://img.shields.io/github/license/anoma/juvix)
-[![Build Status](https://ci.heliax.dev/api/badges/anoma/anoma/status.svg)](https://ci.heliax.dev/anoma/anoma)
+[![Build Status](https://ci.heliax.dev/api/badges/anoma/juvix/status.svg)](https://ci.heliax.dev/anoma/juvix)
 ![GitHub issues](https://img.shields.io/github/issues/anoma/juvix)
 
 ## Overview
