@@ -6,12 +6,14 @@ module Juvix.Backends.LLVM.Compilation
   )
 where
 
+import qualified Data.String as S (fromString)
 import Juvix.Backends.LLVM.Primitive
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library
 import Juvix.Library.Feedback
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import qualified LLVM.AST as LLVM (Module, Name, Operand)
+import qualified LLVM.AST as LLVM (Module, Name, Operand (..))
+import qualified LLVM.AST.Constant as LLVM (Constant (..))
 import qualified LLVM.AST.Type as LLVM
 import qualified LLVM.IRBuilder as LLVM
 import qualified LLVM.Pretty as LLVM
@@ -49,6 +51,41 @@ mkPrim ::
 mkPrim _ (ErasedAnn.Prim prim) = case prim of
   LitInt i -> return $ LLVM.int8 i -- TODO deal with the type correctly.
 
+-- | Write an LLVM function definition based on a the given lambda abstraction.
+-- The function returns the name of the create function.
+mkLam ::
+  Env ->
+  ErasedAnn.Type PrimTy ->
+  ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  [NameSymbol.T] ->
+  [NameSymbol.T] ->
+  LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Name
+mkLam env ty body args capt = do
+  funname <- LLVM.freshName "lam"
+  let returnTy = typeToLLVM $ ErasedAnn.type' body
+  params <- mapM mkParam (zip args (functionTy ty))
+  LLVM.function funname params returnTy $ \refs -> do
+    let env' = (zip args refs) ++ env
+    body' <- lift $ compileTerm env' body
+    LLVM.ret body'
+  return funname
+  where
+    -- Given a Juvix name and type, construct an LLVM function parameter
+    -- definition.
+    mkParam ::
+      LLVM.MonadIRBuilder m =>
+      (NameSymbol.T, ErasedAnn.Type PrimTy) ->
+      m (LLVM.Type, LLVM.ParameterName)
+    mkParam (name, ty) = do
+      name' <- LLVM.fresh
+      let ty' = typeToLLVM ty
+      return $ (ty', S.fromString $ show name')
+
+    -- Construct a list of types from a function type.
+    functionTy :: ErasedAnn.Type primTy -> [ErasedAnn.Type primTy]
+    functionTy (ErasedAnn.Pi usage l r) = l : functionTy r
+    functionTy ty = [ty]
+
 -- | The function assumes the arguments passed are the arguments of an
 -- application.
 mkApp ::
@@ -61,8 +98,11 @@ mkApp ::
   -- | The arguments to the application.
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
-mkApp env t@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
+mkApp env (ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
   case term of
+    ErasedAnn.LamM {ErasedAnn.body, ErasedAnn.arguments, ErasedAnn.capture} -> do
+      funname <- mkLam env type' body arguments capture
+      LLVM.call (LLVM.ConstantOperand $ LLVM.GlobalReference (typeToLLVM type') funname) []
     ErasedAnn.Prim prim -> applyPrim env prim xs
 
 applyPrim ::
