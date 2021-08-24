@@ -1487,6 +1487,15 @@ _TODO_
 ***** PrettyPrint
 - _Relies on_
   + [[Library]]
+***** Trace
+The Trace library represents the ability to properly trace code
+throughout Haskell.
+- The structure requires your code to exist in the =Trace.TEff=
+  effect.
+- _Relies on_
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
 ***** Usage <<Library/Usage>>
 - _Relies on_
   + [[Library]]

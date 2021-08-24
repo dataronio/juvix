@@ -5,10 +5,9 @@
 --
 -- - The structure requires your code to exist in the =Trace.TEff=
 --   effect.
-
 module Juvix.Library.Trace where
 
-import Control.Lens ((^.), over, set)
+import Control.Lens (over, set, (^.))
 import qualified Control.Lens as Lens hiding ((|>))
 import qualified Data.Text as T
 import Juvix.Library
@@ -78,7 +77,6 @@ Lens.makeLensesWith Lens.camelCaseFields ''Stack
 Lens.makeLensesWith Lens.camelCaseFields ''T
 Lens.makeLensesWith Lens.camelCaseFields ''MetaInfo
 
-
 finishScope :: T -> T
 finishScope t =
   case t ^. current of
@@ -86,8 +84,8 @@ finishScope t =
       t
     Root stack ->
       t
-      |> over traces (stack :)
-      |> set current Empty
+        |> over traces (stack :)
+        |> set current Empty
     StackChain parent current' ->
       case parent of
         Empty -> finishScope (set current (Root current') t)
