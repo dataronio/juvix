@@ -3,7 +3,7 @@
 -- | The Trace library represents the ability to properly trace code
 -- throughout Haskell.
 --
--- - The structure requires your code to exist in the =Trace.TEff=
+-- - The structure requires your code to exist in the =Trace.Eff=
 --   effect.
 module Juvix.Library.Trace where
 
@@ -76,13 +76,36 @@ Lens.makeLensesWith Lens.camelCaseFields ''Stack
 Lens.makeLensesWith Lens.camelCaseFields ''T
 Lens.makeLensesWith Lens.camelCaseFields ''MetaInfo
 
+type Eff m = HasState "trace" T m
+
 --------------------------------------------------------------------------------
 -- Core API
 --------------------------------------------------------------------------------
 
+
+withScope :: (Eff m, Show b) => NameSymbol.T -> [Text] -> m b -> m b
+withScope name args f = do
+  let newStack =
+        Stack { stackName = name,
+                stackStart = args,
+                stackBetween = [],
+                stackOutput = Nothing
+              }
+  modify @"trace" (`startScope` newStack)
+  ret <- f
+  modify @"trace" (finishScope . (`registerOutput` show ret))
+  pure ret
+
 --------------------------------------------------------------------------------
 -- Helper Functionality
 --------------------------------------------------------------------------------
+
+registerOutput :: T -> Text -> T
+registerOutput t result =
+  case t ^. current of
+    Empty -> t
+    StackChain a stack ->
+      set current (StackChain a (set output (Just result) stack)) t
 
 startScope :: T -> Stack -> T
 startScope t stack =
