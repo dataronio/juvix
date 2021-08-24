@@ -61,17 +61,16 @@ mkApp ::
   -- | The arguments to the application.
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
-mkApp env (ErasedAnn.Ann {ErasedAnn.term}) (ErasedAnn.PrimTy ty) xs =
+mkApp env t@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
   case term of
-    ErasedAnn.Prim prim -> applyPrim env prim ty xs
+    ErasedAnn.Prim prim -> applyPrim env prim xs
 
 applyPrim ::
   Env ->
   RawPrimVal ->
-  PrimTy ->
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
-applyPrim env f ty xs
+applyPrim env f xs
   | arityRaw f == lengthN xs =
     case f of
       Add -> do
