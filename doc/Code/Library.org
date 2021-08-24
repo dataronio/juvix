@@ -1490,7 +1490,7 @@ _TODO_
 ***** Trace
 The Trace library represents the ability to properly trace code
 throughout Haskell.
-- The structure requires your code to exist in the =Trace.TEff=
+- The structure requires your code to exist in the =Trace.Eff=
   effect.
 - _Relies on_
   + [[Library]]

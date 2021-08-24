@@ -82,15 +82,15 @@ type Eff m = HasState "trace" T m
 -- Core API
 --------------------------------------------------------------------------------
 
-
 withScope :: (Eff m, Show b) => NameSymbol.T -> [Text] -> m b -> m b
 withScope name args f = do
   let newStack =
-        Stack { stackName = name,
-                stackStart = args,
-                stackBetween = [],
-                stackOutput = Nothing
-              }
+        Stack
+          { stackName = name,
+            stackStart = args,
+            stackBetween = [],
+            stackOutput = Nothing
+          }
   modify @"trace" (`startScope` newStack)
   ret <- f
   modify @"trace" (finishScope . (`registerOutput` show ret))
