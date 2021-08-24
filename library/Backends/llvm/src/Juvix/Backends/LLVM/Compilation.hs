@@ -49,10 +49,14 @@ mkPrim ::
 mkPrim _ (ErasedAnn.Prim prim) = case prim of
   LitInt i -> return $ LLVM.int8 i -- TODO deal with the type correctly.
 
+-- | The function assumes the arguments passed are the arguments of an
+-- application.
 mkApp ::
+  -- | Environment of global variables.
   Env ->
   -- | The function term of an application.
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  -- | The type of the application.
   ErasedAnn.Type PrimTy ->
   -- | The arguments to the application.
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
