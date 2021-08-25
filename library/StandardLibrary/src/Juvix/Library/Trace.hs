@@ -7,13 +7,13 @@
 --   effect.
 module Juvix.Library.Trace (module Juvix.Library.Trace, module Juvix.Library.Trace.Types) where
 
-import Juvix.Library.Trace.Types
 import Control.Lens (over, set, (^.))
 import qualified Data.Text as T
-import qualified Juvix.Library.Trace.Format as Format
 import Juvix.Library
 import qualified Juvix.Library.HashMap as HashMap
 import qualified Juvix.Library.NameSymbol as NameSymbol
+import qualified Juvix.Library.Trace.Format as Format
+import Juvix.Library.Trace.Types
 
 --------------------------------------------------------------------------------
 -- Core API
@@ -40,7 +40,6 @@ break :: (Eff m, MonadIO m) => m ()
 break = do
   trace <- get @"trace"
   putStrLn (Format.currentStackChain (trace ^. current) (const 1))
-
 
 --------------------------------------------------------------------------------
 -- Helper Functionality

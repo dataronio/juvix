@@ -45,11 +45,11 @@ functionCall f args =
     <> space
     <> foldMap Text.unpack (intersperse " " args)
     <> ")"
-    where
-      space =
-        case args of
-          [] -> ""
-          _: _ -> " "
+  where
+    space =
+      case args of
+        [] -> ""
+        _ : _ -> " "
 
 --------------------------------------------------------------------------------
 -- Utility Helpers
