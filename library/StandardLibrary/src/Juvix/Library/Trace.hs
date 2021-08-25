@@ -33,6 +33,8 @@ withScope name args f = do
   modify @"trace" (finishScope . (`registerOutput` show ret))
   pure ret
 
+-- Put in mitigation logic that either dumps the current stack if we
+-- are corrupted or the logs if we finish
 format = undefined
 
 -- | @break@ dumps the current Stack Trace, Ignoring any disabling behavior

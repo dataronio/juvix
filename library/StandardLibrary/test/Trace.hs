@@ -32,3 +32,14 @@ formula x y =
   Trace.withScope "multiply-add" [show x, show y] $ do
     addSquares <- addBreak (x ^ 2) (y ^ 2)
     pure (addSquares / 2)
+
+complexFormula :: (Trace.Eff m, Show b, MonadIO m, Fractional b, Enum b) => b -> b -> m b
+complexFormula x y =
+  Trace.withScope "complex-formula" [show x, show y] $ do
+    mult <- multiply x y
+    aded <- add2 mult
+    multiply aded mult
+
+-- λ> (_, t) <- Env.runEmptyTraceAllIO (complexFormula (3 :: Double) 4)
+-- λ> putStrLn (Format.fullTrace (Env.trace t) (+ 2))
+-- Env.runEmptyIO (formula (3 :: Float) 4)
