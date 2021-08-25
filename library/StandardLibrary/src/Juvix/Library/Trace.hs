@@ -36,7 +36,10 @@ withScope name args f = do
 format = undefined
 
 -- | @break@ dumps the current Stack Trace, Ignoring any disabling behavior
-break t = undefined
+break :: (Eff m, MonadIO m) => m ()
+break = do
+  trace <- get @"trace"
+  putStrLn (Format.currentStackChain (trace ^. current) (const 1))
 
 
 --------------------------------------------------------------------------------

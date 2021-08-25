@@ -11,12 +11,13 @@ import Juvix.Library.Trace.Types
 -- Main Functionality
 --------------------------------------------------------------------------------
 
-currentStackChain :: StackChain -> (Int -> Int) -> ([Char], Int)
+currentStackChain :: StackChain -> (Int -> Int) -> [Char]
 currentStackChain chain indentationIncrement =
   chain
     |> stackChainToList
     -- Let's start with the parent
     |> foldr f ("", 0)
+    |> fst
   where
     f current (formattedString, indentation) =
       ( formattedString
@@ -34,7 +35,8 @@ customSpacing :: Char -> Int -> [Char]
 customSpacing = flip replicate
 
 spacing :: Int -> [Char]
-spacing = customSpacing '·'
+spacing 0 = ""
+spacing n = customSpacing '·' n <> " "
 
 functionCall :: NameSymbol.T -> [Text] -> [Char]
 functionCall f args =
