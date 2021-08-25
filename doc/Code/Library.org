@@ -1523,17 +1523,17 @@ _TODO_
 ******* NoQuotes
 This structure allows us to have golden tests that are based around
 show instances instead of normal read instances.
-***** Trace
+***** Trace <<Library/Trace>>
 The Trace library represents the ability to properly trace code
 throughout Haskell.
 - The structure requires your code to exist in the =Trace.Eff=
   effect.
 - _Relies on_
-  + [[Trace/Types]]
-  + [[Format]]
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
+  + [[Format]]
+  + [[Trace/Types]]
 ****** Environment <<Trace/Environment>>
 This module gives a minimal environment to run Traces, best used
 for testing
@@ -1567,6 +1567,12 @@ for testing
 - _Relies on_
   + [[Library]]
   + [[PrettyPrint]]
+*** Trace <<test/Trace>>
+- _Relies on_
+  + [[Library]]
+  + [[Format]]
+  + [[Library/Trace]]
+  + [[Trace/Environment]]
 * Translate
 ** Setup <<Translate/Setup>>
 ** src
