@@ -1,4 +1,5 @@
 {-# LANGUAGE MultiWayIf #-}
+
 module Trace where
 
 import Juvix.Library
@@ -43,11 +44,12 @@ complexFormula x y =
 
 factorial x y =
   Trace.withScope "factorial" [show x, show y] $ do
-   if | x == 0 ->
-        pure y
-      | otherwise -> do
-        mult <- multiply x y
-        factorial (x - 1) mult
+    if
+        | x == 0 ->
+          pure y
+        | otherwise -> do
+          mult <- multiply x y
+          factorial (x - 1) mult
 
 -- λ> (_, t) <- Env.runEmptyTraceAllIO (complexFormula (3 :: Double) 4)
 -- λ> putStrLn (Format.fullTrace (Env.trace t) (+ 2))
