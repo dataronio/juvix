@@ -71,3 +71,7 @@ Lens.makeLensesWith Lens.camelCaseFields ''T
 Lens.makeLensesWith Lens.camelCaseFields ''MetaInfo
 
 type Eff m = HasState "trace" T m
+
+
+maxTrace :: Natural
+maxTrace = 10
