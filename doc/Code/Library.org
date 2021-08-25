@@ -1570,9 +1570,9 @@ for testing
 *** Trace <<test/Trace>>
 - _Relies on_
   + [[Library]]
-  + [[Format]]
   + [[Library/Trace]]
   + [[Trace/Environment]]
+  + [[Format]]
 * Translate
 ** Setup <<Translate/Setup>>
 ** src
