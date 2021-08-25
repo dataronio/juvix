@@ -5,10 +5,8 @@
 -- for testing
 module Juvix.Library.Trace.Environment where
 
-
 import Juvix.Library
 import Juvix.Library.Trace.Types
-
 
 newtype Minimal = Minimal
   { trace :: T

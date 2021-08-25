@@ -1487,15 +1487,6 @@ _TODO_
 ***** PrettyPrint
 - _Relies on_
   + [[Library]]
-***** Trace
-The Trace library represents the ability to properly trace code
-throughout Haskell.
-- The structure requires your code to exist in the =Trace.Eff=
-  effect.
-- _Relies on_
-  + [[Library]]
-  + [[HashMap]]
-  + [[NameSymbol]]
 ***** Usage <<Library/Usage>>
 - _Relies on_
   + [[Library]]
@@ -1532,6 +1523,34 @@ throughout Haskell.
 ******* NoQuotes
 This structure allows us to have golden tests that are based around
 show instances instead of normal read instances.
+***** Trace
+The Trace library represents the ability to properly trace code
+throughout Haskell.
+- The structure requires your code to exist in the =Trace.Eff=
+  effect.
+- _Relies on_
+  + [[Trace/Types]]
+  + [[Format]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+****** Environment <<Trace/Environment>>
+This module gives a minimal environment to run Traces, best used
+for testing
+- _Relies on_
+  + [[Library]]
+  + [[Trace/Types]]
+****** Format
+- _Relies on_
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Trace/Types]]
+****** Types <<Trace/Types>>
+- _Relies on_
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
 ** test
 *** Golden <<test/Golden>>
 - _Relies on_
