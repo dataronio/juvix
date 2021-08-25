@@ -1,9 +1,9 @@
 module Trace where
 
 import Juvix.Library
-import qualified Juvix.Library.Trace.Format as Format
 import qualified Juvix.Library.Trace as Trace
 import qualified Juvix.Library.Trace.Environment as Env
+import qualified Juvix.Library.Trace.Format as Format
 
 add1 :: (Trace.Eff m, Show b, Enum b) => b -> m b
 add1 n =
@@ -32,5 +32,3 @@ formula x y =
   Trace.withScope "multiply-add" [show x, show y] $ do
     addSquares <- addBreak (x ^ 2) (y ^ 2)
     pure (addSquares / 2)
-
-
