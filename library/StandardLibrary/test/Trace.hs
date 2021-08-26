@@ -57,3 +57,4 @@ factorial x y =
 -- λ> putStrLn (Format.fullTrace (Env.trace t) (+ 2))
 -- Env.runEmptyIO (formula (3 :: Float) 4)
 -- putStrLn (Format.fullTrace (Env.trace (snd (Env.runEmptyTraceAll (factorial (5 :: Integer) 1)))) (+ 2))
+-- (Trace.info (Trace.enable (Env.trace (snd (Env.runEmpty (factorial (5 :: Integer) 1)))) ["factorial", "Prelude.multiply"]))
