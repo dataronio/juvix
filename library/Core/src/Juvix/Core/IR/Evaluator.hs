@@ -217,7 +217,7 @@ evalTerm g t = evalTermWith g rejectExts $ OnlyExts.onlyExtsT t
 -- becomes:
 --
 -- @
--- (ω | \x -> add x x : int -> int)
+-- (_ | \x -> add x x : int -> int)
 -- @
 toLambda' ::
   forall ext' ext primTy primVal.
@@ -289,7 +289,7 @@ toOnlyExtsE = extTransformE $ OnlyExts.injector
 -- becomes:
 --
 -- @
--- (ω | \x -> add x x : int -> int)
+-- (_ | \x -> add x x : int -> int)
 -- @
 toLambda ::
   forall ext ext' primTy primVal.

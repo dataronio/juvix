@@ -164,11 +164,11 @@ data Error ext primTy primVal
     UnknownPrimitive NameSymbol.T
   | -- | expression is not a usage
     NotAUsage Sexp.T
-  | -- | expression is not 0 or ω
+  | -- | expression is not 0 or _
     NotAGUsage Sexp.T
   | -- | expression is not a natural number
     NotAUniverse Sexp.T
-  | -- | usage is not 0 or ω
+  | -- | usage is not 0 or _
     UsageNotGUsage Usage.T
   | -- | invalid signature for declaration (bug in this module)
     -- @'Just' s@ if @s@ is a signature of the wrong shape,

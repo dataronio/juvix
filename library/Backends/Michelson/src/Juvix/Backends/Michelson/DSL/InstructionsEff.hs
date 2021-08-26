@@ -813,7 +813,7 @@ apply closure args remainingArgs = do
       throw @"compilationError" (Types.InternalFault "apply to non lam")
 
 -- we can only delete things at position greater than 0.
--- this is because if we were to delete 0, then (λx : ω i. x) would error
+-- this is because if we were to delete 0, then (λx : _ i. x) would error
 deleteVar :: Env.Instruction m => Env.ErasedTerm -> m ()
 deleteVar (Env.Term name _usage) = do
   stack <- get @"stack"

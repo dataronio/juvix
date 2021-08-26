@@ -71,7 +71,7 @@ type instance PP.Ann Usage = ()
 
 instance PP.PrettySyntax Usage where
   pretty' (SNat π) = pure . PP.show $ π
-  pretty' SAny = pure "any"
+  pretty' SAny = pure "_"
 
 instance A.ToJSON Usage where
   toJSON = A.genericToJSON (A.defaultOptions 

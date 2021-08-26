@@ -484,7 +484,7 @@ evalTC t = do
 -- Currently subtyping consists of the following:
 --
 -- * Consistency of universe levels (@*ᵢ <: *ⱼ@ if @i ≤ j@)
--- * Usage compatibility (@(π x: A) → B <: (ω x: A) → B@ for finite @π@)
+-- * Usage compatibility (@(π x: A) → B <: (- x: A) → B@ for finite @π@)
 -- * Contravariant domain & covariant codomain
 --   (@(π x: A₁) → B₁ <: (π x: A₂) → B₂@ if
 --    @A₂ <: A₁@ and @B₁ <: B₂@)

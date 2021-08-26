@@ -58,26 +58,26 @@ bindTests =
     "Binding types"
     [ T.testCase "xAB wide" $
         prettyAt 1000 xAB
-          @?= "Π (ω | x : A) → B x",
+          @?= "Π (_ | x : A) → B x",
       T.testCase "xAB narrow" $
         prettyAt 15 xAB
-          @?= "Π (ω | x : A) →\n\
+          @?= "Π (_ | x : A) →\n\
               \  B x",
       T.testCase "xAyBC wide" $
         prettyAt 1000 xAyBC
-          @?= "Π (ω | x : A) → Π (ω | y : B) → C x y",
+          @?= "Π (_ | x : A) → Π (_ | y : B) → C x y",
       T.testCase "xAyBC narrow" $
         prettyAt 20 xAyBC
-          @?= "Π (ω | x : A) →\n\
-              \Π (ω | y : B) →\n\
+          @?= "Π (_ | x : A) →\n\
+              \Π (_ | y : B) →\n\
               \  C x y",
       T.testCase "xAyBC' wide" $
         prettyAt 1000 xAyBC'
-          @?= "Π (ω | x : A) → Σ (ω | y : B) → C x y",
+          @?= "Π (_ | x : A) → Σ (_ | y : B) → C x y",
       T.testCase "xAyBC' narrow" $
         prettyAt 20 xAyBC'
-          @?= "Π (ω | x : A) →\n\
-              \Σ (ω | y : B) →\n\
+          @?= "Π (_ | x : A) →\n\
+              \Σ (_ | y : B) →\n\
               \  C x y"
     ]
 
@@ -158,11 +158,11 @@ pairTests =
               \ f x y›",
       T.testCase "nested fun types" $
         prettyAt 20 two'
-          @?= "‹Π (ω | x : A) →\n\
-              \ Π (ω | y : B) →\n\
+          @?= "‹Π (_ | x : A) →\n\
+              \ Π (_ | y : B) →\n\
               \   C x y,\n\
-              \ Π (ω | x : A) →\n\
-              \ Π (ω | y : B) →\n\
+              \ Π (_ | x : A) →\n\
+              \ Π (_ | y : B) →\n\
               \   C x y›"
     ]
 
@@ -264,10 +264,10 @@ annTests =
     "Annotations"
     [ T.testCase "ann wide" $
         prettyAt 1000 ann
-          @?= "(ω | f x y : C x y : * 0)",
+          @?= "(_ | f x y : C x y : * 0)",
       T.testCase "ann narrow" $
         prettyAt 10 ann
-          @?= "(ω | f x y\n\
+          @?= "(_ | f x y\n\
               \   : C x y\n\
               \   : * 0)"
     ]
