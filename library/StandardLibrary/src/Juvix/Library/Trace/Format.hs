@@ -6,42 +6,38 @@ import Juvix.Library
 import qualified Juvix.Library.HashMap as HashMap
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Trace.Types
+import Prelude (String)
 
 --------------------------------------------------------------------------------
 -- Main Functionality
 --------------------------------------------------------------------------------
 
-currentStackChain :: StackChain -> (Integer -> Integer) -> [Char]
+currentStackChain :: StackChain -> (Integer -> Integer) -> [String]
 currentStackChain chain indentationIncrement =
   chain
     |> stackChainToList
     -- Let's start with the parent
-    |> foldr f ("", 0)
+    |> foldr f ([], 0)
     |> fst
   where
     f current (formattedString, indentation) =
       ( formattedString
-          <> spacing indentation
-          <> functionCall (current ^. name) (current ^. start)
-          <> "\n",
+          <> [spacing indentation <>
+              functionCall (current ^. name) (current ^. start)],
         indentationIncrement indentation
       )
 
-fullTrace :: T -> (Integer -> Integer) -> [Char]
+fullTrace :: T -> (Integer -> Integer) -> [String]
 fullTrace t indentationIncrement =
   traceLog t 0 indentationIncrement (t ^. traces)
 
 traceLog ::
-  T -> Integer -> (Integer -> Integer) -> [Stack] -> [Char]
+  T -> Integer -> (Integer -> Integer) -> [Stack] -> [String]
 traceLog t level indentationIncrement stacks =
-  fmap (traceStack t level indentationIncrement) stacks
-    |> filter (/= mempty)
-    |> reverse
-    |> intersperse "\n"
-    |> fold
-    |> (<> "\n")
+  (stacks >>= traceStack t level indentationIncrement)
+    -- |> reverse
 
-traceStack :: T -> Integer -> (Integer -> Integer) -> Stack -> [Char]
+traceStack :: T -> Integer -> (Integer -> Integer) -> Stack -> [String]
 traceStack t currentLevel indentationIncrement stack =
   case HashMap.lookup (stack ^. name) (t ^. enabled) of
     Just metaInfo
@@ -54,7 +50,7 @@ traceStack t currentLevel indentationIncrement stack =
         Enabled ->
           callFull
         DisableRecursive ->
-          ""
+          []
     Nothing
       | (t ^. debugLevel) >= Just maxTrace ->
         callFull
@@ -66,17 +62,15 @@ traceStack t currentLevel indentationIncrement stack =
       -- ·· (Prelude.add2 12.0)
       -- ·· (Prelude.add2 12.0) ↦ 14.0
       -- if we filter our between list
-      case stack ^. between of
-        [] ->
-          spacing currentLevel <> returnResult stack
-        _ : _ ->
-          let inc = indentationIncrement
-           in spacing currentLevel
-                <> functionCall (stack ^. name) (stack ^. start)
-                <> "\n"
-                <> traceLog t (inc currentLevel) inc (stack ^. between)
-                <> spacing currentLevel
-                <> returnResult stack
+      let inc = indentationIncrement
+          traceBetween = traceLog t (inc currentLevel) inc (stack ^. between) in
+        case traceBetween of
+          [] ->
+            [spacing currentLevel <> returnResult stack]
+          _ : _ ->
+            [ spacing currentLevel <> functionCall (stack ^. name) (stack ^. start)]
+            <> traceBetween
+            <> [ spacing currentLevel <> returnResult stack]
     callIgnoreCurrent =
       traceLog t currentLevel indentationIncrement (stack ^. between)
 

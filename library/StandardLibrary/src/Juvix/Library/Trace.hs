@@ -77,7 +77,7 @@ info = putStrLn . traceInfo
 
 -- | @fullTrace@ dumps the finished calls from the Trace
 fullTrace :: MonadIO m => T -> m ()
-fullTrace t = putStrLn (Format.fullTrace t (+ 2))
+fullTrace = putStrLn . traceFullStack
 
 -- | @enableEff@ allows you to enable more traced functions while
 -- in the middle of effectful computations, rather than before or after
@@ -135,14 +135,20 @@ overEnabled t f xs =
 traceInfo :: T -> [Char]
 traceInfo t =
   case t ^. current of
-    Empty ->
-      Format.fullTrace t (+ 2)
-    StackChain _ _ ->
-      traceStmt t
+    Empty -> traceFullStack t
+    StackChain {} -> traceStmt t
+
+traceFullStack :: T -> [Char]
+traceFullStack t =
+  Format.fullTrace t (+ 2)
+    |> intersperse "\n"
+    |> fold
 
 traceStmt :: HasCurrent s StackChain => s -> [Char]
 traceStmt trace =
   Format.currentStackChain (trace ^. current) (const 1)
+    |> intersperse "\n"
+    |> fold
 
 registerOutput :: T -> Text -> T
 registerOutput t result =
@@ -160,10 +166,10 @@ finishScope t =
   case t ^. current of
     Empty -> t
     StackChain Empty stack ->
-      t |> over traces (stack :) |> set current Empty
+      t |> over traces (<> [stack]) |> set current Empty
     StackChain (StackChain grandParent parent) stack ->
       set current (StackChain grandParent (consLog stack parent)) t
 
 consLog :: HasBetween t [a] => a -> t -> t
 consLog currentStack =
-  over between (currentStack :)
+  over between (<> [currentStack])
