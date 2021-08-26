@@ -74,3 +74,6 @@ type Eff m = HasState "trace" T m
 
 maxTrace :: Natural
 maxTrace = 10
+
+defaultTrace :: Natural
+defaultTrace = 3

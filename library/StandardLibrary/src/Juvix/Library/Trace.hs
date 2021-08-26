@@ -5,7 +5,34 @@
 --
 -- - The structure requires your code to exist in the =Trace.Eff=
 --   effect.
-module Juvix.Library.Trace (module Juvix.Library.Trace, module Juvix.Library.Trace.Types) where
+-- - The =Eff= Variant of functions are over the =Trace.Eff= effect
+--   rather than the =Trace.T= type itself.
+--   + It is just as valid to use the non =Eff= version of the
+--     functions
+module Juvix.Library.Trace
+  ( module Juvix.Library.Trace.Types,
+
+    -- * Core API
+    withScope,
+    info,
+    stackTrace,
+    fullTrace,
+
+    -- ** Trace Enabling/Disabling
+    enableTraceEff,
+    disableTraceEff,
+    disableRecursiveTraceEff,
+    enableTrace,
+    disableTrace,
+    disableRecursiveTrace,
+
+    -- ** Trace Level Setup
+
+    -- * Functions for testing
+    traceInfo,
+    traceStmt,
+  )
+where
 
 import Control.Lens (over, set, (^.))
 import qualified Data.Text as T
@@ -33,19 +60,83 @@ withScope name args f = do
   modify @"trace" (finishScope . (`registerOutput` show ret))
   pure ret
 
--- Put in mitigation logic that either dumps the current stack if we
--- are corrupted or the logs if we finish
-format = undefined
-
--- | @break@ dumps the current Stack Trace, Ignoring any disabling behavior
-break :: (Eff m, MonadIO m) => m ()
-break = do
+-- | @stackTrace@ dumps the current Stack Trace, Ignoring any disabling behavior
+stackTrace :: (Eff m, MonadIO m) => m ()
+stackTrace = do
   trace <- get @"trace"
-  putStrLn (Format.currentStackChain (trace ^. current) (const 1))
+  putStrLn (traceStmt trace)
+
+-- | @info@ is called on the computational trace, if we exit early,
+-- then we dump the stack trace, if computation finishes we then trace
+-- all the finished calls. @info@ can be called with @fullTrace@ when
+-- computation ends early to have a good idea of the computation stack
+-- by the point of failure.
+info :: MonadIO m => T -> m ()
+info = putStrLn . traceInfo
+
+-- | @fullTrace@ dumps the finished calls from the Trace
+fullTrace :: MonadIO m => T -> m ()
+fullTrace t = putStrLn (Format.fullTrace t (+ 2))
+
+-- | @enableTraceEff@ allows you to enable more traced functions while
+-- in the middle of effectful computations, rather than before or after
+-- having a complete trace.
+enableTraceEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
+enableTraceEff xs = modify @"trace" (`enableTrace` xs)
+
+-- | @disableTraceEff@ see @enableTraceEff@ except this removes the current
+-- call from being traced (default behavior)
+disableTraceEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
+disableTraceEff xs = modify @"trace" (`disableTrace` xs)
+
+-- | @disableRecursiveTraceEff@ see @enableTraceEff@ except this
+-- removes any recursive call of the trace
+disableRecursiveTraceEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
+disableRecursiveTraceEff xs = modify @"trace" (`disableRecursiveTrace` xs)
+
+-- | @enableTrace@ allows you to enable traces before or after
+-- commencing a trace.
+enableTrace :: Traversable f => T -> f NameSymbol.T -> T
+enableTrace t =
+  overEnabled t (set enable Enabled)
+
+-- | @disableTrace@ see @enableTrace@ except this removes the current
+-- call from being traced (default behavior)
+disableTrace :: Traversable f => T -> f NameSymbol.T -> T
+disableTrace t =
+  overEnabled t (set enable Disabled)
+
+-- | @disableRecursiveTrace@ see @enableTrace@ except this
+-- removes any recursive call of the trace
+disableRecursiveTrace :: Traversable f => T -> f NameSymbol.T -> T
+disableRecursiveTrace t =
+  overEnabled t (set enable DisableRecursive)
 
 --------------------------------------------------------------------------------
 -- Helper Functionality
 --------------------------------------------------------------------------------
+
+overEnabled ::
+  Traversable f => T -> (MetaInfo -> MetaInfo) -> f NameSymbol.T -> T
+overEnabled t f xs =
+  over enabled (\enabled -> foldr (HashMap.alter fDefault) enabled xs) t
+  where
+    fDefault Nothing = Just (f (MetaInfo Disabled defaultTrace))
+    fDefault (Just m) = Just (f m)
+
+-- Put in mitigation logic that either dumps the current stack if we
+-- are corrupted or the logs if we finish
+traceInfo :: T -> [Char]
+traceInfo t =
+  case t ^. current of
+    Empty ->
+      Format.fullTrace t (+ 2)
+    StackChain _ _ ->
+      traceStmt t
+
+traceStmt :: HasCurrent s StackChain => s -> [Char]
+traceStmt trace =
+  Format.currentStackChain (trace ^. current) (const 1)
 
 registerOutput :: T -> Text -> T
 registerOutput t result =

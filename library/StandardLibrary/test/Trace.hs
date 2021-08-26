@@ -21,7 +21,7 @@ add2 n =
 addBreak :: (Trace.Eff m, Show b, Num b, MonadIO m) => b -> b -> m b
 addBreak x y =
   Trace.withScope "Prelude.add" [show x, show y] $ do
-    Trace.break
+    Trace.stackTrace
     pure (x + y)
 
 multiply :: (Trace.Eff m, Show b, Num b) => b -> b -> m b
@@ -42,6 +42,8 @@ complexFormula x y =
     aded <- add2 mult
     multiply aded mult
 
+factorial ::
+  (Trace.Eff m, Show t, Eq t, Num t) => t -> t -> m t
 factorial x y =
   Trace.withScope "factorial" [show x, show y] $ do
     if
