@@ -1528,6 +1528,10 @@ The Trace library represents the ability to properly trace code
 throughout Haskell.
 - The structure requires your code to exist in the =Trace.Eff=
   effect.
+- The =Eff= Variant of functions are over the =Trace.Eff= effect
+  rather than the =Trace.T= type itself.
+  + It is just as valid to use the non =Eff= version of the
+    functions
 - _Relies on_
   + [[Library]]
   + [[HashMap]]
