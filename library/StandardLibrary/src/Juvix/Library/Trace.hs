@@ -118,7 +118,6 @@ setLevel :: Traversable f => T -> Natural -> f NameSymbol.T -> T
 setLevel t lev =
   overEnabled t (set level lev)
 
-
 --------------------------------------------------------------------------------
 -- Helper Functionality
 --------------------------------------------------------------------------------

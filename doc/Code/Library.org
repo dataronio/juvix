@@ -1538,6 +1538,7 @@ throughout Haskell.
   + [[NameSymbol]]
   + [[Format]]
   + [[Trace/Types]]
+  + [[Trace/Types]]
 ****** Environment <<Trace/Environment>>
 This module gives a minimal environment to run Traces, best used
 for testing
