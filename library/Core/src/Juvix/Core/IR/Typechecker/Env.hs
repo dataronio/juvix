@@ -103,7 +103,7 @@ lookupGlobal x = do
     makeGAnn (Core.GDatatype (Core.Datatype {dataArgs, dataLevel})) =
       (foldr makePi (Core.VStar dataLevel mempty) dataArgs, Core.GZero)
     makeGAnn (Core.GDataCon (Core.DataCon {dataConType})) =
-      (dataConType, Core.GOmega)
+      (dataConType, Core.GSAny)
     makeGAnn (Core.GFunction (Core.Function {funType, funUsage})) =
       (funType, funUsage)
     makeGAnn (Core.GAbstract (Core.Abstract {absUsage, absType})) =

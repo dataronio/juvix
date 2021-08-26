@@ -279,7 +279,7 @@ instance
   where
   pretty' = \case
     Cont {fun, args} -> PP.app' APunct (PP.pretty' fun) (map PP.pretty' args)
-    Return {retTerm, retType} -> prettyTyped Usage.Omega retTerm retType
+    Return {retTerm, retType} -> prettyTyped Usage.SAny retTerm retType
 
 type instance PP.Ann DeBruijn = ()
 

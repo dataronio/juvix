@@ -35,7 +35,7 @@ leftoversOk (Leftovers {loLocals, loPatVars}) =
   all leftoverOk loLocals && all leftoverOk loPatVars
 
 leftoverOk :: Usage.T -> Bool
-leftoverOk ρ = ρ == Usage.Omega || ρ == mempty
+leftoverOk ρ = ρ == Usage.SAny || ρ == mempty
 
 -- | Checks a 'Term against an annotation and returns a decorated term if
 -- successful.

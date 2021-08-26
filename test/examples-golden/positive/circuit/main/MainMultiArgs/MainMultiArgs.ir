@@ -5,8 +5,8 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "MainMultArgs" :| [ "main" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -18,7 +18,7 @@
                             ) ()
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( Free
                                 ( Global

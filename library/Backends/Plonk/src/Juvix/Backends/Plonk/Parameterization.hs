@@ -163,7 +163,7 @@ toTakes :: PrimVal' ext f -> (Take f, [Arg' ext f], Natural)
 toTakes App.Cont {fun, args, numLeft} = (fun, args, numLeft)
 toTakes App.Return {retType, retTerm} = (fun, [], arityRaw retTerm)
   where
-    fun = App.Take {usage = Usage.Omega, type' = retType, term = retTerm}
+    fun = App.Take {usage = Usage.SAny, type' = retType, term = retTerm}
 
 fromReturn :: Return' ext f -> PrimVal' ext f
 fromReturn = identity

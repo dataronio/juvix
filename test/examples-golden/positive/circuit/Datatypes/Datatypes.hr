@@ -10,7 +10,7 @@ fromList
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "One" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( ElimX
                                     ( "Prelude" :|
@@ -37,7 +37,7 @@ fromList
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "Atom" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Prelude" :|
@@ -62,7 +62,7 @@ fromList
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "One" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Prelude" :|
@@ -87,7 +87,7 @@ fromList
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "FTIC_Left" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Prelude" :|
@@ -118,7 +118,7 @@ fromList
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "FTIC_Left" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( ElimX
                                     ( "Prelude" :|
@@ -138,8 +138,8 @@ fromList
                         }
                     , RawDataCon
                         { rawConName = "Datatypes" :| [ "FTIC_Right" ]
-                        , rawConType = Pi Omega
-                            ( Pi Omega
+                        , rawConType = Pi SAny
+                            ( Pi SAny
                                 ( Elim
                                     ( ElimX
                                         ( "Prelude" :|
@@ -177,7 +177,7 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "s1" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( ElimX
                         ( "Datatypes" :| [ "sExpField" ] )
@@ -277,8 +277,8 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "patternMatch" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Datatypes" :| [ "bar" ] )
@@ -501,7 +501,7 @@ fromList
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "P" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Prelude" :|
@@ -511,7 +511,7 @@ fromList
                             )
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( ElimX
                                 ( "Prelude" :|
@@ -538,7 +538,7 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "verySimpleTerm" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( ElimX
                         ( "Datatypes" :| [ "verySimpleType" ] )
@@ -575,7 +575,7 @@ fromList
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "P" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( ElimX
                                     ( "Prelude" :|
@@ -585,7 +585,7 @@ fromList
                                     )
                                 ) ()
                             )
-                            ( Pi Omega
+                            ( Pi SAny
                                 ( Elim
                                     ( ElimX
                                         ( "Prelude" :|
@@ -607,7 +607,7 @@ fromList
                         }
                     , RawDataCon
                         { rawConName = "Datatypes" :| [ "Q" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( ElimX
                                     ( "Prelude" :|
@@ -617,7 +617,7 @@ fromList
                                     )
                                 ) ()
                             )
-                            ( Pi Omega
+                            ( Pi SAny
                                 ( Elim
                                     ( ElimX
                                         ( "Prelude" :|
@@ -627,7 +627,7 @@ fromList
                                         )
                                     ) ()
                                 )
-                                ( Pi Omega
+                                ( Pi SAny
                                     ( Elim
                                         ( ElimX
                                             ( "Prelude" :|
@@ -658,8 +658,8 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "ssize" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Datatypes" :| [ "sExpField" ] )
@@ -751,8 +751,8 @@ fromList
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "FTIC_Right" ]
-                , rawConType = Pi Omega
-                    ( Pi Omega
+                , rawConType = Pi SAny
+                    ( Pi SAny
                         ( Elim
                             ( ElimX
                                 ( "Prelude" :|
@@ -794,7 +794,7 @@ fromList
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "Atom" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( ElimX
                                     ( "Prelude" :|
@@ -814,13 +814,13 @@ fromList
                         }
                     , RawDataCon
                         { rawConName = "Datatypes" :| [ "SPair" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( ElimX
                                     ( "Datatypes" :| [ "sExpField" ] )
                                 ) ()
                             )
-                            ( Pi Omega
+                            ( Pi SAny
                                 ( Elim
                                     ( ElimX
                                         ( "Datatypes" :| [ "sExpField" ] )
@@ -845,7 +845,7 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "main" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( ElimX
                         ( "Prelude" :|
@@ -857,11 +857,11 @@ fromList
                 , rawFunClauses = RawFunClause
                     { rawClauseTel = []
                     , rawClausePats = []
-                    , rawClauseBody = Let Omega
+                    , rawClauseBody = Let SAny
                         ( ElimX
                             ( "Datatypes" :| [ "verySimpleTerm" ] )
                         )
-                        ( Let Omega
+                        ( Let SAny
                             ( App
                                 ( ElimX
                                     ( "Datatypes" :| [ "patternMatch" ] )
@@ -899,11 +899,11 @@ fromList
                                     ) ()
                                 ) ()
                             )
-                            ( Let Omega
+                            ( Let SAny
                                 ( ElimX
                                     ( "Datatypes" :| [ "fticTestTerm" ] )
                                 )
-                                ( Let Omega
+                                ( Let SAny
                                     ( App
                                         ( ElimX
                                             ( "Datatypes" :| [ "ssize" ] )
@@ -938,7 +938,7 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "fticTestTerm" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( ElimX
                         ( "Datatypes" :| [ "functionTypeInConstructor" ] )
@@ -967,7 +967,7 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "x" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( ElimX
                         ( "Prelude" :|
@@ -995,8 +995,8 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "fticTestFunc" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Prelude" :|
@@ -1036,7 +1036,7 @@ fromList
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "Q" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Prelude" :|
@@ -1046,7 +1046,7 @@ fromList
                             )
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( ElimX
                                 ( "Prelude" :|
@@ -1056,7 +1056,7 @@ fromList
                                 )
                             ) ()
                         )
-                        ( Pi Omega
+                        ( Pi SAny
                             ( Elim
                                 ( ElimX
                                     ( "Prelude" :|
@@ -1085,13 +1085,13 @@ fromList
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "SPair" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Datatypes" :| [ "sExpField" ] )
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( ElimX
                                 ( "Datatypes" :| [ "sExpField" ] )

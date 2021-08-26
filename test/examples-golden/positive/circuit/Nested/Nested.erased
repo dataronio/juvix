@@ -1,8 +1,8 @@
 Ann
-    { usage = Omega
-    , type' = Pi Omega ( PrimTy PField )
-        ( Pi Omega ( PrimTy PField )
-            ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+    { usage = SAny
+    , type' = Pi SAny ( PrimTy PField )
+        ( Pi SAny ( PrimTy PField )
+            ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
         )
     , term = LamM
         { capture = []
@@ -12,13 +12,13 @@ Ann
             , "2" :| []
             ]
         , body = Ann
-            { usage = Omega
+            { usage = SAny
             , type' = PrimTy PField
             , term = AppM
                 ( Ann
-                    { usage = Omega
-                    , type' = Pi Omega ( PrimTy PField )
-                        ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+                    { usage = SAny
+                    , type' = Pi SAny ( PrimTy PField )
+                        ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
                     , term = Prim
                         ( Return
                             { retType = PrimType
@@ -33,13 +33,13 @@ Ann
                     }
                 )
                 [ Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy PField
                     , term = AppM
                         ( Ann
-                            { usage = Omega
-                            , type' = Pi Omega ( PrimTy PField )
-                                ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+                            { usage = SAny
+                            , type' = Pi SAny ( PrimTy PField )
+                                ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
                             , term = Prim
                                 ( Return
                                     { retType = PrimType
@@ -54,13 +54,13 @@ Ann
                             }
                         )
                         [ Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy PField
                             , term = Var
                                 ( "0" :| [] )
                             }
                         , Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy PField
                             , term = Prim
                                 ( Return
@@ -76,13 +76,13 @@ Ann
                         ]
                     }
                 , Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy PField
                     , term = AppM
                         ( Ann
-                            { usage = Omega
-                            , type' = Pi Omega ( PrimTy PField )
-                                ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+                            { usage = SAny
+                            , type' = Pi SAny ( PrimTy PField )
+                                ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
                             , term = Prim
                                 ( Return
                                     { retType = PrimType
@@ -97,13 +97,13 @@ Ann
                             }
                         )
                         [ Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy PField
                             , term = AppM
                                 ( Ann
-                                    { usage = Omega
-                                    , type' = Pi Omega ( PrimTy PField )
-                                        ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+                                    { usage = SAny
+                                    , type' = Pi SAny ( PrimTy PField )
+                                        ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
                                     , term = Prim
                                         ( Return
                                             { retType = PrimType
@@ -118,13 +118,13 @@ Ann
                                     }
                                 )
                                 [ Ann
-                                    { usage = Omega
+                                    { usage = SAny
                                     , type' = PrimTy PField
                                     , term = Var
                                         ( "1" :| [] )
                                     }
                                 , Ann
-                                    { usage = Omega
+                                    { usage = SAny
                                     , type' = PrimTy PField
                                     , term = Prim
                                         ( Return
@@ -140,13 +140,13 @@ Ann
                                 ]
                             }
                         , Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy PField
                             , term = AppM
                                 ( Ann
-                                    { usage = Omega
-                                    , type' = Pi Omega ( PrimTy PField )
-                                        ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+                                    { usage = SAny
+                                    , type' = Pi SAny ( PrimTy PField )
+                                        ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
                                     , term = Prim
                                         ( Return
                                             { retType = PrimType
@@ -161,13 +161,13 @@ Ann
                                     }
                                 )
                                 [ Ann
-                                    { usage = Omega
+                                    { usage = SAny
                                     , type' = PrimTy PField
                                     , term = AppM
                                         ( Ann
-                                            { usage = Omega
-                                            , type' = Pi Omega ( PrimTy PField )
-                                                ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+                                            { usage = SAny
+                                            , type' = Pi SAny ( PrimTy PField )
+                                                ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
                                             , term = Prim
                                                 ( Return
                                                     { retType = PrimType
@@ -182,13 +182,13 @@ Ann
                                             }
                                         )
                                         [ Ann
-                                            { usage = Omega
+                                            { usage = SAny
                                             , type' = PrimTy PField
                                             , term = Var
                                                 ( "2" :| [] )
                                             }
                                         , Ann
-                                            { usage = Omega
+                                            { usage = SAny
                                             , type' = PrimTy PField
                                             , term = Prim
                                                 ( Return
@@ -204,7 +204,7 @@ Ann
                                         ]
                                     }
                                 , Ann
-                                    { usage = Omega
+                                    { usage = SAny
                                     , type' = PrimTy PField
                                     , term = Prim
                                         ( Return

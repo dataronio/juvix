@@ -85,7 +85,7 @@ transformTermHR q p@(name Sexp.:> form)
         args <- traverse parseVarArg xs
         cbody <- transformTermHR q cbody
         rhs <- toElim (Sexp.Cons (Sexp.atom ":let-match=") e) $ foldr HR.Lam cbody args
-        HR.Let Usage.Omega atomName rhs <$> transformTermHR q body
+        HR.Let Usage.SAny atomName rhs <$> transformTermHR q body
     transformSimpleLet (Sexp.List [_name, fun, _body]) =
       throwFF $ ExprUnimplemented fun
     transformSimpleLet _ = error "malformed let"
@@ -155,8 +155,8 @@ transformApplication q a@(f Sexp.:> args)
       TypeS -> do
         ~[i] <- nargs s 1 xs
         HR.Star <$> transformUniverse i
-      OmegaS ->
-        throwFF UnexpectedOmega
+      SAnyS ->
+        throwFF UnexpectedSAny
     nargs s n xs
       | length xs == n = pure xs
       | otherwise = throwFF $ WrongNumberBuiltinArgs s n args

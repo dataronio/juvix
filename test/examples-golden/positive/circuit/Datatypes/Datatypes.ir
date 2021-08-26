@@ -11,7 +11,7 @@
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "One" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -41,7 +41,7 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "Atom" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -69,7 +69,7 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "One" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -97,7 +97,7 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "FTIC_Left" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -131,7 +131,7 @@
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "FTIC_Left" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -154,8 +154,8 @@
                         }
                     , RawDataCon
                         { rawConName = "Datatypes" :| [ "FTIC_Right" ]
-                        , rawConType = Pi Omega
-                            ( Pi Omega
+                        , rawConType = Pi SAny
+                            ( Pi SAny
                                 ( Elim
                                     ( Free
                                         ( Global
@@ -197,7 +197,7 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "s1" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( Free
                         ( Global
@@ -313,8 +313,8 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "patternMatch" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -555,7 +555,7 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "P" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -567,7 +567,7 @@
                             ) ()
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( Free
                                 ( Global
@@ -596,7 +596,7 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "verySimpleTerm" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( Free
                         ( Global
@@ -637,7 +637,7 @@
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "P" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -649,7 +649,7 @@
                                     ) ()
                                 ) ()
                             )
-                            ( Pi Omega
+                            ( Pi SAny
                                 ( Elim
                                     ( Free
                                         ( Global
@@ -673,7 +673,7 @@
                         }
                     , RawDataCon
                         { rawConName = "Datatypes" :| [ "Q" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -685,7 +685,7 @@
                                     ) ()
                                 ) ()
                             )
-                            ( Pi Omega
+                            ( Pi SAny
                                 ( Elim
                                     ( Free
                                         ( Global
@@ -697,7 +697,7 @@
                                         ) ()
                                     ) ()
                                 )
-                                ( Pi Omega
+                                ( Pi SAny
                                     ( Elim
                                         ( Free
                                             ( Global
@@ -729,8 +729,8 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "ssize" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -829,8 +829,8 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "FTIC_Right" ]
-                , rawConType = Pi Omega
-                    ( Pi Omega
+                , rawConType = Pi SAny
+                    ( Pi SAny
                         ( Elim
                             ( Free
                                 ( Global
@@ -876,7 +876,7 @@
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "Atom" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -899,7 +899,7 @@
                         }
                     , RawDataCon
                         { rawConName = "Datatypes" :| [ "SPair" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -907,7 +907,7 @@
                                     ) ()
                                 ) ()
                             )
-                            ( Pi Omega
+                            ( Pi SAny
                                 ( Elim
                                     ( Free
                                         ( Global
@@ -934,7 +934,7 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "main" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( Free
                         ( Global
@@ -948,13 +948,13 @@
                 , rawFunClauses = RawFunClause
                     { rawClauseTel = []
                     , rawClausePats = []
-                    , rawClauseBody = Let Omega
+                    , rawClauseBody = Let SAny
                         ( Free
                             ( Global
                                 ( "Datatypes" :| [ "verySimpleTerm" ] )
                             ) ()
                         )
-                        ( Let Omega
+                        ( Let SAny
                             ( App
                                 ( Free
                                     ( Global
@@ -996,13 +996,13 @@
                                     ) ()
                                 ) ()
                             )
-                            ( Let Omega
+                            ( Let SAny
                                 ( Free
                                     ( Global
                                         ( "Datatypes" :| [ "fticTestTerm" ] )
                                     ) ()
                                 )
-                                ( Let Omega
+                                ( Let SAny
                                     ( App
                                         ( Free
                                             ( Global
@@ -1037,7 +1037,7 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "fticTestTerm" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( Free
                         ( Global
@@ -1072,7 +1072,7 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "x" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( Free
                         ( Global
@@ -1102,8 +1102,8 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "Datatypes" :| [ "fticTestFunc" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -1146,7 +1146,7 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "Q" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -1158,7 +1158,7 @@
                             ) ()
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( Free
                                 ( Global
@@ -1170,7 +1170,7 @@
                                 ) ()
                             ) ()
                         )
-                        ( Pi Omega
+                        ( Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -1200,7 +1200,7 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "Datatypes" :| [ "SPair" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -1208,7 +1208,7 @@
                             ) ()
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( Free
                                 ( Global

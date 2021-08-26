@@ -82,19 +82,19 @@ bindTests =
     ]
 
 xAB =
-  Pi Omega "x" "A" $
+  Pi SAny "x" "A" $
     Elim $
       "B" `App` "x"
 
 xAyBC =
-  Pi Omega "x" "A" $
-    Pi Omega "y" "B" $
+  Pi SAny "x" "A" $
+    Pi SAny "y" "B" $
       Elim $
         "C" `App` "x" `App` "y"
 
 xAyBC' =
-  Pi Omega "x" "A" $
-    Sig Omega "y" "B" $
+  Pi SAny "x" "A" $
+    Sig SAny "y" "B" $
       cxy
 
 cxy = Elim cxy'
@@ -272,7 +272,7 @@ annTests =
               \   : * 0)"
     ]
 
-ann = Ann Omega fxy cxy 0
+ann = Ann SAny fxy cxy 0
 
 pattern AppE f e = App f (Elim e)
 

@@ -4,8 +4,8 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "MainMultArgs" :| [ "main" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( ElimX
                             ( "Prelude" :|
@@ -15,7 +15,7 @@ fromList
                             )
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( ElimX
                                 ( "Prelude" :|

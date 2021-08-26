@@ -1,5 +1,5 @@
 Ann
-    { usage = Omega
+    { usage = SAny
     , type' = PrimTy PField
     , term = Prim
         ( Return
