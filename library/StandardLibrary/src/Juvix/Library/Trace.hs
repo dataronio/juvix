@@ -19,14 +19,15 @@ module Juvix.Library.Trace
     fullTrace,
 
     -- ** Trace Enabling/Disabling
-    enableTraceEff,
-    disableTraceEff,
-    disableRecursiveTraceEff,
-    enableTrace,
-    disableTrace,
-    disableRecursiveTrace,
+    enableEff,
+    disableEff,
+    disableRecursiveEff,
+    enable,
+    disable,
+    disableRecursive,
 
     -- ** Trace Level Setup
+    setLevel,
 
     -- * Functions for testing
     traceInfo,
@@ -35,12 +36,12 @@ module Juvix.Library.Trace
 where
 
 import Control.Lens (over, set, (^.))
-import qualified Data.Text as T
 import Juvix.Library
 import qualified Juvix.Library.HashMap as HashMap
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Trace.Format as Format
-import Juvix.Library.Trace.Types
+import Juvix.Library.Trace.Types hiding (enable)
+import qualified Juvix.Library.Trace.Types as Lens (enable)
 
 --------------------------------------------------------------------------------
 -- Core API
@@ -78,39 +79,45 @@ info = putStrLn . traceInfo
 fullTrace :: MonadIO m => T -> m ()
 fullTrace t = putStrLn (Format.fullTrace t (+ 2))
 
--- | @enableTraceEff@ allows you to enable more traced functions while
+-- | @enableEff@ allows you to enable more traced functions while
 -- in the middle of effectful computations, rather than before or after
 -- having a complete trace.
-enableTraceEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
-enableTraceEff xs = modify @"trace" (`enableTrace` xs)
+enableEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
+enableEff xs = modify @"trace" (`enable` xs)
 
--- | @disableTraceEff@ see @enableTraceEff@ except this removes the current
+-- | @disableEff@ see @enableEff@ except this removes the current
 -- call from being traced (default behavior)
-disableTraceEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
-disableTraceEff xs = modify @"trace" (`disableTrace` xs)
+disableEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
+disableEff xs = modify @"trace" (`disable` xs)
 
--- | @disableRecursiveTraceEff@ see @enableTraceEff@ except this
+-- | @disableRecursiveEff@ see @enableEff@ except this
 -- removes any recursive call of the trace
-disableRecursiveTraceEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
-disableRecursiveTraceEff xs = modify @"trace" (`disableRecursiveTrace` xs)
+disableRecursiveEff :: (Eff m, Traversable f) => f NameSymbol.T -> m ()
+disableRecursiveEff xs = modify @"trace" (`disableRecursive` xs)
 
--- | @enableTrace@ allows you to enable traces before or after
+-- | @enable@ allows you to enable traces before or after
 -- commencing a trace.
-enableTrace :: Traversable f => T -> f NameSymbol.T -> T
-enableTrace t =
-  overEnabled t (set enable Enabled)
+enable :: Traversable f => T -> f NameSymbol.T -> T
+enable t =
+  overEnabled t (set Lens.enable Enabled)
 
--- | @disableTrace@ see @enableTrace@ except this removes the current
+-- | @disable@ see @enable@ except this removes the current
 -- call from being traced (default behavior)
-disableTrace :: Traversable f => T -> f NameSymbol.T -> T
-disableTrace t =
-  overEnabled t (set enable Disabled)
+disable :: Traversable f => T -> f NameSymbol.T -> T
+disable t =
+  overEnabled t (set Lens.enable Disabled)
 
--- | @disableRecursiveTrace@ see @enableTrace@ except this
+-- | @disableRecursive@ see @enable@ except this
 -- removes any recursive call of the trace
-disableRecursiveTrace :: Traversable f => T -> f NameSymbol.T -> T
-disableRecursiveTrace t =
-  overEnabled t (set enable DisableRecursive)
+disableRecursive :: Traversable f => T -> f NameSymbol.T -> T
+disableRecursive t =
+  overEnabled t (set Lens.enable DisableRecursive)
+
+-- | @setLevel@ sets the trace
+setLevel :: Traversable f => T -> Natural -> f NameSymbol.T -> T
+setLevel t lev =
+  overEnabled t (set level lev)
+
 
 --------------------------------------------------------------------------------
 -- Helper Functionality

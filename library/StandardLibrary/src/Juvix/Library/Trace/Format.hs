@@ -1,6 +1,6 @@
 module Juvix.Library.Trace.Format where
 
-import Control.Lens (over, set, (^.))
+import Control.Lens ((^.))
 import qualified Data.Text as Text
 import Juvix.Library
 import qualified Juvix.Library.HashMap as HashMap
