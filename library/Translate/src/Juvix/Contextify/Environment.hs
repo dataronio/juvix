@@ -1,7 +1,6 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoDeriveAnyClass #-}
 
 module Juvix.Contextify.Environment
   ( ErrorS (..),

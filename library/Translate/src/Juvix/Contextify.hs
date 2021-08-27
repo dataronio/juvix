@@ -1,4 +1,3 @@
-{-# LANGUAGE NoDeriveAnyClass #-}
 module Juvix.Contextify (fullyContextify, contextify, op, ResolveErr (..), PathError, resolveOpens, runM) where
 
 import qualified Juvix.Context as Context

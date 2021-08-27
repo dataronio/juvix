@@ -1,4 +1,3 @@
-{-# LANGUAGE NoDeriveAnyClass #-}
 -- |
 -- - This module is responsible for adding the reverse open
 --   information to the context, along with the alias map of what
