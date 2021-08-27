@@ -76,7 +76,6 @@ stackTrace = do
 info :: MonadIO m => T -> m ()
 info = putStrLn . traceInfo
 
-
 -- | @break@ dumps the stack by throwing an exception and returning the
 -- call stack to that point
 break :: (Eff m, HasThrow "error" Error m) => m b
