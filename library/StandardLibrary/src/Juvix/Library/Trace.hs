@@ -17,6 +17,7 @@ module Juvix.Library.Trace
     info,
     stackTrace,
     fullTrace,
+    break,
 
     -- ** Trace Enabling/Disabling
     enableEff,
@@ -36,7 +37,7 @@ module Juvix.Library.Trace
 where
 
 import Control.Lens (over, set, (^.))
-import Juvix.Library
+import Juvix.Library hiding (break)
 import qualified Juvix.Library.HashMap as HashMap
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Trace.Format as Format
@@ -74,6 +75,12 @@ stackTrace = do
 -- by the point of failure.
 info :: MonadIO m => T -> m ()
 info = putStrLn . traceInfo
+
+
+-- | @break@ dumps the stack by throwing an exception and returning the
+-- call stack to that point
+break :: (Eff m, HasThrow "error" Error m) => m b
+break = get @"trace" >>= throw @"error" . Error
 
 -- | @fullTrace@ dumps the finished calls from the Trace
 fullTrace :: MonadIO m => T -> m ()

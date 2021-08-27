@@ -66,6 +66,8 @@ data Enable
     DisableRecursive
   deriving (Show)
 
+newtype Error = Error T
+
 Lens.makeLensesWith Lens.camelCaseFields ''Stack
 Lens.makeLensesWith Lens.camelCaseFields ''T
 Lens.makeLensesWith Lens.camelCaseFields ''MetaInfo
