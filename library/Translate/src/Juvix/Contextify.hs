@@ -1,4 +1,5 @@
-module Juvix.Contextify (fullyContextify, contextify, op, ResolveErr (..), PathError) where
+{-# LANGUAGE NoDeriveAnyClass #-}
+module Juvix.Contextify (fullyContextify, contextify, op, ResolveErr (..), PathError, resolveOpens, runM) where
 
 import qualified Juvix.Context as Context
 import qualified Juvix.Contextify.Environment as Environment
