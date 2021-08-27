@@ -52,7 +52,6 @@ default-extensions:
   - NamedFieldPuns
   - DisambiguateRecordFields
   - TupleSections
-  - DeriveAnyClass
   - DeriveGeneric
   - DeriveDataTypeable
   - GeneralizedNewtypeDeriving

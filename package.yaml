@@ -59,7 +59,7 @@ dependencies:
   - fgl
   - fgl-visualize
   - bytestring
-    ###########################
+  ###########################
   # Dependency for Server
   ###########################
   - servant
@@ -71,7 +71,7 @@ dependencies:
   ###########################
   - morley
   ###########################
-  # Dependency for debugging 
+  # Dependency for debugging
   ###########################
   - pretty-simple
 
