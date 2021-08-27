@@ -1,0 +1,26 @@
+mod FlatDatatypes where
+
+open Prelude
+open Michelson
+
+sig (+) : nat -> nat -> nat
+let (+) = %Michelson.add
+declare infixl (+) 5
+
+sig nil : list operation
+let nil = %Michelson.nil
+
+sig make-pair : list operation -> nat -> pair (list operation) nat
+let make-pair = %Michelson.pair
+
+type pq : ty = | P nat nat | Q nat nat nat
+
+sig patternMatch : pq -> nat
+let patternMatch (P x y) = x + y
+let patternMatch (Q x y z) = x + y + z
+
+sig main : pair nat nat -> pair (list operation) nat
+let main =
+  let pm = patternMatch (P 1 2) in
+  \_ -> make-pair nil 9
+  -- \_ -> make-pair nil pm

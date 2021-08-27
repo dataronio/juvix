@@ -1,54 +1,17 @@
 Right
     ( Header
-        ( "Datatypes" :| [] )
+        ( "FlatDatatypes" :| [] )
         [ ModuleOpen
             ( Open
                 ( "Prelude" :| [] )
             )
         , ModuleOpen
             ( Open
-                ( "LLVM" :| [] )
+                ( "Circuit" :| [] )
             )
-        , Signature
-            ( Sig
-                { signatureName = "+"
-                , signatureUsage = Nothing
-                , signatureArrowType = Infix
-                    ( Inf
-                        { infixLeft = Name
-                            ( "int" :| [] )
-                        , infixOp = "->" :| []
-                        , infixRight = Infix
-                            ( Inf
-                                { infixLeft = Name
-                                    ( "int" :| [] )
-                                , infixOp = "->" :| []
-                                , infixRight = Name
-                                    ( "int" :| [] )
-                                }
-                            )
-                        }
-                    )
-                , signatureConstraints = []
-                }
-            )
-        , Function
-            ( Func
-                ( Like
-                    { functionLikedName = "+"
-                    , functionLikeArgs = []
-                    , functionLikeBody = Body
-                        ( Primitive
-                            ( Prim
-                                ( "LLVM" :| [ "add" ] )
-                            )
-                        )
-                    }
-                )
-            )
-        , Declaration
-            ( Infixivity
-                ( AssocL "+" 5 )
+        , ModuleOpen
+            ( Open
+                ( "Circuit" :| [ "Field" ] )
             )
         , Type
             ( Typ
@@ -64,9 +27,9 @@ Right
                             , sumValue = Just
                                 ( ADTLike
                                     [ Name
-                                        ( "int" :| [] )
+                                        ( "field" :| [] )
                                     , Name
-                                        ( "int" :| [] )
+                                        ( "field" :| [] )
                                     ]
                                 )
                             } :|
@@ -75,11 +38,11 @@ Right
                                 , sumValue = Just
                                     ( ADTLike
                                         [ Name
-                                            ( "int" :| [] )
+                                            ( "field" :| [] )
                                         , Name
-                                            ( "int" :| [] )
+                                            ( "field" :| [] )
                                         , Name
-                                            ( "int" :| [] )
+                                            ( "field" :| [] )
                                         ]
                                     )
                                 }
@@ -98,7 +61,7 @@ Right
                             ( "pq" :| [] )
                         , infixOp = "->" :| []
                         , infixRight = Name
-                            ( "int" :| [] )
+                            ( "field" :| [] )
                         }
                     )
                 , signatureConstraints = []
@@ -192,7 +155,7 @@ Right
                 { signatureName = "main"
                 , signatureUsage = Nothing
                 , signatureArrowType = Name
-                    ( "int" :| [] )
+                    ( "field" :| [] )
                 , signatureConstraints = []
                 }
             )

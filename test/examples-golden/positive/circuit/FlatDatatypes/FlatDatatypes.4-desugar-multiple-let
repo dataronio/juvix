@@ -1,20 +1,16 @@
 [
     ( "open" "Prelude" )
 ,
-    ( "open" "LLVM" )
+    ( "open" "Circuit" )
 ,
-    ( ":defsig" "+" ( ":infix" "->" "int" ( ":infix" "->" "int" "int" ) ) )
-,
-    ( ":defun" "+" () ( ":primitive" "LLVM.add" ) )
-,
-    ( "declare" "infixl" "+" 5 )
+    ( "open" "Circuit.Field" )
 ,
     ( "type"
         ( "pq" ":type" "ty" ) ()
-        ( "P" "int" "int" )
-        ( "Q" "int" "int" "int" ) )
+        ( "P" "field" "field" )
+        ( "Q" "field" "field" "field" ) )
 ,
-    ( ":defsig" "patternMatch" ( ":infix" "->" "pq" "int" ) )
+    ( ":defsig" "patternMatch" ( ":infix" "->" "pq" "field" ) )
 ,
     ( ":defun" "patternMatch" ( ( "P" "x" "y" ) ) ( ":infix" "+" "x" "y" ) )
 ,
@@ -22,6 +18,6 @@
         ( ( "Q" "x" "y" "z" ) )
         ( ":infix" "+" "x" ( ":infix" "+" "y" "z" ) ) )
 ,
-    ( ":defsig" "main" "int" )
+    ( ":defsig" "main" "field" )
 ,
     ( ":defun" "main" () ( "patternMatch" ( ":paren" ( "P" 1 2 ) ) ) ) ]

@@ -3,6 +3,25 @@
 ,
     ( "open" "LLVM" )
 ,
+    ( ":defsig" "+" ( ":infix" "->" "int" ( ":infix" "->" "int" "int" ) ) )
+,
+    ( ":defun" "+" () ( ":primitive" "LLVM.add" ) )
+,
+    ( "declare" "infixl" "+" 5 )
+,
+    ( "type"
+        ( "pq" ":type" "ty" ) ()
+        ( "P" "int" "int" )
+        ( "Q" "int" "int" "int" ) )
+,
+    ( ":defsig" "patternMatch" ( ":infix" "->" "pq" "int" ) )
+,
+    ( ":defun" "patternMatch" ( ( "P" "x" "y" ) ) ( ":infix" "+" "x" "y" ) )
+,
+    ( ":defun" "patternMatch"
+        ( ( "Q" "x" "y" "z" ) )
+        ( ":infix" "+" "x" ( ":infix" "+" "y" "z" ) ) )
+,
     ( ":defsig" "main" "int" )
 ,
-    ( ":defun" "main" () 0 ) ]
+    ( ":defun" "main" () ( "patternMatch" ( ":paren" ( "P" 1 2 ) ) ) ) ]

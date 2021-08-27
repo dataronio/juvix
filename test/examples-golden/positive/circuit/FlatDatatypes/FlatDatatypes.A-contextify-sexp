@@ -4,23 +4,11 @@ Rec
             [
                 ( "P", SumCon ( Sum { sumTDef = Nothing, sumTName = "pq" } ) )
             ,
-                ( "+"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int"
-                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "LLVM.add" ) ) )
-                        , defPrecedence = Pred Left 5 } ) )
-            ,
                 ( "main"
                 , Def
                     ( D
                         { defUsage = Nothing
-                        , defMTy = Just "TopLevel.Prelude.LLVM.int"
+                        , defMTy = Just "field"
                         , defTerm =
                             ( ":lambda-case"
                                 ( ()
@@ -32,9 +20,9 @@ Rec
                 , TypeDeclar
                     { definitionRepr =
                         (
-                            ( "pq" ":type" "TopLevel.Prelude.ty" ) ()
-                            ( "P" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" )
-                            ( "Q" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" ) ) } )
+                            ( "pq" ":type" "ty" ) ()
+                            ( "P" "field" "field" )
+                            ( "Q" "field" "field" "field" ) ) } )
             ,
                 ( "Q", SumCon ( Sum { sumTDef = Nothing, sumTName = "pq" } ) )
             ,
@@ -43,7 +31,7 @@ Rec
                     ( D
                         { defUsage = Nothing
                         , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "pq" "TopLevel.Prelude.LLVM.int" )
+                            ( ":infix" "->" "pq" "field" )
                         , defTerm =
                             ( ":lambda-case"
                                 ( ( ( "P" "x" "y" ) ) ( ":infix" "+" "x" "y" ) )

@@ -1,0 +1,46 @@
+[
+    ( "open" "Prelude" )
+,
+    ( "open" "Michelson" )
+,
+    ( ":defsig" "+" ( ":infix" "->" "nat" ( ":infix" "->" "nat" "nat" ) ) )
+,
+    ( ":defun-match" "+" ( () ( ":primitive" "Michelson.add" ) ) )
+,
+    ( "declare" "infixl" "+" 5 )
+,
+    ( ":defsig" "nil" ( "list" "operation" ) )
+,
+    ( ":defun-match" "nil" ( () ( ":primitive" "Michelson.nil" ) ) )
+,
+    ( ":defsig" "make-pair"
+        ( ":infix" "->"
+            ( "list" "operation" )
+            ( ":infix" "->" "nat"
+                ( "pair" ( ":paren" ( "list" "operation" ) ) "nat" ) ) ) )
+,
+    ( ":defun-match" "make-pair" ( () ( ":primitive" "Michelson.pair" ) ) )
+,
+    ( "type"
+        ( "pq" ":type" "ty" ) ()
+        ( "P" "nat" "nat" )
+        ( "Q" "nat" "nat" "nat" ) )
+,
+    ( ":defsig" "patternMatch" ( ":infix" "->" "pq" "nat" ) )
+,
+    ( ":defun-match" "patternMatch"
+        ( ( ( "P" "x" "y" ) ) ( ":infix" "+" "x" "y" ) )
+        (
+            ( ( "Q" "x" "y" "z" ) )
+            ( ":infix" "+" "x" ( ":infix" "+" "y" "z" ) ) ) )
+,
+    ( ":defsig" "main"
+        ( ":infix" "->"
+            ( "pair" "nat" "nat" )
+            ( "pair" ( ":paren" ( "list" "operation" ) ) "nat" ) ) )
+,
+    ( ":defun-match" "main"
+        ( ()
+            ( ":let-match" "pm"
+                ( () ( "patternMatch" ( ":paren" ( "P" 1 2 ) ) ) )
+                ( ":lambda" ( "_" ) ( "make-pair" "nil" 9 ) ) ) ) ) ]

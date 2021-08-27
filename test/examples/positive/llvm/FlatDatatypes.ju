@@ -1,4 +1,4 @@
-mod Datatypes where
+mod FlatDatatypes where
 
 open Prelude
 open LLVM
@@ -15,6 +15,4 @@ let patternMatch (Q x y z) = x + y + z
 
 sig main : int
 let main =
-  -- let pm = patternMatch (P 1 2) in
-  -- 9
   patternMatch (P 1 2)

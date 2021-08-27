@@ -1,6 +1,6 @@
 Right
     ( Header
-        ( "Datatypes" :| [] )
+        ( "FlatDatatypes" :| [] )
         [ ModuleOpen
             ( Open
                 ( "Prelude" :| [] )

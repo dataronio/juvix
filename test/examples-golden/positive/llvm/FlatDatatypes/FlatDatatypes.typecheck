@@ -11,7 +11,7 @@ Ann
             { usage = Omega
             , type' = Pi Omega
                 ( SymT
-                    ( "Datatypes" :| [ "pq" ] )
+                    ( "FlatDatatypes" :| [ "pq" ] )
                 )
                 ( PrimTy
                     ( PrimTy
@@ -21,13 +21,13 @@ Ann
                     )
                 )
             , term = Var
-                ( "Datatypes" :| [ "patternMatch" ] )
+                ( "FlatDatatypes" :| [ "patternMatch" ] )
             }
         )
         [ Ann
             { usage = Omega
             , type' = SymT
-                ( "Datatypes" :| [ "pq" ] )
+                ( "FlatDatatypes" :| [ "pq" ] )
             , term = AppM
                 ( Ann
                     { usage = Omega
@@ -48,11 +48,11 @@ Ann
                                 )
                             )
                             ( SymT
-                                ( "Datatypes" :| [ "pq" ] )
+                                ( "FlatDatatypes" :| [ "pq" ] )
                             )
                         )
                     , term = Var
-                        ( "Datatypes" :| [ "P" ] )
+                        ( "FlatDatatypes" :| [ "P" ] )
                     }
                 )
                 [ Ann
