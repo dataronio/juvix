@@ -1,12 +1,10 @@
 {-# LANGUAGE ApplicativeDo #-}
 
--- |
--- - The front end parser for the Juvix Programming language
---
 -- - Parsers with S at the end, eat the spaces at the end of the parse
---
 -- - Parsers with SN at the end, eats the spaces and new lines at the
 --   end of the parse
+
+-- | The Juvix frontend parser.
 module Juvix.Frontend.Parser
   ( parse,
     prettyParse,
@@ -22,6 +20,8 @@ module Juvix.Frontend.Parser
   )
 where
 
+--------------------------------------------------------------------------------
+
 import Control.Arrow (left)
 import qualified Control.Monad.Combinators.Expr as Expr
 import qualified Data.ByteString as ByteString
@@ -36,6 +36,8 @@ import qualified Juvix.Library.Parser as J
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Byte as P
 import Prelude (fail)
+
+--------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
 -- Top Level Runner
@@ -56,7 +58,7 @@ removeComments = ByteString.concat . grabComments
   where
     onBreakDo _break _con "" = []
     onBreakDo break cont str = break str |> cont
-    -- TODO ∷ Make faster
+    -- TODO: Make faster
     grabComments = breakComment `onBreakDo` f
       where
         f (notIn, in') =
@@ -64,7 +66,7 @@ removeComments = ByteString.concat . grabComments
     dropNewLine =
       ByteString.dropWhile (not . (== J.newLine))
 
--- These two functions have size 4 * 8 = 32 < Bits.finiteBitSize (0 :: Word) = 64
+-- These two functions have size 4*8 = 32 < Bits.finiteBitSize (0 :: Word) = 64
 -- thus this compiles to a shift
 breakComment :: ByteString -> (ByteString, ByteString)
 breakComment = ByteString.breakSubstring "--"
@@ -203,18 +205,18 @@ functionModGen p =
         pure (Types.Like name args guard)
     )
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Guard
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 guard :: Parser a -> Parser (Types.GuardBody a)
 guard p =
   P.try (Types.Guard <$> condB p)
     <|> P.try (Types.Body <$> (J.skipLiner J.equals *> p))
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Args
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 arg :: Parser Types.Arg
 arg =
@@ -230,7 +232,10 @@ signature' = do
   reserved "sig"
   name <- prefixSymbolSN
   maybeUsage <-
-    P.optional (fmap Types.Constant constantSN <|> spaceLiner (J.parens expressionSN))
+    P.optional
+      ( fmap Types.Constant constantSN
+          <|> spaceLiner (J.parens expressionSN)
+      )
   skipLiner J.colon
   typeclasses <- signatureConstraintSN
   exp <- expression
@@ -239,7 +244,14 @@ signature' = do
 signatureConstraint :: Parser [Types.Expression]
 signatureConstraint =
   P.try (pure <$> expression <* reserved "=>")
-    <|> P.try (J.parens (P.sepBy expression (skipLiner J.comma)) <* reserved "=>")
+    <|> P.try
+      ( J.parens
+          ( P.sepBy
+              expression
+              (skipLiner J.comma)
+          )
+          <* reserved "=>"
+      )
     <|> pure []
 
 --------------------------------------------------------------------------------
@@ -302,6 +314,7 @@ matchRecord =
 --------------------------------------------------------------------------------
 -- NameSet
 --------------------------------------------------------------------------------
+
 nameSetMany' :: Parser a -> Parser (NonEmpty (Types.NameSet a))
 nameSetMany' parser =
   J.curly $ do
@@ -330,8 +343,7 @@ nameMatch :: Parser a -> Parser (Types.NameSet a)
 nameMatch parser = do
   name <- prefixSymbolDotSN
   J.skipLiner J.equals
-  bound <- parser
-  pure (Types.NonPunned name bound)
+  Types.NonPunned name <$> parser
 
 --------------------------------------------------------------------------------
 -- Modules and Functions
@@ -397,6 +409,8 @@ typeP = do
   args <- P.many prefixSymbolSN
   Types.Typ usag name args <$> dataParser
 
+-- TODO: J: use 'P.optional dataParser' to support Emtpy type defs.
+
 dataParser :: Parser Types.Data
 dataParser = do
   arrow <- P.optional (skipLiner J.colon *> expression)
@@ -406,21 +420,26 @@ dataParser = do
     Just arr -> pure (Types.Arrowed arr adt)
     Nothing -> pure (Types.NonArrowed adt)
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- ADT parser
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 adt :: Parser Types.Adt
 adt =
-  P.try (Types.Sum <$> (P.optional (skipLiner J.pipe) *> J.sepBy1H sumSN (skipLiner J.pipe)))
+  P.try
+    ( Types.Sum
+        <$> ( P.optional
+                (skipLiner J.pipe)
+                *> J.sepBy1H sumSN (skipLiner J.pipe)
+            )
+    )
     <|> (Types.Product <$> standAloneProduct)
 
 sum :: Parser Types.Sum
 sum = Types.S <$> prefixSymbolSN <*> P.optional product
 
 standAloneProduct :: Parser Types.Product
-standAloneProduct =
-  Types.Record <$> record
+standAloneProduct = Types.Record <$> record
 
 product :: Parser Types.Product
 product =
@@ -453,9 +472,9 @@ nameParser =
   P.try (P.skipSome (P.char J.hash) *> fmap Types.Implicit prefixSymbol)
     <|> Types.Concrete <$> prefixSymbol
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Effect handler parser
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 handlerParser :: Parser Types.Handler
 handlerParser = do
@@ -488,7 +507,10 @@ opSig = do
   reserved "let"
   name <- prefixSymbolSN
   maybeUsage <-
-    P.optional (fmap Types.Constant constantSN <|> spaceLiner (J.parens expressionSN))
+    P.optional
+      ( fmap Types.Constant constantSN
+          <|> spaceLiner (J.parens expressionSN)
+      )
   skipLiner J.colon
   typeclasses <- signatureConstraintSN
   exp <- expression
@@ -501,17 +523,17 @@ via_ = do
   name <- spaceLiner (expressionGen' (fail ""))
   pure (Types.App name args)
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Arrow Type parser
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- namedRefine :: Parser Types.NamedType
 -- namedRefine =
 --   Types.NamedType <$> nameParserColonSN <*> expression
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- TypeNameParser and typeRefine Parser
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 universeSymbol :: Parser Types.Expression
 universeSymbol = do
@@ -521,7 +543,7 @@ universeSymbol = do
 universeExpression :: Parser Types.UniverseExpression
 universeExpression =
   P.try (Types.UniverseExpression <$> prefixSymbolSN)
-    -- TODO ∷ make this proper do + and max!
+    -- TODO: make this proper do + and max!
     <|> Types.UniverseExpression <$> J.parens prefixSymbolSN
 
 --------------------------------------------------------------------------------
@@ -535,16 +557,16 @@ block = do
   reserved "end"
   pure (Types.Bloc exp)
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Records
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 expRecord :: Parser Types.ExpRecord
 expRecord = Types.ExpressionRecord <$> nameSetMany' expression
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Let
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 mod :: Parser Types.ModuleE
 mod = do
@@ -569,9 +591,9 @@ letType = do
   reserved "in"
   Types.LetType'' typ <$> expression
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Cond
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 cond :: Parser (Types.Cond Types.Expression)
 cond = do
@@ -588,21 +610,20 @@ condLogic p = do
   J.skipLiner J.equals
   Types.CondExpression pred <$> p
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Lambda
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 lam :: Parser Types.Lambda
 lam = do
   skipLiner J.backSlash
   args <- J.many1H matchLogicSN
   reserved "->"
-  body <- expression
-  pure (Types.Lamb args body)
+  Types.Lamb args <$> expression
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Application
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 application :: Parser Types.Application
 application = do
@@ -610,9 +631,9 @@ application = do
   args <- J.many1H (spaceLiner expressionArguments)
   pure (Types.App name args)
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Literals
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 primitives :: Parser Types.Primitive
 primitives = do
@@ -652,11 +673,17 @@ float = do
 
 stringEscape :: Parser ByteString
 stringEscape =
-  P.between (P.string "\\'") (P.string "\\'") (P.takeWhile1P (Just "Not quote") (/= J.quote))
+  P.between
+    (P.string "\\'")
+    (P.string "\\'")
+    (P.takeWhile1P (Just "Not quote") (/= J.quote))
 
 doubleStringEscape :: Parser ByteString
 doubleStringEscape =
-  P.between (P.string "\\\"") (P.string "\\\"") (P.takeWhile1P (Just "Not quote") (/= J.doubleQuote))
+  P.between
+    (P.string "\\\"")
+    (P.string "\\\"")
+    (P.takeWhile1P (Just "Not quote") (/= J.doubleQuote))
 
 stringWithoutEscape :: Parser ByteString
 stringWithoutEscape =
@@ -664,7 +691,13 @@ stringWithoutEscape =
 
 doubleStringWithoutEscape :: Parser ByteString
 doubleStringWithoutEscape =
-  J.between J.doubleQuote (P.takeWhile1P (Just "Not quote") (/= J.doubleQuote)) J.doubleQuote
+  J.between
+    J.doubleQuote
+    ( P.takeWhile1P
+        (Just "Not quote")
+        (/= J.doubleQuote)
+    )
+    J.doubleQuote
 
 string' :: Parser Types.String'
 string' = do
@@ -675,16 +708,16 @@ string' = do
       <|> doubleStringWithoutEscape
   pure (Types.Sho $ Encoding.decodeUtf8 words)
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 -- Do
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 do' :: Parser Types.Do
 do' = do
   doExp <- do''
   case length doExp of
-    1 -> fail "do expression with only 1 value"
-    0 -> fail "parser faled with empty list"
+    0 -> fail "parser failed: do expression with zero values"
+    1 -> fail "parser failed: do expression with one value"
     _ -> pure (Types.Do'' $ NonEmpty.fromList doExp)
 
 doBind :: Parser [Types.DoBody]
@@ -715,7 +748,10 @@ infixSymbolGen p = do
 
 infixSymbolDot :: Parser (NonEmpty Symbol)
 infixSymbolDot = do
-  qualified <- P.option [] (NonEmpty.toList <$> prefixSymbolDotPermissive <* P.char J.dot)
+  qualified <-
+    P.option
+      []
+      (NonEmpty.toList <$> prefixSymbolDotPermissive <* P.char J.dot)
   -- -o is a bit special since it's a normal letter
   -- this is a bit of a hack
   infix' <- P.try ("-o" <$ P.string "-o") <|> P.try infixSymbol
@@ -726,7 +762,10 @@ infixSymbol = infixSymbolGen (P.try infixSymbol' <|> infixPrefix)
 
 infixSymbol' :: Parser Symbol
 infixSymbol' =
-  internText . Encoding.decodeUtf8 <$> P.takeWhile1P (Just "Valid Infix Symbol") J.validInfixSymbol
+  internText . Encoding.decodeUtf8
+    <$> P.takeWhile1P
+      (Just "Valid Infix Symbol")
+      J.validInfixSymbol
 
 infixPrefix :: Parser Symbol
 infixPrefix =
@@ -754,7 +793,7 @@ reserved :: ByteString -> Parser ()
 reserved res =
   P.string res *> symbolEndGen "symbol is not the reserved symbol"
 
--- TODO ∷ this may be bad
+-- TODO: this may be bad
 -- this allows "(*).Foo.(<*>)" to be accepted
 -- Though Should we allow this since, these are prefix if spelled this way
 -- we don't enforce capitalization, and thus it would be improper for to
