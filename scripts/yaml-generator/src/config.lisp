@@ -412,6 +412,7 @@ common ones to include"
                    *core*
                    *translate*
                    *michelson*
+                   *llvm*
                    *pipeline*
                    *Context*
                    *plonk*

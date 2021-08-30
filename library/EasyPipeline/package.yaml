@@ -40,7 +40,7 @@ dependencies:
   - Pipeline
   - Context
   - plonk
-  # - llvm
+  - llvm
   # - interaction-net
   # - arithmetic-circuit
   # - InteractionNetIR
