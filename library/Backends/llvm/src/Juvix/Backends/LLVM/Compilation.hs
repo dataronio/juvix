@@ -41,18 +41,17 @@ compileTerm env (ErasedAnn.Ann usage ty t) = case t of
   ErasedAnn.Var symbol -> case P.lookup symbol env of
     Nothing -> P.error "Variable not found." -- TODO improve error message.
     Just var -> return var
-  ErasedAnn.Prim t' -> mkPrim env t ty
+  ErasedAnn.Prim t' -> mkPrim t ty
   ErasedAnn.AppM f xs -> mkApp env f ty xs
 
 -- | Write LLVM code for a primitive.
 mkPrim ::
-  Env ->
   -- | Term that contains the primitive.
   ErasedAnn.Term PrimTy RawPrimVal ->
   -- | Type of the primitive.
   ErasedAnn.Type PrimTy ->
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
-mkPrim _ (ErasedAnn.Prim prim) ty = case prim of
+mkPrim (ErasedAnn.Prim prim) ty = case prim of
   LitInt i -> case ty of
     ErasedAnn.PrimTy (PrimTy LLVM.IntegerType {LLVM.typeBits}) ->
       return $
