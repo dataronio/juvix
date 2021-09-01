@@ -55,17 +55,14 @@ bann ::
   Typed.BindAnnotation IR.T primTy primVal
 bann = Typed.BindAnnotation
 
-omega :: Usage.T
-omega = Usage.Omega
-
-omegaAnn :: IR.Value primTy primVal -> Typed.Annotation IR.T primTy primVal
-omegaAnn = Typed.Annotation omega
+anyAnn :: IR.Value primTy primVal -> Typed.Annotation IR.T primTy primVal
+anyAnn = Typed.Annotation Usage.SAny
 
 zeroAnn :: IR.Value primTy primVal -> Typed.Annotation IR.T primTy primVal
 zeroAnn = Typed.Annotation mempty
 
 unitAnn :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
-unitAnn = omegaAnn unitTy
+unitAnn = anyAnn unitTy
 
 unitAnn0 :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
 unitAnn0 = zeroAnn unitTy
@@ -107,7 +104,7 @@ constUnit =
             (Typed.Elim (Typed.Bound 0 unitAnn) unitAnn)
             (bann unitAnn identityAnn)
         )
-        (bann unitAnn0 (omegaAnn constTy)),
+        (bann unitAnn0 (anyAnn constTy)),
       one
     )
     (Erased.Lam "1" (Erased.Var "1"))
@@ -148,7 +145,7 @@ appUnusedArg =
                 constTerm
                 constTyT
                 0
-                (omegaAnn constTy)
+                (anyAnn constTy)
             )
             unitTerm
             identityAnn
@@ -170,7 +167,7 @@ unusedFunction =
                 constTerm
                 constTy2T
                 0
-                (omegaAnn constTy2)
+                (anyAnn constTy2)
             )
             identityTerm
             identityAnn
@@ -193,13 +190,13 @@ identityTyT :: Typed.Term Unit.Ty Unit.Val
 identityTyT = Typed.Pi one unitTyT unitTyT (zeroAnn $ IR.VStar 0)
 
 identityAnn :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
-identityAnn = omegaAnn identityTy
+identityAnn = anyAnn identityTy
 
 identityTy2 :: Typed.ValueT IR.T Unit.Ty Unit.Val
 identityTy2 = IR.VPi one identityTy identityTy
 
 identityAnn2 :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
-identityAnn2 = omegaAnn identityTy2
+identityAnn2 = anyAnn identityTy2
 
 appTerm :: Typed.Term Unit.Ty Unit.Val
 appTerm =
@@ -235,7 +232,7 @@ constTerm =
     identityTerm
     ( bann
         unitAnn0
-        (omegaAnn constTy)
+        (anyAnn constTy)
     )
 
 constTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
@@ -254,7 +251,7 @@ unitTerm :: Typed.Term Unit.Ty Unit.Val
 unitTerm = Typed.Prim unitVal' unitAnn
 
 unitElim :: Typed.Elim Unit.Ty Unit.Val
-unitElim = Typed.Ann Usage.Omega unitTerm unitTyT 0 unitAnn
+unitElim = Typed.Ann Usage.SAny unitTerm unitTyT 0 unitAnn
 
 unitTermE :: Erased.TermT Unit.Ty Unit.Val
 unitTermE = Erased.Prim unitVal'

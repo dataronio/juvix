@@ -54,7 +54,7 @@ let main =
   -- Fails to typecheck:
   --  "Error: TypecheckerError
   --  ( InsufficientUsage
-  --      { usageNeeded = Omega
+  --      { usageNeeded = SAny
   --      , usageActual = SNat 0
   --      }
   let vs = verySimpleType in
@@ -89,7 +89,7 @@ let main =
   --              ) ()
   --          ) ()
   --      }
-  --  ) on Term: Let Omega
+  --  ) on Term: Let SAny
   --  ( Free
   --      ( Global
   --          ( "Datatypes" :| [ "testAExp" ] )

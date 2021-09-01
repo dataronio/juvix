@@ -1,10 +1,10 @@
 Ann
-    { usage = Omega
+    { usage = SAny
     , type' = PrimTy PField
     , term = AppM
         ( Ann
-            { usage = Omega
-            , type' = Pi Omega
+            { usage = SAny
+            , type' = Pi SAny
                 ( SymT
                     ( "Datatypes" :| [ "verySimpleType" ] )
                 ) ( PrimTy PField )
@@ -21,12 +21,12 @@ Ann
                 , arguments =
                     [ "0" :| [] ]
                 , body = Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy PField
                     , term = AppM
                         ( Ann
-                            { usage = Omega
-                            , type' = Pi Omega ( PrimTy PField ) ( PrimTy PField )
+                            { usage = SAny
+                            , type' = Pi SAny ( PrimTy PField ) ( PrimTy PField )
                             , term = LamM
                                 { capture =
                                     [ "Datatypes" :| [ "Atom" ]
@@ -38,12 +38,12 @@ Ann
                                 , arguments =
                                     [ "1" :| [] ]
                                 , body = Ann
-                                    { usage = Omega
+                                    { usage = SAny
                                     , type' = PrimTy PField
                                     , term = AppM
                                         ( Ann
-                                            { usage = Omega
-                                            , type' = Pi Omega
+                                            { usage = SAny
+                                            , type' = Pi SAny
                                                 ( SymT
                                                     ( "Datatypes" :| [ "functionTypeInConstructor" ] )
                                                 ) ( PrimTy PField )
@@ -56,18 +56,18 @@ Ann
                                                 , arguments =
                                                     [ "2" :| [] ]
                                                 , body = Ann
-                                                    { usage = Omega
+                                                    { usage = SAny
                                                     , type' = PrimTy PField
                                                     , term = AppM
                                                         ( Ann
-                                                            { usage = Omega
-                                                            , type' = Pi Omega ( PrimTy PField ) ( PrimTy PField )
+                                                            { usage = SAny
+                                                            , type' = Pi SAny ( PrimTy PField ) ( PrimTy PField )
                                                             , term = LamM
                                                                 { capture = []
                                                                 , arguments =
                                                                     [ "3" :| [] ]
                                                                 , body = Ann
-                                                                    { usage = Omega
+                                                                    { usage = SAny
                                                                     , type' = PrimTy PField
                                                                     , term = Prim
                                                                         ( Return
@@ -84,12 +84,12 @@ Ann
                                                             }
                                                         )
                                                         [ Ann
-                                                            { usage = Omega
+                                                            { usage = SAny
                                                             , type' = PrimTy PField
                                                             , term = AppM
                                                                 ( Ann
-                                                                    { usage = Omega
-                                                                    , type' = Pi Omega
+                                                                    { usage = SAny
+                                                                    , type' = Pi SAny
                                                                         ( SymT
                                                                             ( "Datatypes" :| [ "sExpField" ] )
                                                                         ) ( PrimTy PField )
@@ -98,17 +98,17 @@ Ann
                                                                     }
                                                                 )
                                                                 [ Ann
-                                                                    { usage = Omega
+                                                                    { usage = SAny
                                                                     , type' = SymT
                                                                         ( "Datatypes" :| [ "sExpField" ] )
                                                                     , term = AppM
                                                                         ( Ann
-                                                                            { usage = Omega
-                                                                            , type' = Pi Omega
+                                                                            { usage = SAny
+                                                                            , type' = Pi SAny
                                                                                 ( SymT
                                                                                     ( "Datatypes" :| [ "sExpField" ] )
                                                                                 )
-                                                                                ( Pi Omega
+                                                                                ( Pi SAny
                                                                                     ( SymT
                                                                                         ( "Datatypes" :| [ "sExpField" ] )
                                                                                     )
@@ -121,13 +121,13 @@ Ann
                                                                             }
                                                                         )
                                                                         [ Ann
-                                                                            { usage = Omega
+                                                                            { usage = SAny
                                                                             , type' = SymT
                                                                                 ( "Datatypes" :| [ "sExpField" ] )
                                                                             , term = AppM
                                                                                 ( Ann
-                                                                                    { usage = Omega
-                                                                                    , type' = Pi Omega ( PrimTy PField )
+                                                                                    { usage = SAny
+                                                                                    , type' = Pi SAny ( PrimTy PField )
                                                                                         ( SymT
                                                                                             ( "Datatypes" :| [ "sExpField" ] )
                                                                                         )
@@ -136,7 +136,7 @@ Ann
                                                                                     }
                                                                                 )
                                                                                 [ Ann
-                                                                                    { usage = Omega
+                                                                                    { usage = SAny
                                                                                     , type' = PrimTy PField
                                                                                     , term = Prim
                                                                                         ( Return
@@ -152,17 +152,17 @@ Ann
                                                                                 ]
                                                                             }
                                                                         , Ann
-                                                                            { usage = Omega
+                                                                            { usage = SAny
                                                                             , type' = SymT
                                                                                 ( "Datatypes" :| [ "sExpField" ] )
                                                                             , term = AppM
                                                                                 ( Ann
-                                                                                    { usage = Omega
-                                                                                    , type' = Pi Omega
+                                                                                    { usage = SAny
+                                                                                    , type' = Pi SAny
                                                                                         ( SymT
                                                                                             ( "Datatypes" :| [ "sExpField" ] )
                                                                                         )
-                                                                                        ( Pi Omega
+                                                                                        ( Pi SAny
                                                                                             ( SymT
                                                                                                 ( "Datatypes" :| [ "sExpField" ] )
                                                                                             )
@@ -175,17 +175,17 @@ Ann
                                                                                     }
                                                                                 )
                                                                                 [ Ann
-                                                                                    { usage = Omega
+                                                                                    { usage = SAny
                                                                                     , type' = SymT
                                                                                         ( "Datatypes" :| [ "sExpField" ] )
                                                                                     , term = AppM
                                                                                         ( Ann
-                                                                                            { usage = Omega
-                                                                                            , type' = Pi Omega
+                                                                                            { usage = SAny
+                                                                                            , type' = Pi SAny
                                                                                                 ( SymT
                                                                                                     ( "Datatypes" :| [ "sExpField" ] )
                                                                                                 )
-                                                                                                ( Pi Omega
+                                                                                                ( Pi SAny
                                                                                                     ( SymT
                                                                                                         ( "Datatypes" :| [ "sExpField" ] )
                                                                                                     )
@@ -198,13 +198,13 @@ Ann
                                                                                             }
                                                                                         )
                                                                                         [ Ann
-                                                                                            { usage = Omega
+                                                                                            { usage = SAny
                                                                                             , type' = SymT
                                                                                                 ( "Datatypes" :| [ "sExpField" ] )
                                                                                             , term = AppM
                                                                                                 ( Ann
-                                                                                                    { usage = Omega
-                                                                                                    , type' = Pi Omega ( PrimTy PField )
+                                                                                                    { usage = SAny
+                                                                                                    , type' = Pi SAny ( PrimTy PField )
                                                                                                         ( SymT
                                                                                                             ( "Datatypes" :| [ "sExpField" ] )
                                                                                                         )
@@ -213,7 +213,7 @@ Ann
                                                                                                     }
                                                                                                 )
                                                                                                 [ Ann
-                                                                                                    { usage = Omega
+                                                                                                    { usage = SAny
                                                                                                     , type' = PrimTy PField
                                                                                                     , term = Prim
                                                                                                         ( Return
@@ -229,13 +229,13 @@ Ann
                                                                                                 ]
                                                                                             }
                                                                                         , Ann
-                                                                                            { usage = Omega
+                                                                                            { usage = SAny
                                                                                             , type' = SymT
                                                                                                 ( "Datatypes" :| [ "sExpField" ] )
                                                                                             , term = AppM
                                                                                                 ( Ann
-                                                                                                    { usage = Omega
-                                                                                                    , type' = Pi Omega ( PrimTy PField )
+                                                                                                    { usage = SAny
+                                                                                                    , type' = Pi SAny ( PrimTy PField )
                                                                                                         ( SymT
                                                                                                             ( "Datatypes" :| [ "sExpField" ] )
                                                                                                         )
@@ -244,7 +244,7 @@ Ann
                                                                                                     }
                                                                                                 )
                                                                                                 [ Ann
-                                                                                                    { usage = Omega
+                                                                                                    { usage = SAny
                                                                                                     , type' = PrimTy PField
                                                                                                     , term = Prim
                                                                                                         ( Return
@@ -262,13 +262,13 @@ Ann
                                                                                         ]
                                                                                     }
                                                                                 , Ann
-                                                                                    { usage = Omega
+                                                                                    { usage = SAny
                                                                                     , type' = SymT
                                                                                         ( "Datatypes" :| [ "sExpField" ] )
                                                                                     , term = AppM
                                                                                         ( Ann
-                                                                                            { usage = Omega
-                                                                                            , type' = Pi Omega ( PrimTy PField )
+                                                                                            { usage = SAny
+                                                                                            , type' = Pi SAny ( PrimTy PField )
                                                                                                 ( SymT
                                                                                                     ( "Datatypes" :| [ "sExpField" ] )
                                                                                                 )
@@ -277,7 +277,7 @@ Ann
                                                                                             }
                                                                                         )
                                                                                         [ Ann
-                                                                                            { usage = Omega
+                                                                                            { usage = SAny
                                                                                             , type' = PrimTy PField
                                                                                             , term = Prim
                                                                                                 ( Return
@@ -304,14 +304,14 @@ Ann
                                             }
                                         )
                                         [ Ann
-                                            { usage = Omega
+                                            { usage = SAny
                                             , type' = SymT
                                                 ( "Datatypes" :| [ "functionTypeInConstructor" ] )
                                             , term = AppM
                                                 ( Ann
-                                                    { usage = Omega
-                                                    , type' = Pi Omega
-                                                        ( Pi Omega ( PrimTy PField ) ( PrimTy PField ) )
+                                                    { usage = SAny
+                                                    , type' = Pi SAny
+                                                        ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
                                                         ( SymT
                                                             ( "Datatypes" :| [ "functionTypeInConstructor" ] )
                                                         )
@@ -320,8 +320,8 @@ Ann
                                                     }
                                                 )
                                                 [ Ann
-                                                    { usage = Omega
-                                                    , type' = Pi Omega ( PrimTy PField ) ( PrimTy PField )
+                                                    { usage = SAny
+                                                    , type' = Pi SAny ( PrimTy PField ) ( PrimTy PField )
                                                     , term = Var
                                                         ( "Datatypes" :| [ "fticTestFunc" ] )
                                                     }
@@ -333,12 +333,12 @@ Ann
                             }
                         )
                         [ Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy PField
                             , term = AppM
                                 ( Ann
-                                    { usage = Omega
-                                    , type' = Pi Omega
+                                    { usage = SAny
+                                    , type' = Pi SAny
                                         ( SymT
                                             ( "Datatypes" :| [ "bar" ] )
                                         ) ( PrimTy PField )
@@ -347,15 +347,15 @@ Ann
                                     }
                                 )
                                 [ Ann
-                                    { usage = Omega
+                                    { usage = SAny
                                     , type' = SymT
                                         ( "Datatypes" :| [ "bar" ] )
                                     , term = AppM
                                         ( Ann
-                                            { usage = Omega
-                                            , type' = Pi Omega ( PrimTy PField )
-                                                ( Pi Omega ( PrimTy PField )
-                                                    ( Pi Omega ( PrimTy PField )
+                                            { usage = SAny
+                                            , type' = Pi SAny ( PrimTy PField )
+                                                ( Pi SAny ( PrimTy PField )
+                                                    ( Pi SAny ( PrimTy PField )
                                                         ( SymT
                                                             ( "Datatypes" :| [ "bar" ] )
                                                         )
@@ -366,7 +366,7 @@ Ann
                                             }
                                         )
                                         [ Ann
-                                            { usage = Omega
+                                            { usage = SAny
                                             , type' = PrimTy PField
                                             , term = Prim
                                                 ( Return
@@ -380,7 +380,7 @@ Ann
                                                 )
                                             }
                                         , Ann
-                                            { usage = Omega
+                                            { usage = SAny
                                             , type' = PrimTy PField
                                             , term = Prim
                                                 ( Return
@@ -394,7 +394,7 @@ Ann
                                                 )
                                             }
                                         , Ann
-                                            { usage = Omega
+                                            { usage = SAny
                                             , type' = PrimTy PField
                                             , term = Prim
                                                 ( Return
@@ -417,13 +417,13 @@ Ann
             }
         )
         [ Ann
-            { usage = Omega
+            { usage = SAny
             , type' = SymT
                 ( "Datatypes" :| [ "verySimpleType" ] )
             , term = AppM
                 ( Ann
-                    { usage = Omega
-                    , type' = Pi Omega ( PrimTy PField )
+                    { usage = SAny
+                    , type' = Pi SAny ( PrimTy PField )
                         ( SymT
                             ( "Datatypes" :| [ "verySimpleType" ] )
                         )
@@ -432,7 +432,7 @@ Ann
                     }
                 )
                 [ Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy PField
                     , term = Prim
                         ( Return

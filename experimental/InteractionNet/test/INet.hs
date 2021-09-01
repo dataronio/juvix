@@ -110,7 +110,7 @@ testGen :: IO (Either ParseError (InfoNet (FlipNet (Lang PrimVal))))
 testGen = traverse (netToGif "tmp/" "boo" 1000 . astToNetDefault) (parseAST "((lambda x. (x x)) 2)")
 
 -- run these on any of the tests above
--- gives back a term for all except for Omega, but that is reasonable
+-- gives back a term for all except for SAny, but that is reasonable
 testAst :: DifferentRep net => Either a (InfoNet (net (Lang PrimVal))) -> Maybe (AST PrimVal)
 testAst (Right (InfoNet {net = n})) = netToAst n
 testAst (Left _) = Nothing

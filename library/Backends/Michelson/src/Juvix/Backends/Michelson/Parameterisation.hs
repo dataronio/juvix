@@ -134,7 +134,7 @@ toTakes :: PrimVal' ext -> (Take, [Arg' ext], Natural)
 toTakes App.Cont {fun, args, numLeft} = (fun, args, numLeft)
 toTakes App.Return {retType, retTerm} = (fun, [], arityRaw retTerm)
   where
-    fun = App.Take {usage = Usage.Omega, type' = retType, term = retTerm}
+    fun = App.Take {usage = Usage.SAny, type' = retType, term = retTerm}
 
 takeToReturn :: App.Take ty term -> App.Return' ext ty term
 takeToReturn (App.Take {type', term}) = App.Return {retType = type', retTerm = term}
@@ -234,7 +234,7 @@ applyProper ret args =
 returnToTerm :: Return' ext -> RawTerm
 returnToTerm (App.Return {retType, retTerm}) =
   Ann
-    { usage = Usage.Omega, -- TODO: Is Omega correct here?
+    { usage = Usage.SAny, -- TODO: Is SAny correct here?
       type' = ErasedAnn.fromPrimType retType,
       term = ErasedAnn.Prim retTerm
     }

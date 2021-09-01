@@ -133,7 +133,7 @@ transformSpecialRhs _ (Sexp.List [name, prim])
     case atomName of
       "Builtin" :| ["Arrow"] -> pure $ Just $ ArrowS Nothing
       "Builtin" :| ["Pair"] -> pure $ Just $ PairS Nothing
-      "Builtin" :| ["Omega"] -> pure $ Just OmegaS
+      "Builtin" :| ["SAny"] -> pure $ Just SAnyS
       "Builtin" :| ["Colon"] -> pure $ Just ColonS
       "Builtin" :| ["Type"] -> pure $ Just TypeS
       "Builtin" :| (s : ss) -> throwFF $ UnknownBuiltin $ s :| ss

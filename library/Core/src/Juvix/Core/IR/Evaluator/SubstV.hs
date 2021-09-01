@@ -395,7 +395,7 @@ instance
   substValueWith b i e tys =
     foldr1 pi <$> traverse (substValueWith b i e) tys
     where
-      pi s t = Core.VPi Usage.Omega s (weak t) mempty
+      pi s t = Core.VPi Usage.SAny s (weak t) mempty
 
 -- TODO generalise @IR.T@
 instance

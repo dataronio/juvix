@@ -116,7 +116,7 @@ churchThree =
 churchAssignment :: TypeAssignment
 churchAssignment =
   Map.fromList
-    [ ("s", Pi Usage.Omega (SymT "a") (SymT "a")),
+    [ ("s", Pi Usage.SAny (SymT "a") (SymT "a")),
       ("z", SymT "a")
     ]
 
@@ -157,14 +157,14 @@ arg0 = SymT "a"
 arg1 :: Type
 arg1 =
   Pi
-    Usage.Omega
+    Usage.SAny
     (SymT "a")
     (SymT "a")
 
 counterexampleAssignment :: Map.Map Symbol Type
 counterexampleAssignment =
   Map.fromList
-    [ ("n", Pi Usage.Omega arg1 arg0),
+    [ ("n", Pi Usage.SAny arg1 arg0),
       ("y", arg0),
       ("z", arg0),
       ("x", arg1)
@@ -232,16 +232,16 @@ zTy :: Type
 zTy = SymT "a"
 
 sTy :: Type
-sTy = Pi Usage.Omega zTy zTy
+sTy = Pi Usage.SAny zTy zTy
 
 nat :: Type
-nat = Pi Usage.Omega sTy sTy
+nat = Pi Usage.SAny sTy sTy
 
 churchExpAssignment :: TypeAssignment
 churchExpAssignment =
   Map.fromList
     [ ("n", nat),
-      ("m", Pi Usage.Omega nat nat),
+      ("m", Pi Usage.SAny nat nat),
       ("s", sTy),
       ("s'", sTy),
       ("z", zTy),

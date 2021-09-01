@@ -356,7 +356,7 @@ underExactConst = underExactGen unitExpr1
 -- ,PrimEx (PUSH @ (Type TUnit :) ValueUnit)
 -- ,PrimEx (DIG 1)]
 
--- note the dup, this is because in the stack, we pushed it as omega
+-- note the dup, this is because in the stack, we pushed it as SAny
 -- if we did better constant propagation this would be free
 underExactNonConst :: RawTerm
 underExactNonConst = underExactGen (push1 M.ValueUnit Untyped.unit)

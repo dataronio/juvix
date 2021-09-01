@@ -16,13 +16,13 @@ sig =
       ErasedAnn.PrimTy P.PField
 
 add, sub, mul, exp :: P.AnnTerm Fr
-add = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PAdd
-sub = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PSub
-mul = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PMul
-exp = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PExp
+add = ErasedAnn.Ann Usage.SAny sig $ ErasedAnn.Prim P.PAdd
+sub = ErasedAnn.Ann Usage.SAny sig $ ErasedAnn.Prim P.PSub
+mul = ErasedAnn.Ann Usage.SAny sig $ ErasedAnn.Prim P.PMul
+exp = ErasedAnn.Ann Usage.SAny sig $ ErasedAnn.Prim P.PExp
 
 eq :: P.AnnTerm Fr
-eq = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PAssertEq
+eq = ErasedAnn.Ann Usage.SAny sig $ ErasedAnn.Prim P.PAssertEq
 
 val :: Fr -> P.AnnTerm Fr
 val = ErasedAnn.Ann (Usage.SNat 1) (ErasedAnn.PrimTy P.PField) . ErasedAnn.Prim . P.PConst

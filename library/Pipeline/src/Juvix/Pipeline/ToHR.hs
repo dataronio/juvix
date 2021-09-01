@@ -69,7 +69,7 @@ contextToHR ctx param =
       declaration <- Sexp.findKey Sexp.car dataConstructor t
       Just $
         Context.D
-          { defUsage = Just Usage.Omega,
+          { defUsage = Just Usage.SAny,
             defMTy = generateSumConsSexp typeCons declaration,
             defTerm = Sexp.list [Sexp.atom ":primitive", Sexp.atom "Builtin.Constructor"],
             defPrecedence = Context.default'

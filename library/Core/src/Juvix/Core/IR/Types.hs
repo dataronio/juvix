@@ -23,12 +23,12 @@ Core.extendNeutral "Neutral" [] [t|T|] $ \_ _ -> Core.defaultExtNeutral
 Core.extendPattern "Pattern" [] [t|T|] $ \_ _ -> Core.defaultExtPattern
 
 usageToGlobal :: Usage.T -> Maybe Core.GlobalUsage
-usageToGlobal Usage.Omega = Just Core.GOmega
+usageToGlobal Usage.SAny = Just Core.GSAny
 usageToGlobal (Usage.SNat 0) = Just Core.GZero
 usageToGlobal _ = Nothing
 
 globalToUsage :: Core.GlobalUsage -> Usage.T
-globalToUsage Core.GOmega = Usage.Omega
+globalToUsage Core.GSAny = Usage.SAny
 globalToUsage Core.GZero = Usage.SNat 0
 
 globalName :: Core.Global extT extV primTy primVal -> NameSymbol.T

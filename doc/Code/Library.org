@@ -1488,6 +1488,9 @@ _TODO_
 - _Relies on_
   + [[Library]]
 ***** Usage <<Library/Usage>>
+Each binder and local context element in Juvix is annotated with
+a /usage/, which tracks how many times it is needed in a
+runtime-relevant way.
 - _Relies on_
   + [[Library]]
   + [[PrettyPrint]]
