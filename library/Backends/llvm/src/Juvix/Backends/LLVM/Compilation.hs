@@ -62,9 +62,13 @@ mkPrim (ErasedAnn.Prim prim) ty = case prim of
 -- The function returns the name of the create function.
 mkLam ::
   Env ->
+  -- | The type of the lambda abstraction.
   ErasedAnn.Type PrimTy ->
+  -- | The body of the lambda abstraction.
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  -- | List of parameter names.
   [NameSymbol.T] ->
+  -- | List of captures variables (free variables for the body).
   [NameSymbol.T] ->
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Name
 mkLam env ty body args capt = do
