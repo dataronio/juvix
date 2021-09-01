@@ -98,12 +98,17 @@ mkApp ::
   -- | The arguments to the application.
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
-mkApp env (ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
+mkApp env f@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
   case term of
     ErasedAnn.LamM {ErasedAnn.body, ErasedAnn.arguments, ErasedAnn.capture} -> do
       funname <- mkLam env type' body arguments capture
       LLVM.call (LLVM.ConstantOperand $ LLVM.GlobalReference (typeToLLVM type') funname) []
     ErasedAnn.Prim prim -> applyPrim env prim xs
+    ErasedAnn.Var v -> do
+      f' <- compileTerm env f
+      xs' <- mapM (compileTerm env) xs
+      let xs'args = zip xs' (repeat []) -- Do not pass attributes to the args.
+      LLVM.call f' xs'args
 
 applyPrim ::
   Env ->
