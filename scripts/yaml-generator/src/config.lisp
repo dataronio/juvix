@@ -355,8 +355,8 @@ common ones to include"
    :name "Backends/llvm"
    :resolver 17.3
    :path-to-other "../../"
-   :packages (list *standard-library* *core* *Context* *pipeline* *translate* *frontend*)
-   :extra-deps (list (general-dependencies *extensible*)
+   :packages (list *standard-library* *core* *Context* *pipeline* *translate* *frontend* *sexp*)
+   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *llvm-hs-deps*
 
                      ;; for pipeline
@@ -366,8 +366,7 @@ common ones to include"
                      *morley-arithmetic-circuit-deps*
 
                      ;; for standard-library
-                     *standard-library-extra-deps*
-                     )
+                     *standard-library-extra-deps*)
    :extra "allow-newer: true"))
 
 (defparameter *Michelson*
@@ -434,8 +433,7 @@ common ones to include"
                    *sexp*)
    ;; hack name, for sub dirs
    :name "HTTP"
-   :extra-deps 
-   (cons *servant-deps* (big-dep-list))
+   :extra-deps (cons *servant-deps* (big-dep-list))
    :extra "allow-newer: true"))
 
 (defparameter *juvix*
