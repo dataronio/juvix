@@ -1,0 +1,193 @@
+fromList
+    [
+        ( "Nested" :| [ "main" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Nested" :| [ "main" ]
+                , rawFunUsage = GOmega
+                , rawFunType = Pi Omega
+                    ( Elim
+                        ( ElimX
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
+                        ) ()
+                    )
+                    ( Pi Omega
+                        ( Elim
+                            ( ElimX
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
+                            ) ()
+                        )
+                        ( Pi Omega
+                            ( Elim
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( Elim
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    )
+                    ( "" :| [] )
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats =
+                        [ PatternX
+                            ( "x" :| [] )
+                        , PatternX
+                            ( "y" :| [] )
+                        , PatternX
+                            ( "z" :| [] )
+                        ]
+                    , rawClauseBody = Elim
+                        ( App
+                            ( App
+                                ( ElimX
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "Field"
+                                        , "+"
+                                        ]
+                                    )
+                                )
+                                ( Elim
+                                    ( App
+                                        ( App
+                                            ( ElimX
+                                                ( "Prelude" :|
+                                                    [ "Circuit"
+                                                    , "Field"
+                                                    , "^"
+                                                    ]
+                                                )
+                                            )
+                                            ( Elim
+                                                ( ElimX
+                                                    ( "x" :| [] )
+                                                ) ()
+                                            ) ()
+                                        )
+                                        ( Prim
+                                            ( PConst
+                                                ( P
+                                                    ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                )
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            )
+                            ( Elim
+                                ( App
+                                    ( App
+                                        ( ElimX
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "Field"
+                                                , "+"
+                                                ]
+                                            )
+                                        )
+                                        ( Elim
+                                            ( App
+                                                ( App
+                                                    ( ElimX
+                                                        ( "Prelude" :|
+                                                            [ "Circuit"
+                                                            , "Field"
+                                                            , "^"
+                                                            ]
+                                                        )
+                                                    )
+                                                    ( Elim
+                                                        ( ElimX
+                                                            ( "y" :| [] )
+                                                        ) ()
+                                                    ) ()
+                                                )
+                                                ( Prim
+                                                    ( PConst
+                                                        ( P
+                                                            ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                        )
+                                                    ) ()
+                                                ) ()
+                                            ) ()
+                                        ) ()
+                                    )
+                                    ( Elim
+                                        ( App
+                                            ( App
+                                                ( ElimX
+                                                    ( "Prelude" :|
+                                                        [ "Circuit"
+                                                        , "Field"
+                                                        , "+"
+                                                        ]
+                                                    )
+                                                )
+                                                ( Elim
+                                                    ( App
+                                                        ( App
+                                                            ( ElimX
+                                                                ( "Prelude" :|
+                                                                    [ "Circuit"
+                                                                    , "Field"
+                                                                    , "^"
+                                                                    ]
+                                                                )
+                                                            )
+                                                            ( Elim
+                                                                ( ElimX
+                                                                    ( "z" :| [] )
+                                                                ) ()
+                                                            ) ()
+                                                        )
+                                                        ( Prim
+                                                            ( PConst
+                                                                ( P
+                                                                    ( 2 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                                )
+                                                            ) ()
+                                                        ) ()
+                                                    ) ()
+                                                ) ()
+                                            )
+                                            ( Prim
+                                                ( PConst
+                                                    ( P
+                                                        ( 5 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
+                                                    )
+                                                ) ()
+                                            ) ()
+                                        ) ()
+                                    ) ()
+                                ) ()
+                            ) ()
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ]

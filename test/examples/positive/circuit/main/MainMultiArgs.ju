@@ -2,10 +2,7 @@ mod MainMultArgs where
 
 open Prelude
 open Circuit
-
-sig (+) : field -> field -> field
-let (+) = %Circuit.add
-declare infixl (+) 5
+open Circuit.Field 
 
 sig main : field -> field -> field
 let main x y = x + y

@@ -15,7 +15,11 @@
                             ( Elim
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 ) ()
                             )
@@ -41,7 +45,11 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     )
@@ -65,7 +73,11 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     )
@@ -89,7 +101,11 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     )
@@ -119,7 +135,11 @@
                             ( Elim
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 ) ()
                             )
@@ -139,14 +159,22 @@
                                 ( Elim
                                     ( Free
                                         ( Global
-                                            ( "Datatypes" :| [ "field" ] )
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "field"
+                                                ]
+                                            )
                                         ) ()
                                     ) ()
                                 )
                                 ( Elim
                                     ( Free
                                         ( Global
-                                            ( "Datatypes" :| [ "field" ] )
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "field"
+                                                ]
+                                            )
                                         ) ()
                                     ) ()
                                 ) ()
@@ -281,45 +309,6 @@
             )
         )
     ,
-        ( "Datatypes" :| [ "+" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "+" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( Free
-                            ( Global
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( Free
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        )
-                        ( Elim
-                            ( Free
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        ) ()
-                    ) ()
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PAdd ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "patternMatch" ]
         , RawGFunction
             ( RawFunction
@@ -336,7 +325,11 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     ) ()
@@ -354,7 +347,12 @@
                             ( App
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "+" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "Field"
+                                            , "+"
+                                            ]
+                                        )
                                     ) ()
                                 )
                                 ( Elim
@@ -362,7 +360,12 @@
                                         ( App
                                             ( Free
                                                 ( Global
-                                                    ( "Datatypes" :| [ "^" ] )
+                                                    ( "Prelude" :|
+                                                        [ "Circuit"
+                                                        , "Field"
+                                                        , "^"
+                                                        ]
+                                                    )
                                                 ) ()
                                             )
                                             ( Elim
@@ -388,7 +391,12 @@
                                     ( App
                                         ( Free
                                             ( Global
-                                                ( "Datatypes" :| [ "^" ] )
+                                                ( "Prelude" :|
+                                                    [ "Circuit"
+                                                    , "Field"
+                                                    , "^"
+                                                    ]
+                                                )
                                             ) ()
                                         )
                                         ( Elim
@@ -424,7 +432,12 @@
                                 ( App
                                     ( Free
                                         ( Global
-                                            ( "Datatypes" :| [ "+" ] )
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "Field"
+                                                , "+"
+                                                ]
+                                            )
                                         ) ()
                                     )
                                     ( Elim
@@ -432,7 +445,12 @@
                                             ( App
                                                 ( Free
                                                     ( Global
-                                                        ( "Datatypes" :| [ "^" ] )
+                                                        ( "Prelude" :|
+                                                            [ "Circuit"
+                                                            , "Field"
+                                                            , "^"
+                                                            ]
+                                                        )
                                                     ) ()
                                                 )
                                                 ( Elim
@@ -458,7 +476,12 @@
                                         ( App
                                             ( Free
                                                 ( Global
-                                                    ( "Datatypes" :| [ "+" ] )
+                                                    ( "Prelude" :|
+                                                        [ "Circuit"
+                                                        , "Field"
+                                                        , "+"
+                                                        ]
+                                                    )
                                                 ) ()
                                             )
                                             ( Elim
@@ -466,7 +489,12 @@
                                                     ( App
                                                         ( Free
                                                             ( Global
-                                                                ( "Datatypes" :| [ "^" ] )
+                                                                ( "Prelude" :|
+                                                                    [ "Circuit"
+                                                                    , "Field"
+                                                                    , "^"
+                                                                    ]
+                                                                )
                                                             ) ()
                                                         )
                                                         ( Elim
@@ -490,7 +518,12 @@
                                                 ( App
                                                     ( Free
                                                         ( Global
-                                                            ( "Datatypes" :| [ "^" ] )
+                                                            ( "Prelude" :|
+                                                                [ "Circuit"
+                                                                , "Field"
+                                                                , "^"
+                                                                ]
+                                                            )
                                                         ) ()
                                                     )
                                                     ( Elim
@@ -526,7 +559,11 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     )
@@ -534,7 +571,11 @@
                         ( Elim
                             ( Free
                                 ( Global
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             ) ()
                         )
@@ -586,49 +627,6 @@
             )
         )
     ,
-        ( "Datatypes" :| [ "==" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "==" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( Free
-                            ( Global
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( Free
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        )
-                        ( Elim
-                            ( Free
-                                ( Global
-                                    ( "Prelude" :|
-                                        [ "Circuit"
-                                        , "bool"
-                                        ]
-                                    )
-                                ) ()
-                            ) ()
-                        ) ()
-                    ) ()
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PEq ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "bar" ]
         , RawGDatatype
             ( RawDatatype
@@ -643,7 +641,11 @@
                             ( Elim
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 ) ()
                             )
@@ -651,7 +653,11 @@
                                 ( Elim
                                     ( Free
                                         ( Global
-                                            ( "Datatypes" :| [ "field" ] )
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "field"
+                                                ]
+                                            )
                                         ) ()
                                     ) ()
                                 )
@@ -671,7 +677,11 @@
                             ( Elim
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 ) ()
                             )
@@ -679,7 +689,11 @@
                                 ( Elim
                                     ( Free
                                         ( Global
-                                            ( "Datatypes" :| [ "field" ] )
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "field"
+                                                ]
+                                            )
                                         ) ()
                                     ) ()
                                 )
@@ -687,7 +701,11 @@
                                     ( Elim
                                         ( Free
                                             ( Global
-                                                ( "Datatypes" :| [ "field" ] )
+                                                ( "Prelude" :|
+                                                    [ "Circuit"
+                                                    , "field"
+                                                    ]
+                                                )
                                             ) ()
                                         ) ()
                                     )
@@ -723,7 +741,11 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     ) ()
@@ -756,7 +778,12 @@
                                 ( App
                                     ( Free
                                         ( Global
-                                            ( "Datatypes" :| [ "+" ] )
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "Field"
+                                                , "+"
+                                                ]
+                                            )
                                         ) ()
                                     )
                                     ( Elim
@@ -798,45 +825,6 @@
             )
         )
     ,
-        ( "Datatypes" :| [ "^" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "^" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( Free
-                            ( Global
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( Free
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        )
-                        ( Elim
-                            ( Free
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        ) ()
-                    ) ()
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PExp ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "FTIC_Right" ]
         , RawGDataCon
             ( RawDataCon
@@ -846,14 +834,22 @@
                         ( Elim
                             ( Free
                                 ( Global
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             ) ()
                         )
                         ( Elim
                             ( Free
                                 ( Global
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             ) ()
                         ) ()
@@ -884,7 +880,11 @@
                             ( Elim
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 ) ()
                             )
@@ -930,66 +930,6 @@
             )
         )
     ,
-        ( "Datatypes" :| [ "field" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "field" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Elim
-                    ( Free
-                        ( Global
-                            ( "Prelude" :| [ "ty" ] )
-                        ) ()
-                    ) ()
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = PrimTy PField ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "*" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "*" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( Free
-                            ( Global
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( Free
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        )
-                        ( Elim
-                            ( Free
-                                ( Global
-                                    ( "Datatypes" :| [ "field" ] )
-                                ) ()
-                            ) ()
-                        ) ()
-                    ) ()
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PMul ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "main" ]
         , RawGFunction
             ( RawFunction
@@ -998,7 +938,11 @@
                 , rawFunType = Elim
                     ( Free
                         ( Global
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     ) ()
                 , rawFunClauses = RawFunClause
@@ -1132,7 +1076,11 @@
                 , rawFunType = Elim
                     ( Free
                         ( Global
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     ) ()
                 , rawFunClauses = RawFunClause
@@ -1159,14 +1107,22 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     )
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     ) ()
@@ -1194,7 +1150,11 @@
                     ( Elim
                         ( Free
                             ( Global
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         ) ()
                     )
@@ -1202,7 +1162,11 @@
                         ( Elim
                             ( Free
                                 ( Global
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             ) ()
                         )
@@ -1210,7 +1174,11 @@
                             ( Elim
                                 ( Free
                                     ( Global
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 ) ()
                             )

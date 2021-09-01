@@ -6,24 +6,12 @@ Rec
                 , TypeDeclar
                     { definitionRepr =
                         ( "sExpField" ()
-                            ( "Atom" "field" )
+                            ( "Atom" "TopLevel.Prelude.Circuit.field" )
                             ( "SPair" "sExpField" "sExpField" ) ) } )
             ,
                 ( "Atom"
                 , SumCon
                     ( Sum { sumTDef = Nothing, sumTName = "sExpField" } ) )
-            ,
-                ( "*"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "field"
-                                ( ":infix" "TopLevel.Prelude.->" "field" "field" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "Circuit.mul" ) ) )
-                        , defPrecedence = Pred Left 7 } ) )
             ,
                 ( "s1"
                 , Def
@@ -47,24 +35,14 @@ Rec
                                                     ( "Atom" 4 ) ) ) ) ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
-                ( "field"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just "TopLevel.Prelude.ty"
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "Circuit.field" ) ) )
-                        , defPrecedence = Pred Left 9 } ) )
-            ,
                 ( "functionTypeInConstructor"
                 , TypeDeclar
                     { definitionRepr =
                         (
                             ( "functionTypeInConstructor" ":type" "TopLevel.Prelude.ty" ) ()
-                            ( "FTIC_Left" "field" )
+                            ( "FTIC_Left" "TopLevel.Prelude.Circuit.field" )
                             ( "FTIC_Right"
-                                ( ":infix" "TopLevel.Prelude.->" "field" "field" ) ) ) } )
+                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.field" ) ) ) } )
             ,
                 ( "P", SumCon ( Sum { sumTDef = Nothing, sumTName = "bar" } ) )
             ,
@@ -73,7 +51,7 @@ Rec
                     ( D
                         { defUsage = Nothing
                         , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "field" "field" )
+                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.field" )
                         , defTerm =
                             ( ":lambda-case" ( ( "x" ) "x" ) )
                         , defPrecedence = Pred Left 9 } ) )
@@ -88,23 +66,11 @@ Rec
                                 ( () ( "FTIC_Right" "fticTestFunc" ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
-                ( "+"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "field"
-                                ( ":infix" "TopLevel.Prelude.->" "field" "field" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "Circuit.add" ) ) )
-                        , defPrecedence = Pred Left 5 } ) )
-            ,
                 ( "main"
                 , Def
                     ( D
                         { defUsage = Nothing
-                        , defMTy = Just "field"
+                        , defMTy = Just "TopLevel.Prelude.Circuit.field"
                         , defTerm =
                             ( ":lambda-case"
                                 ( ()
@@ -127,33 +93,22 @@ Rec
                     ( D
                         { defUsage = Nothing
                         , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "sExpField" "field" )
+                            ( ":infix" "TopLevel.Prelude.->" "sExpField" "TopLevel.Prelude.Circuit.field" )
                         , defTerm =
                             ( ":lambda-case"
                                 ( ( ( "Atom" "x" ) ) 1 )
                                 (
                                     ( ( "SPair" "x" "y" ) )
-                                    ( ":infix" "+"
+                                    ( ":infix" "TopLevel.Prelude.Circuit.Field.+"
                                         ( "ssize" "x" )
                                         ( "ssize" "y" ) ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
-                ( "^"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "field"
-                                ( ":infix" "TopLevel.Prelude.->" "field" "field" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "Circuit.exp" ) ) )
-                        , defPrecedence = Pred Left 8 } ) )
-            ,
                 ( "verySimpleType"
                 , TypeDeclar
                     { definitionRepr =
-                        ( "verySimpleType" () ( "One" "field" ) ) } )
+                        ( "verySimpleType" ()
+                            ( "One" "TopLevel.Prelude.Circuit.field" ) ) } )
             ,
                 ( "SPair"
                 , SumCon
@@ -181,22 +136,10 @@ Rec
                 , Def
                     ( D
                         { defUsage = Nothing
-                        , defMTy = Just "field"
+                        , defMTy = Just "TopLevel.Prelude.Circuit.field"
                         , defTerm =
                             ( ":lambda-case" ( () 3 ) )
                         , defPrecedence = Pred Left 9 } ) )
-            ,
-                ( "=="
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "field"
-                                ( ":infix" "TopLevel.Prelude.->" "field" "TopLevel.Prelude.Circuit.bool" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "Circuit.eq" ) ) )
-                        , defPrecedence = Pred Left 2 } ) )
             ,
                 ( "verySimpleTerm"
                 , Def
@@ -212,21 +155,21 @@ Rec
                     ( D
                         { defUsage = Nothing
                         , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "bar" "field" )
+                            ( ":infix" "TopLevel.Prelude.->" "bar" "TopLevel.Prelude.Circuit.field" )
                         , defTerm =
                             ( ":lambda-case"
                                 (
                                     ( ( "P" "x" "y" ) )
-                                    ( ":infix" "^" "x"
-                                        ( ":infix" "+" 2
-                                            ( ":infix" "^" "y" 2 ) ) ) )
+                                    ( ":infix" "TopLevel.Prelude.Circuit.Field.^" "x"
+                                        ( ":infix" "TopLevel.Prelude.Circuit.Field.+" 2
+                                            ( ":infix" "TopLevel.Prelude.Circuit.Field.^" "y" 2 ) ) ) )
                                 (
                                     ( ( "Q" "x" "y" "z" ) )
-                                    ( ":infix" "^" "x"
-                                        ( ":infix" "+" 2
-                                            ( ":infix" "^" "y"
-                                                ( ":infix" "+" 2
-                                                    ( ":infix" "^" "z" 2 ) ) ) ) ) ) )
+                                    ( ":infix" "TopLevel.Prelude.Circuit.Field.^" "x"
+                                        ( ":infix" "TopLevel.Prelude.Circuit.Field.+" 2
+                                            ( ":infix" "TopLevel.Prelude.Circuit.Field.^" "y"
+                                                ( ":infix" "TopLevel.Prelude.Circuit.Field.+" 2
+                                                    ( ":infix" "TopLevel.Prelude.Circuit.Field.^" "z" 2 ) ) ) ) ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "bar"
@@ -234,8 +177,8 @@ Rec
                     { definitionRepr =
                         (
                             ( "bar" ":type" "TopLevel.Prelude.ty" ) ()
-                            ( "P" "field" "field" )
-                            ( "Q" "field" "field" "field" ) ) } ) ]
+                            ( "P" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.field" )
+                            ( "Q" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.field" ) ) } ) ]
         , private = fromList [] }
     , recordMTy = Nothing
     , recordOpenList = []

@@ -1,0 +1,20 @@
+[
+    ( "open" "Prelude" )
+,
+    ( "open" "Circuit" )
+,
+    ( "open" "Circuit.Field" )
+,
+    ( ":defsig" "main"
+        ( ":infix" "->" "field"
+            ( ":infix" "->" "field" ( ":infix" "->" "field" "field" ) ) ) )
+,
+    ( ":defun-match" "main"
+        (
+            ( "x" "y" "z" )
+            ( ":infix" "^" "x"
+                ( ":infix" "+" 2
+                    ( ":infix" "^" "y"
+                        ( ":infix" "+" 2
+                            ( ":infix" "^" "z"
+                                ( ":infix" "+" 2 5 ) ) ) ) ) ) ) ) ]

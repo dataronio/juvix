@@ -27,10 +27,11 @@ module Juvix.Core.Parameterisation
   )
 where
 
+import qualified Data.Aeson as A
 import qualified Juvix.Core.Application as App
 import Juvix.Core.Base.Types (BoundVar, GlobalName)
 import qualified Juvix.Core.HR.Pretty as HR
-import Juvix.Core.IR.Types (T)
+import qualified Juvix.Core.IR.Types as IR
 import Juvix.Library
 import Juvix.Library.HashMap (HashMap)
 import qualified Juvix.Library.NameSymbol as NameSymbol
@@ -39,7 +40,14 @@ import qualified Juvix.Library.PrettyPrint as PP
 -- | @[A, B, ..., Z]@ represents the type
 -- @π A -> ρ B -> ... -> Z@ for any usages @π@, @ρ@
 newtype PrimType primTy = PrimType {getPrimType :: NonEmpty primTy}
-  deriving (Eq, Ord, Show, Read, Generic, Functor, Foldable, Traversable)
+  deriving stock (Eq, Ord, Show, Read, Generic, Traversable)
+  deriving newtype (Functor, Foldable)
+
+instance (A.ToJSON primTy) => A.ToJSON (PrimType primTy) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON primTy) => A.FromJSON (PrimType primTy) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 -- | A HashMap of builtins with their name.
 type Builtins p = HashMap NameSymbol.T p
@@ -172,7 +180,7 @@ apply1Maybe f x = applyMaybe f (x :| [])
 type TypedPrim' ext ty val = App.Return' ext (PrimType ty) val
 
 -- | A typed primitive.
-type TypedPrim ty val = TypedPrim' T ty val
+type TypedPrim ty val = TypedPrim' IR.T ty val
 
 data PPAnn' primTy
   = PAArrow

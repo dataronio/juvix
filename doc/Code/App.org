@@ -1,6 +1,3 @@
-* Config
-- _Relies on_
-  + [[Library]]
 * Main
 - _Relies on_
   + [[LLVM]]
@@ -15,6 +12,7 @@
   + [[Michelson]]
   + [[Plonk]]
   + [[Library]]
+  + [[BLS12381]]
 * Version
 - _Relies on_
   + [[Library]]

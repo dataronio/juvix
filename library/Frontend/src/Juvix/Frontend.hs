@@ -5,19 +5,19 @@ module Juvix.Frontend
   )
 where
 
+------------------------------------------------------------------------------
+
 import qualified Data.ByteString as ByteString
-import qualified Data.Char as Char
 import qualified Juvix.Frontend.Parser as Parser
 import qualified Juvix.Frontend.Types as Types
-import Juvix.Library hiding (toUpper)
+import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Parser (ParserError)
 import qualified System.FilePath as FilePath
-import Prelude (String)
 
-data Error
-  = NoHeaderErr FilePath
-  | ParseError ParserError
+------------------------------------------------------------------------------
+
+data Error = NoHeaderErr FilePath | ParseError ParserError
   deriving (Show)
 
 -- we abuse laziness here
@@ -34,19 +34,14 @@ parseFiles =
 parseSingleFile :: FilePath -> IO (Either Error (NameSymbol.T, [Types.TopLevel]))
 parseSingleFile file = do
   read <- ByteString.readFile file
-  pure $
-    case Parser.parse read of
-      Left x ->
-        Left (ParseError x)
-      Right (Types.NoHeader _xs) ->
-        Left (NoHeaderErr file)
-      Right (Types.Header name xs) ->
-        Right (name, xs)
+  pure $ case Parser.parse read of
+    Left x ->
+      Left (ParseError x)
+    Right (Types.NoHeader _xs) ->
+      Left (NoHeaderErr file)
+    Right (Types.Header name xs) ->
+      Right (name, xs)
 
 _fileNameToModuleName :: FilePath -> NameSymbol.T
 _fileNameToModuleName =
-  NameSymbol.fromSymbol . intern . toUpper . FilePath.takeBaseName
-
-toUpper :: String -> String
-toUpper (x : xs) = Char.toUpper x : xs
-toUpper [] = []
+  NameSymbol.fromSymbol . intern . toUpperFirst . FilePath.takeBaseName

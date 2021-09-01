@@ -13,7 +13,11 @@ fromList
                         , rawConType = Pi Omega
                             ( Elim
                                 ( ElimX
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             )
                             ( Elim
@@ -36,7 +40,11 @@ fromList
                 , rawConType = Pi Omega
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( Elim
@@ -57,7 +65,11 @@ fromList
                 , rawConType = Pi Omega
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( Elim
@@ -78,7 +90,11 @@ fromList
                 , rawConType = Pi Omega
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( Elim
@@ -105,7 +121,11 @@ fromList
                         , rawConType = Pi Omega
                             ( Elim
                                 ( ElimX
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             )
                             ( Elim
@@ -122,12 +142,20 @@ fromList
                             ( Pi Omega
                                 ( Elim
                                     ( ElimX
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 )
                                 ( Elim
                                     ( ElimX
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 )
                                 ( "" :| [] )
@@ -245,41 +273,6 @@ fromList
             )
         )
     ,
-        ( "Datatypes" :| [ "+" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "+" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PAdd ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "patternMatch" ]
         , RawGFunction
             ( RawFunction
@@ -293,7 +286,11 @@ fromList
                     )
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( "" :| [] )
@@ -312,13 +309,23 @@ fromList
                         ( App
                             ( App
                                 ( ElimX
-                                    ( "Datatypes" :| [ "+" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "Field"
+                                        , "+"
+                                        ]
+                                    )
                                 )
                                 ( Elim
                                     ( App
                                         ( App
                                             ( ElimX
-                                                ( "Datatypes" :| [ "^" ] )
+                                                ( "Prelude" :|
+                                                    [ "Circuit"
+                                                    , "Field"
+                                                    , "^"
+                                                    ]
+                                                )
                                             )
                                             ( Elim
                                                 ( ElimX
@@ -340,7 +347,12 @@ fromList
                                 ( App
                                     ( App
                                         ( ElimX
-                                            ( "Datatypes" :| [ "^" ] )
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "Field"
+                                                , "^"
+                                                ]
+                                            )
                                         )
                                         ( Elim
                                             ( ElimX
@@ -377,13 +389,23 @@ fromList
                             ( App
                                 ( App
                                     ( ElimX
-                                        ( "Datatypes" :| [ "+" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "Field"
+                                            , "+"
+                                            ]
+                                        )
                                     )
                                     ( Elim
                                         ( App
                                             ( App
                                                 ( ElimX
-                                                    ( "Datatypes" :| [ "^" ] )
+                                                    ( "Prelude" :|
+                                                        [ "Circuit"
+                                                        , "Field"
+                                                        , "^"
+                                                        ]
+                                                    )
                                                 )
                                                 ( Elim
                                                     ( ElimX
@@ -405,13 +427,23 @@ fromList
                                     ( App
                                         ( App
                                             ( ElimX
-                                                ( "Datatypes" :| [ "+" ] )
+                                                ( "Prelude" :|
+                                                    [ "Circuit"
+                                                    , "Field"
+                                                    , "+"
+                                                    ]
+                                                )
                                             )
                                             ( Elim
                                                 ( App
                                                     ( App
                                                         ( ElimX
-                                                            ( "Datatypes" :| [ "^" ] )
+                                                            ( "Prelude" :|
+                                                                [ "Circuit"
+                                                                , "Field"
+                                                                , "^"
+                                                                ]
+                                                            )
                                                         )
                                                         ( Elim
                                                             ( ElimX
@@ -433,7 +465,12 @@ fromList
                                             ( App
                                                 ( App
                                                     ( ElimX
-                                                        ( "Datatypes" :| [ "^" ] )
+                                                        ( "Prelude" :|
+                                                            [ "Circuit"
+                                                            , "Field"
+                                                            , "^"
+                                                            ]
+                                                        )
                                                     )
                                                     ( Elim
                                                         ( ElimX
@@ -467,13 +504,21 @@ fromList
                 , rawConType = Pi Omega
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( Pi Omega
                         ( Elim
                             ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         )
                         ( Elim
@@ -520,45 +565,6 @@ fromList
             )
         )
     ,
-        ( "Datatypes" :| [ "==" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "==" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "bool"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PEq ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "bar" ]
         , RawGDatatype
             ( RawDatatype
@@ -572,13 +578,21 @@ fromList
                         , rawConType = Pi Omega
                             ( Elim
                                 ( ElimX
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             )
                             ( Pi Omega
                                 ( Elim
                                     ( ElimX
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 )
                                 ( Elim
@@ -596,19 +610,31 @@ fromList
                         , rawConType = Pi Omega
                             ( Elim
                                 ( ElimX
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             )
                             ( Pi Omega
                                 ( Elim
                                     ( ElimX
-                                        ( "Datatypes" :| [ "field" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "field"
+                                            ]
+                                        )
                                     ) ()
                                 )
                                 ( Pi Omega
                                     ( Elim
                                         ( ElimX
-                                            ( "Datatypes" :| [ "field" ] )
+                                            ( "Prelude" :|
+                                                [ "Circuit"
+                                                , "field"
+                                                ]
+                                            )
                                         ) ()
                                     )
                                     ( Elim
@@ -641,7 +667,11 @@ fromList
                     )
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( "" :| [] )
@@ -677,7 +707,12 @@ fromList
                             ( App
                                 ( App
                                     ( ElimX
-                                        ( "Datatypes" :| [ "+" ] )
+                                        ( "Prelude" :|
+                                            [ "Circuit"
+                                            , "Field"
+                                            , "+"
+                                            ]
+                                        )
                                     )
                                     ( Elim
                                         ( App
@@ -712,41 +747,6 @@ fromList
             )
         )
     ,
-        ( "Datatypes" :| [ "^" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "^" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PExp ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "FTIC_Right" ]
         , RawGDataCon
             ( RawDataCon
@@ -755,12 +755,20 @@ fromList
                     ( Pi Omega
                         ( Elim
                             ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         )
                         ( Elim
                             ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         )
                         ( "" :| [] )
@@ -789,7 +797,11 @@ fromList
                         , rawConType = Pi Omega
                             ( Elim
                                 ( ElimX
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             )
                             ( Elim
@@ -829,60 +841,6 @@ fromList
             )
         )
     ,
-        ( "Datatypes" :| [ "field" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "field" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Elim
-                    ( ElimX
-                        ( "Prelude" :| [ "ty" ] )
-                    ) ()
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = PrimTy PField ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
-        ( "Datatypes" :| [ "*" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "*" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PMul ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "main" ]
         , RawGFunction
             ( RawFunction
@@ -890,7 +848,11 @@ fromList
                 , rawFunUsage = GOmega
                 , rawFunType = Elim
                     ( ElimX
-                        ( "Datatypes" :| [ "field" ] )
+                        ( "Prelude" :|
+                            [ "Circuit"
+                            , "field"
+                            ]
+                        )
                     ) ()
                 , rawFunClauses = RawFunClause
                     { rawClauseTel = []
@@ -1008,7 +970,11 @@ fromList
                 , rawFunUsage = GOmega
                 , rawFunType = Elim
                     ( ElimX
-                        ( "Datatypes" :| [ "field" ] )
+                        ( "Prelude" :|
+                            [ "Circuit"
+                            , "field"
+                            ]
+                        )
                     ) ()
                 , rawFunClauses = RawFunClause
                     { rawClauseTel = []
@@ -1033,12 +999,20 @@ fromList
                 , rawFunType = Pi Omega
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( "" :| [] )
@@ -1065,19 +1039,31 @@ fromList
                 , rawConType = Pi Omega
                     ( Elim
                         ( ElimX
-                            ( "Datatypes" :| [ "field" ] )
+                            ( "Prelude" :|
+                                [ "Circuit"
+                                , "field"
+                                ]
+                            )
                         ) ()
                     )
                     ( Pi Omega
                         ( Elim
                             ( ElimX
-                                ( "Datatypes" :| [ "field" ] )
+                                ( "Prelude" :|
+                                    [ "Circuit"
+                                    , "field"
+                                    ]
+                                )
                             ) ()
                         )
                         ( Pi Omega
                             ( Elim
                                 ( ElimX
-                                    ( "Datatypes" :| [ "field" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "field"
+                                        ]
+                                    )
                                 ) ()
                             )
                             ( Elim

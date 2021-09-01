@@ -4,7 +4,6 @@
 module Test.Golden where
 
 import qualified Data.ByteString as ByteString (readFile)
-import Data.Curve.Weierstrass.BLS12381 (Fr)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Backends.Plonk as Plonk
@@ -12,11 +11,11 @@ import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import qualified Juvix.Core.HR as HR
 import qualified Juvix.Core.IR as IR
 import Juvix.Library
+import Juvix.Library.BLS12381 (Fr)
 import qualified Juvix.Library.Feedback as Feedback
 import Juvix.Library.Test.Golden
 import Juvix.Pipeline (Pipeline)
 import qualified Juvix.Pipeline as Pipeline
-import Test.Orphan
 import Test.Tasty
 import Text.Pretty.Simple (pPrint)
 
@@ -28,7 +27,7 @@ juvixRootPath :: FilePath
 juvixRootPath = "../../../"
 
 libs :: IsString a => [a]
-libs = ["stdlib/Prelude.ju", "stdlib/Circuit.ju"]
+libs = ["stdlib/Prelude.ju", "stdlib/Circuit.ju", "stdlib/Circuit/Field.ju"]
 
 withJuvixRootPath :: FilePath -> FilePath
 withJuvixRootPath p = juvixRootPath <> p

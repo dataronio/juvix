@@ -319,7 +319,7 @@ data Env = Env
   deriving (Generic)
 
 newtype M a = M (State Env a)
-  deriving (Functor, Applicative, Monad)
+  deriving newtype (Functor, Applicative, Monad)
   deriving
     ( HasSource "nameSupply" (Stream NameSymbol.T),
       HasSink "nameSupply" (Stream NameSymbol.T),

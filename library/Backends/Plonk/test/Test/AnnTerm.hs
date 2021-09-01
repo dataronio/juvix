@@ -1,34 +1,34 @@
 -- Finite fields example
 module Test.AnnTerm where
 
-import Data.Curve.Weierstrass.BLS12381 (Fr)
-import Juvix.Backends.Plonk (FFAnnTerm, FFType, PrimVal (..))
+import Juvix.Backends.Plonk (AnnTerm, PrimVal (..))
 import qualified Juvix.Backends.Plonk as P
-import Juvix.Core.Erased.Ann
+import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library hiding (Type, exp)
+import Juvix.Library.BLS12381 (Fr, toP)
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import Juvix.Library.Usage
+import qualified Juvix.Library.Usage as Usage
 
-sig :: FFType Fr
+sig :: P.Type Fr
 sig =
-  Pi (SNat 1) (PrimTy P.PField) $
-    Pi (SNat 1) (PrimTy P.PField) $
-      PrimTy P.PField
+  ErasedAnn.Pi (Usage.SNat 1) (ErasedAnn.PrimTy P.PField) $
+    ErasedAnn.Pi (Usage.SNat 1) (ErasedAnn.PrimTy P.PField) $
+      ErasedAnn.PrimTy P.PField
 
-add, sub, mul, exp :: FFAnnTerm Fr
-add = Ann Omega sig $ Prim PAdd
-sub = Ann Omega sig $ Prim PSub
-mul = Ann Omega sig $ Prim PMul
-exp = Ann Omega sig $ Prim PExp
+add, sub, mul, exp :: P.AnnTerm Fr
+add = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PAdd
+sub = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PSub
+mul = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PMul
+exp = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PExp
 
-eq :: FFAnnTerm Fr
-eq = Ann Omega sig $ Prim PAssertEq
+eq :: P.AnnTerm Fr
+eq = ErasedAnn.Ann Usage.Omega sig $ ErasedAnn.Prim P.PAssertEq
 
-val :: Fr -> FFAnnTerm Fr
-val = Ann (SNat 1) (PrimTy P.PField) . Prim . PConst
+val :: Fr -> P.AnnTerm Fr
+val = ErasedAnn.Ann (Usage.SNat 1) (ErasedAnn.PrimTy P.PField) . ErasedAnn.Prim . P.PConst
 
-var :: NameSymbol.T -> FFAnnTerm Fr
-var = Ann (SNat 1) (PrimTy P.PField) . Var
+var :: NameSymbol.T -> P.AnnTerm Fr
+var = ErasedAnn.Ann (Usage.SNat 1) (ErasedAnn.PrimTy P.PField) . ErasedAnn.Var
 
-app :: FFAnnTerm Fr -> [FFAnnTerm Fr] -> FFAnnTerm Fr
-app f xs = Ann (SNat 2) (PrimTy P.PField) $ AppM f xs
+app :: P.AnnTerm Fr -> [P.AnnTerm Fr] -> P.AnnTerm Fr
+app f xs = ErasedAnn.Ann (Usage.SNat 2) (ErasedAnn.PrimTy P.PField) $ ErasedAnn.AppM f xs

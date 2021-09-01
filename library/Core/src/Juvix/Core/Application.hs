@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -11,11 +12,12 @@ module Juvix.Core.Application
     pattern BoundArg,
     pattern FreeArg,
     Take (..),
-    argToTake,
+    argToReturn,
     takeToReturn,
   )
 where
 
+import qualified Data.Aeson as A
 import Data.Bifoldable
 import Data.Bitraversable
 import qualified Juvix.Core.Base.Types as Core
@@ -56,6 +58,18 @@ deriving instance
 deriving instance
   (Eq (ParamVar ext), Eq ty, Eq term) =>
   Eq (Return' ext ty term)
+
+instance
+  (A.ToJSON (ParamVar ext), A.ToJSON ty, A.ToJSON term) =>
+  A.ToJSON (Return' ext ty term)
+  where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance
+  (A.FromJSON (ParamVar ext), A.FromJSON ty, A.FromJSON term) =>
+  A.FromJSON (Return' ext ty term)
+  where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 instance Bifunctor (Return' ext) where
   bimap = bimapDefault
@@ -100,7 +114,7 @@ data Arg' ext ty term
   = -- | A variable to a term.
     VarArg (ParamVar ext)
   | -- | A fully evaluated term.
-    TermArg (Take ty term)
+    TermArg (Return' ext ty term)
   deriving (Generic, Functor, Foldable, Traversable)
 
 -- | Simplification for 'Arg'' without any extensions.
@@ -130,6 +144,18 @@ deriving instance
   (Eq (ParamVar ext), Eq ty, Eq term) =>
   Eq (Arg' ext ty term)
 
+instance
+  (A.ToJSON (ParamVar ext), A.ToJSON ty, A.ToJSON term) =>
+  A.ToJSON (Arg' ext ty term)
+  where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance
+  (A.FromJSON (ParamVar ext), A.FromJSON ty, A.FromJSON term) =>
+  A.FromJSON (Arg' ext ty term)
+  where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 instance Bifunctor (Arg' ext) where bimap = bimapDefault
 
 instance Bifoldable (Arg' ext) where bifoldMap = bifoldMapDefault
@@ -150,6 +176,18 @@ data Take ty term = Take
   }
   deriving (Show, Read, Eq, Generic, Functor, Foldable, Traversable)
 
+instance
+  (A.ToJSON ty, A.ToJSON term) =>
+  A.ToJSON (Take ty term)
+  where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance
+  (A.FromJSON ty, A.FromJSON term) =>
+  A.FromJSON (Take ty term)
+  where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 instance Bifunctor Take where
   bimap = bimapDefault
 
@@ -161,9 +199,9 @@ instance Bitraversable Take where
 
 -- | Translate an 'Arg'' to a 'Take'. Only fully evaluated arguments are
 -- returned, all others will result in an @empty@.
-argToTake :: Alternative f => Arg' ext ty term -> f (Take ty term)
-argToTake (TermArg t) = pure t
-argToTake _ = empty
+argToReturn :: Alternative f => Arg' ext ty term -> f (Return' ext ty term)
+argToReturn (TermArg t) = pure t
+argToReturn _ = empty
 
 -- | Translate a 'Take' into a 'Return''.
 takeToReturn :: Take ty term -> Return' ext ty term

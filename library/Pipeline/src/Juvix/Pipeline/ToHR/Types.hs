@@ -1,7 +1,9 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Juvix.Pipeline.ToHR.Types where
 
+import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 import qualified Juvix.Context as Ctx
 import qualified Juvix.Core.Base as Core
@@ -19,6 +21,10 @@ data CoreDef ext primTy primVal
   = CoreDef !(Core.RawGlobal ext primTy primVal)
   | SpecialDef !NameSymbol.T !Special
   deriving (Generic)
+
+deriving instance (A.ToJSON ty, A.ToJSON val, Core.CoreAll A.ToJSON ext ty val) => A.ToJSON (CoreDef ext ty val)
+
+deriving instance (A.FromJSON ty, A.FromJSON val, Core.CoreAll A.FromJSON ext ty val) => A.FromJSON (CoreDef ext ty val)
 
 deriving instance
   ( Show primTy,
@@ -65,6 +71,10 @@ data CoreSig ext primTy primVal
   | SpecialSig !Special
   deriving (Generic)
 
+deriving instance (A.ToJSON ty, A.ToJSON val, Core.CoreAll A.ToJSON ext ty val) => A.ToJSON (CoreSig ext ty val)
+
+deriving instance (A.FromJSON ty, A.FromJSON val, Core.CoreAll A.FromJSON ext ty val) => A.FromJSON (CoreSig ext ty val)
+
 -- | Bindings that can't be given types, but can be given new names by the user.
 data Special
   = -- | pi type, possibly with usage already supplied
@@ -78,6 +88,12 @@ data Special
   | -- | omega usage
     OmegaS
   deriving (Eq, Show, Data, Generic)
+
+instance A.ToJSON Special where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Special where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 deriving instance
   ( Eq primTy,

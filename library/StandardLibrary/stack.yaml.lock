@@ -29,6 +29,28 @@ packages:
     url: https://github.com/jyp/prettiest/archive/e5ce6cd6b4da71860c3d97da84bed4a827fa00ef.tar.gz
     size: 359995
 - original:
+    git: https://github.com/serokell/galois-field.git
+    commit: 576ba98ec947370835a1f308895037c7aa7f8b71
+  completed:
+    pantry-tree:
+      sha256: 1c5f35fa2f128d1341fffb29300ebc09f2ac463220bf76425fe12ffc2d171d48
+      size: 4657
+    version: 1.0.4
+    git: https://github.com/serokell/galois-field.git
+    name: galois-field
+    commit: 576ba98ec947370835a1f308895037c7aa7f8b71
+- original:
+    git: https://github.com/serokell/elliptic-curve.git
+    commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
+  completed:
+    pantry-tree:
+      sha256: f4f032b7ef9a23afbd65a765e3a335ec8cdd219a5dfe6ee276f72e15d644a0fd
+      size: 12030
+    version: 0.3.1
+    git: https://github.com/serokell/elliptic-curve.git
+    name: elliptic-curve
+    commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
+- original:
     url: https://github.com/phile314/tasty-silver/archive/f1f90ac3113cd445e2a7ade43ebb29f0db38ab9b.tar.gz
   completed:
     pantry-tree:

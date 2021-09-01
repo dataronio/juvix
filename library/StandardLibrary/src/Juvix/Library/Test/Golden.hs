@@ -39,11 +39,16 @@ module Juvix.Library.Test.Golden
     expectSuccess,
     expectFailure,
 
+    -- * Running tests expecting failure
+    defaultMainFail,
+    runAll,
+
     -- * For tests which only care about success/failure, not exact output
     toNoQuotesEmpty,
   )
 where
 
+import qualified Control.Exception as Except
 import qualified Data.ByteString as ByteString (writeFile)
 import Data.String (String)
 import qualified Data.Text as Text
@@ -53,12 +58,14 @@ import qualified Juvix.Library.Feedback as Feedback
 import System.Directory (createDirectoryIfMissing)
 import qualified System.FilePath as FP
 import Test.Tasty
+import qualified Test.Tasty.Ingredients as Ingredients
+import qualified Test.Tasty.Ingredients.Basic as Ingredients.Basic
 import qualified Test.Tasty.Silver as T
 import qualified Test.Tasty.Silver.Advanced as T
 import Text.Pretty.Simple (pShowNoColor)
 import qualified Text.Pretty.Simple as Pretty
 import Text.Read (Read (..))
-import qualified Prelude (show)
+import qualified Prelude (error, show)
 
 type FileExtension = String
 
@@ -253,3 +260,50 @@ printCompactParens =
           Pretty.outputOptionsCompact = True
         }
     )
+
+--------------------------------------------------------------------------------
+-- Expecting Failure runners
+--------------------------------------------------------------------------------
+
+-- | @defaultMainFail@ is like Tasty @defaultMain@ but will fail if all
+-- tests succeed. Thus we give success if there exists a failure case
+defaultMainFail :: TestTree -> IO ()
+defaultMainFail =
+  defaultMainWithIngredients [Ingredients.Basic.listingTests, consoleTestReporterFailure]
+  where
+    consoleTestReporterFailure =
+      case Ingredients.Basic.consoleTestReporter of
+        Ingredients.TestReporter opts fun ->
+          Ingredients.TestReporter
+            opts
+            ( \opt tree ->
+                case fun opt tree of
+                  Just f ->
+                    Just $
+                      \status -> do
+                        timeF <- f status
+                        pure $ \time -> do
+                          ans <- timeF time
+                          pure (not ans)
+                  Nothing ->
+                    Nothing
+            )
+        Ingredients.TestManager _ _ -> Prelude.error "impossible"
+
+-- | @runAll@ allows the user to run many defaultMains. This is useful
+-- when the user wants to run @defaultMainFail@ along with @defaultMain@
+runAll :: Foldable t => t (IO ()) -> IO b
+runAll listOfMains = do
+  traverse_ ignoreSuccess listOfMains
+  exitSuccess
+  where
+    ignoreSuccess run = do
+      tried <- Except.try run :: IO (Either Except.SomeException ())
+      case tried of
+        Right _ -> pure ()
+        Left except ->
+          let exit = fromException except :: Maybe ExitCode
+           in case exit of
+                Just e@(ExitFailure _) -> exitWith e
+                Just (ExitSuccess) -> pure ()
+                Nothing -> pure ()

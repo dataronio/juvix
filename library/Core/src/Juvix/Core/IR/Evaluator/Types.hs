@@ -5,6 +5,7 @@ module Juvix.Core.IR.Evaluator.Types
   ( ApplyError (..),
     ApplyErrorPretty,
     Error (..),
+    ErrorValue (..),
     ExtFuns (..),
     rejectExts,
     LookupFun,
@@ -77,18 +78,39 @@ deriving instance
 -- | Errors that can occur during evaluation.
 data Error extV extT primTy primVal
   = -- | Error during application.
-    CannotApply
-      { fun, arg :: Core.Value extV primTy primVal,
-        paramErr :: ApplyError primTy primVal
-      }
+    ErrorValue (ErrorValue extV primTy primVal)
   | -- | Unsupported term extension.
     UnsupportedTermExt (Core.TermX extT primTy primVal)
   | -- | Unsupported elimination extension.
     UnsupportedElimExt (Core.ElimX extT primTy primVal)
 
+-- | Errors that can occur during evaluation.
+data ErrorValue extV primTy primVal = -- | Error during application.
+  CannotApply
+  { fun, arg :: Core.Value extV primTy primVal,
+    paramErr :: ApplyError primTy primVal
+  }
+
 type instance PP.Ann (Error IR.T TC.T _ _) = HR.PPAnn
 
 -- TODO generalise
+
+type instance PP.Ann (ErrorValue IR.T _ _) = HR.PPAnn
+
+instance
+  ApplyErrorPretty primTy primVal =>
+  PP.PrettyText (ErrorValue IR.T primTy primVal)
+  where
+  prettyT CannotApply {fun, arg, paramErr} =
+    PP.vcat
+      [ PP.sepIndent'
+          [ (False, "Cannot apply"),
+            (True, PP.pretty0 $ irToHR $ Core.quote fun),
+            (False, "to argument"),
+            (True, PP.pretty0 $ irToHR $ Core.quote arg)
+          ],
+        PP.prettyT paramErr
+      ]
 
 -- | Pretty-printer intance for errors.
 instance
@@ -96,18 +118,21 @@ instance
   PP.PrettyText (Error IR.T TC.T primTy primVal)
   where
   prettyT = \case
-    CannotApply {fun, arg, paramErr} ->
-      PP.vcat
-        [ PP.sepIndent'
-            [ (False, "Cannot apply"),
-              (True, PP.pretty0 $ irToHR $ Core.quote fun),
-              (False, "to argument"),
-              (True, PP.pretty0 $ irToHR $ Core.quote arg)
-            ],
-          PP.prettyT paramErr
-        ]
+    ErrorValue value -> PP.prettyT value
     UnsupportedTermExt x -> absurd x
     UnsupportedElimExt x -> absurd x
+
+deriving instance
+  ( Eq primTy,
+    Eq primVal,
+    Core.ValueAll Eq extV primTy primVal,
+    Core.NeutralAll Eq extV primTy primVal,
+    Eq (Param.Arg primTy),
+    Eq (Param.Arg primVal),
+    Eq (Param.ApplyErrorExtra primTy),
+    Eq (Param.ApplyErrorExtra primVal)
+  ) =>
+  Eq (ErrorValue extV primTy primVal)
 
 deriving instance
   ( Eq primTy,
@@ -122,6 +147,18 @@ deriving instance
     Eq (Core.ElimX extT primTy primVal)
   ) =>
   Eq (Error extV extT primTy primVal)
+
+deriving instance
+  ( Show primTy,
+    Show primVal,
+    Core.ValueAll Show extV primTy primVal,
+    Core.NeutralAll Show extV primTy primVal,
+    Show (Param.Arg primTy),
+    Show (Param.Arg primVal),
+    Show (Param.ApplyErrorExtra primTy),
+    Show (Param.ApplyErrorExtra primVal)
+  ) =>
+  Show (ErrorValue extV primTy primVal)
 
 deriving instance
   ( Show primTy,

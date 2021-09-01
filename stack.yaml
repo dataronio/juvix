@@ -9,12 +9,18 @@ packages:
 - ./library/Translate
 - ./library/Backends/Michelson
 - ./library/EasyPipeline
+- ./library/HTTP
 - ./library/Backends/Plonk
 - ./library/Backends/llvm
 - ./library/Context
 - ./library/Sexp
 
 extra-deps:
+
+###################
+# For HTTP server #
+###################
+- servant-static-th-1.0.0.0
 
 ################################
 # LLVM-HS Library dependencies #

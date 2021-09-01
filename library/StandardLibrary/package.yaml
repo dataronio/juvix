@@ -16,20 +16,24 @@ copyright:           "2020 Heliax AG"
 description:         Please see the README on GitHub at <https://github.com/githubuser/StandardLibrary#readme>
 
 dependencies:
+- aeson
 - base >= 4.11 && < 5
-- protolude
-- wl-pprint-text
-- containers
-- text
-- hashable
-- unordered-containers
+- bytestring
 - capability
-- time
+- containers
+- elliptic-curve >= 0.3.0
+- galois-field >= 1.0.2
+- hashable
 - lens
 - megaparsec
-- word8
-- bytestring
 - mtl
+- protolude
+- scientific
+- text
+- time
+- unordered-containers
+- wl-pprint-text
+- word8
 # Testing
 - directory
 - filepath

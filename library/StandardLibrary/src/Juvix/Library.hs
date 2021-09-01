@@ -35,6 +35,7 @@ module Juvix.Library
     foldMapA,
     traverseM,
     Symbol (..),
+    toUpperFirst,
     internText,
     intern,
     unintern,
@@ -60,7 +61,9 @@ import Capability.Sink
 import Capability.Source
 import Capability.State
 import Capability.Writer
+import qualified Data.Aeson as A
 import Data.Data (Data)
+import qualified Data.List.NonEmpty as NonEmpty
 import Data.String (fromString)
 import qualified Data.Text as T
 import Data.Time.Clock.POSIX
@@ -143,11 +146,15 @@ instance Show (a -> b) where
   show _ = "fun"
 
 newtype Symbol = Sym Text
-  deriving newtype (Eq, Show, Read, Hashable, Semigroup, Ord, NFData)
+  deriving newtype (Eq, Show, Read, Hashable, Semigroup, Ord, NFData, A.ToJSON, A.FromJSON, A.ToJSONKey, A.FromJSONKey)
   deriving stock (Data, Generic)
 
 instance IsString Symbol where
   fromString = intern
+
+toUpperFirst :: String -> String
+toUpperFirst [] = []
+toUpperFirst (x : xs) = toUpper x : xs
 
 internText :: Text -> Symbol
 internText = Sym
@@ -221,3 +228,7 @@ type ReaderField fld m = ReadStatePure (StateField fld m)
 
 -- | Writer version of 'StateField'.
 type WriterField fld m = WriterLog (StateField fld m)
+
+instance (A.ToJSON a) => A.ToJSONKey (NonEmpty.NonEmpty a)
+
+instance (A.FromJSON a) => A.FromJSONKey (NonEmpty.NonEmpty a)

@@ -50,7 +50,7 @@ type EnvEraAlias primTy1 primTy2 primVal1 primVal2 =
 
 newtype EnvT primTy1 primTy2 primVal1 primVal2 a
   = EnvEra (EnvEraAlias primTy1 primTy2 primVal1 primVal2 a)
-  deriving (Functor, Applicative, Monad)
+  deriving newtype (Functor, Applicative, Monad)
   deriving
     ( HasState "nextName" Int,
       HasSink "nextName" Int,

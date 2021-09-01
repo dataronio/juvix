@@ -29,7 +29,7 @@ type EnvAlias ext primTy primVal =
 
 newtype EnvTypecheck' ext primTy primVal a
   = EnvTyp (EnvAlias ext primTy primVal a)
-  deriving (Functor, Applicative, Monad)
+  deriving newtype (Functor, Applicative, Monad)
   deriving
     ( HasThrow "typecheckError" (Error.TypecheckError' IR.T ext primTy primVal)
     )

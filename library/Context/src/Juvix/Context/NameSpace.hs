@@ -2,6 +2,7 @@
 
 module Juvix.Context.NameSpace where
 
+import qualified Data.Aeson as A
 import Juvix.Library hiding (modify, toList)
 import qualified Juvix.Library.HashMap as HashMap
 
@@ -10,13 +11,25 @@ data T b = T
   { public :: HashMap.T Symbol b,
     private :: HashMap.T Symbol b
   }
-  deriving (Show, Read, Eq, Data, Functor, Foldable, Traversable)
+  deriving (Show, Read, Eq, Data, Functor, Foldable, Traversable, Generic)
+
+instance (A.ToJSON b) => A.ToJSON (T b) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON b) => A.FromJSON (T b) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 data List b = List
   { publicL :: [(Symbol, b)],
     privateL :: [(Symbol, b)]
   }
-  deriving (Show, Data)
+  deriving (Show, Data, Generic)
+
+instance (A.ToJSON b) => A.ToJSON (List b) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON b) => A.FromJSON (List b) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 -- | From represents whether the variable came from
 -- the public names below us, or the private names below us

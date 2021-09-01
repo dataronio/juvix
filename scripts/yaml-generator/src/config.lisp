@@ -172,7 +172,7 @@
            "monoidal-containers-0.6.0.1@sha256:7d776942659eb4d70d8b8da5d734396374a6eda8b4622df9e61e26b24e9c8e40,2501"))))
 
 ;; --------------------------------------
-;; LLVM Extra Depenecy groups
+;; LLVM Extra Dependency groups
 ;; --------------------------------------
 
 (defparameter *llvm-hs-deps*
@@ -182,7 +182,7 @@
                       (make-dependency-bare :name "llvm-hs-pretty-0.9.0.0"))))
 
 ;; --------------------------------------
-;; Interaction Net Groups Depencenies
+;; Interaction Net Groups Dependencies
 ;; --------------------------------------
 
 (defparameter *interaction-net-extra-deps*
@@ -191,6 +191,15 @@
                       (make-dependency-github
                        :name "cryptiumlabs/jsonschema-gen"
                        :commit "0639cd166ec59a04d07a3a7d49bdf343e567000e"))))
+
+;; --------------------------------------
+;; Servant extra dependency groups
+;; --------------------------------------
+
+(defparameter *servant-deps*
+  (make-groups :comment "For HTTP server"
+               :deps (list (make-dependency-bare :name "servant-static-th-1.0.0.0"))))
+
 
 ;; --------------------------------------
 ;; General Extra Groups
@@ -276,18 +285,25 @@ common ones to include"
 ;;; stack-yaml for the YAML generation
 ;;; ----------------------------------------------------------------------
 
+(defun general-dependencies (&rest more-deps)
+  (apply #'make-general-dependencies
+         (append (list *capability*
+                       *prettiest*
+                       *galois-field*
+                       *elliptic-curve*)
+                 more-deps)))
+
 (defparameter *standard-library*
   (make-stack-yaml
    :name "StandardLibrary"
-   :extra-deps (list (make-general-dependencies *capability* *prettiest*) *standard-library-extra-deps*)))
+   :extra-deps (list (general-dependencies) *standard-library-extra-deps*)))
 
 (defparameter *sexp*
   (make-stack-yaml
    :name "Sexp"
    :packages (list *standard-library*)
-   :extra-deps (list (make-general-dependencies *capability* *prettiest*)
+   :extra-deps (list (general-dependencies)
                      *standard-library-extra-deps*)))
-
 
 (defparameter *frontend*
   (make-stack-yaml
@@ -295,20 +311,20 @@ common ones to include"
    :resolver   17.9
    :name       "Frontend"
    :packages   (list *standard-library*)
-   :extra-deps (list (make-general-dependencies *capability* *prettiest*) *standard-library-extra-deps*)))
+   :extra-deps (list (general-dependencies) *standard-library-extra-deps*)))
 
 (defparameter *Context*
   (make-stack-yaml
    :name     "Context"
    :packages (list *standard-library* *sexp*)
-   :extra-deps (list (make-general-dependencies *capability* *prettiest*)
+   :extra-deps (list (general-dependencies)
                      *standard-library-extra-deps*)))
 
 (defparameter *core*
   (make-stack-yaml
    :name       "Core"
    :packages   (list *standard-library* *sexp*)
-   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+   :extra-deps (list (general-dependencies *extensible*)
                       *standard-library-extra-deps*
                       *eac-solver*)))
 
@@ -316,7 +332,7 @@ common ones to include"
   (make-stack-yaml
    :name "Translate"
    :packages   (list *core* *frontend* *standard-library* *sexp* *Context*)
-   :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
+   :extra-deps (list (general-dependencies *extensible*)
                      *standard-library-extra-deps*
                      *eac-solver*)))
 
@@ -339,7 +355,7 @@ common ones to include"
    :name "Backends/llvm"
    :resolver 17.3
    :path-to-other "../../"
-   :packages (list *standard-library* *core* *Context* *pipeline* *translate* *frontend*)
+   :packages (list *standard-library* *core* *Context* *pipeline* *translate* *frontend* *sexp*)
    :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *llvm-hs-deps*
 
@@ -350,8 +366,7 @@ common ones to include"
                      *morley-arithmetic-circuit-deps*
 
                      ;; for standard-library
-                     *standard-library-extra-deps*
-                     )
+                     *standard-library-extra-deps*)
    :extra "allow-newer: true"))
 
 (defparameter *Michelson*
@@ -405,6 +420,22 @@ common ones to include"
    :extra-deps (big-dep-list)
    :extra "allow-newer: true"))
 
+(defparameter *http*
+  (make-stack-yaml
+   :packages (list *standard-library*
+                   *frontend*
+                   *core*
+                   *translate*
+                   *pipeline*
+                   *michelson*
+                   *Context*
+                   *plonk*
+                   *sexp*)
+   ;; hack name, for sub dirs
+   :name "HTTP"
+   :extra-deps (cons *servant-deps* (big-dep-list))
+   :extra "allow-newer: true"))
+
 (defparameter *juvix*
   (make-stack-yaml
    :name "Juvix"
@@ -415,12 +446,13 @@ common ones to include"
                    *translate*
                    *michelson*
                    *easy-pipeline*
+                   *http*
                    *plonk*
                    *llvm*
                    *Context*
                    *sexp*)
    :path-to-other "./library/"
    :extra-deps
-   (cons *llvm-hs-deps* (big-dep-list))
+   (cons *servant-deps* (cons *llvm-hs-deps* (big-dep-list)))
    :extra "allow-newer: true"))
 

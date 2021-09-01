@@ -3,11 +3,13 @@
 module Juvix.Backends.Plonk.Pipeline
   ( BPlonk (..),
     compileCircuit,
+    prettifyCircuit,
   )
 where
 
 import qualified Data.Aeson as A
 import Data.Field.Galois (GaloisField)
+import qualified Data.Text.Lazy as LazyText
 import qualified Juvix.Backends.Plonk.Builder as Builder
 import qualified Juvix.Backends.Plonk.Circuit as Circuit
 import qualified Juvix.Backends.Plonk.Compiler as Compiler
@@ -73,17 +75,18 @@ instance
   type Ty (BPlonk f) = Types.PrimTy f
   type Val (BPlonk f) = Types.PrimVal f
   type Err (BPlonk f) = Types.CompilationError f
-  stdlibs _ = ["stdlib/Circuit.ju"]
+  stdlibs _ = ["stdlib/Circuit.ju", "stdlib/Circuit/Field.ju"]
   typecheck ctx = Pipeline.typecheck' ctx (Parameterization.param @f) Types.PField
   compile out term = do
     let circuit = compileCircuit term
     liftIO $ Dot.dotWriteSVG out (Dot.arithCircuitToDot circuit)
-    writeout (out <> ".pretty") $
-      let pretty = toS . Pretty.displayT . Pretty.renderPretty 1 120 . Pretty.pretty
-       in pretty circuit
+    writeout (out <> ".pretty") $ prettifyCircuit circuit
     writeout (out <> ".json") $
       let json = show $ A.encode circuit
        in json
+
+prettifyCircuit :: (ConvertText LazyText.Text c, Pretty.Pretty a) => a -> c
+prettifyCircuit = toS . Pretty.displayT . Pretty.renderPretty 1 120 . Pretty.pretty
 
 compileCircuit ::
   (Integral f, Show f) =>

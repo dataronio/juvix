@@ -9,46 +9,9 @@ Right
             ( Open
                 ( "Circuit" :| [] )
             )
-        , Signature
-            ( Sig
-                { signatureName = "+"
-                , signatureUsage = Nothing
-                , signatureArrowType = Infix
-                    ( Inf
-                        { infixLeft = Name
-                            ( "field" :| [] )
-                        , infixOp = "->" :| []
-                        , infixRight = Infix
-                            ( Inf
-                                { infixLeft = Name
-                                    ( "field" :| [] )
-                                , infixOp = "->" :| []
-                                , infixRight = Name
-                                    ( "field" :| [] )
-                                }
-                            )
-                        }
-                    )
-                , signatureConstraints = []
-                }
-            )
-        , Function
-            ( Func
-                ( Like
-                    { functionLikedName = "+"
-                    , functionLikeArgs = []
-                    , functionLikeBody = Body
-                        ( Primitive
-                            ( Prim
-                                ( "Circuit" :| [ "add" ] )
-                            )
-                        )
-                    }
-                )
-            )
-        , Declaration
-            ( Infixivity
-                ( AssocL "+" 5 )
+        , ModuleOpen
+            ( Open
+                ( "Circuit" :| [ "Field" ] )
             )
         , Signature
             ( Sig

@@ -3,11 +3,16 @@
 
 module Juvix.Core.Base.Types.Base where
 
+------------------------------------------------------------------------------
+
+import qualified Data.Aeson as A
 import Data.Kind (Constraint)
 import Extensible (Config (..), NameAffix (..), defaultConfig, extensibleWith)
 import Juvix.Library hiding (Pos, datatypeName)
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import Juvix.Library.Usage (Usage)
+import Juvix.Library.Usage
+
+------------------------------------------------------------------------------
 
 type Universe = Natural
 
@@ -30,9 +35,23 @@ data Name
     Pattern PatternVar
   deriving (Show, Eq, Generic, Data, NFData)
 
+instance A.ToJSON Name where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Name where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 -- TODO: maybe global functions can have any usage? (for private defs)
 data GlobalUsage = GZero | GOmega
   deriving (Show, Eq, Generic, Data, Bounded, Enum, NFData)
+
+instance A.ToJSON GlobalUsage where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON GlobalUsage where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+------------------------------------------------------------------------------
 
 extensibleWith
   defaultConfig
@@ -113,6 +132,36 @@ extensibleWith
       | PPrim primVal
       deriving (Show, Eq, Generic, Data, NFData)
     |]
+
+instance (A.ToJSON primTy, A.ToJSON primVal, CoreAll A.ToJSON ext primTy primVal) => A.ToJSON (Term ext primTy primVal) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON primTy, A.FromJSON primVal, CoreAll A.FromJSON ext primTy primVal) => A.FromJSON (Term ext primTy primVal) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.ToJSON primTy, A.ToJSON primVal, CoreAll A.ToJSON ext primTy primVal) => A.ToJSON (Elim ext primTy primVal) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON primTy, A.FromJSON primVal, CoreAll A.FromJSON ext primTy primVal) => A.FromJSON (Elim ext primTy primVal) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.ToJSON primTy, A.ToJSON primVal, ValueAll A.ToJSON ext primTy primVal, NeutralAll A.ToJSON ext primTy primVal) => A.ToJSON (Value ext primTy primVal) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON primTy, A.FromJSON primVal, ValueAll A.FromJSON ext primTy primVal, NeutralAll A.FromJSON ext primTy primVal) => A.FromJSON (Value ext primTy primVal) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.ToJSON primTy, A.ToJSON primVal, ValueAll A.ToJSON ext primTy primVal, NeutralAll A.ToJSON ext primTy primVal) => A.ToJSON (Neutral ext primTy primVal) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON primTy, A.FromJSON primVal, ValueAll A.FromJSON ext primTy primVal, NeutralAll A.FromJSON ext primTy primVal) => A.FromJSON (Neutral ext primTy primVal) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.ToJSON primTy, A.ToJSON primVal, CoreAll A.ToJSON ext primTy primVal) => A.ToJSON (Pattern ext primTy primVal) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON primTy, A.FromJSON primVal, CoreAll A.FromJSON ext primTy primVal) => A.FromJSON (Pattern ext primTy primVal) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 type CoreAll (c :: Type -> Constraint) ext primTy primVal =
   ( TermAll c ext primTy primVal,

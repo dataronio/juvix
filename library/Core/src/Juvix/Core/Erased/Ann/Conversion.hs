@@ -6,6 +6,8 @@ module Juvix.Core.Erased.Ann.Conversion
     toRaw,
     CompConstraints',
     CompConstraints,
+    returnToTerm,
+    takeToTerm,
   )
 where
 
@@ -65,7 +67,10 @@ lookupMapPrim ns (App.Cont f xs n) =
       atMay ns (fromIntegral i)
         |> maybe (error i) (pure . App.VarArg)
     lookupArg (App.FreeArg x) = pure $ App.VarArg x
-    lookupArg (App.TermArg t) = pure $ App.TermArg t
+    lookupArg (App.TermArg (App.Return ty term)) =
+      pure $ App.TermArg (App.Return ty term)
+    lookupArg (App.TermArg (App.Cont take args nat)) =
+      notImplemented
     error i =
       Left $
         Erasure.InternalError $
@@ -173,17 +178,14 @@ toRaw t@(ErasedAnn.Ann {term}) = t {ErasedAnn.term = toRaw1 term}
     primToRaw (App.Return {retTerm}) = ErasedAnn.Prim retTerm
     primToRaw (App.Cont {fun, args}) =
       ErasedAnn.AppM (takeToTerm fun) (argsToTerms (App.type' fun) args)
-    takeToTerm (App.Take {usage, type', term}) =
-      ErasedAnn.Ann
-        { usage,
-          type' = ErasedAnn.fromPrimType type',
-          term = ErasedAnn.Prim term
-        }
+
     argsToTerms ts xs = go (toList ts) xs
       where
         go _ [] = []
-        go (_ : ts) (App.TermArg a : as) =
-          takeToTerm a : go ts as
+        go (_ : ts) (App.TermArg (App.Return ty term) : as) =
+          returnToTerm (App.Return ty term) : go ts as
+        go (_ : ts) (App.TermArg (App.Cont fun args numLeft) : as) =
+          notImplemented
         go (t : ts) (App.VarArg x : as) =
           varTerm t x : go ts as
         go [] (_ : _) =
@@ -195,6 +197,26 @@ toRaw t@(ErasedAnn.Ann {term}) = t {ErasedAnn.term = toRaw1 term}
               type' = ErasedAnn.PrimTy t,
               term = ErasedAnn.Var x
             }
+
+returnToTerm ::
+  forall k (ext :: k) primTy primVal.
+  App.Return' ext (Types.PrimType primTy) primVal ->
+  AnnTerm primTy primVal
+returnToTerm (App.Return ty term) =
+  ErasedAnn.Ann
+    { usage = Usage.Omega, -- FIXME should usages even exist after erasure?
+      type' = ErasedAnn.fromPrimType ty,
+      term = ErasedAnn.Prim term
+    }
+returnToTerm (App.Cont take args nat) = notImplemented
+
+takeToTerm :: App.Take (Types.PrimType primTy) primVal -> AnnTerm primTy primVal
+takeToTerm (App.Take {usage, type', term}) =
+  ErasedAnn.Ann
+    { usage,
+      type' = ErasedAnn.fromPrimType type',
+      term = ErasedAnn.Prim term
+    }
 
 free :: forall primTy primVal. E.Term primTy primVal -> [NameSymbol.T]
 free = Erased.free . E.eraseAnn

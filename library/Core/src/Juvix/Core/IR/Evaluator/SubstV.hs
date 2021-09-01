@@ -31,7 +31,7 @@ class HasWeak a => HasSubstV extV primTy primVal a where
     Core.Value extV primTy primVal ->
     -- | Term to perform substitution on.
     a ->
-    Either (Error extV extT primTy primVal) a
+    Either (ErrorValue extV primTy primVal) a
   default substVWith ::
     ( Generic a,
       GHasSubstV extV primTy primVal (Rep a)
@@ -40,7 +40,7 @@ class HasWeak a => HasSubstV extV primTy primVal a where
     Core.BoundVar ->
     Core.Value extV primTy primVal ->
     a ->
-    Either (Error extV extT primTy primVal) a
+    Either (ErrorValue extV primTy primVal) a
   substVWith b i e = fmap to . gsubstVWith b i e . from
 
 -- | Wrapper around `substWith` for toplevel terms without free variables.
@@ -49,7 +49,7 @@ substV' ::
   Core.BoundVar ->
   Core.Value extV primTy primVal ->
   a ->
-  Either (Error extV extT primTy primVal) a
+  Either (ErrorValue extV primTy primVal) a
 substV' = substVWith 0
 
 -- | Wrapper around `substV'` that starts at variable 0, the first bound
@@ -57,7 +57,7 @@ substV ::
   HasSubstV extV primTy primVal a =>
   Core.Value extV primTy primVal ->
   a ->
-  Either (Error extV extT primTy primVal) a
+  Either (ErrorValue extV primTy primVal) a
 substV = substV' 0
 
 -- | Class of terms that support substitution, resulting in a `IR.Value`.
@@ -70,7 +70,14 @@ class HasWeak a => HasSubstValue extV primTy primVal a where
     -- | Value to substitute with.
     Core.Value extV primTy primVal ->
     a ->
-    Either (Error extV extT primTy primVal) (Core.Value extV primTy primVal)
+    Either (ErrorValue extV primTy primVal) (Core.Value extV primTy primVal)
+
+type ShowAllV extV primTy primVal =
+  ( Core.ValueAll Show extV primTy primVal,
+    Core.NeutralAll Show extV primTy primVal,
+    Show primVal,
+    Show primTy
+  )
 
 -- | Constraint alias for values and neutrals that support substitution.
 type AllSubstV extV primTy primVal =
@@ -79,7 +86,8 @@ type AllSubstV extV primTy primVal =
     HasSubstValue extV primTy primVal primTy,
     HasSubstValue extV primTy primVal primVal,
     Param.CanApply primTy,
-    Param.CanApply primVal
+    Param.CanApply primVal,
+    ShowAllV extV primTy primVal
   )
 
 instance
@@ -142,7 +150,7 @@ substNeutralWith ::
   Core.Neutral extV primTy primVal ->
   -- | Extended Neutral to perform substitution on.
   Core.XVNeutral extV primTy primVal ->
-  Either (Error extV extT primTy primVal) (Core.Value extV primTy primVal)
+  Either (ErrorValue extV primTy primVal) (Core.Value extV primTy primVal)
 -- not Neutral!!!
 substNeutralWith w i e (Core.NBound j a) b = do
   a' <- substVWith w i e a
@@ -165,7 +173,7 @@ substNeutralWith w i e (Core.NeutralX a) b =
 
 -- | Apply two values.
 vapp ::
-  forall extV extT primTy primVal.
+  forall extV primTy primVal.
   ( AllSubstV extV primTy primVal,
     Monoid (Core.XVNeutral extV primTy primVal),
     Monoid (Core.XVLam extV primTy primVal),
@@ -179,7 +187,7 @@ vapp ::
   -- | the annotation to use if the result is another application node
   -- (if it isn't, then this annotation is unused)
   Core.XNApp extV primTy primVal ->
-  Either (Error extV extT primTy primVal) (Core.Value extV primTy primVal)
+  Either (ErrorValue extV primTy primVal) (Core.Value extV primTy primVal)
 vapp s t ann =
   case s of
     Core.VLam s _ -> substV t s
@@ -209,13 +217,13 @@ vapp s t ann =
   where
     app' ::
       forall ann arg fun.
-      (Param.CanApply fun, Monoid ann) =>
+      (Param.CanApply fun, Monoid ann, Show arg) =>
       (Param.ApplyError fun -> ApplyError primTy primVal) ->
       (fun -> ann -> Core.Value extV primTy primVal) ->
       (Proxy fun -> arg -> Maybe (Param.Arg fun)) ->
       fun ->
       arg ->
-      Either (Error extV extT primTy primVal) (Core.Value extV primTy primVal)
+      Either (ErrorValue extV primTy primVal) (Core.Value extV primTy primVal)
     app' err con mkArg p y =
       case mkArg Proxy y of
         Nothing -> Left $ CannotApply s t NoApplyError
@@ -232,7 +240,7 @@ class GHasWeak f => GHasSubstV extV primTy primVal f where
     -- | Value to substitute with.
     Core.Value extV primTy primVal ->
     f t ->
-    Either (Error extV extT primTy primVal) (f t)
+    Either (ErrorValue extV primTy primVal) (f t)
 
 instance GHasSubstV ext primTy primVal U1 where gsubstVWith _ _ _ U1 = pure U1
 
@@ -364,6 +372,17 @@ instance
   substValueWith b i e (App.TermArg t) = substValueWith b i e t
 
 instance
+  ( HasWeak ty,
+    HasWeak (App.ParamVar ext),
+    HasSubstValue ext primTy primVal term
+  ) =>
+  HasSubstValue ext primTy primVal (App.Return' ext ty term)
+  where
+  substValueWith b i e App.Return {retTerm} = substValueWith b i e retTerm
+  substValueWith b i e (App.Cont fun@App.Take {usage, type', term} args numLeft) =
+    substValueWith b i e fun
+
+instance
   ( HasSubstValue ext primTy primVal a,
     Core.ValueAll HasWeak ext primTy primVal,
     Core.NeutralAll HasWeak ext primTy primVal,
@@ -380,11 +399,14 @@ instance
 
 -- TODO generalise @IR.T@
 instance
+  {-# OVERLAPS #-}
   ( HasWeak primTy,
     HasWeak primVal,
     HasSubstValue IR.T primTy (Param.TypedPrim primTy primVal) primTy,
     Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal)
+    Param.CanApply (Param.TypedPrim primTy primVal),
+    Show primTy,
+    Show primVal
   ) =>
   HasSubstValue
     IR.T
@@ -405,7 +427,9 @@ argToValue ::
   App.Arg (Param.PrimType primTy) primVal ->
   IR.Value primTy (Param.TypedPrim primTy primVal)
 argToValue = \case
-  App.TermArg (App.Take {type', term}) ->
-    IR.VPrim $ App.Return {retType = type', retTerm = term}
+  App.TermArg (App.Return {retType, retTerm}) ->
+    IR.VPrim $ App.Return {retType, retTerm}
+  App.TermArg (App.Cont {fun, args, numLeft}) ->
+    notImplemented
   App.BoundArg i -> Core.VBound i
   App.FreeArg x -> Core.VFree $ Core.Global x

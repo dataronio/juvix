@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Juvix.Library.Feedback
   ( Feedback (..),
     FeedbackT (..),
@@ -9,6 +11,7 @@ where
 
 import qualified Control.Monad.Fail as Fail
 import qualified Control.Monad.Trans as Trans
+import qualified Data.Aeson as A
 import qualified Data.String as String
 import Juvix.Library
 
@@ -18,6 +21,13 @@ import Juvix.Library
 data Feedback (app :: Type -> Type) msg a
   = Success (app msg) a -- Indicate success.
   | Fail (app msg) -- Indicate a failure.
+  deriving (Generic)
+
+instance (A.ToJSON a, A.ToJSON msg, A.ToJSON (app msg)) => A.ToJSON (Feedback app msg a) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON a, A.FromJSON msg, A.FromJSON (app msg)) => A.FromJSON (Feedback app msg a) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 instance Functor (Feedback app msg) where
   fmap f (Success msgs x) = Success msgs (f x)

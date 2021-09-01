@@ -21,7 +21,6 @@
 module Easy where
 
 import qualified Data.ByteString as BS
-import Data.Curve.Weierstrass.BLS12381 (Fr)
 import qualified Data.Field.Galois as Field
 import qualified Data.HashMap.Strict as HM
 import qualified Juvix.Backends.Michelson.Parameterisation as Michelson.Param
@@ -47,6 +46,7 @@ import qualified Juvix.Frontend.Types as FrontendT
 import qualified Juvix.Frontend.Types as Initial
 import qualified Juvix.Frontend.Types.Base as Frontend
 import Juvix.Library
+import Juvix.Library.BLS12381 (Fr)
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymb
@@ -564,9 +564,11 @@ printTimeLapse byteString option = do
   --
   (_, cored) <- coreify byteString option
   traverse_ (printCoreFunction cored option) currentDefinedItems
+  print "finished Cored"
   --
   (inlined, _, _, _) <- inline byteString option
   printCompactParens inlined
+  print "finished Inline"
   -- --
   erased <- erase byteString option
   printCompactParens erased
@@ -594,9 +596,11 @@ printTimeLapseFile file option = do
   --
   (_, cored) <- coreifyFile file option
   traverse_ (printCoreFunction cored option) currentDefinedItems
+  print "finished Cored"
   --
   (inlined, _, _, _) <- inlineFile file option
   printCompactParens inlined
+  print "finished Inline"
   --
   erased <- eraseFile file option
   printCompactParens erased

@@ -1,0 +1,128 @@
+Right
+    ( Header
+        ( "Nested" :| [] )
+        [ ModuleOpen
+            ( Open
+                ( "Prelude" :| [] )
+            )
+        , ModuleOpen
+            ( Open
+                ( "Circuit" :| [] )
+            )
+        , ModuleOpen
+            ( Open
+                ( "Circuit" :| [ "Field" ] )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "main"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "field" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Infix
+                            ( Inf
+                                { infixLeft = Name
+                                    ( "field" :| [] )
+                                , infixOp = "->" :| []
+                                , infixRight = Infix
+                                    ( Inf
+                                        { infixLeft = Name
+                                            ( "field" :| [] )
+                                        , infixOp = "->" :| []
+                                        , infixRight = Name
+                                            ( "field" :| [] )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "main"
+                    , functionLikeArgs =
+                        [ ConcreteA
+                            ( MatchLogic
+                                { matchLogicContents = MatchName "x"
+                                , matchLogicNamed = Nothing
+                                }
+                            )
+                        , ConcreteA
+                            ( MatchLogic
+                                { matchLogicContents = MatchName "y"
+                                , matchLogicNamed = Nothing
+                                }
+                            )
+                        , ConcreteA
+                            ( MatchLogic
+                                { matchLogicContents = MatchName "z"
+                                , matchLogicNamed = Nothing
+                                }
+                            )
+                        ]
+                    , functionLikeBody = Body
+                        ( Infix
+                            ( Inf
+                                { infixLeft = Name
+                                    ( "x" :| [] )
+                                , infixOp = "^" :| []
+                                , infixRight = Infix
+                                    ( Inf
+                                        { infixLeft = Constant
+                                            ( Number
+                                                ( Integer' 2 )
+                                            )
+                                        , infixOp = "+" :| []
+                                        , infixRight = Infix
+                                            ( Inf
+                                                { infixLeft = Name
+                                                    ( "y" :| [] )
+                                                , infixOp = "^" :| []
+                                                , infixRight = Infix
+                                                    ( Inf
+                                                        { infixLeft = Constant
+                                                            ( Number
+                                                                ( Integer' 2 )
+                                                            )
+                                                        , infixOp = "+" :| []
+                                                        , infixRight = Infix
+                                                            ( Inf
+                                                                { infixLeft = Name
+                                                                    ( "z" :| [] )
+                                                                , infixOp = "^" :| []
+                                                                , infixRight = Infix
+                                                                    ( Inf
+                                                                        { infixLeft = Constant
+                                                                            ( Number
+                                                                                ( Integer' 2 )
+                                                                            )
+                                                                        , infixOp = "+" :| []
+                                                                        , infixRight = Constant
+                                                                            ( Number
+                                                                                ( Integer' 5 )
+                                                                            )
+                                                                        }
+                                                                    )
+                                                                }
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        ]
+    )

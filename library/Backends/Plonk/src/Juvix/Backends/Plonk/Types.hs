@@ -1,8 +1,10 @@
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Juvix.Backends.Plonk.Types
   ( CompilationError (..),
-    FFAnnTerm,
-    FFTerm,
-    FFType,
+    AnnTerm,
+    Term,
+    Type,
     PrimValHR,
     PrimValIR,
     PrimVal',
@@ -15,9 +17,12 @@ module Juvix.Backends.Plonk.Types
     Return',
     PrimTy (..),
     PrimVal (..),
+    isConst,
+    isBinOp,
   )
 where
 
+import qualified Data.Aeson as A
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import qualified Juvix.Core.IR.Types as IR
@@ -53,12 +58,24 @@ data PrimVal f
   | PEq
   deriving (Show, Read, Eq, Generic, Data)
 
+instance A.ToJSON f => A.ToJSON (PrimVal f) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON f => A.FromJSON (PrimVal f) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 data PrimTy f
   = PField
   | PInt
   | PBool
   | PApplication (PrimTy f) (NonEmpty (PrimTy f))
   deriving (Show, Read, Eq, Generic)
+
+instance A.ToJSON f => A.ToJSON (PrimTy f) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON f => A.FromJSON (PrimTy f) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 type Return' ext f = App.Return' ext (P.PrimType (PrimTy f)) (PrimVal f)
 
@@ -80,12 +97,33 @@ type PrimValIR f = PrimVal' IR.T f
 
 type PrimValHR f = PrimVal' ErasedAnn.T f
 
-type FFType f = ErasedAnn.Type (PrimTy f)
+type Type f = ErasedAnn.Type (PrimTy f)
 
-type FFTerm f = ErasedAnn.Term (PrimTy f) (PrimVal f)
+type Term f = ErasedAnn.Term (PrimTy f) (PrimVal f)
 
-type FFAnnTerm f = ErasedAnn.AnnTerm (PrimTy f) (PrimVal f)
+type AnnTerm f = ErasedAnn.AnnTerm (PrimTy f) (PrimVal f)
 
 newtype CompilationError f
   = NotYetImplemented Text
   deriving (Show, Eq, Generic)
+
+isConst :: PrimVal f -> Bool
+isConst (PConst _) = True
+isConst _ = False
+
+isBinOp :: PrimVal f -> Bool
+isBinOp = \case
+  PAdd -> True
+  PSub -> True
+  PMul -> True
+  PDiv -> True
+  PExp -> True
+  PMod -> True
+  PAnd -> True
+  POr -> True
+  PXor -> True
+  PGt -> True
+  PGte -> True
+  PLt -> True
+  PLte -> True
+  PEq -> True

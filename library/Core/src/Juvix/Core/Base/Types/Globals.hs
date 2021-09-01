@@ -3,6 +3,7 @@
 
 module Juvix.Core.Base.Types.Globals where
 
+import qualified Data.Aeson as A
 import Data.Kind (Constraint)
 import Juvix.Core.Base.Types.Base
 import Juvix.Library hiding (Datatype, Pos)
@@ -45,6 +46,12 @@ data RawDatatype ext primTy primVal = RawDatatype
     rawDataCons :: [RawDataCon ext primTy primVal]
   }
   deriving (Generic)
+
+instance (A.ToJSON ty, A.ToJSON val, CoreAll A.ToJSON ext ty val) => A.ToJSON (RawDatatype ext ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val, CoreAll A.FromJSON ext ty val) => A.FromJSON (RawDatatype ext ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 deriving instance
   RawGlobalAll Show ext primTy primVal =>
@@ -97,6 +104,12 @@ data RawDataArg ext primTy primVal = RawDataArg
   }
   deriving (Generic)
 
+instance (A.ToJSON ty, A.ToJSON val, CoreAll A.ToJSON ext ty val) => A.ToJSON (RawDataArg ext ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val, CoreAll A.FromJSON ext ty val) => A.FromJSON (RawDataArg ext ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 deriving instance
   RawGlobalAll Show ext primTy primVal =>
   Show (RawDataArg ext primTy primVal)
@@ -142,6 +155,12 @@ data RawDataCon ext primTy primVal = RawDataCon
     rawConDef :: Maybe (RawFunction ext primTy primVal)
   }
   deriving (Generic)
+
+instance (A.ToJSON ty, A.ToJSON val, CoreAll A.ToJSON ext ty val) => A.ToJSON (RawDataCon ext ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val, CoreAll A.FromJSON ext ty val) => A.FromJSON (RawDataCon ext ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 deriving instance
   RawGlobalAll Show ext primTy primVal =>
@@ -189,6 +208,12 @@ data RawFunction ext primTy primVal = RawFunction
     rawFunClauses :: NonEmpty (RawFunClause ext primTy primVal)
   }
   deriving (Generic)
+
+instance (A.ToJSON ty, A.ToJSON val, CoreAll A.ToJSON ext ty val) => A.ToJSON (RawFunction ext ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val, CoreAll A.FromJSON ext ty val) => A.FromJSON (RawFunction ext ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 deriving instance
   RawGlobalAll Show ext primTy primVal =>
@@ -256,6 +281,12 @@ data RawAbstract ext primTy primVal = RawAbstract
   }
   deriving (Generic)
 
+instance (A.ToJSON ty, A.ToJSON val, CoreAll A.ToJSON ext ty val) => A.ToJSON (RawAbstract ext ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val, CoreAll A.FromJSON ext ty val) => A.FromJSON (RawAbstract ext ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 deriving instance
   RawGlobalAll Show ext primTy primVal =>
   Show (RawAbstract ext primTy primVal)
@@ -301,6 +332,12 @@ data RawGlobal ext primTy primVal
   | RawGFunction (RawFunction ext primTy primVal)
   | RawGAbstract (RawAbstract ext primTy primVal)
   deriving (Generic)
+
+instance (A.ToJSON ty, A.ToJSON val, CoreAll A.ToJSON ext ty val) => A.ToJSON (RawGlobal ext ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val, CoreAll A.FromJSON ext ty val) => A.FromJSON (RawGlobal ext ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 deriving instance
   RawGlobalAll Show ext primTy primVal =>
@@ -354,6 +391,12 @@ data RawTeleEle' ext primTy primVal = RawTeleEle
     rawExtension :: XPi ext primTy primVal
   }
   deriving (Generic)
+
+instance (A.ToJSON ty, A.ToJSON val, CoreAll A.ToJSON ext ty val) => A.ToJSON (RawTeleEle' ext ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val, CoreAll A.FromJSON ext ty val) => A.FromJSON (RawTeleEle' ext ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 deriving instance
   RawGlobalAll Show ext primTy primVal =>
@@ -441,6 +484,12 @@ data RawFunClause ext primTy primVal = RawFunClause
   }
   deriving (Generic)
 
+instance (A.ToJSON ty, A.ToJSON val, CoreAll A.ToJSON ext ty val) => A.ToJSON (RawFunClause ext ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val, CoreAll A.FromJSON ext ty val) => A.FromJSON (RawFunClause ext ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 deriving instance
   RawGlobalAll Show ext primTy primVal =>
   Show (RawFunClause ext primTy primVal)
@@ -464,3 +513,9 @@ data Pos
   | -- | other
     NSPos
   deriving (Generic, Eq, Show, Data, NFData)
+
+instance A.ToJSON Pos where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Pos where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})

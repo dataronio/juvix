@@ -1,193 +1,5 @@
 fromList
     [
-        ( "Polynomial" :| [ "^" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Polynomial" :| [ "^" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Prelude" :|
-                                [ "Circuit"
-                                , "field"
-                                ]
-                            )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PExp ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
-        ( "Polynomial" :| [ "*" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Polynomial" :| [ "*" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Prelude" :|
-                                [ "Circuit"
-                                , "field"
-                                ]
-                            )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PMul ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
-        ( "Polynomial" :| [ "==" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Polynomial" :| [ "==" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Prelude" :|
-                                [ "Circuit"
-                                , "field"
-                                ]
-                            )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "bool"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PEq ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
-        ( "Polynomial" :| [ "+" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Polynomial" :| [ "+" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
-                    ( Elim
-                        ( ElimX
-                            ( "Prelude" :|
-                                [ "Circuit"
-                                , "field"
-                                ]
-                            )
-                        ) ()
-                    )
-                    ( Pi Omega
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( Elim
-                            ( ElimX
-                                ( "Prelude" :|
-                                    [ "Circuit"
-                                    , "field"
-                                    ]
-                                )
-                            ) ()
-                        )
-                        ( "" :| [] )
-                    )
-                    ( "" :| [] )
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim PAdd ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Polynomial" :| [ "main" ]
         , RawGFunction
             ( RawFunction
@@ -237,13 +49,23 @@ fromList
                         ( App
                             ( App
                                 ( ElimX
-                                    ( "Polynomial" :| [ "==" ] )
+                                    ( "Prelude" :|
+                                        [ "Circuit"
+                                        , "Field"
+                                        , "=="
+                                        ]
+                                    )
                                 )
                                 ( Elim
                                     ( App
                                         ( App
                                             ( ElimX
-                                                ( "Polynomial" :| [ "^" ] )
+                                                ( "Prelude" :|
+                                                    [ "Circuit"
+                                                    , "Field"
+                                                    , "^"
+                                                    ]
+                                                )
                                             )
                                             ( Elim
                                                 ( ElimX

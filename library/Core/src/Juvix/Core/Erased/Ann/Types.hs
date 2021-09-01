@@ -1,5 +1,6 @@
 module Juvix.Core.Erased.Ann.Types where
 
+import qualified Data.Aeson as A
 import Juvix.Core.Application (IsParamVar (..))
 import Juvix.Core.Base.Types (Universe)
 import Juvix.Core.Parameterisation (TypedPrim')
@@ -34,6 +35,12 @@ data Term primTy primVal
   | AppM (AnnTerm primTy primVal) [AnnTerm primTy primVal]
   deriving (Show, Read, Eq, Generic)
 
+instance (A.ToJSON ty, A.ToJSON val) => A.ToJSON (Term ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val) => A.FromJSON (Term ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 data Type primTy
   = SymT NameSymbol.T
   | Star Universe
@@ -44,9 +51,50 @@ data Type primTy
   | UnitTy
   deriving (Show, Read, Eq, Generic)
 
+instance (A.ToJSON ty) => A.ToJSON (Type ty) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty) => A.FromJSON (Type ty) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
 data AnnTerm primTy primVal = Ann
   { usage :: Usage.T,
     type' :: Type primTy,
     term :: Term primTy primVal
   }
   deriving (Show, Read, Eq, Generic)
+
+-- TODO ∷ make usageFromType Fold!
+usageFromType :: Type primTy -> [Usage.T]
+usageFromType (Pi usage _x xs) = usage : usageFromType xs
+usageFromType Sig {} = []
+usageFromType SymT {} = []
+usageFromType Star {} = []
+usageFromType PrimTy {} = []
+usageFromType UnitTy {} = []
+
+piToReturnType :: Type primTy -> Type primTy
+piToReturnType (Pi _ _ rest) = piToReturnType rest
+piToReturnType last = last
+
+piToList :: Type primTy -> [(Usage.T, Type primTy)]
+piToList (Pi usage aType rest) = (usage, aType) : piToList rest
+piToList Sig {} = []
+piToList SymT {} = []
+piToList Star {} = []
+piToList PrimTy {} = []
+piToList UnitTy {} = []
+
+piToListTy :: Type primTy -> [Type primTy]
+piToListTy (Pi _usage ty xs) = ty : piToListTy xs
+piToListTy Sig {} = []
+piToListTy SymT {} = []
+piToListTy Star {} = []
+piToListTy PrimTy {} = []
+piToListTy UnitTy {} = []
+
+instance (A.ToJSON ty, A.ToJSON val) => A.ToJSON (AnnTerm ty val) where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance (A.FromJSON ty, A.FromJSON val) => A.FromJSON (AnnTerm ty val) where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
