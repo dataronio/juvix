@@ -1,0 +1,22 @@
+Rec
+    { recordContents = T
+        { public = fromList
+            [
+                ( "main"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( "TopLevel.Prelude.->" "TopLevel.Prelude.Circuit.field"
+                                ( "TopLevel.Prelude.->" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.bool" ) )
+                        , defTerm =
+                            ( ":lambda-case"
+                                (
+                                    ( "x" "y" )
+                                    ( "TopLevel.Prelude.Circuit.Field.=="
+                                        ( "TopLevel.Prelude.Circuit.Field.^" "x" 3 ) "y" ) ) )
+                        , defPrecedence = Pred Left 9 } ) ) ]
+        , private = fromList [] }
+    , recordMTy = Nothing
+    , recordOpenList = []
+    , recordQualifiedMap = map }

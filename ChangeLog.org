@@ -1,4 +1,9 @@
 * Changelog for Juvix
+** 0.1.1.18
+- Adds record lookup transformation for record symbols
+  + Technically to all symbols with an unknown context address/path
+** 0.1.1.17
+- Adds record declarations to the Core S-expression representation.
 ** 0.1.1.16
 - Add a test suite and tooling to =Juvix.Library.Test.Golden= for
   expecting at least 1 test to fail.

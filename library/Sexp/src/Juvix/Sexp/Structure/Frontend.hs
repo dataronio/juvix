@@ -143,6 +143,13 @@ data NotPunned = NotPunned
   }
   deriving (Show)
 
+data NameUsage = NameUsage
+  { nameUsageName :: Sexp.T,
+    nameUsageUsage :: Sexp.T,
+    nameUsageValue :: Sexp.T
+  }
+  deriving (Show)
+
 newtype Punned = Punned
   { punnedName :: Sexp.T
   }
@@ -154,7 +161,7 @@ newtype Record = Record
   deriving (Show)
 
 newtype RecordDec = RecordDec
-  { recordDecValue :: [NotPunned]
+  { recordDecValue :: [NameUsage]
   }
   deriving (Show)
 
@@ -214,6 +221,11 @@ data Effect = Effect
 data DefHandler = DefHandler
   { defHandlerName :: Sexp.T,
     defHandlerOps :: Sexp.T
+  }
+  deriving (Show)
+
+newtype Primitive = Primitive
+  { primitiveName :: Sexp.T
   }
   deriving (Show)
 
@@ -582,6 +594,22 @@ fromNotPunned (NotPunned sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
 
 ----------------------------------------
+-- NameUsage
+----------------------------------------
+
+toNameUsage :: Sexp.T -> Maybe NameUsage
+toNameUsage form =
+  case form of
+    sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil ->
+      NameUsage sexp1 sexp2 sexp3 |> Just
+    _ ->
+      Nothing
+
+fromNameUsage :: NameUsage -> Sexp.T
+fromNameUsage (NameUsage sexp1 sexp2 sexp3) =
+  Sexp.list [sexp1, sexp2, sexp3]
+
+----------------------------------------
 -- Record
 ----------------------------------------
 
@@ -857,14 +885,40 @@ toRecordDec :: Sexp.T -> Maybe RecordDec
 toRecordDec form
   | isRecordDec form =
     case form of
-      _nameRecordDec Sexp.:> notPunnedGroup1
-        | Just notPunnedGroup1 <- toNotPunnedGroup notPunnedGroup1 ->
-          RecordDec notPunnedGroup1 |> Just
+      _nameRecordDec Sexp.:> nameUsage1
+        | Just nameUsage1 <- toNameUsage `fromStarList` nameUsage1 ->
+          RecordDec nameUsage1 |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
 fromRecordDec :: RecordDec -> Sexp.T
-fromRecordDec (RecordDec notPunnedGroup1) =
-  Sexp.listStar [Sexp.atom nameRecordDec, fromNotPunnedGroup notPunnedGroup1]
+fromRecordDec (RecordDec nameUsage1) =
+  Sexp.listStar [Sexp.atom nameRecordDec, fromNameUsage `toStarList` nameUsage1]
+
+----------------------------------------
+-- Primitive
+----------------------------------------
+
+namePrimitive :: NameSymbol.T
+namePrimitive = ":primitive"
+
+isPrimitive :: Sexp.T -> Bool
+isPrimitive (Sexp.Cons form _) = Sexp.isAtomNamed form namePrimitive
+isPrimitive _ = False
+
+toPrimitive :: Sexp.T -> Maybe Primitive
+toPrimitive form
+  | isPrimitive form =
+    case form of
+      _namePrimitive Sexp.:> sexp1 Sexp.:> Sexp.Nil ->
+        Primitive sexp1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromPrimitive :: Primitive -> Sexp.T
+fromPrimitive (Primitive sexp1) =
+  Sexp.list [Sexp.atom namePrimitive, sexp1]

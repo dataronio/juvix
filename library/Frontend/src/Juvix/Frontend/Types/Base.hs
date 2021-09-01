@@ -232,7 +232,8 @@ instance A.FromJSON Record where
 
 data NameType = NameType'
   { nameTypeSignature :: Expression,
-    nameTypeName :: !Name
+    nameTypeName :: !Name,
+    nameTypeUsage :: Maybe Expression
   }
   deriving (Show, Read, Eq, Generic)
 
@@ -474,7 +475,7 @@ instance A.ToJSON DeclarationExpression where
 instance A.FromJSON DeclarationExpression where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
-data Primitive
+newtype Primitive
   = Prim NameSymb
   deriving (Show, Read, Eq, Generic)
 
@@ -484,7 +485,7 @@ instance A.ToJSON Primitive where
 instance A.FromJSON Primitive where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
-data List
+newtype List
   = ListLit [Expression]
   deriving (Show, Read, Eq, Generic)
 
@@ -494,7 +495,7 @@ instance A.ToJSON List where
 instance A.FromJSON List where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
-data Tuple
+newtype Tuple
   = TupleLit [Expression]
   deriving (Show, Read, Eq, Generic)
 
@@ -610,7 +611,7 @@ instance A.FromJSON DoBody where
 
 -- TODO ∷ we need includes in here as well!
 -- Was a newtype but extensible adds fields
-data ExpRecord = ExpressionRecord
+newtype ExpRecord = ExpressionRecord
   { expRecordFields :: NonEmpty (NameSet Expression)
   }
   deriving (Show, Read, Eq, Generic)

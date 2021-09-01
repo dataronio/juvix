@@ -5,7 +5,7 @@ Rec
                 ( "sExpField"
                 , TypeDeclar
                     { definitionRepr =
-                        ( "sExpField" ()
+                        ( "type" "sExpField" ()
                             ( "Atom" "field" )
                             ( "SPair" "sExpField" "sExpField" ) ) } )
             ,
@@ -38,7 +38,7 @@ Rec
                 ( "functionTypeInConstructor"
                 , TypeDeclar
                     { definitionRepr =
-                        (
+                        ( "type"
                             ( "functionTypeInConstructor" ":type" "ty" ) ()
                             ( "FTIC_Left" "field" )
                             ( "FTIC_Right"
@@ -107,7 +107,7 @@ Rec
                 ( "verySimpleType"
                 , TypeDeclar
                     { definitionRepr =
-                        ( "verySimpleType" () ( "One" "field" ) ) } )
+                        ( "type" "verySimpleType" () ( "One" "field" ) ) } )
             ,
                 ( "SPair"
                 , SumCon
@@ -174,7 +174,7 @@ Rec
                 ( "bar"
                 , TypeDeclar
                     { definitionRepr =
-                        (
+                        ( "type"
                             ( "bar" ":type" "ty" ) ()
                             ( "P" "field" "field" )
                             ( "Q" "field" "field" "field" ) ) } ) ]

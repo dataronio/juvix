@@ -98,10 +98,14 @@ transRecord :: Types.Record -> Sexp.T
 transRecord (Types.Record'' fields sig) =
   sigFun (Sexp.listStar [Sexp.atom ":record-d", Sexp.list newName])
   where
-    newName = NonEmpty.toList fields >>= f
+    newName = NonEmpty.toList fields >>| f
       where
-        f (Types.NameType' sig name) =
-          [transName name, transExpr sig]
+        f (Types.NameType' sig name usage) =
+          let newUsage =
+                case usage of
+                  Nothing -> Sexp.list [Sexp.atom ":primitive", Sexp.atom "Builtin.Omega"]
+                  Just usage -> transExpr usage
+           in Sexp.list [transName name, newUsage, transExpr sig]
     sigFun expr =
       case sig of
         Nothing ->

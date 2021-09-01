@@ -21,6 +21,8 @@ module Juvix.Contextify.Environment
     namedForms,
     onExpression,
     singlePass,
+    PassChange (..),
+    PassManual (..),
   )
 where
 
@@ -38,6 +40,7 @@ import Prelude (error)
 data ErrorS
   = CantResolve [Sexp.T]
   | UnknownSymbol NameSymbol.T
+  | ImproperForm Sexp.T
   | ImpossibleMoreEles
   | Clash
       (Shunt.Precedence Sexp.T)
@@ -130,14 +133,37 @@ onExpression form trigger func =
 -- Pass infrastructure
 ------------------------------------------------------------
 
+-- | @Pass@ a standard pass that just changes the syntax, not the
+-- context type.
 data Pass m = Pass
   { sumF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T,
     termF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T,
     tyF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T
   }
+  deriving (Show)
 
 singlePass :: (SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T) -> Pass m
 singlePass f = Pass f f f
+
+-- | @PassManual@ is a single function variant of @Pass@ that the given
+-- change function must manual recurse on the body rather than it being
+-- automatic. See @Passes.notFoundSymbolToLookup@ for an example
+newtype PassManual m
+  = PassManual
+      (SexpContext -> Sexp.Atom -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T)
+  deriving (Show)
+
+-- | @PassChange@ Instead of recursing on the sexp structure, we check
+-- the top form and see if it needs to be changed.
+newtype PassChange m
+  = PassChange
+      ( SexpContext ->
+        Sexp.Atom ->
+        Sexp.T ->
+        NameSpace.From Symbol ->
+        m (Maybe (NameSpace.From Symbol, Context.Definition Sexp.T Sexp.T Sexp.T))
+      )
+  deriving (Show)
 
 class
   Context.ToContextFormGeneral contextTo =>
@@ -150,17 +176,37 @@ class
     (NameSymbol.T -> Bool) ->
     contextTo m Sexp.T Sexp.T Sexp.T
 
+instance ToContextTraversal PassManual Context.ContextForms where
+  promotePass (PassManual pass) trigger =
+    let f form ctx =
+          Sexp.foldSearchPredManualRecurse
+            form
+            (trigger, pass ctx)
+            -- Hack? We unbind the primtiive form for being a
+            -- binder. Which is needed for the symbol resolution pass
+            -- so we don't try to resolve it to a different name
+            (bindingFormsNoPrimitive, searchAndClosure ctx)
+     in Context.CtxSingle f |> Context.promote
+
 instance ToContextTraversal Pass Context.ContextForms where
   promotePass Pass {sumF, termF, tyF} trigger =
     Context.CtxForm
       { -- Need to do this consing of type to figure out we are in a type
         -- we then need to remove it, as it shouldn't be there
-        sumF = \form ->
-          fmap Sexp.cdr
-            . foldSearchContextClosure sumF trigger (Sexp.Cons (Sexp.atom "type") form),
+        sumF = foldSearchContextClosure sumF trigger,
         termF = foldSearchContextClosure termF trigger,
         tyF = foldSearchContextClosure tyF trigger
       }
+
+instance ToContextTraversal PassChange Context.ContextFormGeneral where
+  promotePass (PassChange f) trigger =
+    let onRepresentation sexp ctx Context.Extra {name}
+          | Just atom <- Sexp.atomFromT (Sexp.car sexp),
+            Just atomName <- Sexp.nameFromT (Sexp.car sexp),
+            trigger atomName =
+            f ctx atom (Sexp.cdr sexp) name
+          | otherwise = pure Nothing
+     in Context.CtxChangeSumRep onRepresentation |> Context.promote
 
 foldSearchContextClosure ::
   (HasReader "closure" Closure.T f, HasThrow "error" ErrorS f) =>
@@ -193,6 +239,20 @@ bindingForms x =
              ":declaim",
              ":lambda",
              ":primitive",
+             ":defop"
+           ]
+
+bindingFormsNoPrimitive :: (Eq a, IsString a) => a -> Bool
+bindingFormsNoPrimitive x =
+  x
+    `elem` [ "type",
+             ":open-in",
+             ":let-type",
+             ":let-match",
+             "case",
+             ":lambda-case",
+             ":declaim",
+             ":lambda",
              ":defop"
            ]
 

@@ -440,9 +440,11 @@ record = do
 nameType :: Parser Types.NameType
 nameType = do
   name <- nameParserSN
+  maybeUsage <-
+    P.optional (fmap Types.Constant constantSN <|> spaceLiner (J.parens expressionSN))
   skipLiner J.colon
   sig <- expression
-  pure (Types.NameType' sig name)
+  pure (Types.NameType' sig name maybeUsage)
 
 -- nameParserColon :: Parser Types.Name
 -- nameParserColon =

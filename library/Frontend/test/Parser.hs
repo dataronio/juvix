@@ -1,18 +1,15 @@
 module Parser where
 
-import Juvix.Frontend.Parser (parse)
 import qualified Juvix.Frontend.Parser as Parser
 import Juvix.Frontend.Types (Expression, TopLevel)
 import qualified Juvix.Frontend.Types as AST
 import Juvix.Library
-import qualified Juvix.Library.NameSymbol as NameSym
-import Juvix.Library.Parser (Parser, ParserError)
+import qualified Juvix.Library.NameSymbol as NameSym ()
+import Juvix.Library.Parser (ParserError)
 import qualified Juvix.Library.Parser as J
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 import qualified Text.Megaparsec as P
-import qualified Text.Megaparsec.Byte as P
-import Prelude (String, error)
 
 allParserTests :: T.TestTree
 allParserTests =
@@ -458,6 +455,31 @@ handler =
 -- ADT testing
 --------------------------------------------------
 
+recordTypeTest :: T.TestTree
+recordTypeTest =
+  shouldParseAs
+    "sumTypeTest"
+    Parser.parse
+    ( "type Foo a b c = | A { a 2 : Int, #b : Int }"
+    )
+    $ AST.NoHeader
+      [ ( AST.NameType'
+            (AST.Name "Int")
+            (AST.Concrete "a")
+            (Just (AST.Constant (AST.Number (AST.Integer' 2))))
+            :| [AST.NameType' (AST.Name "Int") (AST.Implicit "b") Nothing]
+            |> flip AST.Record'' Nothing
+            |> AST.Record
+            |> Just
+            |> AST.S "C"
+        )
+          :| []
+          |> AST.Sum
+          |> AST.NonArrowed
+          |> AST.Typ Nothing "Foo" ["a", "b", "c"]
+          |> AST.Type
+      ]
+
 sumTypeTest :: T.TestTree
 sumTypeTest =
   shouldParseAs
@@ -487,8 +509,8 @@ sumTypeTest =
                  |> Just
                  |> AST.S "B",
                --
-               AST.NameType' (AST.Name "Int") (AST.Concrete "a")
-                 :| [AST.NameType' (AST.Name "Int") (AST.Implicit "b")]
+               AST.NameType' (AST.Name "Int") (AST.Concrete "a") Nothing
+                 :| [AST.NameType' (AST.Name "Int") (AST.Implicit "b") Nothing]
                  |> flip AST.Record'' Nothing
                  |> AST.Record
                  |> Just
@@ -506,8 +528,8 @@ sumTypeTest =
                  |> AST.Application
                  |> Just
                  |> AST.Record''
-                   ( AST.NameType' (AST.Name "Int") (AST.Concrete "a")
-                       :| [AST.NameType' (AST.Name "Int") (AST.Implicit "b")]
+                   ( AST.NameType' (AST.Name "Int") (AST.Concrete "a") Nothing
+                       :| [AST.NameType' (AST.Name "Int") (AST.Implicit "b") Nothing]
                    )
                  |> AST.Record
                  |> Just

@@ -8,6 +8,8 @@ import Juvix.Context.Types
 import Juvix.Library hiding (Sum, modify, toList)
 import qualified Juvix.Library.HashMap as HashMap
 
+newtype ExtraOptions = Extra {name :: NameSpace.From Symbol} deriving (Show)
+
 ------------------------------------------------------------
 -- Traversal Function Transformers
 ------------------------------------------------------------
@@ -34,9 +36,9 @@ class
 -- @ContextForms@ in that it can commit back many definitions and
 -- change the current form.
 data ContextFormGeneral m term ty sumRep = CtxFormGeneral
-  { sumGeneral :: sumRep -> T term ty sumRep -> m (Additional sumRep term ty sumRep),
-    termGeneral :: term -> T term ty sumRep -> m (Additional term term ty sumRep),
-    tyGeneral :: ty -> T term ty sumRep -> m (Additional ty term ty sumRep)
+  { sumGeneral :: sumRep -> T term ty sumRep -> ExtraOptions -> m (Additional sumRep term ty sumRep),
+    termGeneral :: term -> T term ty sumRep -> ExtraOptions -> m (Additional term term ty sumRep),
+    tyGeneral :: ty -> T term ty sumRep -> ExtraOptions -> m (Additional ty term ty sumRep)
   }
   deriving (Show)
 
@@ -66,9 +68,15 @@ newtype ContextSingle m rep
 -- representation can safely change the definition
 
 -- | @ContextChangeSumRep@ is a transformation that changes the sum
--- representation of a form into a new definition.
+-- representation of a form into a new definition. If the resulting
+-- function is Nothing then we don't change the definition
 newtype ContextChangeSumRep m rep
-  = CtxChangeSumRep (rep -> T rep rep rep -> m (NameSpace.From Symbol, Definition rep rep rep))
+  = CtxChangeSumRep
+      ( rep ->
+        T rep rep rep ->
+        ExtraOptions ->
+        m (Maybe (NameSpace.From Symbol, Definition rep rep rep))
+      )
   deriving (Show)
 
 instance ToContextFormGeneral ContextFormGeneral where
@@ -82,7 +90,7 @@ instance ToContextFormGeneral ContextForms where
         tyGeneral = transform tyF
       }
     where
-      transform f x y = f x y >>| \res -> Additional (Just res) []
+      transform f x y _extra = f x y >>| \res -> Additional (Just res) []
 
 -- Due to generic issues we can't trasnform @ContextSingle@ into a
 -- @ToContextFormGeneral@ interface.
@@ -94,7 +102,11 @@ instance FromContextFormSingle ContextChangeSumRep ContextFormGeneral where
   promote (CtxChangeSumRep f) =
     CtxFormGeneral newFunction newFunction newFunction
     where
-      newFunction x y = f x y >>| \(sym, def) -> Additional Nothing [(sym, def)]
+      newFunction form ctx extra =
+        f form ctx extra
+          >>| \case
+            Just (sym, def) -> Additional Nothing [(sym, def)]
+            Nothing -> Additional (Just form) []
 
 maybeAdditionToAddition ::
   Maybe (Additional t term ty sumRep) -> Additional t term ty sumRep
@@ -186,13 +198,13 @@ mapCurrentContext transformers ctx =
     f = toContextForm transformers
     -- we don't actually use the name of the current item at all
     -- so just ignore it
-    dispatch form _name ctx =
+    dispatch form name ctx =
       -- Used for the def and sumcon case
       -- Just run over the two parts that change
       let callTyF typ =
-            tyGeneral f typ ctx
+            tyGeneral f typ ctx (Extra name)
           defCase d@D {defTerm, defMTy} = do
-            Additional newTerm extraDefs <- termGeneral f defTerm ctx
+            Additional newTerm extraDefs <- termGeneral f defTerm ctx (Extra name)
             Additional defMTy extraDefs' <-
               traverse callTyF defMTy >>| maybeAdditionToAddition
             pure $
@@ -221,7 +233,7 @@ mapCurrentContext transformers ctx =
                 >>| \(Additional mUnknown extraDefs) ->
                   Additional (Just (Unknown mUnknown)) extraDefs
             Def definition'' -> defCase definition'' >>| mapDef Def
-            TypeDeclar type' -> sumGeneral f type' ctx >>| mapDef TypeDeclar
+            TypeDeclar type' -> sumGeneral f type' ctx (Extra name) >>| mapDef TypeDeclar
             Information info -> pure (Additional (Just (Information info)) [])
             CurrentNameSpace -> pure (Additional (Just CurrentNameSpace) [])
 

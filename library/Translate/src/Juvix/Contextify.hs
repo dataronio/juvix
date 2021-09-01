@@ -41,6 +41,8 @@ op names = do
         Environment.runMIO $
           Passes.resolveModule ctx
             >>= Passes.inifixSoloPass
+            >>= Passes.recordDeclaration
+            >>= Passes.notFoundSymbolToLookup
       case newCtx of
         Left err -> pure $ Left $ PassErr err
         Right t -> pure (Right t)

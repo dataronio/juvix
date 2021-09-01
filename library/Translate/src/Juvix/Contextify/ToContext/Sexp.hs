@@ -143,7 +143,11 @@ type' t@(assocName Sexp.:> _ Sexp.:> dat) ctx
         newCtx = foldr addSum ctx constructors
      in pure $
           Type.PS
-            { ctxS = Context.add (NameSpace.Pub name) (Context.TypeDeclar t) newCtx,
+            { ctxS =
+                Context.add
+                  (NameSpace.Pub name)
+                  (Context.TypeDeclar (Sexp.Cons (Sexp.atom "type") t))
+                  newCtx,
               opensS = [],
               modsDefinedS = []
             }

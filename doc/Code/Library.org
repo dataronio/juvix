@@ -1049,7 +1049,6 @@ with any stage of the compiler while modifying the source code.
 *** Parser <<test/Parser>>
 - _Relies on_
   + [[Frontend/Parser]]
-  + [[Frontend/Parser]]
   + [[Frontend/Types]]
   + [[Frontend/Types]]
   + [[Library]]
@@ -1226,6 +1225,7 @@ with any stage of the compiler while modifying the source code.
   + [[Term]]
   + [[ToHR/Types]]
   + [[Juvix/Sexp]]
+  + [[Structure/Frontend]]
 ****** Types <<ToHR/Types>>
 - _Relies on_
   + [[Juvix/Context]]
@@ -1628,8 +1628,11 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
+  + [[CoreNamed]]
   + [[Structure/Frontend]]
+  + [[Structure/Helpers]]
   + [[Lens]]
+  + [[Transition]]
 ***** InfixPrecedence
 ****** ShuntYard <<InfixPrecedence/ShuntYard>>
 - This implements the Shunt Yard algorithm for determining the

@@ -9,6 +9,7 @@ import Juvix.Pipeline.ToHR.Env
 import Juvix.Pipeline.ToHR.Term
 import Juvix.Pipeline.ToHR.Types
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Sexp.Structure.Frontend as Structure
 import Prelude (error)
 
 transformTypeSig ::
@@ -22,7 +23,7 @@ transformTypeSig ::
   NameSymbol.T ->
   Sexp.T ->
   m [CoreSig HR.T primTy primVal]
-transformTypeSig q _name (typeCon Sexp.:> args Sexp.:> typeForm)
+transformTypeSig q _name (_name2 Sexp.:> typeCon Sexp.:> args Sexp.:> typeForm)
   | Just typeArgs <- Sexp.toList args >>= traverse eleToSymbol = do
     (baseTy, hd) <- transformIndices typeArgs typeCon
     let sigDataType = foldr makeTPi baseTy typeArgs
@@ -52,14 +53,17 @@ transformConSigs pfx hd typeCon =
   traverse (transformProduct pfx hd typeCon) <=< toProducts
   where
     -- We have a single constructor, which is a record
-    toProducts (r@(record Sexp.:> _) Sexp.:> Sexp.Nil)
-      | Sexp.isAtomNamed record ":record-d" = do
+    toProducts (record Sexp.:> Sexp.Nil)
+      | Structure.isRecordDec record = do
         -- E.g.
-        -- ((":record-d" "x" "TopLevel.Prelude.Circuit.field" "y" "TopLevel.Prelude.Circuit.field" "z" "TopLevel.Prelude.Circuit.field"),
+        -- ((:record-d
+        --      (x ω TopLevel.Prelude.Circuit.field)
+        --      (y ω TopLevel.Prelude.Circuit.field)
+        --      (z ω TopLevel.Prelude.Circuit.field)))
         --   ":record-d",
         --   ["Datatypes"],
-        --   Nothing)
-        throwFF $ RecordUnimplemented r
+        --   Nothing
+        throwFF $ RecordUnimplemented record
     -- we can't have another standalone product here, so just send to
     -- sum
     toProducts sums

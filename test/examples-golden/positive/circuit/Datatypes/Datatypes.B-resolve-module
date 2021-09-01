@@ -5,7 +5,7 @@ Rec
                 ( "sExpField"
                 , TypeDeclar
                     { definitionRepr =
-                        ( "sExpField" ()
+                        ( "type" "sExpField" ()
                             ( "Atom" "TopLevel.Prelude.Circuit.field" )
                             ( "SPair" "sExpField" "sExpField" ) ) } )
             ,
@@ -38,7 +38,7 @@ Rec
                 ( "functionTypeInConstructor"
                 , TypeDeclar
                     { definitionRepr =
-                        (
+                        ( "type"
                             ( "functionTypeInConstructor" ":type" "TopLevel.Prelude.ty" ) ()
                             ( "FTIC_Left" "TopLevel.Prelude.Circuit.field" )
                             ( "FTIC_Right"
@@ -107,7 +107,7 @@ Rec
                 ( "verySimpleType"
                 , TypeDeclar
                     { definitionRepr =
-                        ( "verySimpleType" ()
+                        ( "type" "verySimpleType" ()
                             ( "One" "TopLevel.Prelude.Circuit.field" ) ) } )
             ,
                 ( "SPair"
@@ -175,7 +175,7 @@ Rec
                 ( "bar"
                 , TypeDeclar
                     { definitionRepr =
-                        (
+                        ( "type"
                             ( "bar" ":type" "TopLevel.Prelude.ty" ) ()
                             ( "P" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.field" )
                             ( "Q" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.field" "TopLevel.Prelude.Circuit.field" ) ) } ) ]

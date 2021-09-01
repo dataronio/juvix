@@ -30,7 +30,7 @@
 --        can automatically fill in this meta data
 module Juvix.Sexp.Structure.CoreNamed where
 
-import Juvix.Library hiding (Meta, fromInteger, toInteger)
+import Juvix.Library hiding (Field, Meta, fromInteger, toInteger)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import Juvix.Sexp.Structure.Helpers
@@ -110,6 +110,24 @@ data RawFunClause = RawFunClause
     rawFunClausePats :: Sexp.T,
     rawFunClauseBody :: Sexp.T,
     rawFunClauseCatchAll :: Sexp.T
+  }
+  deriving (Show)
+
+data Field = Field
+  { fieldName :: NameSymbol.T,
+    fieldUsage :: Sexp.T,
+    fieldTy :: Sexp.T
+  }
+  deriving (Show)
+
+newtype RecordTy = RecordTy
+  { recordTyFields :: [Field]
+  }
+  deriving (Show)
+
+data Lookup = Lookup
+  { lookupBase :: Sexp.T,
+    lookupNames :: [Symbol]
   }
   deriving (Show)
 
@@ -425,17 +443,72 @@ fromMeta (Meta sexp1 integer2) =
   Sexp.list [sexp1, fromInteger integer2]
 
 ----------------------------------------
--- RawFunClause
+-- Field
 ----------------------------------------
 
-toRawFunClause :: Sexp.T -> Maybe RawFunClause
-toRawFunClause form =
+toField :: Sexp.T -> Maybe Field
+toField form =
   case form of
-    sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> sexp4 Sexp.:> Sexp.Nil ->
-      RawFunClause sexp1 sexp2 sexp3 sexp4 |> Just
+    nameSymbol1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil
+      | Just nameSymbol1 <- toNameSymbol nameSymbol1 ->
+        Field nameSymbol1 sexp2 sexp3 |> Just
     _ ->
       Nothing
 
-fromRawFunClause :: RawFunClause -> Sexp.T
-fromRawFunClause (RawFunClause sexp1 sexp2 sexp3 sexp4) =
-  Sexp.list [sexp1, sexp2, sexp3, sexp4]
+fromField :: Field -> Sexp.T
+fromField (Field nameSymbol1 sexp2 sexp3) =
+  Sexp.list [fromNameSymbol nameSymbol1, sexp2, sexp3]
+
+----------------------------------------
+-- RecordTy
+----------------------------------------
+
+nameRecordTy :: NameSymbol.T
+nameRecordTy = ":record-ty"
+
+isRecordTy :: Sexp.T -> Bool
+isRecordTy (Sexp.Cons form _) = Sexp.isAtomNamed form nameRecordTy
+isRecordTy _ = False
+
+toRecordTy :: Sexp.T -> Maybe RecordTy
+toRecordTy form
+  | isRecordTy form =
+    case form of
+      _nameRecordTy Sexp.:> field1
+        | Just field1 <- toField `fromStarList` field1 ->
+          RecordTy field1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromRecordTy :: RecordTy -> Sexp.T
+fromRecordTy (RecordTy field1) =
+  Sexp.listStar [Sexp.atom nameRecordTy, fromField `toStarList` field1]
+
+----------------------------------------
+-- Lookup
+----------------------------------------
+
+nameLookup :: NameSymbol.T
+nameLookup = ":lookup"
+
+isLookup :: Sexp.T -> Bool
+isLookup (Sexp.Cons form _) = Sexp.isAtomNamed form nameLookup
+isLookup _ = False
+
+toLookup :: Sexp.T -> Maybe Lookup
+toLookup form
+  | isLookup form =
+    case form of
+      _nameLookup Sexp.:> sexp1 Sexp.:> symbol2
+        | Just symbol2 <- toSymbol `fromStarList` symbol2 ->
+          Lookup sexp1 symbol2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromLookup :: Lookup -> Sexp.T
+fromLookup (Lookup sexp1 symbol2) =
+  Sexp.listStar [Sexp.atom nameLookup, sexp1, fromSymbol `toStarList` symbol2]
