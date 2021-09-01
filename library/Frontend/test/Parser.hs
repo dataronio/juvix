@@ -30,6 +30,7 @@ allParserTests =
       matchMoreComplex,
       condTest1,
       record1,
+      recordDec,
       parens1,
       infixTests,
       -- pre-processor tests
@@ -825,6 +826,25 @@ record1 =
       "record1"
       (P.parse Parser.expression "")
       "{a, b = 3+5}"
+
+--------------------------------------------------
+-- RecordDec
+--------------------------------------------------
+
+recordDec :: T.TestTree
+recordDec =
+  ( AST.NameType'
+      (AST.Name "Int")
+      (AST.Concrete "a")
+      (Just (AST.Constant (AST.Number (AST.Integer' 2))))
+      :| [AST.NameType' (AST.Name "Int") (AST.Implicit "b") Nothing]
+      |> flip AST.Record'' Nothing
+      |> AST.RecordDec
+  )
+    |> shouldParseAs
+      "recordDeclaration"
+      (P.parse Parser.expression "")
+      "{ a 2 : Int, #b : Int }"
 
 --------------------------------------------------
 -- parens

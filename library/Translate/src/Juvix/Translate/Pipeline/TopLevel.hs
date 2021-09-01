@@ -24,6 +24,7 @@ transExpr (Types.UniverseName n) = transUniverseExpression n
 transExpr (Types.DeclarationE d) = transDeclarationExpression d
 transExpr (Types.Application p) = transApplication p
 transExpr (Types.NamedTypeE t) = transNamedType t
+transExpr (Types.RecordDec r) = transRecord r
 transExpr (Types.Primitive p) = transPrimitive p
 transExpr (Types.ExpRecord r) = transExpRecord r
 transExpr (Types.RefinedE i) = transTypeRefine i
