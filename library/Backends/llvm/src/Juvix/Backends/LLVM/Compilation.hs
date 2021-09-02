@@ -113,7 +113,7 @@ mkApp env f@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
   case term of
     ErasedAnn.LamM {ErasedAnn.body, ErasedAnn.arguments, ErasedAnn.capture} -> do
       funname <- mkLam env type' body arguments capture
-      LLVM.call (LLVM.ConstantOperand $ LLVM.GlobalReference (typeToLLVM type') funname) []
+      LLVM.call (globalRef (typeToLLVM type') funname) []
     ErasedAnn.Prim prim -> applyPrim env prim xs
     ErasedAnn.Var v -> do
       f' <- compileTerm env f
@@ -147,3 +147,7 @@ typeToLLVM (ErasedAnn.Pi _usage f xs) =
     tyList = f : functionTy xs
     (resultType : revArgumentTypes) = reverse tyList
     argumentTypes = reverse revArgumentTypes
+
+-- | Handy wrapper for creating global references based on a type and name.
+globalRef :: LLVM.Type -> LLVM.Name -> LLVM.Operand
+globalRef ty name = LLVM.ConstantOperand $ LLVM.GlobalReference ty name
