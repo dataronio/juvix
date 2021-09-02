@@ -56,7 +56,7 @@ mkPrim (ErasedAnn.Prim prim) ty = case prim of
     ErasedAnn.PrimTy (PrimTy LLVM.IntegerType {LLVM.typeBits}) ->
       return $
         LLVM.ConstantOperand $
-          LLVM.Int {integerBits = typeBits, integerValue = i}
+          LLVM.Int {LLVM.integerBits = typeBits, LLVM.integerValue = i}
 
 -- | Write an LLVM function definition based on a the given lambda abstraction.
 -- The function returns the name of the create function.
