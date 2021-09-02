@@ -1,10 +1,10 @@
 Ann
-    { usage = Omega
+    { usage = SAny
     , type' = PrimTy PField
     , term = AppM
         ( Ann
-            { usage = Omega
-            , type' = Pi Omega
+            { usage = SAny
+            , type' = Pi SAny
                 ( SymT
                     ( "FlatDatatypes" :| [ "pq" ] )
                 ) ( PrimTy PField )
@@ -13,14 +13,14 @@ Ann
             }
         )
         [ Ann
-            { usage = Omega
+            { usage = SAny
             , type' = SymT
                 ( "FlatDatatypes" :| [ "pq" ] )
             , term = AppM
                 ( Ann
-                    { usage = Omega
-                    , type' = Pi Omega ( PrimTy PField )
-                        ( Pi Omega ( PrimTy PField )
+                    { usage = SAny
+                    , type' = Pi SAny ( PrimTy PField )
+                        ( Pi SAny ( PrimTy PField )
                             ( SymT
                                 ( "FlatDatatypes" :| [ "pq" ] )
                             )
@@ -30,7 +30,7 @@ Ann
                     }
                 )
                 [ Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy PField
                     , term = Prim
                         ( Return
@@ -44,7 +44,7 @@ Ann
                         )
                     }
                 , Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy PField
                     , term = Prim
                         ( Return

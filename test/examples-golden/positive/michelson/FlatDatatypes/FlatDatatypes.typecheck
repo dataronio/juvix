@@ -1,6 +1,6 @@
 Ann
-    { usage = Omega
-    , type' = Pi Omega
+    { usage = SAny
+    , type' = Pi SAny
         ( PrimTy
             ( Application Pair
                 ( PrimTy ( Ty TNat : ) :|
@@ -18,12 +18,12 @@ Ann
         )
     , term = AppM
         ( Ann
-            { usage = Omega
-            , type' = Pi Omega
+            { usage = SAny
+            , type' = Pi SAny
                 ( PrimTy
                     ( PrimTy ( Ty TNat : ) )
                 )
-                ( Pi Omega
+                ( Pi SAny
                     ( PrimTy
                         ( Application Pair
                             ( PrimTy ( Ty TNat : ) :|
@@ -45,8 +45,8 @@ Ann
                 , arguments =
                     [ "0" :| [] ]
                 , body = Ann
-                    { usage = Omega
-                    , type' = Pi Omega
+                    { usage = SAny
+                    , type' = Pi SAny
                         ( PrimTy
                             ( Application Pair
                                 ( PrimTy ( Ty TNat : ) :|
@@ -67,7 +67,7 @@ Ann
                         , arguments =
                             [ "1" :| [] ]
                         , body = Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy
                                 ( Application Pair
                                     ( Application List
@@ -77,14 +77,14 @@ Ann
                                 )
                             , term = AppM
                                 ( Ann
-                                    { usage = Omega
-                                    , type' = Pi Omega
+                                    { usage = SAny
+                                    , type' = Pi SAny
                                         ( PrimTy
                                             ( Application List
                                                 ( PrimTy ( Ty TOperation : ) :| [] )
                                             )
                                         )
-                                        ( Pi Omega
+                                        ( Pi SAny
                                             ( PrimTy
                                                 ( PrimTy ( Ty TNat : ) )
                                             )
@@ -116,7 +116,7 @@ Ann
                                     }
                                 )
                                 [ Ann
-                                    { usage = Omega
+                                    { usage = SAny
                                     , type' = PrimTy
                                         ( Application List
                                             ( PrimTy ( Ty TOperation : ) :| [] )
@@ -132,7 +132,7 @@ Ann
                                         )
                                     }
                                 , Ann
-                                    { usage = Omega
+                                    { usage = SAny
                                     , type' = PrimTy
                                         ( PrimTy ( Ty TNat : ) )
                                     , term = Prim
@@ -152,13 +152,13 @@ Ann
             }
         )
         [ Ann
-            { usage = Omega
+            { usage = SAny
             , type' = PrimTy
                 ( PrimTy ( Ty TNat : ) )
             , term = AppM
                 ( Ann
-                    { usage = Omega
-                    , type' = Pi Omega
+                    { usage = SAny
+                    , type' = Pi SAny
                         ( SymT
                             ( "FlatDatatypes" :| [ "pq" ] )
                         )
@@ -170,17 +170,17 @@ Ann
                     }
                 )
                 [ Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = SymT
                         ( "FlatDatatypes" :| [ "pq" ] )
                     , term = AppM
                         ( Ann
-                            { usage = Omega
-                            , type' = Pi Omega
+                            { usage = SAny
+                            , type' = Pi SAny
                                 ( PrimTy
                                     ( PrimTy ( Ty TNat : ) )
                                 )
-                                ( Pi Omega
+                                ( Pi SAny
                                     ( PrimTy
                                         ( PrimTy ( Ty TNat : ) )
                                     )
@@ -193,7 +193,7 @@ Ann
                             }
                         )
                         [ Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy
                                 ( PrimTy ( Ty TNat : ) )
                             , term = Prim
@@ -206,7 +206,7 @@ Ann
                                 )
                             }
                         , Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy
                                 ( PrimTy ( Ty TNat : ) )
                             , term = Prim

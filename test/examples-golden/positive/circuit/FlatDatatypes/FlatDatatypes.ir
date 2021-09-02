@@ -5,7 +5,7 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "FlatDatatypes" :| [ "Q" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -17,7 +17,7 @@
                             ) ()
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( Free
                                 ( Global
@@ -29,7 +29,7 @@
                                 ) ()
                             ) ()
                         )
-                        ( Pi Omega
+                        ( Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -65,7 +65,7 @@
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "FlatDatatypes" :| [ "P" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -77,7 +77,7 @@
                                     ) ()
                                 ) ()
                             )
-                            ( Pi Omega
+                            ( Pi SAny
                                 ( Elim
                                     ( Free
                                         ( Global
@@ -101,7 +101,7 @@
                         }
                     , RawDataCon
                         { rawConName = "FlatDatatypes" :| [ "Q" ]
-                        , rawConType = Pi Omega
+                        , rawConType = Pi SAny
                             ( Elim
                                 ( Free
                                     ( Global
@@ -113,7 +113,7 @@
                                     ) ()
                                 ) ()
                             )
-                            ( Pi Omega
+                            ( Pi SAny
                                 ( Elim
                                     ( Free
                                         ( Global
@@ -125,7 +125,7 @@
                                         ) ()
                                     ) ()
                                 )
-                                ( Pi Omega
+                                ( Pi SAny
                                     ( Elim
                                         ( Free
                                             ( Global
@@ -157,8 +157,8 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "FlatDatatypes" :| [ "patternMatch" ]
-                , rawFunUsage = GOmega
-                , rawFunType = Pi Omega
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -280,7 +280,7 @@
         , RawGDataCon
             ( RawDataCon
                 { rawConName = "FlatDatatypes" :| [ "P" ]
-                , rawConType = Pi Omega
+                , rawConType = Pi SAny
                     ( Elim
                         ( Free
                             ( Global
@@ -292,7 +292,7 @@
                             ) ()
                         ) ()
                     )
-                    ( Pi Omega
+                    ( Pi SAny
                         ( Elim
                             ( Free
                                 ( Global
@@ -321,7 +321,7 @@
         , RawGFunction
             ( RawFunction
                 { rawFunName = "FlatDatatypes" :| [ "main" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( Free
                         ( Global

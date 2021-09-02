@@ -1,5 +1,5 @@
 Ann
-    { usage = Omega
+    { usage = SAny
     , type' = PrimTy
         ( PrimTy
             ( IntegerType
@@ -8,8 +8,8 @@ Ann
         )
     , term = AppM
         ( Ann
-            { usage = Omega
-            , type' = Pi Omega
+            { usage = SAny
+            , type' = Pi SAny
                 ( SymT
                     ( "FlatDatatypes" :| [ "pq" ] )
                 )
@@ -25,13 +25,13 @@ Ann
             }
         )
         [ Ann
-            { usage = Omega
+            { usage = SAny
             , type' = SymT
                 ( "FlatDatatypes" :| [ "pq" ] )
             , term = AppM
                 ( Ann
-                    { usage = Omega
-                    , type' = Pi Omega
+                    { usage = SAny
+                    , type' = Pi SAny
                         ( PrimTy
                             ( PrimTy
                                 ( IntegerType
@@ -39,7 +39,7 @@ Ann
                                 )
                             )
                         )
-                        ( Pi Omega
+                        ( Pi SAny
                             ( PrimTy
                                 ( PrimTy
                                     ( IntegerType
@@ -56,7 +56,7 @@ Ann
                     }
                 )
                 [ Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy
                         ( PrimTy
                             ( IntegerType
@@ -76,7 +76,7 @@ Ann
                         )
                     }
                 , Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy
                         ( PrimTy
                             ( IntegerType

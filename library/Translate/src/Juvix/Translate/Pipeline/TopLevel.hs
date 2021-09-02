@@ -104,7 +104,7 @@ transRecord (Types.Record'' fields sig) =
         f (Types.NameType' sig name usage) =
           let newUsage =
                 case usage of
-                  Nothing -> Sexp.list [Sexp.atom ":primitive", Sexp.atom "Builtin.Omega"]
+                  Nothing -> Sexp.list [Sexp.atom ":primitive", Sexp.atom "Builtin.SAny"]
                   Just usage -> transExpr usage
            in Sexp.list [transName name, newUsage, transExpr sig]
     sigFun expr =
