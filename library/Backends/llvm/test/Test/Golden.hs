@@ -9,13 +9,13 @@ import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import Juvix.Library.Test.Golden
-import Juvix.Pipeline (Pipeline)
+-- import Juvix.Pipeline (Pipeline)
 import qualified Juvix.Pipeline as Pipeline
 import Test.Tasty
 import qualified Data.List.NonEmpty as NonEmpty
-import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
+-- import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
 import qualified Data.HashMap.Strict as HM
-import qualified Juvix.Backends.LLVM.Primitive as LLVM.Prim
+-- import qualified Juvix.Backends.LLVM.Primitive as LLVM.rim
 import Prelude (String)
 
 --------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ juvixRootPath = "../../../"
 withJuvixRootPath :: FilePath -> FilePath
 withJuvixRootPath p = juvixRootPath <> p
 
-libs :: [String]
+libs :: [[Char]]
 libs = ["stdlib/Prelude.ju", "stdlib/LLVM.ju"]
 
 top :: IO TestTree
@@ -78,8 +78,8 @@ typecheck ::
   FilePath ->
   Feedback.FeedbackT [] [Char] IO (ErasedAnn.AnnTermT LLVM.PrimTy LLVM.RawPrimVal)
 typecheck file = do
-  contract <- liftIO $ readFile file
-  context <- Pipeline.parseWithLibs (withJuvixRootPath <$> libs) LLVM.BLLVM contract
+  contract <- liftIO . readFile $ file
+  context  <- Pipeline.parseWithLibs (withJuvixRootPath <$> libs) LLVM.BLLVM contract
   Pipeline.typecheck @LLVM.BLLVM context
 
 -- | Discover golden tests for input files with extension @.ju@ and output
@@ -104,13 +104,12 @@ hrTests =
     hrTestsNeg = llvmGoldenTestsNoQuotes ".hr" (expectFailure . toNoQuotesEmpty pipelineToHR)
 
 
-pipelineToHR :: FilePath -> _
 pipelineToHR file =
   do
     liftIO (readFile file)
     >>= Pipeline.toML' (withJuvixRootPath <$> libs) LLVM.BLLVM
     >>= Pipeline.toSexp LLVM.BLLVM
-    >>= Pipeline.toHR LLVM.BLLVM
+    >>= Pipeline.toHR LLVM.llvm
     -- Reduce the Prelude related functions for readability
     >>= pure . HM.filterWithKey isNotPrelude
   where
@@ -145,11 +144,11 @@ erasedTests =
         liftIO (readFile file)
         >>= Pipeline.toML' (withJuvixRootPath <$> libs) LLVM.BLLVM
         >>= Pipeline.toSexp LLVM.BLLVM
-        >>= Pipeline.toHR LLVM.Param.llvm
+        >>= Pipeline.toHR LLVM.llvm
         >>= Pipeline.toIR
-        >>= Pipeline.toErased LLVM.Param.llvm LLVM.Prim.Set
+        >>= Pipeline.toErased LLVM.llvm LLVM.Set
 
-    isNotPrelude (p NonEmpty.:| _) _ = p /= "Prelude"
+    -- isNotPrelude (p NonEmpty.:| _) _ = p /= "Prelude"
 
 
 llvmGoldenTestsNoQuotes :: [Char] -> (FilePath -> IO NoQuotes) -> FilePath -> IO TestTree

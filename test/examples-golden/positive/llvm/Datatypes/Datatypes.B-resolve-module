@@ -31,7 +31,7 @@ Rec
                 ( "pq"
                 , TypeDeclar
                     { definitionRepr =
-                        (
+                        ( "type"
                             ( "pq" ":type" "TopLevel.Prelude.ty" ) ()
                             ( "P" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" )
                             ( "Q" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" ) ) } )
