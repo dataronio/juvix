@@ -31,17 +31,13 @@ hasType :: Val -> P.PrimType Ty -> Bool
 hasType Val (P.PrimType (Ty :| [])) = True
 hasType _ _ = False
 
-instance P.CanApply Ty where
-  arity _ = 0
-  apply f xs = Left $ P.ExtraArguments f xs
+instance P.CanPrimApply () Ty where
+  primArity _ = 0
+  primApply _ _ = panic "ill typed"
 
-instance P.CanApply Val where
-  arity _ = 0
-  apply f xs = Left $ P.ExtraArguments f xs
-
-instance P.CanApply (P.TypedPrim Ty Val) where
-  arity _ = 0
-  apply f xs = Left $ P.ExtraArguments f xs
+instance P.CanPrimApply Ty Val where
+  primArity _ = 0
+  primApply _ _ = panic "ill typed"
 
 instance E.HasWeak Ty where weakBy' _ _ ty = ty
 

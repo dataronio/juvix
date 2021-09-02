@@ -8,7 +8,6 @@ module Juvix.Core.Parameterisations.All
   )
 where
 
-import Data.Bitraversable
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.IR.Evaluator as E
@@ -16,6 +15,7 @@ import qualified Juvix.Core.Parameterisation as P
 import qualified Juvix.Core.Parameterisations.Naturals as Naturals
 import qualified Juvix.Core.Parameterisations.Unit as Unit
 import Juvix.Library hiding ((<|>))
+import Prelude (error)
 
 -- all primitive types
 data Ty
@@ -42,27 +42,17 @@ hasType (NatVal x) (traverse unNatTy -> Just tys) = Naturals.hasType x tys
 hasType (UnitVal x) (traverse unUnitTy -> Just tys) = Unit.hasType x tys
 hasType _ _ = False
 
-instance P.CanApply Ty where
-  arity _ = 0
-  apply f xs = Left $ P.ExtraArguments f xs
+instance P.CanPrimApply () Ty where
+  primArity _ = 0
+  primApply _ _ = error "ill typed"
 
-instance P.CanApply Val where
-  arity (NatVal x) = P.arity x
-  arity (UnitVal x) = P.arity x
+instance P.CanPrimApply Ty Val where
+  primArity (NatVal x)  = P.primArity x
+  primArity (UnitVal x) = P.primArity x
 
-  apply (NatVal f) (traverse unNatVal -> Just xs) =
-    P.mapApplyErr NatVal $ P.apply f xs
-  apply f xs = Left $ P.InvalidArguments f xs
-
-instance P.CanApply (P.TypedPrim Ty Val) where
-  arity (App.Cont {numLeft}) = numLeft
-  arity (App.Return {retTerm}) = P.arity retTerm
-
-  apply f' xs'
-    | Just f <- unNatValR f',
-      Just xs <- traverse unNatValR xs' =
-      P.mapApplyErr natValR $ P.apply f xs
-  apply f xs = Left $ P.InvalidArguments f xs
+  primApply (unNatValT -> Just f) (traverse unNatValT -> Just xs) =
+    second (bimap (fmap NatTy) NatVal) $ P.primApply f xs
+  primApply _ _ = error "ill typed"
 
 instance E.HasWeak Ty where weakBy' _ _ ty = ty
 
@@ -80,31 +70,6 @@ instance Monoid (Core.XVPrim ext ty Val) => E.HasSubstValue ext ty Val Val where
 instance Monoid (Core.XPrim ext Ty Val) => E.HasPatSubstTerm ext Ty Val Val where
   patSubstTerm' _ _ val = pure $ Core.Prim val mempty
 
-natValR :: P.TypedPrim Naturals.Ty Naturals.Val -> P.TypedPrim Ty Val
-natValR (App.Cont {fun, args, numLeft}) =
-  App.Cont {App.fun = natValT fun, App.args = natValA <$> args, numLeft}
-natValR (App.Return {retType, retTerm}) =
-  App.Return {retType = NatTy <$> retType, retTerm = NatVal retTerm}
-
-natValT ::
-  App.Take (P.PrimType Naturals.Ty) Naturals.Val ->
-  App.Take (P.PrimType Ty) Val
-natValT (App.Take {usage, type', term}) =
-  App.Take {usage, type' = NatTy <$> type', term = NatVal term}
-
-natValA ::
-  App.Arg (P.PrimType Naturals.Ty) Naturals.Val ->
-  App.Arg (P.PrimType Ty) Val
-natValA = bimap (fmap NatTy) NatVal
-
-unNatValR :: P.TypedPrim Ty Val -> Maybe (P.TypedPrim Naturals.Ty Naturals.Val)
-unNatValR (App.Cont {fun, args, numLeft}) =
-  App.Cont <$> unNatValT fun <*> traverse unNatValA args <*> pure numLeft
-unNatValR (App.Return {retType = t', retTerm = NatVal v})
-  | Just t <- traverse unNatTy t' =
-    Just $ App.Return t v
-unNatValR (App.Return {}) = Nothing
-
 unNatValT ::
   App.Take (P.PrimType Ty) Val ->
   Maybe (App.Take (P.PrimType Naturals.Ty) Naturals.Val)
@@ -113,11 +78,6 @@ unNatValT (App.Take {usage, type' = type'', term = term'})
     Just term <- unNatVal term' =
     Just $ App.Take {usage, type', term}
 unNatValT (App.Take {}) = Nothing
-
-unNatValA ::
-  App.Arg (P.PrimType Ty) Val ->
-  Maybe (App.Arg (P.PrimType Naturals.Ty) Naturals.Val)
-unNatValA = bitraverse (traverse unNatTy) unNatVal
 
 unNatVal :: Val -> Maybe Naturals.Val
 unNatVal (NatVal n) = Just n
