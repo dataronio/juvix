@@ -22,5 +22,4 @@ let patternMatch (Q x y z) = x + y + z
 sig main : pair nat nat -> pair (list operation) nat
 let main =
   let pm = patternMatch (P 1 2) in
-  \_ -> make-pair nil 9
-  -- \_ -> make-pair nil pm
+  \_ -> make-pair nil pm
