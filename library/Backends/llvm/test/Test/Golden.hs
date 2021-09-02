@@ -12,6 +12,7 @@ import Juvix.Library.Test.Golden
 import Juvix.Pipeline (Pipeline)
 import qualified Juvix.Pipeline as Pipeline
 import Test.Tasty
+import qualified Data.List.NonEmpty as NonEmpty
 
 --------------------------------------------------------------------------------
 -- Parse contracts (Golden tests)
