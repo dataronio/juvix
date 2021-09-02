@@ -92,10 +92,10 @@ mkLam env ty body args capt = do
       let ty' = typeToLLVM ty
       return $ (ty', S.fromString $ show name')
 
-    -- Construct a list of types from a function type.
-    functionTy :: ErasedAnn.Type primTy -> [ErasedAnn.Type primTy]
-    functionTy (ErasedAnn.Pi usage l r) = l : functionTy r
-    functionTy ty = [ty]
+-- Construct a list of types from a function type.
+functionTy :: ErasedAnn.Type primTy -> [ErasedAnn.Type primTy]
+functionTy (ErasedAnn.Pi usage l r) = l : functionTy r
+functionTy ty = [ty]
 
 -- | The function assumes the arguments passed are the arguments of an
 -- application.
@@ -134,5 +134,16 @@ applyPrim env f xs
         y <- compileTerm env (xs P.!! 1)
         LLVM.add x y
 
+-- | Translate a Juvix type into an LLVM type.
 typeToLLVM :: ErasedAnn.Type PrimTy -> LLVM.Type
 typeToLLVM (ErasedAnn.PrimTy (PrimTy ty)) = ty
+typeToLLVM (ErasedAnn.Pi _usage f xs) =
+  LLVM.FunctionType
+    { LLVM.resultType = typeToLLVM resultType,
+      LLVM.argumentTypes = map typeToLLVM argumentTypes,
+      LLVM.isVarArg = False
+    }
+  where
+    tyList = f : functionTy xs
+    (resultType : revArgumentTypes) = reverse tyList
+    argumentTypes = reverse revArgumentTypes
