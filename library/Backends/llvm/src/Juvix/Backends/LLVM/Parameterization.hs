@@ -57,7 +57,7 @@ instance Param.CanApply (PrimVal ext) where
       -- In case there aren't any arguments, return a continuation.
       EQ
         | Just returns <- traverse App.argToReturn argsAll ->
-          applyProper (takeToReturn fun) returns |> first Param.Extra
+          applyProper (takeToReturn fun') returns |> first Param.Extra
         | otherwise ->
           Right $
             App.Cont
