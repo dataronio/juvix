@@ -13,6 +13,10 @@ import Juvix.Pipeline (Pipeline)
 import qualified Juvix.Pipeline as Pipeline
 import Test.Tasty
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
+import qualified Data.HashMap.Strict as HM
+import qualified Juvix.Backends.LLVM.Primitive as LLVM.Prim
+import Prelude (String)
 
 --------------------------------------------------------------------------------
 -- Parse contracts (Golden tests)
