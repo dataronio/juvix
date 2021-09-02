@@ -1,5 +1,8 @@
+{-# OPTIONS_GHC -fdefer-typed-holes #-}
+
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ViewPatterns #-}
 
 -- | Juvix parameterises the type theory & core language over a set of
 -- primitive data types and primitive values, which can include native data
@@ -14,9 +17,13 @@ module Juvix.Core.Parameterisation
     PrimType (..),
     TypedPrim,
     TypedPrim',
+    PrimTake,
+    PrimArg',
+    PrimArg,
     ApplyError,
     ApplyError' (..),
     CanApply (..),
+    CanPrimApply (..),
     apply1,
     apply1Maybe,
     applyMaybe,
@@ -24,6 +31,7 @@ module Juvix.Core.Parameterisation
     check3Equal,
     check2Equal,
     checkFirst2AndLast,
+    splitReturn,
   )
 where
 
@@ -36,6 +44,8 @@ import Juvix.Library
 import Juvix.Library.HashMap (HashMap)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.PrettyPrint as PP
+import qualified Juvix.Library.Usage as Usage
+import qualified Data.List.NonEmpty as NonEmpty
 
 -- | @[A, B, ..., Z]@ represents the type
 -- @π A -> ρ B -> ... -> Z@ for any usages @π@, @ρ@
@@ -115,16 +125,13 @@ instance
 
 -- | Class that implements application for its argument.
 class CanApply a where
-  -- | Type to represent extra errors that might occur during application.
+  -- | Type to represent extra errors that might occur during application, if
+  -- any. Defaults to 'Void'.
   type ApplyErrorExtra a
-
-  -- | Default extra errors.
   type ApplyErrorExtra a = Void
 
-  -- | Type to use for arguments.
+  -- | Type to use for arguments. Defaults to @a@.
   type Arg a
-
-  -- | Default to wrap 'a' into an 'Arg a'.
   type Arg a = a
 
   -- | Lift a value into an argument.
@@ -146,6 +153,60 @@ class CanApply a where
 
   -- | Apply using a non-empty list of arguments
   apply :: a -> NonEmpty (Arg a) -> Either (ApplyError a) a
+
+
+class CanPrimApply ty tm | tm -> ty where
+  -- | Type to represent extra errors that might occur during interpretation of
+  -- primitives, if any. Defaults to 'Void'.
+  type PrimApplyError tm
+  type PrimApplyError tm = Void
+
+  -- | Apply a primitive function to some arguments.
+  -- It can be assumed that the argument list is of the correct length
+  -- and types.
+  primApply :: PrimTake ty tm -> NonEmpty (PrimTake ty tm)
+            -> Either (PrimApplyError tm) (PrimType ty, tm)
+
+  -- | Arity of a primitive.
+  primArity :: tm -> Natural
+
+
+instance (App.IsParamVar ext, CanPrimApply ty tm) =>
+  CanApply (TypedPrim' ext ty tm)
+ where
+  type Arg             (TypedPrim' ext ty tm) = App.Arg' ext (PrimType ty) tm
+  type ApplyErrorExtra (TypedPrim' ext ty tm) = PrimApplyError tm
+
+  freeArg  _ x = App.VarArg <$> App.freeVar  (Proxy @ext) x
+  boundArg _ i = App.VarArg <$> App.boundVar (Proxy @ext) i
+
+  pureArg = Just . App.TermArg
+
+  arity r = ar where (_, _, ar) = splitReturn r
+
+  apply ret@(splitReturn -> (fun, args1, ar)) args2 =
+    let argLen = fromIntegral $ length args2
+        args   = foldr NonEmpty.cons args2 args1
+    in
+    case argLen `compare` ar of
+      LT -> Right $ App.Cont {fun, args = toList args, numLeft = ar - argLen}
+      EQ
+        | Just args <- traverse App.argToTake args ->
+            primApply fun args |> bimap Extra (uncurry App.Return)
+        | otherwise -> Right $ App.Cont {fun, args = toList args, numLeft = 0}
+      GT -> Left $ ExtraArguments ret args2
+
+
+-- | Split a 'Return' into its head and its arguments, and its remaining arity
+-- (i.e., the arity of the head minus the length of the arguments).
+splitReturn :: CanPrimApply ty term
+            => TypedPrim' ext ty term
+            -> (PrimTake ty term, [PrimArg' ext ty term], Natural)
+splitReturn (App.Cont   {fun, args, numLeft}) = (fun, args, numLeft)
+splitReturn (App.Return {retType, retTerm})   = (fun, [], ar) where
+  fun = App.Take {type' = retType, term = retTerm, usage = Usage.Omega}
+  ar  = primArity retTerm
+
 
 -- | Apply a function 'wrap' over the result of an application.
 mapApplyErr ::
@@ -176,12 +237,25 @@ apply1 f x = apply f (x :| [])
 apply1Maybe :: CanApply a => a -> Arg a -> Maybe a
 apply1Maybe f x = applyMaybe f (x :| [])
 
--- | A typed primitive.
+-- | A typed primitive which may be partially applies and, if so, may contain
+-- variables inside its arguments. The @ext@ is passed to 'App.Arg'' to specify
+-- what is allowed as a variable.
 type TypedPrim' ext ty val = App.Return' ext (PrimType ty) val
 
--- | A typed primitive.
+-- | See 'TypedPrim''.
 type TypedPrim ty val = TypedPrim' IR.T ty val
 
+-- | A 'App.Take', with the type in the right shape for primitives that can be
+-- functions.
+type PrimTake ty val = App.Take (PrimType ty) val
+
+-- | A 'App.Arg'', with the type in the right shape for primitives that can be
+-- functions.
+type PrimArg' ext ty val = App.Arg' ext (PrimType ty) val
+
+type PrimArg ty val = PrimArg' IR.T ty val
+
+-- | Pretty-printing highlight annotations for primitives.
 data PPAnn' primTy
   = PAArrow
   | PAPunct

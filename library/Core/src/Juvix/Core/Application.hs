@@ -14,6 +14,8 @@ module Juvix.Core.Application
     Take (..),
     argToReturn,
     takeToReturn,
+    returnToTake,
+    argToTake,
   )
 where
 
@@ -206,6 +208,15 @@ argToReturn _ = empty
 -- | Translate a 'Take' into a 'Return''.
 takeToReturn :: Take ty term -> Return' ext ty term
 takeToReturn (Take {type', term}) = Return {retType = type', retTerm = term}
+
+returnToTake :: Alternative f => Return' ext ty term -> f (Take ty term)
+returnToTake (Cont {}) = empty
+returnToTake (Return {retType, retTerm}) =
+  pure $ Take {type' = retType, term = retTerm, usage = Usage.Omega}
+
+argToTake :: MonadPlus f => Arg' ext ty term -> f (Take ty term)
+argToTake = argToReturn >=> returnToTake
+
 
 data PPAnn' ty term
   = APunct
