@@ -42,7 +42,7 @@ instance A.FromJSON Name where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 -- TODO: maybe global functions can have any usage? (for private defs)
-data GlobalUsage = GZero | GOmega
+data GlobalUsage = GZero | GSAny
   deriving (Show, Eq, Generic, Data, Bounded, Enum, NFData)
 
 instance A.ToJSON GlobalUsage where

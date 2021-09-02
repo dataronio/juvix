@@ -102,9 +102,9 @@ topLevelType =
       Sexp.parse
         "(type foo (x y z) \
         \ (:record-d \
-        \  y-axis y \
-        \  x-axis x \
-        \  z-axis z))"
+        \  (y-axis (:primitive Builtin.Omega) y) \
+        \  (x-axis (:primitive Builtin.Omega) x) \
+        \  (z-axis (:primitive Builtin.Omega) z)))"
     sumC =
       Parser.parse
         "type foo x y z = \
@@ -115,7 +115,9 @@ topLevelType =
     sumCExpected =
       Sexp.parse
         "(type foo (x y z) \
-        \  (Foo (:record-d y-axis y x-axis x z-axis z)) \
+        \  (Foo (:record-d (y-axis (:primitive Builtin.Omega) y) \
+        \                  (x-axis (:primitive Builtin.Omega) x) \
+        \                  (z-axis (:primitive Builtin.Omega) z))) \
         \  (Bar (:paren (:infix : var1 x)) \
         \       (:paren (:infix : var2 y))) \
         \  (Car (:arrow \

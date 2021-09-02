@@ -124,6 +124,7 @@ expressionArguments :: Parser Types.Expression
 expressionArguments =
   P.try (Types.Block <$> block)
     <|> P.try (Types.ExpRecord <$> expRecord)
+    <|> P.try (Types.RecordDec <$> record)
     <|> P.try (Types.Constant <$> constant)
     -- <|> try (Types.NamedTypeE <$> namedRefine)
     <|> P.try universeSymbol
@@ -459,9 +460,11 @@ record = do
 nameType :: Parser Types.NameType
 nameType = do
   name <- nameParserSN
+  maybeUsage <-
+    P.optional (fmap Types.Constant constantSN <|> spaceLiner (J.parens expressionSN))
   skipLiner J.colon
   sig <- expression
-  pure (Types.NameType' sig name)
+  pure (Types.NameType' sig name maybeUsage)
 
 -- nameParserColon :: Parser Types.Name
 -- nameParserColon =

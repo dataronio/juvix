@@ -23,6 +23,28 @@ packages:
   original:
     url: https://github.com/jyp/prettiest/archive/e5ce6cd6b4da71860c3d97da84bed4a827fa00ef.tar.gz
 - completed:
+    name: galois-field
+    version: 1.0.4
+    git: https://github.com/serokell/galois-field.git
+    pantry-tree:
+      size: 4657
+      sha256: 1c5f35fa2f128d1341fffb29300ebc09f2ac463220bf76425fe12ffc2d171d48
+    commit: 576ba98ec947370835a1f308895037c7aa7f8b71
+  original:
+    git: https://github.com/serokell/galois-field.git
+    commit: 576ba98ec947370835a1f308895037c7aa7f8b71
+- completed:
+    name: elliptic-curve
+    version: 0.3.1
+    git: https://github.com/serokell/elliptic-curve.git
+    pantry-tree:
+      size: 12030
+      sha256: f4f032b7ef9a23afbd65a765e3a335ec8cdd219a5dfe6ee276f72e15d644a0fd
+    commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
+  original:
+    git: https://github.com/serokell/elliptic-curve.git
+    commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
+- completed:
     size: 18968
     url: https://github.com/phile314/tasty-silver/archive/f1f90ac3113cd445e2a7ade43ebb29f0db38ab9b.tar.gz
     name: tasty-silver
@@ -40,28 +62,6 @@ packages:
       sha256: 0c8fb1ece12aa96b9e884a2c382bfe5f3688c0f7a69bc165bdae64674b4ffe83
   original:
     hackage: tasty-1.4.1@sha256:69e90e965543faf0fc2c8e486d6c1d8cf81fd108e2c4541234c41490f392f94f,2638
-- completed:
-    name: elliptic-curve
-    version: 0.3.1
-    git: https://github.com/serokell/elliptic-curve.git
-    pantry-tree:
-      size: 12030
-      sha256: f4f032b7ef9a23afbd65a765e3a335ec8cdd219a5dfe6ee276f72e15d644a0fd
-    commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
-  original:
-    git: https://github.com/serokell/elliptic-curve.git
-    commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
-- completed:
-    name: galois-field
-    version: 1.0.4
-    git: https://github.com/serokell/galois-field.git
-    pantry-tree:
-      size: 4657
-      sha256: 1c5f35fa2f128d1341fffb29300ebc09f2ac463220bf76425fe12ffc2d171d48
-    commit: 576ba98ec947370835a1f308895037c7aa7f8b71
-  original:
-    git: https://github.com/serokell/galois-field.git
-    commit: 576ba98ec947370835a1f308895037c7aa7f8b71
 snapshots:
 - completed:
     size: 563099

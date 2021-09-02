@@ -4,7 +4,7 @@ fromList
         , RawGFunction
             ( RawFunction
                 { rawFunName = "MainConst" :| [ "main" ]
-                , rawFunUsage = GOmega
+                , rawFunUsage = GSAny
                 , rawFunType = Elim
                     ( ElimX
                         ( "Prelude" :|

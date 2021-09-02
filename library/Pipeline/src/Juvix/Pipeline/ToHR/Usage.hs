@@ -21,8 +21,8 @@ transformUsage ::
   m Usage.T
 transformUsage _ (Sexp.Atom Sexp.N {atomNum = i}) | i >= 0 = pure $ Usage.SNat $ fromInteger i
 transformUsage q e = do
-  o <- isOmega q e
-  if o then pure Usage.Omega else throwFF $ NotAUsage e
+  o <- isSAny q e
+  if o then pure Usage.SAny else throwFF $ NotAUsage e
 
 transformGUsage ::
   ( Show primTy,
@@ -33,13 +33,13 @@ transformGUsage ::
   NameSymbol.Mod ->
   Maybe Sexp.T ->
   m Core.GlobalUsage
-transformGUsage _ Nothing = pure Core.GOmega
+transformGUsage _ Nothing = pure Core.GSAny
 transformGUsage _ (Just (Sexp.Atom Sexp.N {atomNum = 0})) = pure Core.GZero
 transformGUsage q (Just e) = do
-  o <- isOmega q e
-  if o then pure Core.GOmega else throwFF $ NotAGUsage e
+  o <- isSAny q e
+  if o then pure Core.GSAny else throwFF $ NotAGUsage e
 
-isOmega ::
+isSAny ::
   ( Show primTy,
     Show primVal,
     HasCoreSigs ext primTy primVal m,
@@ -48,4 +48,4 @@ isOmega ::
   NameSymbol.Mod ->
   Sexp.T ->
   m Bool
-isOmega q e = (== Just OmegaS) <$> Sig.getSpecialSig q e
+isSAny q e = (== Just SAnyS) <$> Sig.getSpecialSig q e

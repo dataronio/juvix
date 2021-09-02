@@ -2,55 +2,67 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
+-- | Each binder and local context element in Juvix is annotated with
+-- a /usage/, which tracks how many times it is needed in a
+-- runtime-relevant way.
 module Juvix.Library.Usage
-  ( Usage (..),
+  ( -- Usage type
+    Usage (..),
     T,
-    toUsage,
+    -- Utils
     allows,
-    pred,
+    isNotZero,
+    isZero,
     minus,
+    pred,
+    predPosUsage,
+    toUsage,
   )
 where
 
 ------------------------------------------------------------------------------
 
 import qualified Data.Aeson as A
+import Data.Maybe (fromJust)
 import Juvix.Library hiding (pred, show)
 import qualified Juvix.Library.PrettyPrint as PP
 
 ------------------------------------------------------------------------------
 
--- | Usage is the type ℕ + ω.
-data Usage = SNat Natural | Omega
+-- A usage is either a natural number specifying an exact usage (i.e.,
+-- not an upper bound), or "any", meaning that usage is not tracked
+-- for that variable and any number of usages is allowed.
+data Usage = SNat Natural | SAny
   deriving (Eq, Show, Read, Generic, Data, NFData)
 
 type T = Usage
 
 ------------------------------------------------------------------------------
--- Usage forms an ordered semiring (ℕ+ω, (+), 0, (*), 1).
+-- The type of usages forms an ordered semiring.
 ------------------------------------------------------------------------------
-
-instance Semigroup Usage where
-  SNat x <> SNat y = SNat (x + y)
-  Omega <> _ = Omega
-  _ <> Omega = Omega
 
 instance Monoid Usage where
   mempty = SNat 0
 
+instance Semigroup Usage where
+  SNat π <> SNat ρ = SNat (π + ρ)
+  SAny <> _ = SAny
+  _ <> SAny = SAny
+
 instance Semiring Usage where
   one = SNat 1
 
-  -- Operation
-  SNat x <.> SNat y = SNat (x * y)
-  Omega <.> _ = Omega
-  _ <.> Omega = Omega
+  SNat 0 <.> _ = SNat 0
+  _ <.> SNat 0 = SNat 0
+  SNat π <.> SNat ρ = SNat (π * ρ)
+  SAny <.> _ = SAny
+  _ <.> SAny = SAny
 
 instance Ord Usage where
   compare (SNat a) (SNat b) = compare a b
-  compare (SNat _) Omega = LT
-  compare Omega (SNat _) = GT
-  compare Omega Omega = EQ
+  compare (SNat _) SAny = LT
+  compare SAny (SNat _) = GT
+  compare SAny SAny = EQ
 
 ------------------------------------------------------------------------------
 
@@ -58,39 +70,57 @@ type instance PP.Ann Usage = ()
 
 instance PP.PrettySyntax Usage where
   pretty' (SNat π) = pure . PP.show $ π
-  pretty' Omega = pure "ω"
+  pretty' SAny = pure "ω"
 
 instance A.ToJSON Usage where
-  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+  toJSON =
+    A.genericToJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
 
 instance A.FromJSON Usage where
-  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+  parseJSON =
+    A.genericParseJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
 
 ------------------------------------------------------------------------------
 -- Utils
 ------------------------------------------------------------------------------
 
--- | toUsage is a helper function that converts an integer to NatAndW
+isZero :: Usage -> Bool
+isZero (SNat 0) = True
+isZero _ = False
+
+isNotZero :: Usage -> Bool
+isNotZero = not . isZero
+
 toUsage :: Integer -> Usage
 toUsage = SNat . fromInteger
 
-pred :: Usage -> Usage
-pred (SNat x) = SNat (x - 1)
-pred Omega = Omega
-
-minus :: Usage -> Usage -> Maybe Usage
-minus (SNat i) (SNat j)
-  | i >= j = Just . SNat $ i - j
-minus Omega _ = Just Omega
-minus _ _ = Nothing
-
 infixl 6 `minus`
 
--- | allows is the function that checks usage compatibility
+minus :: Usage -> Usage -> Maybe Usage
+minus SAny _ = Just SAny
+minus (SNat π) (SNat ρ)
+  | π >= ρ = Just . SNat $ π - ρ
+minus _ _ = Nothing
+
+pred :: Usage -> Maybe Usage
+pred π = π `minus` SNat 1
+
+predPosUsage :: Usage -> Usage
+predPosUsage = fromJust . pred
+
+-- | Usage compatibility.
 allows :: Usage -> Usage -> Bool
 allows (SNat x) (SNat y) = x == y
-allows (SNat _) Omega = False
-allows Omega (SNat _) = True
-allows Omega Omega = True
+allows (SNat _) SAny = False
+allows SAny (SNat _) = True
+allows SAny SAny = True
 
 infix 4 `allows`

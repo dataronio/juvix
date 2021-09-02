@@ -124,8 +124,8 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
         (t
          (format nil
                  (if new-line
-                     "~%| ~a,~%~{  ~a~^~% ~} ->~%  ~a"
-                     "~%| ~a,~%~{  ~a~^~% ~} -> ~a")
+                     "~%| ~a,~%~{  ~a~^,~% ~} ->~%  ~a"
+                     "~%| ~a,~%~{  ~a~^,~% ~} -> ~a")
                  (car guards)
                  (cdr guards)
                  (indent-new-lines-by 2 body)))))
@@ -294,6 +294,8 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "NotPunned" '("sexp" "sexp") nil)
 
+  (generate-haskell "NameUsage" (repeat 3 "sexp") nil)
+
   (generate-haskell "Record" '("nameBind") ":record" :list-star t)
 
   (generate-haskell "Infix" (repeat 3 "sexp") ":infix")
@@ -313,9 +315,10 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
   (generate-haskell "Effect" (repeat 2 "sexp") ":defeff")
 
   (generate-haskell "DefHandler" (repeat 2 "sexp") ":defHandler")
-  (generate-haskell "RecordDec" '("notPunnedGroup") ":record-d"
-                    :list-star t
-                    :un-grouped t))
+
+  (generate-haskell "RecordDec" '("nameUsage") ":record-d" :list-star t)
+
+  (generate-haskell "Primitive" '("sexp") ":primitive"))
 
 (defun transition-types ()
   (generate-haskell "ArgBody" '("sexp" "sexp") nil)
@@ -334,8 +337,9 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
   (generate-haskell "LetHandler" (repeat 3 "sexp") ":let-handler")
 
   (generate-haskell "RecordNoPunned" '("notPunnedGroup") ":record-no-pun"
-                  :list-star t
-                  :un-grouped t))
+                    :list-star t
+                    :un-grouped t)
+  (generate-haskell "LambdaCase" '("argBody") ":lambda-case" :list-star t))
 
 (defun core-named-representation ()
   (generate-haskell "Star" '("integer") ":star")
@@ -364,4 +368,6 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Meta" '("sexp" "integer") nil)
 
-  (generate-haskell "RawFunClause" (repeat 4 "sexp") nil))
+  (generate-haskell "Field" (list "nameSymbol" "sexp" "sexp") nil)
+  (generate-haskell "RecordTy" (list "field") ":record-ty" :list-star t)
+  (generate-haskell "Lookup" (list "sexp" "symbol") ":lookup" :list-star t))

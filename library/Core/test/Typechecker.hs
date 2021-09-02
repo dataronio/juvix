@@ -446,9 +446,9 @@ natComp =
   T.testGroup
     "Nat Computational typing"
     [ shouldCheck Nat.t natT' (mempty `ann` IR.VStar 0),
-      shouldCheck Nat.t (nat 1) (Usage.Omega `ann` natT),
-      shouldCheck Nat.t (IR.Prim Nat.Add) (Usage.Omega `ann` addTy),
-      shouldFail Nat.t (IR.Prim Nat.Add) (Usage.Omega `ann` natT)
+      shouldCheck Nat.t (nat 1) (Usage.SAny `ann` natT),
+      shouldCheck Nat.t (IR.Prim Nat.Add) (Usage.SAny `ann` addTy),
+      shouldFail Nat.t (IR.Prim Nat.Add) (Usage.SAny `ann` natT)
     ]
 
 dependentFunctionComp :: T.TestTree
@@ -466,7 +466,7 @@ dependentFunctionComp =
       shouldCheck
         All.t
         depIdentity
-        depIdentityCompTyOmega,
+        depIdentityCompTySAny,
       shouldCheck
         All.t
         depK
@@ -489,12 +489,12 @@ letComp =
       shouldCheck
         Nat.t
         (IR.Let mempty nzero (IR.Elim nzero))
-        (Usage.Omega `ann` natT),
+        (Usage.SAny `ann` natT),
       -- let ω x = 0 in x
       shouldCheck
         Nat.t
-        (IR.Let Usage.Omega nzero (IR.Elim (IR.Bound 0)))
-        (Usage.Omega `ann` natT),
+        (IR.Let Usage.SAny nzero (IR.Elim (IR.Bound 0)))
+        (Usage.SAny `ann` natT),
       -- λx. let 0 y = 0 in x
       shouldCheck
         Nat.t
@@ -502,7 +502,7 @@ letComp =
         (natToNatTy' one)
     ]
   where
-    nzero = IR.Ann Usage.Omega (nat 0) natT' 0
+    nzero = IR.Ann Usage.SAny (nat 0) natT' 0
 
 evaluations :: T.TestTree
 evaluations =
@@ -522,7 +522,7 @@ evaluations =
   where
     add12 = IR.Elim $ add `IR.App` nat 1 `IR.App` nat 2
     sub52 = IR.Elim $ sub `IR.App` nat 5 `IR.App` nat 2
-    sub = IR.Ann Usage.Omega (IR.Prim Nat.Sub) addTyT 0
+    sub = IR.Ann Usage.SAny (IR.Prim Nat.Sub) addTyT 0
     videntity = IR.VLam $ Core.VBound 0
     name = IR.Elim . IR.Free . Core.Global
     vname = Core.VFree . Core.Global
@@ -602,13 +602,13 @@ depIdentityCompTy =
       (IR.VPi one (Core.VBound 0) (Core.VBound 1))
 
 -- computation dependent identity annotation (1, 0 * -> w t -> t)
-depIdentityCompTyOmega :: AllAnnotation
-depIdentityCompTyOmega =
+depIdentityCompTySAny :: AllAnnotation
+depIdentityCompTySAny =
   one
     `ann` IR.VPi
       mempty
       (IR.VStar 0)
-      (IR.VPi Usage.Omega (Core.VBound 0) (Core.VBound 1))
+      (IR.VPi Usage.SAny (Core.VBound 0) (Core.VBound 1))
 
 -- \x.x 1
 identityApplication :: NatTerm
@@ -1007,7 +1007,7 @@ scombinatorCompNatTy =
               natT -- Nat) ->
           )
           ( IR.VPi
-              Usage.Omega
+              Usage.SAny
               natT -- w Nat ->
               natT -- Nat
           )
@@ -1069,13 +1069,13 @@ allSig :: Natural -> AllTerm
 allSig n = IR.Sig (Usage.SNat 0) (IR.Star n) (IR.Elim (IR.Bound 0))
 
 add :: NatElim
-add = IR.Ann Usage.Omega (IR.Prim Nat.Add) addTyT 0
+add = IR.Ann Usage.SAny (IR.Prim Nat.Add) addTyT 0
 
 addTyT :: NatTerm
-addTyT = IR.Pi Usage.Omega natT' $ IR.Pi Usage.Omega natT' $ natT'
+addTyT = IR.Pi Usage.SAny natT' $ IR.Pi Usage.SAny natT' $ natT'
 
 addTy :: NatValueT
-addTy = IR.VPi Usage.Omega natT $ IR.VPi Usage.Omega natT $ natT
+addTy = IR.VPi Usage.SAny natT $ IR.VPi Usage.SAny natT $ natT
 
 one' :: forall primTy primVal. Core.Term IR.T primTy primVal
 one' = IR.Lam $ IR.Lam $ IR.Elim $ IR.App (IR.Bound 1) (IR.Elim (IR.Bound 0))

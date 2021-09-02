@@ -85,8 +85,8 @@ data Special
     ColonS
   | -- | type of types
     TypeS
-  | -- | omega usage
-    OmegaS
+  | -- | SAny usage
+    SAnyS
   deriving (Eq, Show, Data, Generic)
 
 instance A.ToJSON Special where
@@ -188,8 +188,8 @@ data Error ext primTy primVal
     BuiltinWithTypeSig (Ctx.Definition Sexp.T Sexp.T Sexp.T)
   | -- | Wrong number of arguments for a builtin
     WrongNumberBuiltinArgs Special Int Sexp.T
-  | -- | Using omega as an expression
-    UnexpectedOmega
+  | -- | Using SAny as an expression
+    UnexpectedSAny
   deriving (Generic)
 
 deriving instance
@@ -298,6 +298,6 @@ instance
         <> show (length $ Sexp.toList args)
         <> "\n"
         <> show args
-    UnexpectedOmega ->
-      "%Builtin.Omega cannot be used as an arbitrary term, only as\n"
+    UnexpectedSAny ->
+      "%Builtin.SAny cannot be used as an arbitrary term, only as\n"
         <> "the first argument of %Builtin.Arrow or %Builtin.Pair"

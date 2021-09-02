@@ -11,6 +11,7 @@ import qualified Juvix.Sexp.Structure.Transition as Transition
 
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.DefunMatch
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.ArgBody
+Lens.makeLensesWith Lens.camelCaseFields ''Transition.LambdaCase
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Signature
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.DefunSigMatch
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.RecordNoPunned
@@ -29,6 +30,7 @@ Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Arrow
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Lambda
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Record
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.RecordDec
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.NameUsage
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Punned
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.NotPunned
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Infix
@@ -43,6 +45,7 @@ Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DefModule
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetModule
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DefHandler
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Effect
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Primitive
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Star
 Lens.makeLensesWith Lens.camelCaseFields ''Named.PrimTy
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Prim
@@ -57,3 +60,5 @@ Lens.makeLensesWith Lens.camelCaseFields ''Named.App
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Ann
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Meta
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Dot
+Lens.makeLensesWith Lens.camelCaseFields ''Named.Field
+Lens.makeLensesWith Lens.camelCaseFields ''Named.RecordTy

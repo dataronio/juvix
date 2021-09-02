@@ -69,7 +69,7 @@ pipelineOpen =
           "D" :| ["main"]
         ]
    in T.testCase
-        "multiple modules have correct ordering"
+        "multiple modules have correct ordering abcd"
         $ do
           Right c <-
             toSexp

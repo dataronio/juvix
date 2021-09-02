@@ -193,7 +193,7 @@ toRaw t@(ErasedAnn.Ann {term}) = t {ErasedAnn.term = toRaw1 term}
           undefined
         varTerm t x =
           ErasedAnn.Ann
-            { usage = Usage.Omega, -- FIXME should usages even exist after erasure?
+            { usage = Usage.SAny, -- FIXME should usages even exist after erasure?
               type' = ErasedAnn.PrimTy t,
               term = ErasedAnn.Var x
             }
@@ -204,7 +204,7 @@ returnToTerm ::
   AnnTerm primTy primVal
 returnToTerm (App.Return ty term) =
   ErasedAnn.Ann
-    { usage = Usage.Omega, -- FIXME should usages even exist after erasure?
+    { usage = Usage.SAny, -- FIXME should usages even exist after erasure?
       type' = ErasedAnn.fromPrimType ty,
       term = ErasedAnn.Prim term
     }

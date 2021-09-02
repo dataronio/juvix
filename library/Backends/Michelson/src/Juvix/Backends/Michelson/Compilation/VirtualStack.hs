@@ -83,13 +83,13 @@ varEName :: NameSymbol.T -> Usage -> Maybe (Val lamType) -> Elem lamType
 varEName x = VarE (Set.singleton x)
 
 varE :: NameSymbol.T -> Maybe (Val lamType) -> Elem lamType
-varE x = VarE (Set.singleton x) (defUsage Usage.Omega)
+varE x = VarE (Set.singleton x) (defUsage Usage.SAny)
 
 var1E :: NameSymbol.T -> Maybe (Val lamType) -> Elem lamType
 var1E x = VarE (Set.singleton x) (defUsage one)
 
 varNone :: NameSymbol.T -> Elem lamType
-varNone x = VarE (Set.singleton x) (defUsage Usage.Omega) Nothing
+varNone x = VarE (Set.singleton x) (defUsage Usage.SAny) Nothing
 
 data LamPartial = LamPartial
   { ops :: [Types.Op],
@@ -306,9 +306,9 @@ nameTop sym usage t =
   case hd of
     (Val i, ty) -> cons (varEName sym (defUsage usage) (Just i), ty) rest
     (VarE setOfNames _ _, _) ->
-      -- we must propagate the name to the other vars
-      -- there must be some intersection between the vars to be valid
-      -- so this should be enough to update all usages
+      -- we must propagate the name to the other vars there must be
+      -- some intersection between the vars to be valid so this should
+      -- be enough to update all usages
       addNameSet setOfNames sym t
   where
     hd = car t
@@ -323,17 +323,15 @@ drop :: Int -> T lamType -> T lamType
 drop n xs
   | n <= 0 = xs
   | otherwise =
-    let c = car xs
-     in case c of
-          (VarE x (Usage i _) _, _)
-            | i /= mempty ->
-              drop (pred n) (updateUsage x (Usage.pred i) (cdr xs))
-          _ ->
-            drop (pred n) (cdr xs)
+    case car xs of
+      (VarE x (Usage π _) _, _)
+        | Usage.isNotZero π ->
+          drop (pred n) (updateUsage x (Usage.predPosUsage π) (cdr xs))
+      _ -> drop (pred n) (cdr xs)
 
--- This propagates usages. This is safe, as if a var has multiple names, it thus
--- must be the same exact var
--- also unlike drop we do not drop a usage
+-- This propagates usages. This is safe, as if a var has multiple
+-- names, it thus must be the same exact var also unlike drop we do
+-- not drop a usage
 dropPos :: Natural -> T lamType -> T lamType
 dropPos n xs = dropPos' n xs mempty
   where
@@ -442,7 +440,7 @@ predValueUsage n s@(T stack' i) = go stack' []
       | otherwise =
         T
           ( reverse acc
-              <> ((VarE n' (Usage (Usage.pred usage) saved) val, ty) : xs)
+              <> ((VarE n' (Usage (Usage.predPosUsage usage) saved) val, ty) : xs)
           )
           i
     go (x : xs) acc = go xs (x : acc)
@@ -463,14 +461,14 @@ dupDig i (T stack' n) =
     (xs, []) ->
       T xs n
     (xs, (y, ty) : ys) ->
-      cons (predUsage y, ty) (T (xs <> ((usageOneOmega y, ty) : ys)) n)
+      cons (predUsage y, ty) (T (xs <> ((usageOneSAny y, ty) : ys)) n)
 
 dropFirst :: NameSymbol.T -> T lamType -> [(Elem lamType, Untyped.Ty)] -> T lamType
 dropFirst n (T stack' size) = go stack'
   where
-    go ((v@(VarE n' (Usage usages _saved) _), _) : xs) acc
-      | Set.member n n' && inT v && usages /= mempty =
-        T (reverse acc <> updateUsageList n' (Usage.pred usages) xs) (pred size)
+    go ((v@(VarE n' (Usage π _saved) _), _) : xs) acc
+      | Set.member n n' && inT v && Usage.isNotZero π =
+        T (reverse acc <> updateUsageList n' (Usage.predPosUsage π) xs) (pred size)
       | Set.member n n' && inT v =
         T (reverse acc <> xs) (pred size)
       | Set.member n n' =
@@ -531,13 +529,13 @@ reverseI (T xs i) = T (reverse xs) i
 predUsage :: Elem lamType -> Elem lamType
 predUsage v@Val {} = v
 predUsage (VarE s (Usage usage saved) val) =
-  VarE s (Usage (Usage.pred usage) saved) val
+  VarE s (Usage (Usage.predPosUsage usage) saved) val
 
--- Sets the usage of a var to 1 unless it's omega
--- in which case we keep it at omega!
-usageOneOmega :: Elem lamType -> Elem lamType
-usageOneOmega v@Val {} = v
-usageOneOmega (VarE s usage@(Usage Usage.Omega _) val) =
+-- Sets the usage of a var to 1 unless it's SAny
+-- in which case we keep it at SAny!
+usageOneSAny :: Elem lamType -> Elem lamType
+usageOneSAny v@Val {} = v
+usageOneSAny (VarE s usage@(Usage Usage.SAny _) val) =
   VarE s usage val
-usageOneOmega (VarE s (Usage _ saved) val) =
+usageOneSAny (VarE s (Usage _ saved) val) =
   VarE s (Usage one saved) val

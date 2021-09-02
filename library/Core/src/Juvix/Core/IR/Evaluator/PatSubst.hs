@@ -270,7 +270,7 @@ takeToElim ::
 takeToElim (App.Take {type', term}) =
   let term' = IR.Prim (App.Return {retType = type', retTerm = term})
       ty' = typeToTerm type'
-   in IR.Ann Usage.Omega term' ty' 0
+   in IR.Ann Usage.SAny term' ty' 0
 
 -- | Transform a `App.Arg` into a `IR.Term`.
 -- TODO: move this function somewhere else?
@@ -296,4 +296,4 @@ typeToTerm ::
 typeToTerm tys = foldr1 arr $ map prim tys
   where
     prim ty = Core.PrimTy ty mempty
-    arr s t = Core.Pi Usage.Omega s t mempty
+    arr s t = Core.Pi Usage.SAny s t mempty

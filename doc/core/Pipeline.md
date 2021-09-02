@@ -62,13 +62,13 @@ variable. Names must be unique. Binders in Juvix are:
     Here's an example of equivalent IR and HR Pi types:
 
     ``` {.haskell language="haskell"}
-    HR.Pi Usage.Omega "a" (HR.PrimTy ()) (HR.PrimTy ())
+    HR.Pi Usage.SAny "a" (HR.PrimTy ()) (HR.PrimTy ())
     ```
 
     $$\Leftrightarrow$$
 
     ``` {.haskell language="haskell"}
-    IR.Pi Usage.Omega (IR.PrimTy ()) (IR.PrimTy ())
+    IR.Pi Usage.SAny (IR.PrimTy ()) (IR.PrimTy ())
     ```
 
 2.  **Lam**

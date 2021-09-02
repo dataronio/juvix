@@ -18,6 +18,9 @@ type Base = Symbol
 
 type Mod = [Symbol]
 
+toNonEmptySymbol :: T -> NonEmpty Symbol
+toNonEmptySymbol = identity
+
 toSymbol :: T -> Symbol
 toSymbol =
   Prelude.foldr1 (\x acc -> x <> "." <> acc)

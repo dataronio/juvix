@@ -210,7 +210,9 @@ discoverContext =
   discoverPrefix
     [ (contextifySexp, "contextify-sexp"),
       (resolveModuleContext, "resolve-module"),
-      (resolveInfixContext, "resolve-infix")
+      (resolveInfixContext, "resolve-infix"),
+      (resolveRecordDeclaration, "record-declaration"),
+      (resolveSymbolToLookup, "symbol-to-lookup")
     ]
     (fmap (: []) ['A' .. 'Z'])
 
@@ -265,12 +267,22 @@ resolveModuleContext =
   runPass (contextifySexp, Contextify.resolveModule) "not valid pass"
 
 resolveInfixContext ::
-  (MonadIO m, MonadFail m) =>
-  NonEmpty (NameSymbol.T, [Sexp.T]) ->
-  m Environment.SexpContext
+  (MonadIO m, MonadFail m) => NonEmpty (NameSymbol.T, [Sexp.T]) -> m Environment.SexpContext
 resolveInfixContext =
   "can't resolve infix symbols"
     |> runPass (resolveModuleContext, Contextify.inifixSoloPass)
+
+resolveRecordDeclaration ::
+  (MonadIO m, MonadFail m) => NonEmpty (NameSymbol.T, [Sexp.T]) -> m Environment.SexpContext
+resolveRecordDeclaration =
+  "Record to function can't be properly dealt with"
+    |> runPass (resolveInfixContext, Contextify.recordDeclaration)
+
+resolveSymbolToLookup ::
+  (MonadIO m, MonadFail m) => NonEmpty (NameSymbol.T, [Sexp.T]) -> m Environment.SexpContext
+resolveSymbolToLookup =
+  "NameSymbol Resolution to Lookup failed"
+    |> runPass (resolveRecordDeclaration, Contextify.notFoundSymbolToLookup)
 
 runPass ::
   (MonadIO m, MonadFail m) => (t1 -> m t2, t2 -> Environment.MinimalMIO b) -> String -> t1 -> m b

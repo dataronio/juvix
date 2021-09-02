@@ -1,6 +1,6 @@
 Ann
-    { usage = Omega
-    , type' = Pi Omega
+    { usage = SAny
+    , type' = Pi SAny
         ( PrimTy
             ( Application Pair
                 ( PrimTy ( Ty TUnit : ) :|
@@ -21,7 +21,7 @@ Ann
         , arguments =
             [ "0" :| [] ]
         , body = Ann
-            { usage = Omega
+            { usage = SAny
             , type' = PrimTy
                 ( Application Pair
                     ( Application List
@@ -31,14 +31,14 @@ Ann
                 )
             , term = AppM
                 ( Ann
-                    { usage = Omega
-                    , type' = Pi Omega
+                    { usage = SAny
+                    , type' = Pi SAny
                         ( PrimTy
                             ( Application List
                                 ( PrimTy ( Ty TOperation : ) :| [] )
                             )
                         )
-                        ( Pi Omega
+                        ( Pi SAny
                             ( PrimTy
                                 ( PrimTy ( Ty TUnit : ) )
                             )
@@ -70,7 +70,7 @@ Ann
                     }
                 )
                 [ Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy
                         ( Application List
                             ( PrimTy ( Ty TOperation : ) :| [] )
@@ -86,13 +86,13 @@ Ann
                         )
                     }
                 , Ann
-                    { usage = Omega
+                    { usage = SAny
                     , type' = PrimTy
                         ( PrimTy ( Ty TUnit : ) )
                     , term = AppM
                         ( Ann
-                            { usage = Omega
-                            , type' = Pi Omega
+                            { usage = SAny
+                            , type' = Pi SAny
                                 ( PrimTy
                                     ( Application Pair
                                         ( PrimTy ( Ty TUnit : ) :|
@@ -118,7 +118,7 @@ Ann
                             }
                         )
                         [ Ann
-                            { usage = Omega
+                            { usage = SAny
                             , type' = PrimTy
                                 ( Application Pair
                                     ( PrimTy ( Ty TUnit : ) :|

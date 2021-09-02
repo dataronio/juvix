@@ -24,4 +24,4 @@ fromPrimType :: P.PrimType primTy -> Types.Type primTy
 fromPrimType (P.PrimType tys) = go tys
   where
     go (t :| []) = Types.PrimTy t
-    go (t :| (u : us)) = Types.Pi Usage.Omega (Types.PrimTy t) $ go $ u :| us
+    go (t :| (u : us)) = Types.Pi Usage.SAny (Types.PrimTy t) $ go $ u :| us

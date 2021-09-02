@@ -154,7 +154,8 @@ data Record = Record''
 
 data NameType = NameType'
   { nameTypeSignature :: Expression,
-    nameTypeName :: !Name
+    nameTypeName :: !Name,
+    nameTypeUsage :: Maybe Expression
   }
   deriving (Show, Read, Eq, Generic)
 
@@ -277,6 +278,7 @@ data Expression
   | Block Block
   | Infix Infix
   | ExpRecord ExpRecord
+  | RecordDec Record
   | Do Do
   | -- Added due to merge
     ArrowE ArrowExp
@@ -355,7 +357,7 @@ data DoBody = DoBody
 
 -- TODO ∷ we need includes in here as well!
 -- Was a newtype but extensible adds fields
-data ExpRecord = ExpressionRecord
+newtype ExpRecord = ExpressionRecord
   { expRecordFields :: NonEmpty (NameSet Expression)
   }
   deriving (Show, Read, Eq, Generic)

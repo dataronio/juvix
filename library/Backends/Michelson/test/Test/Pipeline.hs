@@ -170,7 +170,7 @@ test_constant :: T.TestTree
 test_constant =
   shouldCompileTo
     "constant"
-    (int 2, Usage.Omega, intTy)
+    (int 2, Usage.SAny, intTy)
     mempty
     (Michelson.EmptyInstr (MT.Nested (MT.PUSH (MT.VInt 2))))
 
@@ -178,7 +178,7 @@ test_erased_function :: T.TestTree
 test_erased_function =
   shouldCompileTo
     "erased function"
-    (erasedLamTerm, Usage.Omega, erasedLamTy)
+    (erasedLamTerm, Usage.SAny, erasedLamTy)
     mempty
     (Michelson.EmptyInstr (MT.Nested (MT.PUSH (MT.VInt 2))))
 
@@ -186,7 +186,7 @@ test_real_function_apply :: T.TestTree
 test_real_function_apply =
   shouldCompileTo
     "real function with application"
-    (appLam, Usage.Omega, intTy)
+    (appLam, Usage.SAny, intTy)
     mempty
     (Michelson.EmptyInstr (MT.Nested (MT.PUSH (MT.VInt 5))))
 
@@ -194,7 +194,7 @@ test_partial_erase :: T.TestTree
 test_partial_erase =
   shouldCompileTo
     "real function with partial erase"
-    (appLam2, Usage.Omega, intTy)
+    (appLam2, Usage.SAny, intTy)
     mempty
     (Michelson.EmptyInstr (MT.Nested (MT.PUSH (MT.VInt 12))))
 
@@ -211,7 +211,7 @@ addTyT :: RawMichelsonTerm
 addTyT = IR.Pi one intTy $ IR.Pi one intTy intTy
 
 addElim :: RawMichelsonElim
-addElim = IR.Ann Usage.Omega (IR.Prim Michelson.AddI) addTyT 0
+addElim = IR.Ann Usage.SAny (IR.Prim Michelson.AddI) addTyT 0
 
 lamTerm :: RawMichelsonTerm
 lamTerm =

@@ -14,7 +14,7 @@ top :: T.TestTree
 top =
   T.testGroup
     "testing desugaring passes functions"
-    [moduleResolution, infixResolution]
+    [moduleResolution, infixResolution, lookupResolution]
 
 moduleResolution :: T.TestTree
 moduleResolution =
@@ -70,4 +70,22 @@ infixResolution =
         Right t <- contextualizeFoo "open A let fi a = 1 * 2 + 3"
         let Right expected = Sexp.parse "(:lambda-case ((a) (TopLevel.A.+ (TopLevel.A.* 1 2) 3)))"
         Just expected T.@=? unwrapLookup "fi" t
+    ]
+
+lookupResolution :: T.TestTree
+lookupResolution =
+  T.testGroup
+    "Testing Lookup resolution events"
+    [ T.testCase "looking up a field works as expected" $ do
+        Right t <- contextualizeFoo "let bar = let y = 3 in { zzzz = 3 } let foo = bar.zzzz"
+        let Right expected = Sexp.parse "(:lambda-case (() (:lookup bar zzzz)))"
+        Just expected T.@=? unwrapLookup "foo" t,
+      T.testCase "Nothing happens on field lookup on an unbound field" $ do
+        Right t <- contextualizeFoo "let foo = bar.zzzz"
+        let Right expected = Sexp.parse "(:lambda-case (() bar.zzzz))"
+        Just expected T.@=? unwrapLookup "foo" t,
+      T.testCase "looking up multiple fields works" $ do
+        Right t <- contextualizeFoo "let bar = let y = 3 in { zzzz = 3 } let foo = bar.zzzz.a"
+        let Right expected = Sexp.parse "(:lambda-case (() (:lookup bar zzzz a)))"
+        Just expected T.@=? unwrapLookup "foo" t
     ]

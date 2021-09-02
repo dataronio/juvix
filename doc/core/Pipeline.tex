@@ -182,13 +182,13 @@ data Term primTy primVal =
 
     % TODO: Can we have a better example?
     \begin{lstlisting}[language=haskell]
-        HR.Pi Usage.Omega "a" (HR.PrimTy ()) (HR.PrimTy ())
+        HR.Pi Usage.SAny "a" (HR.PrimTy ()) (HR.PrimTy ())
     \end{lstlisting}
     \begin{equation*}
       \Leftrightarrow  
     \end{equation*}
     \begin{lstlisting}[language=haskell]
-        IR.Pi Usage.Omega (IR.PrimTy ()) (IR.PrimTy ())
+        IR.Pi Usage.SAny (IR.PrimTy ()) (IR.PrimTy ())
     \end{lstlisting}
     \item \textbf{Lam}
 

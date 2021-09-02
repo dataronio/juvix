@@ -6,6 +6,8 @@ module Juvix.Sexp.Structure.Helpers
     fromNameSymbol,
     fromInteger,
     toInteger,
+    toSymbol,
+    fromSymbol,
   )
 where
 
@@ -34,6 +36,12 @@ toNameSymbol = Sexp.nameFromT
 
 fromNameSymbol :: NameSymbol.T -> Sexp.T
 fromNameSymbol = Sexp.atom
+
+fromSymbol :: Symbol -> Sexp.T
+fromSymbol = fromNameSymbol . NameSymbol.fromSymbol
+
+toSymbol :: Sexp.T -> Maybe Symbol
+toSymbol = fmap NameSymbol.toSymbol . toNameSymbol
 
 fromInteger :: Integer -> Sexp.T
 fromInteger = Sexp.number

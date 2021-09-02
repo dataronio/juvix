@@ -52,6 +52,9 @@ data DefunMatch = DefunMatch
 data ArgBody = ArgBody {argsBodyArgs :: Sexp.T, argsBodyBody :: Sexp.T}
   deriving (Show)
 
+newtype LambdaCase = LambdaCase [ArgBody]
+  deriving (Show)
+
 -- | @If@ has an pred, then, and else.
 data If = If
   { ifPredicate :: Sexp.T,
@@ -349,3 +352,30 @@ toRecordNoPunned form
 fromRecordNoPunned :: RecordNoPunned -> Sexp.T
 fromRecordNoPunned (RecordNoPunned notPunnedGroup1) =
   Sexp.listStar [Sexp.atom nameRecordNoPunned, fromNotPunnedGroup notPunnedGroup1]
+
+----------------------------------------
+-- LambdaCase
+----------------------------------------
+
+nameLambdaCase :: NameSymbol.T
+nameLambdaCase = ":lambda-case"
+
+isLambdaCase :: Sexp.T -> Bool
+isLambdaCase (Sexp.Cons form _) = Sexp.isAtomNamed form nameLambdaCase
+isLambdaCase _ = False
+
+toLambdaCase :: Sexp.T -> Maybe LambdaCase
+toLambdaCase form
+  | isLambdaCase form =
+    case form of
+      _nameLambdaCase Sexp.:> argBody1
+        | Just argBody1 <- toArgBody `fromStarList` argBody1 ->
+          LambdaCase argBody1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromLambdaCase :: LambdaCase -> Sexp.T
+fromLambdaCase (LambdaCase argBody1) =
+  Sexp.listStar [Sexp.atom nameLambdaCase, fromArgBody `toStarList` argBody1]
