@@ -1,14 +1,17 @@
 -- |
 -- - Types used internally by the Michelson backend.
 module Juvix.Backends.Michelson.Compilation.Types
-  ( PrimTy (..),
+  ( RawPrimTy (..),
+    PrimTy',
+    PrimTyIR,
+    PrimTyHR,
     RawPrimVal (..),
-    Return',
-    Take,
-    Arg',
     PrimVal',
     PrimValIR,
     PrimValHR,
+    Return',
+    Take,
+    Arg',
     RawTerm,
     Term,
     Value,
@@ -33,7 +36,7 @@ import qualified Michelson.Typed as MT
 import qualified Michelson.Untyped as M
 import qualified Michelson.Untyped.Instr as Instr
 
-data PrimTy
+data RawPrimTy
   = PrimTy M.Ty
   | -- extra types that need arguments
     Pair
@@ -44,7 +47,8 @@ data PrimTy
   | List
   | Set
   | ContractT
-  | Application PrimTy (NonEmpty PrimTy)
+    -- FIXME is this still needed?
+  | Application RawPrimTy (NonEmpty RawPrimTy)
   deriving (Show, Eq, Generic, Data)
 
 data RawPrimVal
@@ -110,11 +114,11 @@ data RawPrimVal
   | MapOp
   deriving (Show, Eq, Generic, Data)
 
-type Return' ext = App.Return' ext (P.PrimType PrimTy) RawPrimVal
+type Return' ext = App.Return' ext (P.PrimType RawPrimTy) RawPrimVal
 
-type Take = App.Take (P.PrimType PrimTy) RawPrimVal
+type Take = App.Take (P.PrimType RawPrimTy) RawPrimVal
 
-type Arg' ext = App.Arg' ext (P.PrimType PrimTy) RawPrimVal
+type Arg' ext = App.Arg' ext (P.PrimType RawPrimTy) RawPrimVal
 
 type PrimVal' ext = Return' ext
 
@@ -122,11 +126,17 @@ type PrimValIR = PrimVal' IR.T
 
 type PrimValHR = PrimVal' CoreErased.T
 
-type RawTerm = CoreErased.AnnTerm PrimTy RawPrimVal
+type PrimTy' ext = App.Return' ext () RawPrimTy
 
-type Term = CoreErased.AnnTerm PrimTy PrimValHR
+type PrimTyIR = PrimTy' IR.T
 
-type Type = CoreErased.Type PrimTy
+type PrimTyHR = PrimTy' CoreErased.T
+
+type RawTerm = CoreErased.AnnTerm RawPrimTy RawPrimVal
+
+type Term = CoreErased.AnnTerm PrimTyHR PrimValHR
+
+type Type = CoreErased.Type PrimTyHR
 
 type Value = M.Value' M.ExpandedOp
 

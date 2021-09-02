@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
+
 {-# LANGUAGE UndecidableInstances #-}
 
 module Juvix.Backends.Plonk.Pipeline

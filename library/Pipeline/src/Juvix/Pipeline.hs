@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
+
 {-# LANGUAGE TypeFamilyDependencies #-}
 
 module Juvix.Pipeline
@@ -61,12 +63,12 @@ type Constraints b =
     Show (Err b),
     Show (Val b),
     Show (Ty b),
-    Show (ApplyErrorExtra (Ty b)),
-    Show (ApplyErrorExtra (TypedPrim (Ty b) (Val b))),
+    Show (Core.PrimApplyError (Ty b)),
+    Show (Core.PrimApplyError (TypedPrim (Ty b) (Val b))),
     Show (Arg (Ty b)),
     Show (Arg (TypedPrim (Ty b) (Val b))),
-    CanApply (Ty b),
-    CanApply (TypedPrim (Ty b) (Val b)),
+    Core.CanPrimApply () (Ty b),
+    Core.CanPrimApply (Ty b) (Val b),
     IR.HasWeak (Val b),
     IR.HasSubstValue IR.T (Ty b) (TypedPrim (Ty b) (Val b)) (Ty b),
     IR.HasPatSubstTerm (OnlyExts.T IR.T) (Ty b) (Val b) (Ty b),
@@ -166,7 +168,7 @@ class HasBackend b where
       --      RawGlobal (Ty b) (Val b)
       -- into RawGlobal (Ty b) (TypedPrim (Ty b) (Val b))
       typedGlobals = map (typePrims ty) globalDefs
-      evaluatedGlobals = HM.map (unsafeEvalGlobal typedGlobals) typedGlobals
+      evaluatedGlobals = _ -- HM.map (unsafeEvalGlobal typedGlobals) typedGlobals
       getMain = case HM.elems $ HM.filter isMain globalDefs of
         [] -> Feedback.fail $ "No main function found in " <> toS (pShowNoColor globalDefs)
         main : _ -> pure main

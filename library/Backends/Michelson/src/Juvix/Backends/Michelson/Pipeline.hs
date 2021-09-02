@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
+
 module Juvix.Backends.Michelson.Pipeline (BMichelson (..), compileMichelson) where
 
 import qualified Juvix.Backends.Michelson.Compilation as M
@@ -11,7 +13,7 @@ data BMichelson = BMichelson
   deriving (Eq, Show)
 
 instance HasBackend BMichelson where
-  type Ty BMichelson = Param.PrimTy
+  type Ty BMichelson = Param.RawPrimTy
   type Val BMichelson = Param.RawPrimVal
   type Err BMichelson = Param.CompilationError
 
@@ -29,8 +31,8 @@ instance HasBackend BMichelson where
 compileMichelson ::
   MonadFail f =>
   Param.AnnTerm
-    Param.PrimTy
-    (ErasedAnn.TypedPrim Param.PrimTy Param.RawPrimVal) ->
+    Param.RawPrimTy
+    (ErasedAnn.TypedPrim Param.RawPrimTy Param.RawPrimVal) ->
   f Text
 compileMichelson term = do
   let (res, _logs) = M.compileContract $ ErasedAnn.toRaw term

@@ -212,7 +212,7 @@ takeToReturn (Take {type', term}) = Return {retType = type', retTerm = term}
 returnToTake :: Alternative f => Return' ext ty term -> f (Take ty term)
 returnToTake (Cont {}) = empty
 returnToTake (Return {retType, retTerm}) =
-  pure $ Take {type' = retType, term = retTerm, usage = Usage.Omega}
+  pure $ Take {type' = retType, term = retTerm, usage = Usage.SAny}
 
 argToTake :: MonadPlus f => Arg' ext ty term -> f (Take ty term)
 argToTake = argToReturn >=> returnToTake

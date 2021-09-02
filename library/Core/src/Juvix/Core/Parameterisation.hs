@@ -174,15 +174,15 @@ class CanPrimApply ty tm | tm -> ty where
 instance (App.IsParamVar ext, CanPrimApply ty tm) =>
   CanApply (TypedPrim' ext ty tm)
  where
-  type Arg             (TypedPrim' ext ty tm) = App.Arg' ext (PrimType ty) tm
   type ApplyErrorExtra (TypedPrim' ext ty tm) = PrimApplyError tm
+  type Arg             (TypedPrim' ext ty tm) = App.Arg' ext (PrimType ty) tm
 
   freeArg  _ x = App.VarArg <$> App.freeVar  (Proxy @ext) x
   boundArg _ i = App.VarArg <$> App.boundVar (Proxy @ext) i
 
   pureArg = Just . App.TermArg
 
-  arity r = ar where (_, _, ar) = splitReturn r
+  arity (splitReturn -> (_, _, ar)) = ar
 
   apply ret@(splitReturn -> (fun, args1, ar)) args2 =
     let argLen = fromIntegral $ length args2
@@ -199,12 +199,15 @@ instance (App.IsParamVar ext, CanPrimApply ty tm) =>
 
 -- | Split a 'Return' into its head and its arguments, and its remaining arity
 -- (i.e., the arity of the head minus the length of the arguments).
+--
+-- (This function is in this module instead of "Juvix.Core.Application" because
+-- it needs a 'CanPrimApply' constraint.)
 splitReturn :: CanPrimApply ty term
             => TypedPrim' ext ty term
             -> (PrimTake ty term, [PrimArg' ext ty term], Natural)
 splitReturn (App.Cont   {fun, args, numLeft}) = (fun, args, numLeft)
 splitReturn (App.Return {retType, retTerm})   = (fun, [], ar) where
-  fun = App.Take {type' = retType, term = retTerm, usage = Usage.Omega}
+  fun = App.Take {type' = retType, term = retTerm, usage = Usage.SAny}
   ar  = primArity retTerm
 
 

@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
 -- |
 -- - Entrypoints into compilation from core terms to Michelson terms & contracts.
 module Juvix.Backends.Michelson.Compilation where

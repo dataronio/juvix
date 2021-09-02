@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
+
 -- | The basic connection between the backend and the Juvix pipeline.
 module Juvix.Backends.LLVM.Pipeline
   ( BLLVM (..),

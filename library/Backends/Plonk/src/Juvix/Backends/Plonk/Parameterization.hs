@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
+
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wwarn=incomplete-patterns #-}
 
@@ -12,7 +14,6 @@ module Juvix.Backends.Plonk.Parameterization
     toArg,
     toTakes,
     fromReturn,
-    applyProper,
   )
 where
 
@@ -107,15 +108,15 @@ param =
 integerToPrimVal :: forall f. GaloisField f => Integer -> Maybe (PrimVal f)
 integerToPrimVal x = Just . PConst $ fromInteger x
 
-instance Core.CanApply (PrimTy f) where
-  arity (PApplication hd rest) =
+instance Core.CanPrimApply () (PrimTy f) where
+  primArity (PApplication hd rest) =
     Core.arity hd - fromIntegral (length rest)
-  arity x = 0 -- TODO: Refine if/when extending PrimTy
+  primArity x = 0 -- TODO: Refine if/when extending PrimTy
 
-  apply (PApplication fn args1) args2 =
+  primApply (PApplication fn args1) args2 =
     PApplication fn (args1 <> args2)
       |> Right
-  apply fun args =
+  primApply fun args =
     PApplication fun args
       |> Right
 
@@ -168,48 +169,19 @@ toTakes App.Return {retType, retTerm} = (fun, [], arityRaw retTerm)
 fromReturn :: Return' ext f -> PrimVal' ext f
 fromReturn = identity
 
-instance (App.IsParamVar ext, Integral f, Fractional f) => Core.CanApply (PrimVal' ext f) where
-  type ApplyErrorExtra (PrimVal' ext f) = ApplyError f
-
-  type Arg (PrimVal' ext f) = Arg' ext f
-
-  pureArg = toArg
-
-  freeArg _ = fmap App.VarArg . App.freeVar (Proxy @ext)
-  boundArg _ = fmap App.VarArg . App.boundVar (Proxy @ext)
-
-  arity App.Cont {numLeft} = numLeft
-  arity App.Return {retTerm} = arityRaw retTerm
-
-  apply fun' args2
-    | (fun, args1, ar) <- toTakes fun' =
-      do
-        let argLen = lengthN args2
-            args = foldr NonEmpty.cons args2 args1
-        case argLen `compare` ar of
-          LT ->
-            Right $
-              App.Cont {fun, args = toList args, numLeft = ar - argLen}
-          EQ
-            | Just returns <- traverse App.argToReturn args ->
-              applyProper fun returns |> first Core.Extra
-            | otherwise ->
-              Right $ App.Cont {fun, args = toList args, numLeft = 0}
-          GT -> Left $ Core.ExtraArguments fun' args2
-
-applyProper :: (Integral f, Fractional f) => Take f -> NonEmpty (Return' ext f) -> Either (ApplyError f) (Return' ext f)
-applyProper ret@App.Take {type', term} args = do
-  retType <- toPrimType $ ErasedAnn.type' newTerm
-  pure $
-    App.Return
-      { retType,
-        -- retTerm = notImplemented
-        retTerm = PConst $ evalTerm term (NonEmpty.toList $ App.retTerm <$> args)
-      }
-  where
-    annTerm = ErasedAnn.takeToTerm ret
-    annTerms = ErasedAnn.returnToTerm <$> toList args
-    newTerm = applyPrimOnArgs annTerm annTerms
+instance Core.CanPrimApply (PrimTy f) (PrimVal f) where
+  primArity = arityRaw
+  primApply ret@(App.Take {type', term}) args = do
+    retType <- toPrimType $ ErasedAnn.type' newTerm
+    pure $
+      App.Return
+        { retType,
+          retTerm = PConst $ evalTerm term (NonEmpty.toList $ App.retTerm <$> args)
+        }
+    where
+      annTerm = ErasedAnn.takeToTerm ret
+      annTerms = ErasedAnn.returnToTerm <$> toList args
+      newTerm = applyPrimOnArgs annTerm annTerms
 
 termToAnnTerm (App.Cont take args nat) = notImplemented
 

@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fdefer-typed-holes #-}
+
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -16,15 +18,17 @@ import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library
 import qualified LLVM.AST.Type as LLVM
 
-instance Param.CanApply PrimTy where
+instance Param.CanPrimApply () PrimTy where
+  primArity = arityTy
   -- TODO: Needs to implement apply
-  arity = arityTy
+  primApply = _
 
-instance Param.CanApply (PrimVal ext) where
-  -- TODO: Needs to implement apply
-  arity val = case val of
+instance Param.CanPrimApply PrimTy (PrimVal ext) where
+  primArity val = case val of
     App.Cont {} -> App.numLeft val
     App.Return {} -> arityRaw $ App.retTerm val
+  -- TODO: Needs to implement apply
+  primApply = _
 
 -- | Parameters for the LLVM backend.
 llvm :: Param.Parameterisation PrimTy RawPrimVal

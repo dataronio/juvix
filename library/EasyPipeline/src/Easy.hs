@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
+
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 
 -- |
@@ -91,7 +93,7 @@ def =
     }
 
 -- @defMichelson@ gives us Michelson prelude
-defMichelson :: Options Michelson.Param.PrimTy Michelson.Param.RawPrimVal
+defMichelson :: Options Michelson.Param.RawPrimTy Michelson.Param.RawPrimVal
 defMichelson =
   def
     { prelude =

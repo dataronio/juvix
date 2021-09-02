@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
 {-# OPTIONS_GHC -Wwarn=incomplete-patterns #-}
 
 -- |
@@ -34,7 +35,7 @@ import Prelude (error)
 -- Main Functionality
 --------------------------------------------------------------------------------
 
-instOuter :: Env.Reduction m => Types.RawTerm -> m Instr.ExpandedOp
+instOuter :: Env.Reduction m => Types.Term -> m Instr.ExpandedOp
 instOuter a@(Types.Ann _ ty _) = do
   inst <- inst a
   ty <- typeToPrimType ty
@@ -53,7 +54,7 @@ expandedToInst ty exp =
     Env.Curr c -> mconcat |<< promoteLambda c
     Env.Nop -> pure (Instr.SeqEx [])
 
-inst :: Env.Reduction m => Types.RawTerm -> m Env.Expanded
+inst :: Env.Reduction m => Types.Term -> m Env.Expanded
 inst (Types.Ann _usage ty t) =
   case t of
     Ann.Var symbol -> var symbol
@@ -347,7 +348,7 @@ instructionOf x ty =
     Types.Constant _ -> error "tried to convert a to prim"
     Types.Inst _ -> error "tried to convert an inst to an inst!"
 
-appM :: Env.Reduction m => Types.RawTerm -> [Types.RawTerm] -> m Env.Expanded
+appM :: Env.Reduction m => Types.Term -> [Types.Term] -> m Env.Expanded
 appM form@(Types.Ann _u ty t) args =
   let app = inst form >>= flip applyExpanded args
    in case t of
@@ -366,7 +367,7 @@ appM form@(Types.Ann _u ty t) args =
         _ -> app
 
 applyExpanded ::
-  Env.Reduction m => Env.Expanded -> [Types.RawTerm] -> m Env.Expanded
+  Env.Reduction m => Env.Expanded -> [Types.Term] -> m Env.Expanded
 applyExpanded expanded args =
   case expanded of
     Env.Curr c -> do
@@ -601,8 +602,8 @@ evalIfNone _ _ = throw @"compilationError" Types.NotEnoughArguments
 -- used in if_none and if_some, if_cons etc etc etc.
 constructApplication ::
   Env.Reduction m =>
-  Ann.AnnTerm Types.PrimTy primVal ->
-  m (Ann.AnnTerm Types.PrimTy primVal)
+  Ann.AnnTerm Types.RawPrimTy primVal ->
+  m (Ann.AnnTerm Types.RawPrimTy primVal)
 constructApplication Ann.Ann {type', term = Ann.LamM {body, arguments}}
   | length (Ann.piToListTy type') == 1 = do
     -- register the value on the stack
@@ -701,7 +702,7 @@ reserveNames i = do
 -- Other things considered:
 -- We don't need to drop the arguments we eval and name, as they should be eaten
 -- by the functions they call with the appropriate usages
-apply :: Env.Reduction m => Env.Curried -> [Types.RawTerm] -> [NameSymbol.T] -> m Env.Expanded
+apply :: Env.Reduction m => Env.Curried -> [Types.Term] -> [NameSymbol.T] -> m Env.Expanded
 apply closure args remainingArgs = do
   let totalLength = fromIntegral (length args + length remainingArgs)
   case totalLength `compare` Env.left closure of
@@ -980,7 +981,7 @@ typeToPrimType ty =
     sameLength arg xs =
       lengthType arg == length xs
 
-appPrimTyErr :: Types.PrimTy -> NonEmpty Untyped.T -> Untyped.T
+appPrimTyErr :: Types.RawPrimTy -> NonEmpty Untyped.T -> Untyped.T
 appPrimTyErr Types.Pair (x :| (y : _)) = Untyped.pair x y
 appPrimTyErr Types.Lambda (x :| (y : _)) = Untyped.lambda x y
 appPrimTyErr Types.Map (x :| (y : _)) = Untyped.map x y
@@ -990,7 +991,7 @@ appPrimTyErr Types.Set (x :| _) = Untyped.set x
 appPrimTyErr Types.List (x :| _) = Untyped.list x
 appPrimTyErr _ _ = error "fail"
 
-lengthType :: Num p => Types.PrimTy -> p
+lengthType :: Num p => Types.RawPrimTy -> p
 lengthType Types.Pair = 2
 lengthType Types.Lambda = 2
 lengthType Types.Map = 2

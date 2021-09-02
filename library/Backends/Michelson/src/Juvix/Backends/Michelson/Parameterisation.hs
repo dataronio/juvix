@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
+
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wwarn=incomplete-patterns #-}
 
@@ -38,17 +40,17 @@ import Prelude (Show (..), error)
 
 -- | Can the given type be used as a boolean? Note that in addition to
 -- booleans, integers and natural numbers re valid is well.
-isBool :: PrimTy -> Bool
+isBool :: RawPrimTy -> Bool
 isBool (PrimTy (M.Ty M.TBool _)) = True
 isBool (PrimTy (M.Ty M.TInt _)) = True
 isBool (PrimTy (M.Ty M.TNat _)) = True
 isBool _ = False
 
 -- | Check if the value has the given type.
-hasType :: RawPrimVal -> P.PrimType PrimTy -> Bool
+hasType :: RawPrimVal -> P.PrimType RawPrimTy -> Bool
 hasType tm (P.PrimType ty) = hasType' tm ty
 
-hasType' :: RawPrimVal -> NonEmpty PrimTy -> Bool
+hasType' :: RawPrimVal -> NonEmpty RawPrimTy -> Bool
 hasType' AddTimeStamp ty = P.check3Equal ty
 hasType' AddI ty = P.check3Equal ty
 hasType' AddN ty = P.check3Equal ty
@@ -136,22 +138,21 @@ toTakes App.Return {retType, retTerm} = (fun, [], arityRaw retTerm)
   where
     fun = App.Take {usage = Usage.SAny, type' = retType, term = retTerm}
 
-takeToReturn :: App.Take ty term -> App.Return' ext ty term
-takeToReturn (App.Take {type', term}) = App.Return {retType = type', retTerm = term}
-
 -- | Datatype that is used for describing errors during the application process.
-data ApplyError
+data ApplyError primTy
   = CompilationError CompilationError
-  | ReturnTypeNotPrimitive (ErasedAnn.Type PrimTy)
+  | ReturnTypeNotPrimitive (ErasedAnn.Type primTy)
 
-instance Show ApplyError where
+instance Show primTy => Show (ApplyError primTy) where
   show (CompilationError perr) = Prelude.show perr
   show (ReturnTypeNotPrimitive ty) =
     "not a primitive type:\n\t" <> Prelude.show ty
 
-type instance PP.Ann ApplyError = HR.PPAnn
+type instance PP.Ann (ApplyError _) = HR.PPAnn
 
-instance PP.PrettyText ApplyError where
+instance (PP.PrettySyntax primTy, HR.ToPPAnn (PP.Ann primTy)) =>
+  PP.PrettyText (ApplyError primTy)
+ where
   prettyT = \case
     CompilationError e -> HR.toPPAnn <$> PP.prettyT e
     ReturnTypeNotPrimitive ty ->
@@ -161,7 +162,7 @@ instance PP.PrettyText ApplyError where
         ]
 
 -- | Instance for types.
-instance Core.CanApply PrimTy where
+instance Core.CanApply RawPrimTy where
   arity (Application hd rest) =
     Core.arity hd - fromIntegral (length rest)
   arity x =
@@ -174,50 +175,10 @@ instance Core.CanApply PrimTy where
     Application fun args
       |> Right
 
--- | Instance for values.
-instance App.IsParamVar ext => Core.CanApply (PrimVal' ext) where
-  type ApplyErrorExtra (PrimVal' ext) = ApplyError
-
-  type Arg (PrimVal' ext) = Arg' ext
-
-  pureArg = toArg
-
-  freeArg _ = fmap App.VarArg . App.freeVar (Proxy @ext)
-  boundArg _ = fmap App.VarArg . App.boundVar (Proxy @ext)
-
-  arity App.Cont {numLeft} = numLeft
-  arity App.Return {retTerm} = arityRaw retTerm
-
-  -- The following implementation follows the eval/apply method for curried
-  -- function application. A description of this can be found in 'How to make a
-  -- fast curry: push/enter vs eval/apply' by Simon Marlow and Simon Peyton
-  -- Jones.
-  -- Given a function, and a non-empty list of arguments, we try to apply the
-  -- arguments to the function. The function is of type 'PrimVal''/'Return'',
-  -- so either a continuation or a fully evaluated term.
-  apply fun' args2 = do
-    let (fun, args1, ar) = toTakes fun' -- 'args1' are part of continuation fun'
-        argLen = lengthN args2 -- Nr. of free arguments.
-        args = foldr NonEmpty.cons args2 args1 -- List of all arguments.
-    case argLen `compare` ar of
-      -- If there are not enough arguments to apply, return a continuation.
-      LT ->
-        Right $
-          App.Cont {fun, args = toList args, numLeft = ar - argLen}
-      -- If there are exactly enough arguments to apply, do so.
-      -- In case there aren't any arguments, return a continuation.
-      EQ
-        | Just returns <- traverse App.argToReturn args ->
-          applyProper (takeToReturn fun) returns |> first Core.Extra
-        | otherwise ->
-          Right $ App.Cont {fun, args = toList args, numLeft = 0}
-      -- If there are too many arguments to apply, raise an error.
-      GT -> Left $ Core.ExtraArguments fun' args2
-
 -- | Apply arguments to a function. Requires that the right number of arguments
 -- are passed.
-applyProper :: Return' ext -> NonEmpty (Return' ext) -> Either ApplyError (Return' ext)
-applyProper ret args =
+applyProper :: Take -> NonEmpty Take -> Either (ApplyError RawPrimTy) (Return' ext)
+applyProper fun args =
   case compd >>= Interpreter.dummyInterpret of
     Right x -> do
       retType <- toPrimType $ ErasedAnn.type' newTerm
@@ -241,7 +202,7 @@ returnToTerm (App.Return {retType, retTerm}) =
 returnToTerm (App.Cont take args nat) = notImplemented
 
 -- | Given a type, translate it to a type in the Michelson backend.
-toPrimType :: ErasedAnn.Type PrimTy -> Either ApplyError (P.PrimType PrimTy)
+toPrimType :: ErasedAnn.Type primTy -> Either (ApplyError primTy) (P.PrimType primTy)
 toPrimType ty = maybe err (Right . P.PrimType) $ go ty
   where
     err = Left $ ReturnTypeNotPrimitive ty
@@ -261,11 +222,11 @@ integerToPrimVal x
     Nothing
 
 -- | Turn a Michelson type into a 'PrimTy'.
-primify :: Untyped.T -> PrimTy
+primify :: Untyped.T -> RawPrimTy
 primify t = PrimTy (Untyped.Ty t DSLU.blank)
 
 -- | Michelson-specific low-level types available in Juvix.
-builtinTypes :: P.Builtins PrimTy
+builtinTypes :: P.Builtins RawPrimTy
 builtinTypes =
   [ ("Michelson.unit-t", Untyped.TUnit),
     ("Michelson.key", Untyped.TKey),
@@ -356,7 +317,7 @@ builtinValues =
     |> Map.fromList
 
 -- | Parameters for the Michelson backend.
-michelson :: P.Parameterisation PrimTy RawPrimVal
+michelson :: P.Parameterisation RawPrimTy RawPrimVal
 michelson =
   P.Parameterisation
     { hasType,
@@ -367,19 +328,19 @@ michelson =
       floatVal = const Nothing
     }
 
-instance Eval.HasWeak PrimTy where weakBy' _ _ t = t
+instance Eval.HasWeak RawPrimTy where weakBy' _ _ t = t
 
 instance Eval.HasWeak RawPrimVal where weakBy' _ _ t = t
 
 instance
-  Monoid (Core.XVPrimTy ext PrimTy primVal) =>
-  Eval.HasSubstValue ext PrimTy primVal PrimTy
+  Monoid (Core.XVPrimTy ext RawPrimTy primVal) =>
+  Eval.HasSubstValue ext RawPrimTy primVal RawPrimTy
   where
   substValueWith _ _ _ t = pure $ Core.VPrimTy t mempty
 
 instance
-  Monoid (Core.XPrimTy ext PrimTy primVal) =>
-  Eval.HasPatSubstTerm ext PrimTy primVal PrimTy
+  Monoid (Core.XPrimTy ext RawPrimTy primVal) =>
+  Eval.HasPatSubstTerm ext RawPrimTy primVal RawPrimTy
   where
   patSubstTerm' _ _ t = pure $ Core.PrimTy t mempty
 
