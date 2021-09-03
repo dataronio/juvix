@@ -24,4 +24,4 @@
 ,
     ( ":defsig" "main" "int" )
 ,
-    ( ":defun" "main" () ( "patternMatch" ( ":paren" ( "P" 1 2 ) ) ) ) ]
+    ( ":defun" "main" () 9 ) ]

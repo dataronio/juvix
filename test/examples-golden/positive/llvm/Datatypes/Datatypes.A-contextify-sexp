@@ -22,16 +22,13 @@ Rec
                         { defUsage = Nothing
                         , defMTy = Just "int"
                         , defTerm =
-                            ( ":lambda-case"
-                                ( ()
-                                    ( "patternMatch"
-                                        ( ":paren" ( "P" 1 2 ) ) ) ) )
+                            ( ":lambda-case" ( () 9 ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "pq"
                 , TypeDeclar
                     { definitionRepr =
-                        (
+                        ( "type"
                             ( "pq" ":type" "ty" ) ()
                             ( "P" "int" "int" )
                             ( "Q" "int" "int" "int" ) ) } )

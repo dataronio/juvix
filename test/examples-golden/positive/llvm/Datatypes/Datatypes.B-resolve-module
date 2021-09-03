@@ -22,16 +22,13 @@ Rec
                         { defUsage = Nothing
                         , defMTy = Just "TopLevel.Prelude.LLVM.int"
                         , defTerm =
-                            ( ":lambda-case"
-                                ( ()
-                                    ( "patternMatch"
-                                        ( ":paren" ( "P" 1 2 ) ) ) ) )
+                            ( ":lambda-case" ( () 9 ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "pq"
                 , TypeDeclar
                     { definitionRepr =
-                        (
+                        ( "type"
                             ( "pq" ":type" "TopLevel.Prelude.ty" ) ()
                             ( "P" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" )
                             ( "Q" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" ) ) } )

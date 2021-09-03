@@ -21,5 +21,4 @@
             ( ( "Q" "x" "y" "z" ) )
             ( ":infix" "+" "x" ( ":infix" "+" "y" "z" ) ) ) )
 ,
-    ( ":defsig-match" "main" "int"
-        ( () ( "patternMatch" ( ":paren" ( "P" 1 2 ) ) ) ) ) ]
+    ( ":defsig-match" "main" "int" ( () 9 ) ) ]

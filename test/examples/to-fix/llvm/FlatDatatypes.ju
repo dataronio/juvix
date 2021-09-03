@@ -13,6 +13,20 @@ sig patternMatch : pq -> int
 let patternMatch (P x y) = x + y
 let patternMatch (Q x y z) = x + y + z
 
+sig applySomething : int -> int
+let applySomething x = x + 1
+
+sig appliedSomething : int
+let appliedSomething = applySomething 3
+
+-- sig main : int -> int
+-- let main x = x + 1
+-- sig main : pq -> int
+-- let main (P x y) = x + y
+-- let main (Q x y z) = x + y + z
 sig main : int
-let main =
-  patternMatch (P 1 2)
+let main = patternMatch (P 1 2)
+  -- let applied = appliedSomething in
+  -- applied
+  -- let pm = patternMatch (P 1 2) in
+  -- pm

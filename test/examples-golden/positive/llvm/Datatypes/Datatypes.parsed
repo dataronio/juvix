@@ -202,28 +202,9 @@ Right
                     { functionLikedName = "main"
                     , functionLikeArgs = []
                     , functionLikeBody = Body
-                        ( Application
-                            ( App
-                                { applicationName = Name
-                                    ( "patternMatch" :| [] )
-                                , applicationArgs = Parened
-                                    ( Application
-                                        ( App
-                                            { applicationName = Name
-                                                ( "P" :| [] )
-                                            , applicationArgs = Constant
-                                                ( Number
-                                                    ( Integer' 1 )
-                                                ) :|
-                                                [ Constant
-                                                    ( Number
-                                                        ( Integer' 2 )
-                                                    )
-                                                ]
-                                            }
-                                        )
-                                    ) :| []
-                                }
+                        ( Constant
+                            ( Number
+                                ( Integer' 9 )
                             )
                         )
                     }
