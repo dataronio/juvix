@@ -90,7 +90,7 @@ mkLam env ty body args capt = do
     mkParam (name, ty) = do
       name' <- LLVM.fresh
       let ty' = typeToLLVM ty
-      return $ (ty', S.fromString $ show name')
+      return $ (ty', S.fromString $ show name') -- TODO: fix this, show adds "
 
 -- Construct a list of types from a function type.
 functionTy :: ErasedAnn.Type primTy -> [ErasedAnn.Type primTy]
