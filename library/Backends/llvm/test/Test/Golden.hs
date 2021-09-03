@@ -7,8 +7,6 @@ import qualified Data.ByteString as ByteString (readFile)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Backends.LLVM as LLVM
-import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
-import qualified Juvix.Backends.LLVM.Primitive as LLVM.Prim
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import qualified Juvix.Core.HR.Types as HR
@@ -110,7 +108,7 @@ pipelineToHR file =
     liftIO (readFile file)
     >>= Pipeline.toML' (withJuvixRootPath <$> libs) LLVM.BLLVM
     >>= Pipeline.toSexp LLVM.BLLVM
-    >>= Pipeline.toHR LLVM.Param.llvm
+    >>= Pipeline.toHR LLVM.llvm
 
 pipelineToIR file = pipelineToHR file >>= Pipeline.toIR
 
@@ -140,9 +138,9 @@ erasedTests =
         liftIO (readFile file)
         >>= Pipeline.toML' (withJuvixRootPath <$> libs) LLVM.BLLVM
         >>= Pipeline.toSexp LLVM.BLLVM
-        >>= Pipeline.toHR LLVM.Param.llvm
+        >>= Pipeline.toHR LLVM.llvm
         >>= Pipeline.toIR
-        >>= Pipeline.toErased LLVM.Param.llvm LLVM.Prim.Set
+        >>= Pipeline.toErased LLVM.llvm LLVM.Set
 
 llvmGoldenTestsNoQuotes :: [Char] -> (FilePath -> IO NoQuotes) -> FilePath -> IO TestTree
 llvmGoldenTestsNoQuotes = discoverGoldenTestsNoQuotes withJuvixRootPath
