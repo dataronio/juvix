@@ -4,18 +4,20 @@
 module Test.Golden where
 
 import qualified Data.ByteString as ByteString (readFile)
+import qualified Data.HashMap.Strict as HM
+import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Backends.LLVM as LLVM
+import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
+import qualified Juvix.Backends.LLVM.Primitive as LLVM.Prim
+import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
+import qualified Juvix.Core.HR.Types as HR
 import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import Juvix.Library.Test.Golden
 import Juvix.Pipeline (Pipeline)
 import qualified Juvix.Pipeline as Pipeline
 import Test.Tasty
-import qualified Data.List.NonEmpty as NonEmpty
-import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
-import qualified Data.HashMap.Strict as HM
-import qualified Juvix.Backends.LLVM.Primitive as LLVM.Prim
 import Prelude (String)
 
 --------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ typecheckTest f (withJuvixRootPath -> p) = discoverGoldenTests [".ju"] ".typeche
 
 typecheck ::
   FilePath ->
-  Feedback.FeedbackT [] [Char] IO (ErasedAnn.AnnTermT LLVM.PrimTy LLVM.RawPrimVal)
+  Feedback.FeedbackT [] String IO (ErasedAnn.AnnTermT LLVM.PrimTy LLVM.RawPrimVal)
 typecheck file = do
   contract <- liftIO $ readFile file
   context <- Pipeline.parseWithLibs (withJuvixRootPath <$> libs) LLVM.BLLVM contract
@@ -103,21 +105,14 @@ hrTests =
     hrTestsPos = llvmGoldenTestsNoQuotes ".hr" (expectSuccess . toNoQuotes pipelineToHR)
     hrTestsNeg = llvmGoldenTestsNoQuotes ".hr" (expectFailure . toNoQuotesEmpty pipelineToHR)
 
-
-pipelineToHR :: FilePath -> _
 pipelineToHR file =
   do
     liftIO (readFile file)
     >>= Pipeline.toML' (withJuvixRootPath <$> libs) LLVM.BLLVM
     >>= Pipeline.toSexp LLVM.BLLVM
-    >>= Pipeline.toHR LLVM.BLLVM
-    -- Reduce the Prelude related functions for readability
-    >>= pure . HM.filterWithKey isNotPrelude
-  where
-    isNotPrelude (p NonEmpty.:| _) _ = p /= "Prelude"
+    >>= Pipeline.toHR LLVM.Param.llvm
 
 pipelineToIR file = pipelineToHR file >>= Pipeline.toIR
-
 
 irTests :: IO TestTree
 irTests =
@@ -148,9 +143,6 @@ erasedTests =
         >>= Pipeline.toHR LLVM.Param.llvm
         >>= Pipeline.toIR
         >>= Pipeline.toErased LLVM.Param.llvm LLVM.Prim.Set
-
-    isNotPrelude (p NonEmpty.:| _) _ = p /= "Prelude"
-
 
 llvmGoldenTestsNoQuotes :: [Char] -> (FilePath -> IO NoQuotes) -> FilePath -> IO TestTree
 llvmGoldenTestsNoQuotes = discoverGoldenTestsNoQuotes withJuvixRootPath
