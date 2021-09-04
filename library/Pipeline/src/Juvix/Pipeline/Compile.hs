@@ -68,6 +68,7 @@ typePrims ty g =
       Core.RawGAbstract (Core.RawAbstract n u (baseToReturn ty t))
 
 argReturn ::
+  (Show ty, Show val) =>
   ty ->
   Core.RawDataArg IR.T ty val ->
   Core.RawDataArg IR.T ty (Param.TypedPrim ty val)
@@ -85,6 +86,7 @@ argEval globals arg@Core.RawDataArg {rawArgName, rawArgUsage, rawArgType} =
   Core.DataArg rawArgName rawArgUsage (unsafeEval globals rawArgType)
 
 conReturn ::
+  (Show ty, Show val) =>
   ty ->
   Core.RawDataCon IR.T ty val ->
   Core.RawDataCon IR.T ty (Param.TypedPrim ty val)
@@ -102,6 +104,7 @@ conEval globals con@Core.RawDataCon {rawConName, rawConType, rawConDef} =
   Core.DataCon rawConName (unsafeEval globals rawConType) (funEval globals <$> rawConDef)
 
 funReturn ::
+  (Show ty, Show val) =>
   ty ->
   Core.RawFunction IR.T ty val ->
   Core.RawFunction IR.T ty (Param.TypedPrim ty val)
@@ -119,6 +122,7 @@ funEval globals (Core.RawFunction name usage term clauses) =
   Core.Function name usage (unsafeEval globals term) (funClauseEval globals <$> clauses)
 
 funClauseReturn ::
+  (Show ty, Show val) =>
   ty ->
   Core.RawFunClause IR.T ty val ->
   Core.RawFunClause IR.T ty (Param.TypedPrim ty val)
@@ -142,6 +146,7 @@ funClauseEval globals (Core.RawFunClause tel patts rhs catchall) =
     Nothing --TODO
 
 telescopeReturn ::
+  (Show ty, Show val) =>
   ty ->
   Core.RawTelescope IR.T ty val ->
   Core.RawTelescope IR.T ty (Param.TypedPrim ty val)
@@ -167,6 +172,7 @@ telescopeEval globals ts = f <$> ts
         }
 
 pattEval ::
+  (Show ty, Show val) =>
   ty ->
   IR.Pattern ty val ->
   IR.Pattern ty (Param.TypedPrim ty val)
@@ -181,6 +187,7 @@ pattEval ty patt =
     IR.PPrim p -> IR.PPrim (CoreApp.Return (Param.PrimType $ ty :| []) p)
 
 baseToReturn ::
+  (Show ty, Show val) =>
   ty ->
   Core.Term IR.T ty val ->
   Core.Term IR.T ty (Param.TypedPrim ty val)
@@ -199,6 +206,7 @@ baseToReturn ty t =
     IR.Elim e -> IR.Elim (elimToReturn ty e)
 
 elimToReturn ::
+  (Show ty, Show val) =>
   ty ->
   Core.Elim IR.T ty val ->
   Core.Elim IR.T ty (Param.TypedPrim ty val) -- ty' --(TypedPrim ty val)
