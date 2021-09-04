@@ -35,7 +35,6 @@ traceLog ::
   T -> Integer -> (Integer -> Integer) -> [Stack] -> [String]
 traceLog t level indentationIncrement stacks =
   (stacks >>= traceStack t level indentationIncrement)
-    -- |> reverse
 
 traceStack :: T -> Integer -> (Integer -> Integer) -> Stack -> [String]
 traceStack t currentLevel indentationIncrement stack =
