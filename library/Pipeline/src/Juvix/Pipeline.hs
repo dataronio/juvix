@@ -172,7 +172,7 @@ class HasBackend b where
         main : _ -> pure main
       toLambda main =
         case TransformExt.extForgetE <$> IR.toLambdaR @IR.T main of
-          Just (IR.Ann usage term ty _) -> pure (usage, term, ty)
+          Just (IR.Ann usage term mainTy _) -> pure (usage, term, mainTy)
           _ -> Feedback.fail $ "Unable to convert main to lambda" <> toS (pShowNoColor main)
 
   -------------
