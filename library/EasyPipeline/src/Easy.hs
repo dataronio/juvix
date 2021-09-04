@@ -23,11 +23,11 @@ module Easy where
 import qualified Data.ByteString as BS
 import qualified Data.Field.Galois as Field
 import qualified Data.HashMap.Strict as HM
+import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
+import qualified Juvix.Backends.LLVM.Pipeline as LLVM
+import qualified Juvix.Backends.LLVM.Primitive as LLVM.Prim
 import qualified Juvix.Backends.Michelson.Parameterisation as Michelson.Param
 import qualified Juvix.Backends.Michelson.Pipeline as Michelson
-import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
-import qualified Juvix.Backends.LLVM.Primitive as LLVM.Prim
-import qualified Juvix.Backends.LLVM.Pipeline as LLVM
 import qualified Juvix.Backends.Plonk as Plonk
 import qualified Juvix.Context as Context
 import qualified Juvix.Context.NameSpace as NameSpace
