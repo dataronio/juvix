@@ -399,7 +399,9 @@ Representation of LLVM primitives in Juvix.
 ***** Golden <<llvm/test/Test/Golden>>
 - _Relies on_
   + [[LLVM]]
+  + [[Core/Base/Types]]
   + [[Ann]]
+  + [[HR/Types]]
   + [[Library]]
   + [[Feedback]]
   + [[Library/Test/Golden]]
@@ -955,6 +957,9 @@ process until the compiler is at the full backends.
 We can view this approach as giving us a quick way to play around
 with any stage of the compiler while modifying the source code.
 - _Relies on_
+  + [[LLVM/Parameterization]]
+  + [[LLVM/Pipeline]]
+  + [[Primitive]]
   + [[Michelson/Parameterisation]]
   + [[Michelson/Pipeline]]
   + [[Plonk]]
@@ -1010,10 +1015,6 @@ with any stage of the compiler while modifying the source code.
   + [[NameSymbol]]
   + [[Library/Parser]]
 ***** Parser <<Frontend/Parser>>
-- The front end parser for the Juvix Programming language
-- Parsers with S at the end, eat the spaces at the end of the parse
-- Parsers with SN at the end, eats the spaces and new lines at the
-  end of the parse
 - _Relies on_
   + [[Frontend/Types]]
   + [[Library]]
@@ -1029,12 +1030,6 @@ with any stage of the compiler while modifying the source code.
 - _Relies on_
   + [[Frontend/Types/Base]]
 ****** Base <<Frontend/Types/Base>>
-- This file defines the main ADT for the Juvix front end language.
-- This ADT corresponds to the bnf laid out [[https://heliaxdev.github.io/juvix-docs/docs/design/syntax/][here]].
-- Later a trees that grow version of this will be implemented, so
-  infix functions can better transition across syntax
-- Note :: The names for the types in =ArrowData= are stored in the
-          =ArrowGen= and not in =NamedType=
 - _Relies on_
   + [[Library]]
   + [[Library/Usage]]
