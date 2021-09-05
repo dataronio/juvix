@@ -4,19 +4,16 @@ open Prelude
 open Circuit
 open Circuit.Field
 
-sig x : field
-let x = 3
-
 type verySimpleType = One field
 
 sig verySimpleTerm : verySimpleType
 let verySimpleTerm = One 0
 
+type bar : ty = | P field field |  Q field field field
+
 sig patternMatch : bar -> field
 let patternMatch (P x y) = x^2 + y^2
 let patternMatch (Q x y z) = x^2 + y^2 + z^2
-
-type bar : ty = | P field field |  Q field field field
 
 -- type point : ty = Po2 { x : field, y : field } | Po3 { x : field , y: field, z: field}
 
