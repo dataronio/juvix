@@ -147,10 +147,9 @@ class HasBackend b where
   toErased ::
     Constraints b =>
     Param.Parameterisation (Ty b) (Val b) ->
-    Ty b ->
     (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Ty b) (Val b)) ->
     Pipeline (ErasedAnn.AnnTermT (Ty b) (Val b))
-  toErased param ty (patToSym, globalDefs) = do
+  toErased param (patToSym, globalDefs) = do
     (usage, term, mainTy) <- getMain >>= toLambda
     let inlinedTerm = IR.inlineAllGlobals term lookupGlobal patToSym
     let erasedAnn = ErasedAnn.irToErasedAnn @(Err b) inlinedTerm usage mainTy
@@ -165,7 +164,7 @@ class HasBackend b where
       -- Type primitive values, i.e.
       --      RawGlobal (Ty b) (Val b)
       -- into RawGlobal (Ty b) (TypedPrim (Ty b) (Val b))
-      typedGlobals = map (typePrims ty) globalDefs
+      typedGlobals = map typePrims globalDefs
       evaluatedGlobals = HM.map (unsafeEvalGlobal typedGlobals) typedGlobals
       getMain = case HM.elems $ HM.filter isMain globalDefs of
         [] -> Feedback.fail $ "No main function found in " <> toS (pShowNoColor globalDefs)
@@ -202,12 +201,11 @@ class HasBackend b where
     Constraints b =>
     Context.T Sexp.T Sexp.T Sexp.T ->
     Param.Parameterisation (Ty b) (Val b) ->
-    Ty b ->
     Pipeline (ErasedAnn.AnnTermT (Ty b) (Val b))
-  typecheck' ctx param ty = do
+  typecheck' ctx param = do
     toHR param ctx
       >>= toIR
-      >>= toErased param ty
+      >>= toErased param
 
   compile ::
     FilePath ->

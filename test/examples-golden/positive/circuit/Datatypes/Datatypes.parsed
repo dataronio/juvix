@@ -13,29 +13,6 @@ Right
             ( Open
                 ( "Circuit" :| [ "Field" ] )
             )
-        , Signature
-            ( Sig
-                { signatureName = "x"
-                , signatureUsage = Nothing
-                , signatureArrowType = Name
-                    ( "field" :| [] )
-                , signatureConstraints = []
-                }
-            )
-        , Function
-            ( Func
-                ( Like
-                    { functionLikedName = "x"
-                    , functionLikeArgs = []
-                    , functionLikeBody = Body
-                        ( Constant
-                            ( Number
-                                ( Integer' 3 )
-                            )
-                        )
-                    }
-                )
-            )
         , Type
             ( Typ
                 { typeUsage = Nothing
@@ -84,6 +61,44 @@ Right
                         )
                     }
                 )
+            )
+        , Type
+            ( Typ
+                { typeUsage = Nothing
+                , typeName' = "bar"
+                , typeArgs = []
+                , typeForm = Arrowed
+                    { dataArrow = Name
+                        ( "ty" :| [] )
+                    , dataAdt' = Sum
+                        ( S
+                            { sumConstructor = "P"
+                            , sumValue = Just
+                                ( ADTLike
+                                    [ Name
+                                        ( "field" :| [] )
+                                    , Name
+                                        ( "field" :| [] )
+                                    ]
+                                )
+                            } :|
+                            [ S
+                                { sumConstructor = "Q"
+                                , sumValue = Just
+                                    ( ADTLike
+                                        [ Name
+                                            ( "field" :| [] )
+                                        , Name
+                                            ( "field" :| [] )
+                                        , Name
+                                            ( "field" :| [] )
+                                        ]
+                                    )
+                                }
+                            ]
+                        )
+                    }
+                }
             )
         , Signature
             ( Sig
@@ -228,44 +243,6 @@ Right
                         )
                     }
                 )
-            )
-        , Type
-            ( Typ
-                { typeUsage = Nothing
-                , typeName' = "bar"
-                , typeArgs = []
-                , typeForm = Arrowed
-                    { dataArrow = Name
-                        ( "ty" :| [] )
-                    , dataAdt' = Sum
-                        ( S
-                            { sumConstructor = "P"
-                            , sumValue = Just
-                                ( ADTLike
-                                    [ Name
-                                        ( "field" :| [] )
-                                    , Name
-                                        ( "field" :| [] )
-                                    ]
-                                )
-                            } :|
-                            [ S
-                                { sumConstructor = "Q"
-                                , sumValue = Just
-                                    ( ADTLike
-                                        [ Name
-                                            ( "field" :| [] )
-                                        , Name
-                                            ( "field" :| [] )
-                                        , Name
-                                            ( "field" :| [] )
-                                        ]
-                                    )
-                                }
-                            ]
-                        )
-                    }
-                }
             )
         , Type
             ( Typ

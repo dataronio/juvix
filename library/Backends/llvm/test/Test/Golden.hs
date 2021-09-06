@@ -140,7 +140,7 @@ erasedTests =
         >>= Pipeline.toSexp LLVM.BLLVM
         >>= Pipeline.toHR LLVM.llvm
         >>= Pipeline.toIR
-        >>= Pipeline.toErased LLVM.llvm LLVM.Set
+        >>= Pipeline.toErased LLVM.llvm
 
 llvmGoldenTestsNoQuotes :: [Char] -> (FilePath -> IO NoQuotes) -> FilePath -> IO TestTree
 llvmGoldenTestsNoQuotes = discoverGoldenTestsNoQuotes withJuvixRootPath

@@ -131,15 +131,6 @@ Rec
                         { sumTDef = Nothing
                         , sumTName = "functionTypeInConstructor" } ) )
             ,
-                ( "x"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just "field"
-                        , defTerm =
-                            ( ":lambda-case" ( () 3 ) )
-                        , defPrecedence = Pred Left 9 } ) )
-            ,
                 ( "verySimpleTerm"
                 , Def
                     ( D

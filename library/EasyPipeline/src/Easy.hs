@@ -484,7 +484,7 @@ erase ::
 erase input options = do
   (patToSym, globalDefs) <- coreify input options
   feed <-
-    Feedback.runFeedbackT (Pipeline.toErased (param options) (typeAgainst options) (patToSym, globalDefs))
+    Feedback.runFeedbackT (Pipeline.toErased (param options) (patToSym, globalDefs))
   case feed of
     Feedback.Success msg erased -> do
       printCompactParens msg
@@ -505,7 +505,7 @@ eraseFile ::
 eraseFile fp options = do
   (patToSym, globalDefs) <- coreifyFile fp options
   feed <-
-    Feedback.runFeedbackT (Pipeline.toErased (param options) (typeAgainst options) (patToSym, globalDefs))
+    Feedback.runFeedbackT (Pipeline.toErased (param options) (patToSym, globalDefs))
   case feed of
     Feedback.Success msg erased -> do
       printCompactParens msg

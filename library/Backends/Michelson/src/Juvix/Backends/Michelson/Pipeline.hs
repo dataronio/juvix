@@ -17,7 +17,7 @@ instance HasBackend BMichelson where
 
   stdlibs _ = ["stdlib/Michelson.ju", "stdlib/MichelsonAlias.ju"]
 
-  typecheck ctx = Pipeline.typecheck' ctx Param.michelson Param.Set
+  typecheck ctx = Pipeline.typecheck' ctx Param.michelson
 
   compile out term = do
     let (res, _logs) = M.compileContract $ ErasedAnn.toRaw term
