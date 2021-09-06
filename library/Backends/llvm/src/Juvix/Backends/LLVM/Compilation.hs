@@ -11,6 +11,7 @@ import Juvix.Backends.LLVM.Primitive
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library
 import Juvix.Library.Feedback
+import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified LLVM.AST as LLVM (Module, Name, Operand (..))
 import qualified LLVM.AST.Constant as LLVM (Constant (..))
@@ -31,14 +32,14 @@ compileProgram t@(ErasedAnn.Ann usage ty _) = do
           LLVM.ret out
   return $ toStrict $ LLVM.ppllvm llvmmod
 
-type Env = [(NameSymbol.T, LLVM.Operand)]
+type Env = Map.Map NameSymbol.T LLVM.Operand
 
 compileTerm ::
   Env ->
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
 compileTerm env (ErasedAnn.Ann usage ty t) = case t of
-  ErasedAnn.Var symbol -> case P.lookup symbol env of
+  ErasedAnn.Var symbol -> case Map.lookup symbol env of
     Nothing -> P.error "Variable not found." -- TODO improve error message.
     Just var -> return var
   ErasedAnn.Prim t' -> mkPrim t ty
@@ -76,7 +77,7 @@ mkLam env ty body args capt = do
   let returnTy = typeToLLVM $ ErasedAnn.type' body
   params <- mapM mkParam (zip args (functionTy ty))
   LLVM.function funname params returnTy $ \refs -> do
-    let env' = (zip args refs) ++ env
+    let env' = env `Map.union` Map.fromList (zip args refs)
     body' <- lift $ compileTerm env' body
     LLVM.ret body'
   return funname
@@ -113,7 +114,7 @@ mkApp env f@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
   case term of
     ErasedAnn.LamM {ErasedAnn.body, ErasedAnn.arguments, ErasedAnn.capture} -> do
       funname <- mkLam env type' body arguments capture
-      LLVM.call (globalRef (typeToLLVM type') funname) []
+      LLVM.call (globalRef (typeToLLVM type') funname) mempty
     ErasedAnn.Prim prim -> applyPrim env prim xs
     ErasedAnn.Var v -> do
       f' <- compileTerm env f
