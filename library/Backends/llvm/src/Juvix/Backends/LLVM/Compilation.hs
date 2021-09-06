@@ -24,15 +24,34 @@ compileProgram ::
   Monad m =>
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   FeedbackT [] P.String m Text
-compileProgram t@(ErasedAnn.Ann usage ty _) = do
+compileProgram t@(ErasedAnn.Ann usage ty t') = do
   let llvmmod :: LLVM.Module
       llvmmod = LLVM.buildModule "juvix-module" $ do
-        LLVM.function "main" [] (typeToLLVM ty) $ \[] -> do
-          out <- compileTerm [] t
+        let mainTy = typeToLLVM ty
+            paramNames = repeat "arg"
+            paramTypes = map typeToLLVM (init $ functionTy ty)
+            params = zip paramTypes (map mkParameterName paramNames)
+        LLVM.function "main" params mainTy $ \args -> do
+          let env = Map.fromList $ zip paramNames args -- Bind names with arguments.
+          out <- case t' of
+            ErasedAnn.LamM
+              { ErasedAnn.capture,
+                ErasedAnn.arguments,
+                ErasedAnn.body
+              } -> do
+                funname <- mkLam env ty body arguments capture
+                let callArgs = zip args (repeat []) -- No arg attributes.
+                LLVM.call (globalRef (typeToLLVM ty) funname) callArgs
+            _ -> do
+              compileTerm env t
           LLVM.ret out
   return $ toStrict $ LLVM.ppllvm llvmmod
 
 type Env = Map.Map NameSymbol.T LLVM.Operand
+
+-- | Counterpart of `mkName`: make a `ParameterName` given a name.
+mkParameterName :: NameSymbol.T -> LLVM.ParameterName
+mkParameterName s = S.fromString $ unintern $ NameSymbol.toSymbol s -- S.fromString _
 
 compileTerm ::
   Env ->
