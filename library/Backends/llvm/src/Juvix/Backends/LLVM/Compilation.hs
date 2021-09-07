@@ -59,7 +59,8 @@ compileTerm ::
   LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
 compileTerm env (ErasedAnn.Ann usage ty t) = case t of
   ErasedAnn.Var symbol -> case Map.lookup symbol env of
-    Nothing -> P.error "Variable not found." -- TODO improve error message.
+    Nothing ->
+      P.error $ "Variable not found: " <> show symbol <> " in " <> show env -- TODO improve error message.
     Just var -> return var
   ErasedAnn.Prim t' -> mkPrim t ty
   ErasedAnn.AppM f xs -> mkApp env f ty xs
