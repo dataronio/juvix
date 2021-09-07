@@ -134,7 +134,9 @@ mkApp env f@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
   case term of
     ErasedAnn.LamM {ErasedAnn.body, ErasedAnn.arguments, ErasedAnn.capture} -> do
       funname <- mkLam env type' body arguments capture
-      LLVM.call (globalRef (typeToLLVM type') funname) mempty
+      let argsRefs = Map.filterWithKey (\k _ -> (k `elem` capture) || (k `elem` arguments)) env
+          args = zip (Map.elems argsRefs) (repeat []) -- Do not pass attributes to the args.
+      LLVM.call (globalRef (typeToLLVM type') funname) args
     ErasedAnn.Prim prim -> applyPrim env prim xs
     ErasedAnn.Var v -> do
       f' <- compileTerm env f
