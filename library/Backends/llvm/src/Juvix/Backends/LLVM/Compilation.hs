@@ -102,7 +102,7 @@ mkLam env ty body args capt = do
   params <- mapM mkParam (zip args (functionTy ty))
   LLVM.function funname params returnTy $ \refs -> do
     let env' = env `Map.union` Map.fromList (zip args refs)
-    body' <- lift $ compileTerm env' body
+    body' <- compileTerm env' body
     LLVM.ret body'
   return funname
   where
