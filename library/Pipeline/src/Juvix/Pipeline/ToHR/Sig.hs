@@ -136,6 +136,8 @@ transformSpecialRhs _ (Sexp.List [name, prim])
       "Builtin" :| ["SAny"] -> pure $ Just SAnyS
       "Builtin" :| ["Colon"] -> pure $ Just ColonS
       "Builtin" :| ["Type"] -> pure $ Just TypeS
+      "Builtin" :| ["CatProduct"] -> pure $ Just $ CatProductS Nothing
+      "Builtin" :| ["CatCoproduct"] -> pure $ Just $ CatCoproductS Nothing
       "Builtin" :| (s : ss) -> throwFF $ UnknownBuiltin $ s :| ss
       _ -> pure Nothing
 transformSpecialRhs q prim
@@ -149,6 +151,8 @@ transformSpecialRhs q (Sexp.List [f, arg])
         case head of
           Just (ArrowS Nothing) -> Just . ArrowS . Just <$> transformUsage q arg
           Just (PairS Nothing) -> Just . PairS . Just <$> transformUsage q arg
+          Just (CatProductS Nothing) -> Just . CatProductS . Just <$> transformUsage q arg
+          Just (CatCoproductS Nothing) -> Just . CatCoproductS . Just <$> transformUsage q arg
           _ -> pure Nothing
 transformSpecialRhs _ _ = pure Nothing
 

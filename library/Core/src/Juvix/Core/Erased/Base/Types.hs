@@ -30,6 +30,8 @@ extensible
         Pi Usage.T (Type primTy) (Type primTy)
       | UnitTy
       | Sig Usage.T (Type primTy) (Type primTy)
+      | CatProduct Usage.T (Type primTy) (Type primTy)
+      | CatCoproduct Usage.T (Type primTy) (Type primTy)
       deriving (Show, Eq, Generic)
 
     type TypeAssignment primTy = Map.T NameSymbol.T (Type primTy)

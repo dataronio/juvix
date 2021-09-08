@@ -102,6 +102,10 @@ inlineAllGlobals t lookupFun patternMap =
       Core.Lam (inlineAllGlobals t lookupFun patternMap) ann
     Core.Pi u t1 t2 ann ->
       Core.Pi u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
+    Core.CatProduct u t1 t2 ann ->
+      Core.CatProduct u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
+    Core.CatCoproduct u t1 t2 ann ->
+      Core.CatCoproduct u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
     Core.Prim {} -> t
     Core.PrimTy {} -> t
     Core.Star {} -> t
@@ -155,6 +159,10 @@ evalTermWith g exts (Core.Sig π s t _) =
   IR.VSig π <$> evalTermWith g exts s <*> evalTermWith g exts t
 evalTermWith g exts (Core.Pair s t _) =
   IR.VPair <$> evalTermWith g exts s <*> evalTermWith g exts t
+evalTermWith g exts (Core.CatProduct π s t _) =
+  IR.VCatProduct π <$> evalTermWith g exts s <*> evalTermWith g exts t
+evalTermWith g exts (Core.CatCoproduct π s t _) =
+  IR.VCatCoproduct π <$> evalTermWith g exts s <*> evalTermWith g exts t
 evalTermWith _ _ (Core.UnitTy _) =
   pure IR.VUnitTy
 evalTermWith _ _ (Core.Unit _) =

@@ -192,6 +192,8 @@ baseToReturn t =
     IR.Lam t -> IR.Lam (baseToReturn t)
     IR.Sig u x y -> IR.Sig u (baseToReturn x) (baseToReturn y)
     IR.Pair x y -> IR.Pair (baseToReturn x) (baseToReturn y)
+    IR.CatProduct u x y -> IR.CatProduct u (baseToReturn x) (baseToReturn y)
+    IR.CatCoproduct u x y -> IR.CatCoproduct u (baseToReturn x) (baseToReturn y)
     IR.Let u a b -> IR.Let u (elimToReturn a) (baseToReturn b)
     IR.UnitTy -> IR.UnitTy
     IR.Unit -> IR.Unit

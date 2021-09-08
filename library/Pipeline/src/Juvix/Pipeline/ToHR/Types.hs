@@ -81,6 +81,10 @@ data Special
     ArrowS (Maybe Usage.T)
   | -- | sigma type
     PairS (Maybe Usage.T)
+  | -- | category-theoretical product
+    CatProductS (Maybe Usage.T)
+  | -- | category-theoretical coproduct
+    CatCoproductS (Maybe Usage.T)
   | -- | type annotation
     ColonS
   | -- | type of types

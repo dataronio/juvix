@@ -15,6 +15,8 @@ data ExtTransformTEF f ext1 ext2 primTy primVal = ExtTransformTEF
     etfLam :: XLam ext1 primTy primVal -> f (XLam ext2 primTy primVal),
     etfSig :: XSig ext1 primTy primVal -> f (XSig ext2 primTy primVal),
     etfPair :: XPair ext1 primTy primVal -> f (XPair ext2 primTy primVal),
+    etfCatProduct :: XCatProduct ext1 primTy primVal -> f (XCatProduct ext2 primTy primVal),
+    etfCatCoproduct :: XCatCoproduct ext1 primTy primVal -> f (XCatCoproduct ext2 primTy primVal),
     etfUnitTy :: XUnitTy ext1 primTy primVal -> f (XUnitTy ext2 primTy primVal),
     etfUnit :: XUnit ext1 primTy primVal -> f (XUnit ext2 primTy primVal),
     etfLet :: XLet ext1 primTy primVal -> f (XLet ext2 primTy primVal),
@@ -43,6 +45,8 @@ pattern ExtTransformTE ::
   (XLam ext1 primTy primVal -> XLam ext2 primTy primVal) ->
   (XSig ext1 primTy primVal -> XSig ext2 primTy primVal) ->
   (XPair ext1 primTy primVal -> XPair ext2 primTy primVal) ->
+  (XCatProduct ext1 primTy primVal -> XCatProduct ext2 primTy primVal) ->
+  (XCatCoproduct ext1 primTy primVal -> XCatCoproduct ext2 primTy primVal) ->
   (XUnitTy ext1 primTy primVal -> XUnitTy ext2 primTy primVal) ->
   (XUnit ext1 primTy primVal -> XUnit ext2 primTy primVal) ->
   (XLet ext1 primTy primVal -> XLet ext2 primTy primVal) ->
@@ -62,6 +66,8 @@ pattern ExtTransformTE
     etLam,
     etSig,
     etPair,
+    etCatProduct,
+    etCatCoproduct,
     etUnitTy,
     etUnit,
     etLet,
@@ -83,6 +89,8 @@ pattern ExtTransformTE
       etfUnitTy = Coerce etUnitTy,
       etfUnit = Coerce etUnit,
       etfPair = Coerce etPair,
+      etfCatProduct = Coerce etCatProduct,
+      etfCatCoproduct = Coerce etCatCoproduct,
       etfLet = Coerce etLet,
       etfElim = Coerce etElim,
       etfBound = Coerce etBound,
@@ -108,6 +116,10 @@ extTransformTF fs (Sig π s t e) =
   Sig π <$> extTransformTF fs s <*> extTransformTF fs t <*> etfSig fs e
 extTransformTF fs (Pair s t e) =
   Pair <$> extTransformTF fs s <*> extTransformTF fs t <*> etfPair fs e
+extTransformTF fs (CatProduct π s t e) =
+  CatProduct π <$> extTransformTF fs s <*> extTransformTF fs t <*> etfCatProduct fs e
+extTransformTF fs (CatCoproduct π s t e) =
+  CatCoproduct π <$> extTransformTF fs s <*> extTransformTF fs t <*> etfCatCoproduct fs e
 extTransformTF fs (UnitTy e) =
   UnitTy <$> etfUnitTy fs e
 extTransformTF fs (Unit e) =
@@ -154,6 +166,8 @@ type ForgotExt ext primTy primVal =
     XPi ext primTy primVal ~ (),
     XSig ext primTy primVal ~ (),
     XPair ext primTy primVal ~ (),
+    XCatProduct ext primTy primVal ~ (),
+    XCatCoproduct ext primTy primVal ~ (),
     XUnitTy ext primTy primVal ~ (),
     XUnit ext primTy primVal ~ (),
     XLam ext primTy primVal ~ (),
@@ -179,6 +193,8 @@ forgetter =
       etPi = const (),
       etSig = const (),
       etPair = const (),
+      etCatProduct = const (),
+      etCatCoproduct = const (),
       etUnitTy = const (),
       etUnit = const (),
       etLam = const (),
@@ -223,6 +239,8 @@ compose fs gs =
       etfPi = etfPi fs <=< etfPi gs,
       etfSig = etfSig fs <=< etfSig gs,
       etfPair = etfPair fs <=< etfPair gs,
+      etfCatProduct = etfCatProduct fs <=< etfCatProduct gs,
+      etfCatCoproduct = etfCatCoproduct fs <=< etfCatCoproduct gs,
       etfUnitTy = etfUnitTy fs <=< etfUnitTy gs,
       etfUnit = etfUnit fs <=< etfUnit gs,
       etfLam = etfLam fs <=< etfLam gs,

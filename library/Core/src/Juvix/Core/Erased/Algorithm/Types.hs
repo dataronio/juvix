@@ -14,6 +14,8 @@ import Juvix.Core.Base.Types (GlobalName, GlobalUsage, PatternVar)
 import qualified Juvix.Core.Erased.Base.Types as Erased
 import Juvix.Core.Erased.Types as Type
   ( Type,
+    pattern CatCoproduct,
+    pattern CatProduct,
     pattern Pi,
     pattern PrimTy,
     pattern Sig,

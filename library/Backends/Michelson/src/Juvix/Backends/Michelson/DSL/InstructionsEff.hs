@@ -970,6 +970,8 @@ typeToPrimType ty =
       argTy <- typeToPrimType argTy
       retTy <- typeToPrimType retTy
       pure (Untyped.lambda argTy retTy)
+    Ann.CatProduct {} -> throw @"compilationError" $ Types.InvalidInputType "cannot convert category-theoretical product to primty"
+    Ann.CatCoproduct {} -> throw @"compilationError" $ Types.InvalidInputType "cannot convert category-theoretical coproduct to primty"
     Ann.PrimTy _ ->
       throw @"compilationError" $ Types.InvalidInputType "cannot convert to primty"
     Ann.Sig _usage fst snd ->

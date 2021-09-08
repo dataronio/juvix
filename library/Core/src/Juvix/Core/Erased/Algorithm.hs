@@ -166,6 +166,8 @@ eraseTerm (Typed.Pair s t ann) = do
   if π == mempty
     then eraseTerm t
     else Erasure.Pair <$> eraseTerm s <*> eraseTerm t <*> eraseType ty
+eraseTerm t@Typed.CatProduct {} = throwEra $ Erasure.UnsupportedTermT t
+eraseTerm t@Typed.CatCoproduct {} = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm t@(Typed.UnitTy {}) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Unit ann) = Erasure.Unit <$> eraseType (Typed.annType ann)
 eraseTerm (Typed.Let π b t anns) = do
@@ -229,6 +231,8 @@ eraseType (IR.VSig π a b) = do
         <*> withName \_ -> eraseType b
 eraseType v@(IR.VPair _ _) = do
   throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatProduct {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatCoproduct {} = throwEra $ Erasure.UnsupportedTypeV v
 eraseType IR.VUnitTy = do
   pure Erasure.UnitTy
 eraseType IR.VUnit = do

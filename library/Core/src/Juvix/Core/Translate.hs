@@ -76,6 +76,14 @@ hrToIR' = \case
     pure (IR.Sig π a b)
   HR.Pair s t -> do
     HR.Pair <$> hrToIR' s <*> hrToIR' t
+  HR.CatProduct u _n a b -> do
+    a <- hrToIR' a
+    b <- hrToIR' b
+    pure (IR.CatProduct u a b)
+  HR.CatCoproduct u _n a b -> do
+    a <- hrToIR' a
+    b <- hrToIR' b
+    pure (IR.CatCoproduct u a b)
   HR.UnitTy -> pure IR.UnitTy
   HR.Unit -> pure IR.Unit
   HR.Let π n l b -> do
@@ -154,6 +162,14 @@ irToHR' = \case
       pure $ HR.Sig π n a b
   IR.Pair s t -> do
     HR.Pair <$> irToHR' s <*> irToHR' t
+  IR.CatProduct u a b -> do
+    a <- irToHR' a
+    b <- irToHR' b
+    withFresh \n -> pure (HR.CatProduct u n a b)
+  IR.CatCoproduct u a b -> do
+    a <- irToHR' a
+    b <- irToHR' b
+    withFresh \n -> pure (HR.CatCoproduct u n a b)
   IR.UnitTy -> pure HR.UnitTy
   IR.Unit -> pure HR.Unit
   IR.Let π l b -> do
@@ -259,6 +275,8 @@ varsTerm = \case
   IR.Lam t -> varsTerm t
   IR.Sig _ s t -> varsTerm s <> varsTerm t
   IR.Pair s t -> varsTerm s <> varsTerm t
+  IR.CatProduct _ s t -> varsTerm s <> varsTerm t
+  IR.CatCoproduct _ s t -> varsTerm s <> varsTerm t
   IR.Let _ e t -> varsElim e <> varsTerm t
   IR.UnitTy -> mempty
   IR.Unit -> mempty

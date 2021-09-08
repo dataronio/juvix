@@ -14,6 +14,10 @@ extTerm _primTy _primVal =
       Core.typePi = Just [[t|NameSymbol.T|]],
       Core.nameSig = "Sig0",
       Core.typeSig = Just [[t|NameSymbol.T|]],
+      Core.nameCatProduct = "CatProduct0",
+      Core.typeCatProduct = Just [[t|NameSymbol.T|]],
+      Core.nameCatCoproduct = "CatCoproduct0",
+      Core.typeCatCoproduct = Just [[t|NameSymbol.T|]],
       Core.nameLet = "Let0",
       Core.typeLet = Just [[t|NameSymbol.T|]]
     }

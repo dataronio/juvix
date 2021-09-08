@@ -5,6 +5,9 @@ let ty_ = %Builtin.Type
 sig ty : ty_ 1
 let ty = ty_ 0
 
+let cat-product = %Builtin.CatProduct
+let cat-coproduct = %Builtin.CatCoproduct
+
 let SAny = %Builtin.SAny
 let arr = %Builtin.Arrow
 

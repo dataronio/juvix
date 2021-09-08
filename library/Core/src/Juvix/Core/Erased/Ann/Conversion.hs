@@ -273,4 +273,6 @@ convertType ty =
     E.PrimTy p -> PrimTy p
     E.Pi u a r -> Pi u (convertType a) (convertType r)
     E.Sig u a b -> Sig u (convertType a) (convertType b)
+    E.CatProduct u a b -> CatProduct u (convertType a) (convertType b)
+    E.CatCoproduct u a b -> CatCoproduct u (convertType a) (convertType b)
     E.UnitTy -> UnitTy

@@ -48,6 +48,8 @@ data Type primTy
   | -- TODO: How to deal with dependency?
     Pi Usage.T (Type primTy) (Type primTy)
   | Sig Usage.T (Type primTy) (Type primTy)
+  | CatProduct Usage.T (Type primTy) (Type primTy)
+  | CatCoproduct Usage.T (Type primTy) (Type primTy)
   | UnitTy
   deriving (Show, Read, Eq, Generic)
 
@@ -67,6 +69,8 @@ data AnnTerm primTy primVal = Ann
 -- TODO ∷ make usageFromType Fold!
 usageFromType :: Type primTy -> [Usage.T]
 usageFromType (Pi usage _x xs) = usage : usageFromType xs
+usageFromType (CatProduct usage _x xs) = usage : usageFromType xs
+usageFromType (CatCoproduct usage _x xs) = usage : usageFromType xs
 usageFromType Sig {} = []
 usageFromType SymT {} = []
 usageFromType Star {} = []
@@ -79,6 +83,8 @@ piToReturnType last = last
 
 piToList :: Type primTy -> [(Usage.T, Type primTy)]
 piToList (Pi usage aType rest) = (usage, aType) : piToList rest
+piToList CatProduct {} = []
+piToList CatCoproduct {} = []
 piToList Sig {} = []
 piToList SymT {} = []
 piToList Star {} = []
@@ -87,6 +93,8 @@ piToList UnitTy {} = []
 
 piToListTy :: Type primTy -> [Type primTy]
 piToListTy (Pi _usage ty xs) = ty : piToListTy xs
+piToListTy CatProduct {} = []
+piToListTy CatCoproduct {} = []
 piToListTy Sig {} = []
 piToListTy SymT {} = []
 piToListTy Star {} = []

@@ -17,6 +17,9 @@ declare infixr (->) 1
 let (:) = %Builtin.Colon
 declare infixr (:) 2
 
+let cat-product = %Builtin.CatProduct
+let cat-coproduct = %Builtin.CatCoproduct
+
 sig id : (a : ty) -> a -> a
 let id _ x = x
 

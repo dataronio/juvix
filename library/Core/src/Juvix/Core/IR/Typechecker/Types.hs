@@ -67,6 +67,8 @@ Core.extendTerm "Term'" [] [t|T|] $
             Core.typePi = typed,
             Core.typeSig = typed,
             Core.typePair = typed,
+            Core.typeCatProduct = typed,
+            Core.typeCatCoproduct = typed,
             Core.typeUnitTy = typed,
             Core.typeUnit = typed,
             Core.typeLam = bindTyped,
@@ -137,6 +139,8 @@ getTermAnn (Prim _ ann) = ann
 getTermAnn (Pi _ _ _ ann) = ann
 getTermAnn (Sig _ _ _ ann) = ann
 getTermAnn (Pair _ _ ann) = ann
+getTermAnn (CatProduct _ _ _ ann) = ann
+getTermAnn (CatCoproduct _ _ _ ann) = ann
 getTermAnn (UnitTy ann) = ann
 getTermAnn (Unit ann) = ann
 getTermAnn (Lam _ anns) = baResAnn anns

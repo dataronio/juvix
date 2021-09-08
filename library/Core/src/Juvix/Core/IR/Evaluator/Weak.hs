@@ -73,6 +73,10 @@ instance AllWeak ext primTy primVal => HasWeak (Core.Term ext primTy primVal) wh
     Core.Sig π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
   weakBy' b i (Core.Pair s t a) =
     Core.Pair (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
+  weakBy' b i (Core.CatProduct π s t a) =
+    Core.CatProduct π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.CatCoproduct π s t a) =
+    Core.CatCoproduct π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
   weakBy' b i (Core.UnitTy a) =
     Core.UnitTy (weakBy' b i a)
   weakBy' b i (Core.Unit a) =
@@ -125,6 +129,10 @@ instance
     Core.VSig π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
   weakBy' b i (Core.VPair s t a) =
     Core.VPair (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.VCatProduct π s t a) =
+    Core.VCatProduct π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
+  weakBy' b i (Core.VCatCoproduct π s t a) =
+    Core.VCatCoproduct π (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
   weakBy' b i (Core.VUnitTy a) =
     Core.VUnitTy (weakBy' b i a)
   weakBy' b i (Core.VUnit a) =

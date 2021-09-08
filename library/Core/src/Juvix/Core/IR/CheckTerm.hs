@@ -208,6 +208,18 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
       tAnn <- Typed.Annotation σ <$> substApp b s'
       t' <- typeTerm' t tAnn
       pure $ Typed.Pair s' t' ann
+    Core.CatProduct π a b _ -> do
+      requireZero σ
+      void $ requireStar ty
+      a' <- typeTerm' a ann
+      b' <- typeTerm' b ann
+      pure $ Typed.CatProduct π a' b' ann
+    Core.CatCoproduct π a b _ -> do
+      requireZero σ
+      void $ requireStar ty
+      a' <- typeTerm' a ann
+      b' <- typeTerm' b ann
+      pure $ Typed.CatCoproduct π a' b' ann
     Core.UnitTy _ -> do
       requireZero σ
       void $ requireStar ty

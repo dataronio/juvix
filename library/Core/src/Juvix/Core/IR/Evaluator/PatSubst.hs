@@ -100,6 +100,14 @@ instance
     Core.Pair <$> patSubst' b m s
       <*> patSubst' b m t
       <*> patSubst' b m a
+  patSubst' b m (Core.CatProduct π s t a) =
+    Core.CatProduct π <$> patSubst' b m s
+      <*> patSubst' (succ b) m t
+      <*> patSubst' b m a
+  patSubst' b m (Core.CatCoproduct π s t a) =
+    Core.CatCoproduct π <$> patSubst' b m s
+      <*> patSubst' (succ b) m t
+      <*> patSubst' b m a
   patSubst' b m (Core.UnitTy a) =
     Core.UnitTy <$> patSubst' b m a
   patSubst' b m (Core.Unit a) =

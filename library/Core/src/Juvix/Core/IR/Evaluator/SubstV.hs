@@ -119,6 +119,14 @@ instance
     Core.VPair <$> substVWith w i e s
       <*> substVWith w i e t
       <*> substVWith w i e a
+  substVWith w i e (Core.VCatProduct π s t a) =
+    Core.VCatProduct π <$> substVWith w i e s
+      <*> substVWith (succ w) (succ i) e t
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatCoproduct π s t a) =
+    Core.VCatCoproduct π <$> substVWith w i e s
+      <*> substVWith (succ w) (succ i) e t
+      <*> substVWith w i e a
   substVWith w i e (Core.VUnitTy a) =
     Core.VUnitTy <$> substVWith w i e a
   substVWith w i e (Core.VUnit a) =

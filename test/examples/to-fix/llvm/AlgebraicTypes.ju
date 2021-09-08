@@ -1,0 +1,40 @@
+mod AlgebraicTypes where
+
+open Prelude
+open LLVM
+
+sig (+) : int -> int -> int
+let (+) = %LLVM.add
+declare infixl (+) 5
+
+sig (-) : int -> int -> int
+let (-) = %LLVM.sub
+declare infixl (-) 5
+
+sig my-prim-type : ty
+let my-prim-type = int
+
+sig my-prim-val : my-prim-type
+let my-prim-val = 42
+
+let alg-pair-type = %Builtin.Pair
+
+sig my-pair-type : ty
+let my-pair-type = alg-pair-type SAny (n : int) (int -> int)
+
+sig my-pair-func : int -> int
+let my-pair-func n = n
+
+sig my-pair-val : my-pair-type
+let my-pair-val = (3, my-pair-func)
+
+-- let my-product = cat-product
+let my-product = %Builtin.CatProduct
+
+let my-coproduct = cat-coproduct
+
+sig my-int-product : ty
+let my-int-product = my-product SAny int int
+
+sig main : int
+let main = 0

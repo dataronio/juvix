@@ -146,6 +146,22 @@ transformApplication q a@(f Sexp.:> args)
         ~[xa, b] <- nargs s 2 xs
         (x, a) <- namedArg q xa
         HR.Sig π x a <$> transformTermHR q b
+      CatProductS Nothing -> do
+        ~[π, a, b] <- nargs s 3 xs
+        π <- transformUsage q π
+        go (Just (CatProductS (Just π))) [a, b]
+      CatProductS (Just π) -> do
+        ~[xa, b] <- nargs s 2 xs
+        (x, a) <- namedArg q xa
+        HR.CatProduct π x a <$> transformTermHR q b
+      CatCoproductS Nothing -> do
+        ~[π, a, b] <- nargs s 3 xs
+        π <- transformUsage q π
+        go (Just (CatCoproductS (Just π))) [a, b]
+      CatCoproductS (Just π) -> do
+        ~[xa, b] <- nargs s 2 xs
+        (x, a) <- namedArg q xa
+        HR.CatCoproduct π x a <$> transformTermHR q b
       ColonS -> do
         ~[a, b] <- nargs s 2 xs
         a <- transformTermHR q a
