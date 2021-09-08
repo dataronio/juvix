@@ -166,7 +166,7 @@ typecheckErase term usage ty = do
         Left err -> throw @"error" (Types.ErasureError err)
     Left err -> throw @"error" (Types.TypecheckerError err)
 
-toRaw :: ErasedAnn.AnnTerm ty (ErasedAnn.TypedPrim ty val) -> ErasedAnn.AnnTerm ty val
+toRaw :: (Show ty, Show val) => ErasedAnn.AnnTerm ty (ErasedAnn.TypedPrim ty val) -> ErasedAnn.AnnTerm ty val
 toRaw t@(ErasedAnn.Ann {term}) = t {ErasedAnn.term = toRaw1 term}
   where
     toRaw1 (ErasedAnn.Var x) = ErasedAnn.Var x
@@ -200,6 +200,7 @@ toRaw t@(ErasedAnn.Ann {term}) = t {ErasedAnn.term = toRaw1 term}
 
 returnToTerm ::
   forall k (ext :: k) primTy primVal.
+  Show primTy =>
   App.Return' ext (Types.PrimType primTy) primVal ->
   AnnTerm primTy primVal
 returnToTerm (App.Return ty term) =
@@ -210,7 +211,7 @@ returnToTerm (App.Return ty term) =
     }
 returnToTerm (App.Cont take args nat) = notImplemented
 
-takeToTerm :: App.Take (Types.PrimType primTy) primVal -> AnnTerm primTy primVal
+takeToTerm :: (Show primTy) => App.Take (Types.PrimType primTy) primVal -> AnnTerm primTy primVal
 takeToTerm (App.Take {usage, type', term}) =
   ErasedAnn.Ann
     { usage,
