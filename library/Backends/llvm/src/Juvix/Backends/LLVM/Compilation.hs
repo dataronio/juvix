@@ -55,9 +55,10 @@ mkParameterName :: NameSymbol.T -> LLVM.ParameterName
 mkParameterName s = S.fromString $ unintern $ NameSymbol.toSymbol s -- S.fromString _
 
 compileTerm ::
+  (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
   Env ->
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
-  LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
+  m LLVM.Operand
 compileTerm env (ErasedAnn.Ann usage ty t) = case t of
   ErasedAnn.Var symbol -> case Map.lookup symbol env of
     Nothing ->
@@ -68,11 +69,12 @@ compileTerm env (ErasedAnn.Ann usage ty t) = case t of
 
 -- | Write LLVM code for a primitive.
 mkPrim ::
+  LLVM.MonadIRBuilder m =>
   -- | Term that contains the primitive.
   ErasedAnn.Term PrimTy RawPrimVal ->
   -- | Type of the primitive.
   ErasedAnn.Type PrimTy ->
-  LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
+  m LLVM.Operand
 mkPrim (ErasedAnn.Prim prim) ty = case prim of
   LitInt i -> case ty of
     ErasedAnn.PrimTy (PrimTy LLVM.IntegerType {LLVM.typeBits}) ->
@@ -83,6 +85,7 @@ mkPrim (ErasedAnn.Prim prim) ty = case prim of
 -- | Write an LLVM function definition based on a the given lambda abstraction.
 -- The function returns the name of the create function.
 mkLam ::
+  (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
   Env ->
   -- | The type of the lambda abstraction.
   ErasedAnn.Type PrimTy ->
@@ -92,7 +95,7 @@ mkLam ::
   [NameSymbol.T] ->
   -- | List of captures variables (free variables for the body).
   [NameSymbol.T] ->
-  LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Name
+  m LLVM.Name
 mkLam env ty body args capt = do
   funname <- LLVM.freshName "lam"
   let returnTy = typeToLLVM $ ErasedAnn.type' body
@@ -122,6 +125,7 @@ functionTy ty = [ty]
 -- | The function assumes the arguments passed are the arguments of an
 -- application.
 mkApp ::
+  (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
   -- | Environment of global variables.
   Env ->
   -- | The function term of an application.
@@ -130,7 +134,7 @@ mkApp ::
   ErasedAnn.Type PrimTy ->
   -- | The arguments to the application.
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
-  LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
+  m LLVM.Operand
 mkApp env f@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
   case term of
     ErasedAnn.LamM {ErasedAnn.body, ErasedAnn.arguments, ErasedAnn.capture} -> do
@@ -146,10 +150,11 @@ mkApp env f@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
       LLVM.call f' xs'args
 
 applyPrim ::
+  (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
   Env ->
   RawPrimVal ->
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
-  LLVM.IRBuilderT LLVM.ModuleBuilder LLVM.Operand
+  m LLVM.Operand
 applyPrim env f xs
   | arityRaw f == lengthN xs =
     case f of
