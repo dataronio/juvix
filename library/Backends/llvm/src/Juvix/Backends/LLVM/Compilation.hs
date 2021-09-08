@@ -109,9 +109,9 @@ mkLam env ty body args capt = do
       (NameSymbol.T, ErasedAnn.Type PrimTy) ->
       m (LLVM.Type, LLVM.ParameterName)
     mkParam (name, ty) = do
-      name' <- LLVM.fresh
       let ty' = typeToLLVM ty
-      return $ (ty', S.fromString $ show name') -- TODO: fix this, show adds "
+          name' = unintern $ NameSymbol.toSymbol name
+      return $ (ty', S.fromString $ "arg" <> name')
 
 -- Construct a list of types from a function type.
 functionTy :: ErasedAnn.Type primTy -> [ErasedAnn.Type primTy]
