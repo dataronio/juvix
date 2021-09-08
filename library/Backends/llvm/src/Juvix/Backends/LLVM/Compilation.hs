@@ -27,11 +27,12 @@ compileProgram ::
 compileProgram t@(ErasedAnn.Ann usage ty t') = do
   let llvmmod :: LLVM.Module
       llvmmod = LLVM.buildModule "juvix-module" $ do
-        let mainTy = typeToLLVM ty
+        let types = map typeToLLVM (functionTy ty)
+            returnType = P.last types
+            paramTypes = init types
             paramNames = repeat "arg"
-            paramTypes = map typeToLLVM (init $ functionTy ty)
             params = zip paramTypes (map mkParameterName paramNames)
-        LLVM.function "main" params mainTy $ \args -> do
+        LLVM.function "main" params returnType $ \args -> do
           let env = Map.fromList $ zip paramNames args -- Bind names with arguments.
           out <- case t' of
             ErasedAnn.LamM
