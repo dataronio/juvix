@@ -20,6 +20,7 @@ import qualified LLVM.IRBuilder as LLVM
 import qualified LLVM.Pretty as LLVM
 import qualified Prelude as P
 
+-- | Compile the input program to an LLVM module.
 compileProgram ::
   Monad m =>
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
