@@ -1,0 +1,95 @@
+Right
+    ( Header
+        ( "MainApply" :| [] )
+        [ ModuleOpen
+            ( Open
+                ( "Prelude" :| [] )
+            )
+        , ModuleOpen
+            ( Open
+                ( "LLVM" :| [] )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "f"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "int" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Infix
+                            ( Inf
+                                { infixLeft = Name
+                                    ( "int" :| [] )
+                                , infixOp = "->" :| []
+                                , infixRight = Name
+                                    ( "int" :| [] )
+                                }
+                            )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "f"
+                    , functionLikeArgs =
+                        [ ConcreteA
+                            ( MatchLogic
+                                { matchLogicContents = MatchName "x"
+                                , matchLogicNamed = Nothing
+                                }
+                            )
+                        , ConcreteA
+                            ( MatchLogic
+                                { matchLogicContents = MatchName "_"
+                                , matchLogicNamed = Nothing
+                                }
+                            )
+                        ]
+                    , functionLikeBody = Body
+                        ( Name
+                            ( "x" :| [] )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "main"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "int" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "main"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Application
+                            ( App
+                                { applicationName = Name
+                                    ( "f" :| [] )
+                                , applicationArgs = Constant
+                                    ( Number
+                                        ( Integer' 10 )
+                                    ) :|
+                                    [ Constant
+                                        ( Number
+                                            ( Integer' 20 )
+                                        )
+                                    ]
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        ]
+    )

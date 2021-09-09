@@ -1,0 +1,10 @@
+[
+    ( "open" "Prelude" )
+,
+    ( "open" "LLVM" )
+,
+    ( ":defsig-match" "f"
+        ( ":infix" "->" "int" ( ":infix" "->" "int" "int" ) )
+        ( ( "x" "_" ) "x" ) )
+,
+    ( ":defsig-match" "main" "int" ( () ( "f" 10 20 ) ) ) ]

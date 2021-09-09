@@ -1,0 +1,12 @@
+-- Test for the case when the main function is an application.
+
+mod MainApply where
+
+open Prelude
+open LLVM
+
+sig f : int -> int -> int
+let f x _ = x
+
+sig main : int
+let main = f 10 20
