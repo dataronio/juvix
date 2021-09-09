@@ -40,18 +40,18 @@ mkMain t@(ErasedAnn.Ann usage ty t') = do
       paramNames = repeat "arg"
       params = zip paramTypes (map mkParameterName paramNames)
   LLVM.function "main" params returnType $ \args -> do
-    let env = Map.fromList $ zip paramNames args -- Bind names with arguments.
     out <- case t' of
       ErasedAnn.LamM
         { ErasedAnn.capture,
           ErasedAnn.arguments,
           ErasedAnn.body
         } -> do
+          let env = Map.fromList $ zip paramNames args -- Bind names with arguments.
+              callArgs = zip args (repeat []) -- No arg attributes.
           funname <- mkLam env ty body arguments capture
-          let callArgs = zip args (repeat []) -- No arg attributes.
           LLVM.call (globalRef (typeToLLVM ty) funname) callArgs
       _ -> do
-        compileTerm env t
+        compileTerm mempty t
     LLVM.ret out
 
 type Env = Map.Map NameSymbol.T LLVM.Operand
