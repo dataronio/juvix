@@ -24,6 +24,7 @@ import qualified Prelude as P
 type Env = Map.Map NameSymbol.T LLVM.Operand
 
 -- | Compile the input program to an LLVM module.
+-- TODO: maybe do something smarter with the module name?
 compileProgram ::
   Monad m =>
   -- | Term to compile.
@@ -73,6 +74,7 @@ mkMain t@(ErasedAnn.Ann usage ty t') = do
     LLVM.ret out
 
 -- | Compile a term to its equivalent LLVM code.
+-- TODO: implement other constructors of ErasedAnn.Term
 compileTerm ::
   (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
   -- | Environment of Juvix variables to LLVM function arguments.
@@ -152,6 +154,7 @@ mkApp env f@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
       LLVM.call f' xs'args
 
 -- | Write LLVM code for a primitive.
+-- TODO: implement other primitives.
 mkPrim ::
   LLVM.MonadIRBuilder m =>
   -- | Term that contains the primitive.
@@ -167,6 +170,7 @@ mkPrim (ErasedAnn.Prim prim) ty = case prim of
           LLVM.Int {LLVM.integerBits = typeBits, LLVM.integerValue = i}
 
 -- | Generate code for primitives that are used as a function.
+-- TODO: implement other primitives.
 applyPrim ::
   (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
   -- | Environment of global variables.
