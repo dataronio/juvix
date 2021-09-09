@@ -166,10 +166,14 @@ mkPrim (ErasedAnn.Prim prim) ty = case prim of
         LLVM.ConstantOperand $
           LLVM.Int {LLVM.integerBits = typeBits, LLVM.integerValue = i}
 
+-- | Generate code for primitives that are used as a function.
 applyPrim ::
   (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
+  -- | Environment of global variables.
   Env ->
+  -- | The function primitive of the application.
   RawPrimVal ->
+  -- | The arguments to the application.
   [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
   m LLVM.Operand
 applyPrim env f xs
