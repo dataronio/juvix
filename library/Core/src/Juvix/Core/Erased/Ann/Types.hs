@@ -32,11 +32,11 @@ data Term primTy primVal
       }
   | PairM (AnnTerm primTy primVal) (AnnTerm primTy primVal)
   | CatProductIntroM (AnnTerm primTy primVal) (AnnTerm primTy primVal)
-  | CatProductElimLeftM (AnnTerm primTy primVal)
-  | CatProductElimRightM (AnnTerm primTy primVal)
+  | CatProductElimLeftM (AnnTerm primTy primVal) (AnnTerm primTy primVal)
+  | CatProductElimRightM (AnnTerm primTy primVal) (AnnTerm primTy primVal)
   | CatCoproductIntroLeftM (AnnTerm primTy primVal)
   | CatCoproductIntroRightM (AnnTerm primTy primVal)
-  | CatCoproductElimM (AnnTerm primTy primVal) (AnnTerm primTy primVal) (AnnTerm primTy primVal)
+  | CatCoproductElimM (AnnTerm primTy primVal) (AnnTerm primTy primVal) (AnnTerm primTy primVal) (AnnTerm primTy primVal) (AnnTerm primTy primVal)
   | UnitM
   | AppM (AnnTerm primTy primVal) [AnnTerm primTy primVal]
   deriving (Show, Read, Eq, Generic)

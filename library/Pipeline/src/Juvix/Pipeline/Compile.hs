@@ -195,11 +195,11 @@ baseToReturn t =
     IR.CatProduct x y -> IR.CatProduct (baseToReturn x) (baseToReturn y)
     IR.CatCoproduct x y -> IR.CatCoproduct (baseToReturn x) (baseToReturn y)
     IR.CatProductIntro x y -> IR.CatProductIntro (baseToReturn x) (baseToReturn y)
-    IR.CatProductElimLeft x -> IR.CatProductElimLeft (baseToReturn x)
-    IR.CatProductElimRight x -> IR.CatProductElimRight (baseToReturn x)
+    IR.CatProductElimLeft a x -> IR.CatProductElimLeft (baseToReturn a) (baseToReturn x)
+    IR.CatProductElimRight a x -> IR.CatProductElimRight (baseToReturn a) (baseToReturn x)
     IR.CatCoproductIntroLeft x -> IR.CatCoproductIntroLeft (baseToReturn x)
     IR.CatCoproductIntroRight x -> IR.CatCoproductIntroRight (baseToReturn x)
-    IR.CatCoproductElim cp x y -> IR.CatCoproductElim (baseToReturn cp) (baseToReturn x) (baseToReturn y)
+    IR.CatCoproductElim a b cp x y -> IR.CatCoproductElim (baseToReturn a) (baseToReturn b) (baseToReturn cp) (baseToReturn x) (baseToReturn y)
     IR.Let u a b -> IR.Let u (elimToReturn a) (baseToReturn b)
     IR.UnitTy -> IR.UnitTy
     IR.Unit -> IR.Unit

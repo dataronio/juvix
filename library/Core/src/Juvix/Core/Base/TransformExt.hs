@@ -146,16 +146,16 @@ extTransformTF fs (CatCoproduct s t e) =
   CatCoproduct <$> extTransformTF fs s <*> extTransformTF fs t <*> etfCatCoproduct fs e
 extTransformTF fs (CatProductIntro s t e) =
   CatProductIntro <$> extTransformTF fs s <*> extTransformTF fs t <*> etfCatProductIntro fs e
-extTransformTF fs (CatProductElimLeft s e) =
-  CatProductElimLeft <$> extTransformTF fs s <*> etfCatProductElimLeft fs e
-extTransformTF fs (CatProductElimRight s e) =
-  CatProductElimRight <$> extTransformTF fs s <*> etfCatProductElimRight fs e
+extTransformTF fs (CatProductElimLeft a s e) =
+  CatProductElimLeft <$> extTransformTF fs a <*> extTransformTF fs s <*> etfCatProductElimLeft fs e
+extTransformTF fs (CatProductElimRight a s e) =
+  CatProductElimRight <$> extTransformTF fs a <*> extTransformTF fs s <*> etfCatProductElimRight fs e
 extTransformTF fs (CatCoproductIntroLeft s e) =
   CatCoproductIntroLeft <$> extTransformTF fs s <*> etfCatCoproductIntroLeft fs e
 extTransformTF fs (CatCoproductIntroRight s e) =
   CatCoproductIntroRight <$> extTransformTF fs s <*> etfCatCoproductIntroRight fs e
-extTransformTF fs (CatCoproductElim cp s t e) =
-  CatCoproductElim <$> extTransformTF fs cp <*> extTransformTF fs s <*> extTransformTF fs t <*> etfCatCoproductElim fs e
+extTransformTF fs (CatCoproductElim a b cp s t e) =
+  CatCoproductElim <$> extTransformTF fs a <*> extTransformTF fs b <*> extTransformTF fs cp <*> extTransformTF fs s <*> extTransformTF fs t <*> etfCatCoproductElim fs e
 extTransformTF fs (UnitTy e) =
   UnitTy <$> etfUnitTy fs e
 extTransformTF fs (Unit e) =

@@ -174,11 +174,11 @@ toRaw t@(ErasedAnn.Ann {term}) = t {ErasedAnn.term = toRaw1 term}
     toRaw1 (ErasedAnn.LamM {..}) = ErasedAnn.LamM {body = toRaw body, ..}
     toRaw1 (ErasedAnn.PairM l r) = ErasedAnn.PairM (toRaw l) (toRaw r)
     toRaw1 (ErasedAnn.CatProductIntroM l r) = ErasedAnn.CatProductIntroM (toRaw l) (toRaw r)
-    toRaw1 (ErasedAnn.CatProductElimLeftM t) = ErasedAnn.CatProductElimLeftM (toRaw t)
-    toRaw1 (ErasedAnn.CatProductElimRightM t) = ErasedAnn.CatProductElimRightM (toRaw t)
+    toRaw1 (ErasedAnn.CatProductElimLeftM a t) = ErasedAnn.CatProductElimLeftM (toRaw a) (toRaw t)
+    toRaw1 (ErasedAnn.CatProductElimRightM a t) = ErasedAnn.CatProductElimRightM (toRaw a) (toRaw t)
     toRaw1 (ErasedAnn.CatCoproductIntroLeftM t) = ErasedAnn.CatCoproductIntroLeftM (toRaw t)
     toRaw1 (ErasedAnn.CatCoproductIntroRightM t) = ErasedAnn.CatCoproductIntroRightM (toRaw t)
-    toRaw1 (ErasedAnn.CatCoproductElimM cp l r) = ErasedAnn.CatCoproductElimM (toRaw cp) (toRaw l) (toRaw r)
+    toRaw1 (ErasedAnn.CatCoproductElimM a b cp l r) = ErasedAnn.CatCoproductElimM (toRaw a) (toRaw b) (toRaw cp) (toRaw l) (toRaw r)
     toRaw1 ErasedAnn.UnitM = ErasedAnn.UnitM
     toRaw1 (ErasedAnn.AppM f xs) = ErasedAnn.AppM (toRaw f) (toRaw <$> xs)
     primToRaw (App.Return {retTerm}) = ErasedAnn.Prim retTerm
@@ -263,23 +263,27 @@ convertTerm term usage =
           let left' = convertTerm left usage
               right' = convertTerm right usage
            in Ann usage ty' $ CatProductIntroM left' right'
-        E.CatProductElimLeft t _ ->
-          let t' = convertTerm t usage
-           in Ann usage ty' $ CatProductElimLeftM t'
-        E.CatProductElimRight t _ ->
-          let t' = convertTerm t usage
-           in Ann usage ty' $ CatProductElimRightM t'
+        E.CatProductElimLeft a t _ ->
+          let a' = convertTerm a usage
+              t' = convertTerm t usage
+           in Ann usage ty' $ CatProductElimLeftM a' t'
+        E.CatProductElimRight a t _ ->
+          let a' = convertTerm a usage
+              t' = convertTerm t usage
+           in Ann usage ty' $ CatProductElimRightM a' t'
         E.CatCoproductIntroLeft t _ ->
           let t' = convertTerm t usage
            in Ann usage ty' $ CatCoproductIntroLeftM t'
         E.CatCoproductIntroRight t _ ->
           let t' = convertTerm t usage
            in Ann usage ty' $ CatCoproductIntroRightM t'
-        E.CatCoproductElim cp left right _ ->
-          let cp' = convertTerm cp usage
+        E.CatCoproductElim a b cp left right _ ->
+          let a' = convertTerm a usage
+              b' = convertTerm b usage
+              cp' = convertTerm cp usage
               left' = convertTerm left usage
               right' = convertTerm right usage
-           in Ann usage ty' $ CatCoproductElimM cp' left' right'
+           in Ann usage ty' $ CatCoproductElimM a' b' cp' left' right'
         E.Unit _ ->
           Ann usage ty' UnitM
         E.App f a _ ->

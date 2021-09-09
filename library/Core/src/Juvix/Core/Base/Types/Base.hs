@@ -89,16 +89,16 @@ extensibleWith
       | -- | Higher-order introduction rule for category-theoretical product.
         CatProductIntro (Term primTy primVal) (Term primTy primVal)
       | -- | Higher-order left projection for category-theoretical product.
-        CatProductElimLeft (Term primTy primVal)
+        CatProductElimLeft (Term primTy primVal) (Term primTy primVal)
       | -- | Higher-order right projection for category-theoretical product.
-        CatProductElimRight (Term primTy primVal)
+        CatProductElimRight (Term primTy primVal) (Term primTy primVal)
       | -- | Higher-order left injection for category-theoretical coproduct.
         CatCoproductIntroLeft (Term primTy primVal)
       | -- | Higher-order right injection for category-theoretical coproduct.
         CatCoproductIntroRight (Term primTy primVal)
       | -- | Higher-order elimination category-theoretical coproduct (in
         -- effect, a case statement).
-        CatCoproductElim (Term primTy primVal) (Term primTy primVal) (Term primTy primVal)
+        CatCoproductElim (Term primTy primVal) (Term primTy primVal) (Term primTy primVal) (Term primTy primVal) (Term primTy primVal)
       | -- | Let binder.
         -- the local definition is bound to de Bruijn index 0.
         Let Usage (Elim primTy primVal) (Term primTy primVal)
@@ -134,11 +134,11 @@ extensibleWith
       | VCatProduct (Value primTy primVal) (Value primTy primVal)
       | VCatCoproduct (Value primTy primVal) (Value primTy primVal)
       | VCatProductIntro (Value primTy primVal) (Value primTy primVal)
-      | VCatProductElimLeft (Value primTy primVal)
-      | VCatProductElimRight (Value primTy primVal)
+      | VCatProductElimLeft (Value primTy primVal) (Value primTy primVal)
+      | VCatProductElimRight (Value primTy primVal) (Value primTy primVal)
       | VCatCoproductIntroLeft (Value primTy primVal)
       | VCatCoproductIntroRight (Value primTy primVal)
-      | VCatCoproductElim (Value primTy primVal) (Value primTy primVal) (Value primTy primVal)
+      | VCatCoproductElim (Value primTy primVal) (Value primTy primVal) (Value primTy primVal) (Value primTy primVal) (Value primTy primVal)
       | VUnitTy
       | VUnit
       | VNeutral (Neutral primTy primVal)
@@ -242,11 +242,11 @@ quote (VPair s t ext) = Pair (quote s) (quote t) ext
 quote (VCatProduct s t ext) = CatProduct (quote s) (quote t) ext
 quote (VCatCoproduct s t ext) = CatCoproduct (quote s) (quote t) ext
 quote (VCatProductIntro s t ext) = CatProductIntro (quote s) (quote t) ext
-quote (VCatProductElimLeft s ext) = CatProductElimLeft (quote s) ext
-quote (VCatProductElimRight s ext) = CatProductElimRight (quote s) ext
+quote (VCatProductElimLeft a s ext) = CatProductElimLeft (quote a) (quote s) ext
+quote (VCatProductElimRight a s ext) = CatProductElimRight (quote a) (quote s) ext
 quote (VCatCoproductIntroLeft s ext) = CatCoproductIntroLeft (quote s) ext
 quote (VCatCoproductIntroRight s ext) = CatCoproductIntroRight (quote s) ext
-quote (VCatCoproductElim c s t ext) = CatCoproductElim (quote c) (quote s) (quote t) ext
+quote (VCatCoproductElim a b cp s t ext) = CatCoproductElim (quote a) (quote b) (quote cp) (quote s) (quote t) ext
 quote (VUnitTy ext) = UnitTy ext
 quote (VUnit ext) = Unit ext
 quote (VPrim pri ext) = Prim pri ext

@@ -79,16 +79,16 @@ instance AllWeak ext primTy primVal => HasWeak (Core.Term ext primTy primVal) wh
     Core.CatCoproduct (weakBy' b i s) (weakBy' b (succ i) t) (weakBy' b i a)
   weakBy' b i (Core.CatProductIntro s t a) =
     Core.CatProductIntro (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
-  weakBy' b i (Core.CatProductElimLeft s a) =
-    Core.CatProductElimLeft (weakBy' b i s) (weakBy' b i a)
-  weakBy' b i (Core.CatProductElimRight s a) =
-    Core.CatProductElimRight (weakBy' b i s) (weakBy' b i a)
+  weakBy' b i (Core.CatProductElimLeft t s a) =
+    Core.CatProductElimLeft (weakBy' b i t) (weakBy' b i s) (weakBy' b i a)
+  weakBy' b i (Core.CatProductElimRight t s a) =
+    Core.CatProductElimRight (weakBy' b i t) (weakBy' b i s) (weakBy' b i a)
   weakBy' b i (Core.CatCoproductIntroLeft s a) =
     Core.CatCoproductIntroLeft (weakBy' b i s) (weakBy' b i a)
   weakBy' b i (Core.CatCoproductIntroRight s a) =
     Core.CatCoproductIntroRight (weakBy' b i s) (weakBy' b i a)
-  weakBy' b i (Core.CatCoproductElim cp s t a) =
-    Core.CatCoproductElim (weakBy' b i cp) (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
+  weakBy' b i (Core.CatCoproductElim t1 t2 cp s t a) =
+    Core.CatCoproductElim (weakBy' b i t1) (weakBy' b i t2) (weakBy' b i cp) (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
   weakBy' b i (Core.UnitTy a) =
     Core.UnitTy (weakBy' b i a)
   weakBy' b i (Core.Unit a) =
@@ -147,16 +147,16 @@ instance
     Core.VCatCoproduct (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
   weakBy' b i (Core.VCatProductIntro s t a) =
     Core.VCatProductIntro (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
-  weakBy' b i (Core.VCatProductElimLeft s a) =
-    Core.VCatProductElimLeft (weakBy' b i s) (weakBy' b i a)
-  weakBy' b i (Core.VCatProductElimRight s a) =
-    Core.VCatProductElimRight (weakBy' b i s) (weakBy' b i a)
+  weakBy' b i (Core.VCatProductElimLeft t s a) =
+    Core.VCatProductElimLeft (weakBy' b i t) (weakBy' b i s) (weakBy' b i a)
+  weakBy' b i (Core.VCatProductElimRight t s a) =
+    Core.VCatProductElimRight (weakBy' b i t) (weakBy' b i s) (weakBy' b i a)
   weakBy' b i (Core.VCatCoproductIntroLeft s a) =
     Core.VCatCoproductIntroLeft (weakBy' b i s) (weakBy' b i a)
   weakBy' b i (Core.VCatCoproductIntroRight s a) =
     Core.VCatCoproductIntroRight (weakBy' b i s) (weakBy' b i a)
-  weakBy' b i (Core.VCatCoproductElim cp s t a) =
-    Core.VCatCoproductElim (weakBy' b i cp) (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
+  weakBy' b i (Core.VCatCoproductElim t1 t2 cp s t a) =
+    Core.VCatCoproductElim (weakBy' b i t1) (weakBy' b i t2) (weakBy' b i cp) (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
   weakBy' b i (Core.VUnitTy a) =
     Core.VUnitTy (weakBy' b i a)
   weakBy' b i (Core.VUnit a) =

@@ -162,13 +162,15 @@ transformApplication q a@(f Sexp.:> args)
         b <- transformTermHR q b
         pure $ HR.CatProductIntro a b
       CatProductElimLeftS -> do
-        ~[a] <- nargs s 1 xs
+        ~[t, a] <- nargs s 2 xs
+        t <- transformTermHR q t
         a <- transformTermHR q a
-        pure $ HR.CatProductElimLeft a
+        pure $ HR.CatProductElimLeft t a
       CatProductElimRightS -> do
-        ~[a] <- nargs s 1 xs
+        ~[t, a] <- nargs s 2 xs
+        t <- transformTermHR q t
         a <- transformTermHR q a
-        pure $ HR.CatProductElimRight a
+        pure $ HR.CatProductElimRight t a
       CatCoproductIntroLeftS -> do
         ~[a] <- nargs s 1 xs
         a <- transformTermHR q a
@@ -178,11 +180,13 @@ transformApplication q a@(f Sexp.:> args)
         a <- transformTermHR q a
         pure $ HR.CatCoproductIntroRight a
       CatCoproductElimS -> do
-        ~[c, a, b] <- nargs s 3 xs
+        ~[t1, t2, c, a, b] <- nargs s 5 xs
+        t1 <- transformTermHR q t1
+        t2 <- transformTermHR q t2
         c <- transformTermHR q c
         a <- transformTermHR q a
         b <- transformTermHR q b
-        pure $ HR.CatCoproductElim c a b
+        pure $ HR.CatCoproductElim t1 t2 c a b
       ColonS -> do
         ~[a, b] <- nargs s 2 xs
         a <- transformTermHR q a

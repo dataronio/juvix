@@ -227,14 +227,18 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
       s' <- typeTerm' s sAnn
       t' <- typeTerm' t tAnn
       pure $ Typed.CatProductIntro s' t' ann
-    Core.CatProductElimLeft s _ -> do
-      -- XXX TODO
-      traceShowM (("productelimleft: ty=" :: Text) <> show ty <> "; s=" <> show s <> "; ann=" <> show ann)
-      panic "productelimleft not implemented yet"
-    Core.CatProductElimRight s _ -> do
-      -- XXX TODO
-      traceShowM (("productelimright: ty=" :: Text) <> show ty <> "; s=" <> show s <> "; ann=" <> show ann)
-      panic "productelimright not implemented yet"
+    Core.CatProductElimLeft a s _ -> do
+      a' <- typeTerm' a (Typed.Annotation σ (IR.VStar 0))
+      av <- evalTC a'
+      let sAnn = Typed.Annotation σ (IR.VCatProduct ty av)
+      s' <- typeTerm' s sAnn
+      pure $ Typed.CatProductElimLeft a' s' ann
+    Core.CatProductElimRight a s _ -> do
+      a' <- typeTerm' a (Typed.Annotation σ (IR.VStar 0))
+      av <- evalTC a'
+      let sAnn = Typed.Annotation σ (IR.VCatProduct av ty)
+      s' <- typeTerm' s sAnn
+      pure $ Typed.CatProductElimRight a' s' ann
     Core.CatCoproductIntroLeft s _ -> do
       (π, a, _b) <- requireCatCoproduct ty
       let sAnn = Typed.Annotation (σ <.> π) a
@@ -245,10 +249,15 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
       let sAnn = Typed.Annotation (σ <.> π) b
       s' <- typeTerm' s sAnn
       pure $ Typed.CatCoproductIntroRight s' ann
-    Core.CatCoproductElim cp s t _ -> do
-      -- XXX TODO
-      traceShowM (("coproductelim: ty=" :: Text) <> show ty <> "; s=" <> show s <> "; t=" <> show t <> "; ann=" <> show ann)
-      panic "coproductelim not implemented yet"
+    Core.CatCoproductElim a b cp s t _ -> do
+      a' <- typeTerm' a (Typed.Annotation σ (IR.VStar 0))
+      av <- evalTC a'
+      b' <- typeTerm' b (Typed.Annotation σ (IR.VStar 0))
+      bv <- evalTC b'
+      cp' <- typeTerm' cp (Typed.Annotation σ (IR.VCatCoproduct av bv))
+      s' <- typeTerm' s (Typed.Annotation σ (IR.VPi σ av ty))
+      t' <- typeTerm' t (Typed.Annotation σ (IR.VPi σ bv ty))
+      pure $ Typed.CatCoproductElim a' b' cp' s' t' ann
     Core.UnitTy _ -> do
       requireZero σ
       void $ requireStar ty
