@@ -24,29 +24,35 @@ compileProgram ::
   Monad m =>
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   FeedbackT [] P.String m Text
-compileProgram t@(ErasedAnn.Ann usage ty t') = do
+compileProgram t = do
   let llvmmod :: LLVM.Module
-      llvmmod = LLVM.buildModule "juvix-module" $ do
-        let types = map typeToLLVM (functionTy ty)
-            returnType = P.last types
-            paramTypes = init types
-            paramNames = repeat "arg"
-            params = zip paramTypes (map mkParameterName paramNames)
-        LLVM.function "main" params returnType $ \args -> do
-          let env = Map.fromList $ zip paramNames args -- Bind names with arguments.
-          out <- case t' of
-            ErasedAnn.LamM
-              { ErasedAnn.capture,
-                ErasedAnn.arguments,
-                ErasedAnn.body
-              } -> do
-                funname <- mkLam env ty body arguments capture
-                let callArgs = zip args (repeat []) -- No arg attributes.
-                LLVM.call (globalRef (typeToLLVM ty) funname) callArgs
-            _ -> do
-              compileTerm env t
-          LLVM.ret out
+      llvmmod = LLVM.buildModule "juvix-module" $ mkMain t
   return $ toStrict $ LLVM.ppllvm llvmmod
+
+mkMain ::
+  LLVM.MonadModuleBuilder m =>
+  ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  m LLVM.Operand
+mkMain t@(ErasedAnn.Ann usage ty t') = do
+  let types = map typeToLLVM (functionTy ty)
+      returnType = P.last types
+      paramTypes = init types
+      paramNames = repeat "arg"
+      params = zip paramTypes (map mkParameterName paramNames)
+  LLVM.function "main" params returnType $ \args -> do
+    let env = Map.fromList $ zip paramNames args -- Bind names with arguments.
+    out <- case t' of
+      ErasedAnn.LamM
+        { ErasedAnn.capture,
+          ErasedAnn.arguments,
+          ErasedAnn.body
+        } -> do
+          funname <- mkLam env ty body arguments capture
+          let callArgs = zip args (repeat []) -- No arg attributes.
+          LLVM.call (globalRef (typeToLLVM ty) funname) callArgs
+      _ -> do
+        compileTerm env t
+    LLVM.ret out
 
 type Env = Map.Map NameSymbol.T LLVM.Operand
 
