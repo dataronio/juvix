@@ -46,6 +46,7 @@ compileProgram t = do
 -- not have any parameters in this case.
 mkMain ::
   LLVM.MonadModuleBuilder m =>
+  -- | Term to compile.
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   m LLVM.Operand
 mkMain t@(ErasedAnn.Ann usage ty t') = do
