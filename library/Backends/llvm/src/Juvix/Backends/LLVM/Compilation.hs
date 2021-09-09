@@ -128,7 +128,7 @@ mkLam env ty body args capt = do
 -- application.
 mkApp ::
   (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
-  -- | Environment of global variables.
+  -- | Environment of Juvix variables to LLVM function arguments.
   Env ->
   -- | The function term of an application.
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
