@@ -65,12 +65,11 @@ mkMain t@(ErasedAnn.Ann usage ty t') = do
           ErasedAnn.arguments,
           ErasedAnn.body
         } -> do
-          let env = Map.fromList $ zip paramNames args -- Bind names with arguments.
+          let env = Map.fromList $ zip paramNames args
               callArgs = zip args (repeat []) -- No arg attributes.
           funname <- mkLam env ty body arguments capture
           LLVM.call (globalRef (typeToLLVM ty) funname) callArgs
-      _ -> do
-        compileTerm mempty t
+      _ -> compileTerm mempty t
     LLVM.ret out
 
 compileTerm ::
