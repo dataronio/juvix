@@ -20,6 +20,8 @@ import qualified LLVM.IRBuilder as LLVM
 import qualified LLVM.Pretty as LLVM
 import qualified Prelude as P
 
+type Env = Map.Map NameSymbol.T LLVM.Operand
+
 -- | Compile the input program to an LLVM module.
 compileProgram ::
   Monad m =>
@@ -70,12 +72,6 @@ mkMain t@(ErasedAnn.Ann usage ty t') = do
         compileTerm mempty t
     LLVM.ret out
 
-type Env = Map.Map NameSymbol.T LLVM.Operand
-
--- | Counterpart of `mkName`: make a `ParameterName` given a name.
-mkParameterName :: NameSymbol.T -> LLVM.ParameterName
-mkParameterName s = S.fromString $ unintern $ NameSymbol.toSymbol s -- S.fromString _
-
 compileTerm ::
   (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
   Env ->
@@ -88,21 +84,6 @@ compileTerm env (ErasedAnn.Ann usage ty t) = case t of
     Just var -> return var
   ErasedAnn.Prim t' -> mkPrim t ty
   ErasedAnn.AppM f xs -> mkApp env f ty xs
-
--- | Write LLVM code for a primitive.
-mkPrim ::
-  LLVM.MonadIRBuilder m =>
-  -- | Term that contains the primitive.
-  ErasedAnn.Term PrimTy RawPrimVal ->
-  -- | Type of the primitive.
-  ErasedAnn.Type PrimTy ->
-  m LLVM.Operand
-mkPrim (ErasedAnn.Prim prim) ty = case prim of
-  LitInt i -> case ty of
-    ErasedAnn.PrimTy (PrimTy LLVM.IntegerType {LLVM.typeBits}) ->
-      return $
-        LLVM.ConstantOperand $
-          LLVM.Int {LLVM.integerBits = typeBits, LLVM.integerValue = i}
 
 -- | Write an LLVM function definition based on a the given lambda abstraction.
 -- The function returns the name of the create function.
@@ -139,11 +120,6 @@ mkLam env ty body args capt = do
           name' = unintern $ NameSymbol.toSymbol name
       return $ (ty', S.fromString $ "arg" <> name')
 
--- Construct a list of types from a function type.
-functionTy :: ErasedAnn.Type primTy -> [ErasedAnn.Type primTy]
-functionTy (ErasedAnn.Pi usage l r) = l : functionTy r
-functionTy ty = [ty]
-
 -- | The function assumes the arguments passed are the arguments of an
 -- application.
 mkApp ::
@@ -171,6 +147,21 @@ mkApp env f@(ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'}) _ xs =
       let xs'args = zip xs' (repeat []) -- Do not pass attributes to the args.
       LLVM.call f' xs'args
 
+-- | Write LLVM code for a primitive.
+mkPrim ::
+  LLVM.MonadIRBuilder m =>
+  -- | Term that contains the primitive.
+  ErasedAnn.Term PrimTy RawPrimVal ->
+  -- | Type of the primitive.
+  ErasedAnn.Type PrimTy ->
+  m LLVM.Operand
+mkPrim (ErasedAnn.Prim prim) ty = case prim of
+  LitInt i -> case ty of
+    ErasedAnn.PrimTy (PrimTy LLVM.IntegerType {LLVM.typeBits}) ->
+      return $
+        LLVM.ConstantOperand $
+          LLVM.Int {LLVM.integerBits = typeBits, LLVM.integerValue = i}
+
 applyPrim ::
   (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
   Env ->
@@ -184,6 +175,14 @@ applyPrim env f xs
         x <- compileTerm env (xs P.!! 0)
         y <- compileTerm env (xs P.!! 1)
         LLVM.add x y
+
+-- | Counterpart of `mkName`: make a `ParameterName` given a name.
+mkParameterName :: NameSymbol.T -> LLVM.ParameterName
+mkParameterName s = S.fromString $ unintern $ NameSymbol.toSymbol s -- S.fromString _
+
+-- | Handy wrapper for creating global references based on a type and name.
+globalRef :: LLVM.Type -> LLVM.Name -> LLVM.Operand
+globalRef ty name = LLVM.ConstantOperand $ LLVM.GlobalReference ty name
 
 -- | Translate a Juvix type into an LLVM type.
 typeToLLVM :: ErasedAnn.Type PrimTy -> LLVM.Type
@@ -199,6 +198,7 @@ typeToLLVM (ErasedAnn.Pi _usage f xs) =
     (resultType : revArgumentTypes) = reverse tyList
     argumentTypes = reverse revArgumentTypes
 
--- | Handy wrapper for creating global references based on a type and name.
-globalRef :: LLVM.Type -> LLVM.Name -> LLVM.Operand
-globalRef ty name = LLVM.ConstantOperand $ LLVM.GlobalReference ty name
+-- Construct a list of types from a function type.
+functionTy :: ErasedAnn.Type primTy -> [ErasedAnn.Type primTy]
+functionTy (ErasedAnn.Pi usage l r) = l : functionTy r
+functionTy ty = [ty]
