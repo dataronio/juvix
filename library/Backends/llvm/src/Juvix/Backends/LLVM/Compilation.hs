@@ -92,6 +92,7 @@ compileTerm env (ErasedAnn.Ann usage ty t) = case t of
 -- The function returns the name of the create function.
 mkLam ::
   (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
+  -- | Environment of Juvix variables to LLVM function arguments.
   Env ->
   -- | The type of the lambda abstraction.
   ErasedAnn.Type PrimTy ->
