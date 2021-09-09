@@ -207,8 +207,8 @@ typeToLLVM (ErasedAnn.Pi _usage f xs) =
     }
   where
     tyList = f : functionTy xs
-    (resultType : revArgumentTypes) = reverse tyList
-    argumentTypes = reverse revArgumentTypes
+    resultType = P.last tyList
+    argumentTypes = init tyList
 
 -- Construct a list of types from a function type.
 functionTy :: ErasedAnn.Type primTy -> [ErasedAnn.Type primTy]
