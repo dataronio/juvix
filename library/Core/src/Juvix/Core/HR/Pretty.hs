@@ -298,6 +298,8 @@ instance PrimPretty primTy primVal => PP.PrettySyntax (Term primTy primVal) wher
     t@(Lam _ _) -> ppLams $ getLams t
     t@(Sig _ _ _ _) -> ppBinders $ getBinds t
     t@(Pair _ _) -> ppPairs $ getPairs t
+    t@CatProduct {} -> ppBinders $ getBinds t
+    t@CatCoproduct {} -> ppBinders $ getBinds t
     Let π x b t -> ppLet π x b t
     UnitTy -> pure $ PP.annotate' ATyCon "Unit"
     Unit -> pure box
