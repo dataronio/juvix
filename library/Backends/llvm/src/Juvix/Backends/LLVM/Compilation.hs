@@ -20,6 +20,7 @@ import qualified LLVM.IRBuilder as LLVM
 import qualified LLVM.Pretty as LLVM
 import qualified Prelude as P
 
+-- | A mapping between Juvix variable names and their operands in LLVM.
 type Env = Map.Map NameSymbol.T LLVM.Operand
 
 -- | Compile the input program to an LLVM module.
