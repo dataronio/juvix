@@ -186,7 +186,7 @@ applyPrim env f xs
 
 -- | Counterpart of `mkName`: make a `ParameterName` given a name.
 mkParameterName :: NameSymbol.T -> LLVM.ParameterName
-mkParameterName s = S.fromString $ unintern $ NameSymbol.toSymbol s -- S.fromString _
+mkParameterName s = S.fromString $ unintern $ NameSymbol.toSymbol s
 
 -- | Handy wrapper for creating global references based on a type and name.
 globalRef :: LLVM.Type -> LLVM.Name -> LLVM.Operand
