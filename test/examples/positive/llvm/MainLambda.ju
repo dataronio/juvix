@@ -1,0 +1,9 @@
+-- Test for the specific case where the main function is a lambda term.
+
+mod MainLambda where
+
+open Prelude
+open LLVM
+
+sig main : int -> int -> int
+let main = \x y -> y
