@@ -74,6 +74,12 @@ inst (Types.Ann _usage ty t) =
       v <- lambda c a b ty
       consVal v ty
       pure v
+    Ann.CatProductIntroM p1 p2 -> error "Michelson can not compile algebraic types"
+    Ann.CatProductElimLeftM p1 -> error "Michelson can not compile algebraic types"
+    Ann.CatProductElimRightM p1 -> error "Michelson can not compile algebraic types"
+    Ann.CatCoproductIntroLeftM p1 -> error "Michelson can not compile algebraic types"
+    Ann.CatCoproductIntroRightM p1 -> error "Michelson can not compile algebraic types"
+    Ann.CatCoproductElimM cp p1 p2 -> error "Michelson can not compile algebraic types"
     Ann.Prim prim' ->
       -- Non Instrs will be converted to an Instr via primToFargs
       -- Constants are not functions and thus need to be

@@ -173,6 +173,12 @@ toRaw t@(ErasedAnn.Ann {term}) = t {ErasedAnn.term = toRaw1 term}
     toRaw1 (ErasedAnn.Prim p) = primToRaw p
     toRaw1 (ErasedAnn.LamM {..}) = ErasedAnn.LamM {body = toRaw body, ..}
     toRaw1 (ErasedAnn.PairM l r) = ErasedAnn.PairM (toRaw l) (toRaw r)
+    toRaw1 (ErasedAnn.CatProductIntroM l r) = ErasedAnn.CatProductIntroM (toRaw l) (toRaw r)
+    toRaw1 (ErasedAnn.CatProductElimLeftM t) = ErasedAnn.CatProductElimLeftM (toRaw t)
+    toRaw1 (ErasedAnn.CatProductElimRightM t) = ErasedAnn.CatProductElimRightM (toRaw t)
+    toRaw1 (ErasedAnn.CatCoproductIntroLeftM t) = ErasedAnn.CatCoproductIntroLeftM (toRaw t)
+    toRaw1 (ErasedAnn.CatCoproductIntroRightM t) = ErasedAnn.CatCoproductIntroRightM (toRaw t)
+    toRaw1 (ErasedAnn.CatCoproductElimM cp l r) = ErasedAnn.CatCoproductElimM (toRaw cp) (toRaw l) (toRaw r)
     toRaw1 ErasedAnn.UnitM = ErasedAnn.UnitM
     toRaw1 (ErasedAnn.AppM f xs) = ErasedAnn.AppM (toRaw f) (toRaw <$> xs)
     primToRaw (App.Return {retTerm}) = ErasedAnn.Prim retTerm
@@ -253,6 +259,27 @@ convertTerm term usage =
           let left' = convertTerm left usage
               right' = convertTerm right usage
            in Ann usage ty' $ PairM left' right'
+        E.CatProductIntro left right _ ->
+          let left' = convertTerm left usage
+              right' = convertTerm right usage
+           in Ann usage ty' $ CatProductIntroM left' right'
+        E.CatProductElimLeft t _ ->
+          let t' = convertTerm t usage
+           in Ann usage ty' $ CatProductElimLeftM t'
+        E.CatProductElimRight t _ ->
+          let t' = convertTerm t usage
+           in Ann usage ty' $ CatProductElimRightM t'
+        E.CatCoproductIntroLeft t _ ->
+          let t' = convertTerm t usage
+           in Ann usage ty' $ CatCoproductIntroLeftM t'
+        E.CatCoproductIntroRight t _ ->
+          let t' = convertTerm t usage
+           in Ann usage ty' $ CatCoproductIntroRightM t'
+        E.CatCoproductElim cp left right _ ->
+          let cp' = convertTerm cp usage
+              left' = convertTerm left usage
+              right' = convertTerm right usage
+           in Ann usage ty' $ CatCoproductElimM cp' left' right'
         E.Unit _ ->
           Ann usage ty' UnitM
         E.App f a _ ->
@@ -273,6 +300,6 @@ convertType ty =
     E.PrimTy p -> PrimTy p
     E.Pi u a r -> Pi u (convertType a) (convertType r)
     E.Sig u a b -> Sig u (convertType a) (convertType b)
-    E.CatProduct u a b -> CatProduct u (convertType a) (convertType b)
-    E.CatCoproduct u a b -> CatCoproduct u (convertType a) (convertType b)
+    E.CatProduct a b -> CatProduct (convertType a) (convertType b)
+    E.CatCoproduct a b -> CatCoproduct (convertType a) (convertType b)
     E.UnitTy -> UnitTy

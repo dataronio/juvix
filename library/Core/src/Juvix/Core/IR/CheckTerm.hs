@@ -208,18 +208,47 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
       tAnn <- Typed.Annotation σ <$> substApp b s'
       t' <- typeTerm' t tAnn
       pure $ Typed.Pair s' t' ann
-    Core.CatProduct π a b _ -> do
+    Core.CatProduct a b _ -> do
       requireZero σ
       void $ requireStar ty
       a' <- typeTerm' a ann
       b' <- typeTerm' b ann
-      pure $ Typed.CatProduct π a' b' ann
-    Core.CatCoproduct π a b _ -> do
+      pure $ Typed.CatProduct a' b' ann
+    Core.CatCoproduct a b _ -> do
       requireZero σ
       void $ requireStar ty
       a' <- typeTerm' a ann
       b' <- typeTerm' b ann
-      pure $ Typed.CatCoproduct π a' b' ann
+      pure $ Typed.CatCoproduct a' b' ann
+    Core.CatProductIntro s t _ -> do
+      (π, a, b) <- requireCatProduct ty
+      let sAnn = Typed.Annotation (σ <.> π) a
+      let tAnn = Typed.Annotation (σ <.> π) b
+      s' <- typeTerm' s sAnn
+      t' <- typeTerm' t tAnn
+      pure $ Typed.CatProductIntro s' t' ann
+    Core.CatProductElimLeft s _ -> do
+      -- XXX TODO
+      traceShowM (("productelimleft: ty=" :: Text) <> show ty <> "; s=" <> show s <> "; ann=" <> show ann)
+      panic "productelimleft not implemented yet"
+    Core.CatProductElimRight s _ -> do
+      -- XXX TODO
+      traceShowM (("productelimright: ty=" :: Text) <> show ty <> "; s=" <> show s <> "; ann=" <> show ann)
+      panic "productelimright not implemented yet"
+    Core.CatCoproductIntroLeft s _ -> do
+      (π, a, _b) <- requireCatCoproduct ty
+      let sAnn = Typed.Annotation (σ <.> π) a
+      s' <- typeTerm' s sAnn
+      pure $ Typed.CatCoproductIntroLeft s' ann
+    Core.CatCoproductIntroRight s _ -> do
+      (π, _a, b) <- requireCatCoproduct ty
+      let sAnn = Typed.Annotation (σ <.> π) b
+      s' <- typeTerm' s sAnn
+      pure $ Typed.CatCoproductIntroRight s' ann
+    Core.CatCoproductElim cp s t _ -> do
+      -- XXX TODO
+      traceShowM (("coproductelim: ty=" :: Text) <> show ty <> "; s=" <> show s <> "; t=" <> show t <> "; ann=" <> show ann)
+      panic "coproductelim not implemented yet"
     Core.UnitTy _ -> do
       requireZero σ
       void $ requireStar ty
@@ -378,6 +407,20 @@ requireSig ::
   m (TyParts primTy primVal)
 requireSig (IR.VSig π a b) = pure (π, a, b)
 requireSig ty = Error.throwTC (Error.ShouldBePairType ty)
+
+requireCatProduct ::
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
+  m (TyParts primTy primVal)
+requireCatProduct (IR.VCatProduct a b) = pure (Usage.SAny, a, b)
+requireCatProduct ty = Error.throwTC (Error.ShouldBeCatProductType ty)
+
+requireCatCoproduct ::
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
+  m (TyParts primTy primVal)
+requireCatCoproduct (IR.VCatCoproduct a b) = pure (Usage.SAny, a, b)
+requireCatCoproduct ty = Error.throwTC (Error.ShouldBeCatCoproductType ty)
 
 requireUnitTy ::
   Error.HasThrowTC' IR.T ext primTy primVal m =>

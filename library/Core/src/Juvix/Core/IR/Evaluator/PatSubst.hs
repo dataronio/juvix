@@ -100,13 +100,31 @@ instance
     Core.Pair <$> patSubst' b m s
       <*> patSubst' b m t
       <*> patSubst' b m a
-  patSubst' b m (Core.CatProduct π s t a) =
-    Core.CatProduct π <$> patSubst' b m s
+  patSubst' b m (Core.CatProduct s t a) =
+    Core.CatProduct <$> patSubst' b m s
       <*> patSubst' (succ b) m t
       <*> patSubst' b m a
-  patSubst' b m (Core.CatCoproduct π s t a) =
-    Core.CatCoproduct π <$> patSubst' b m s
+  patSubst' b m (Core.CatCoproduct s t a) =
+    Core.CatCoproduct <$> patSubst' b m s
       <*> patSubst' (succ b) m t
+      <*> patSubst' b m a
+  patSubst' b m (Core.CatProductIntro s t a) =
+    Core.CatProductIntro <$> patSubst' b m s
+      <*> patSubst' b m t
+      <*> patSubst' b m a
+  patSubst' b m (Core.CatProductElimLeft s a) =
+    Core.CatProductElimLeft <$> patSubst' b m s <*> patSubst' b m a
+  patSubst' b m (Core.CatProductElimRight s a) =
+    Core.CatProductElimRight <$> patSubst' b m s <*> patSubst' b m a
+  patSubst' b m (Core.CatCoproductIntroLeft s a) =
+    Core.CatCoproductIntroLeft <$> patSubst' b m s <*> patSubst' b m a
+  patSubst' b m (Core.CatCoproductIntroRight s a) =
+    Core.CatCoproductIntroRight <$> patSubst' b m s <*> patSubst' b m a
+  patSubst' b m (Core.CatCoproductElim cp s t a) =
+    Core.CatCoproductElim
+      <$> patSubst' b m cp
+      <*> patSubst' b m s
+      <*> patSubst' b m t
       <*> patSubst' b m a
   patSubst' b m (Core.UnitTy a) =
     Core.UnitTy <$> patSubst' b m a

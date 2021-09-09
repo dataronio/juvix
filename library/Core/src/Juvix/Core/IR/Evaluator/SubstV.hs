@@ -119,13 +119,35 @@ instance
     Core.VPair <$> substVWith w i e s
       <*> substVWith w i e t
       <*> substVWith w i e a
-  substVWith w i e (Core.VCatProduct π s t a) =
-    Core.VCatProduct π <$> substVWith w i e s
+  substVWith w i e (Core.VCatProduct s t a) =
+    Core.VCatProduct <$> substVWith w i e s
       <*> substVWith (succ w) (succ i) e t
       <*> substVWith w i e a
-  substVWith w i e (Core.VCatCoproduct π s t a) =
-    Core.VCatCoproduct π <$> substVWith w i e s
+  substVWith w i e (Core.VCatCoproduct s t a) =
+    Core.VCatCoproduct <$> substVWith w i e s
       <*> substVWith (succ w) (succ i) e t
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatProductIntro s t a) =
+    Core.VCatProductIntro <$> substVWith w i e s
+      <*> substVWith w i e t
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatProductElimLeft s a) =
+    Core.VCatProductElimLeft <$> substVWith w i e s
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatProductElimRight s a) =
+    Core.VCatProductElimRight <$> substVWith w i e s
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatCoproductIntroLeft s a) =
+    Core.VCatCoproductIntroLeft <$> substVWith w i e s
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatCoproductIntroRight s a) =
+    Core.VCatCoproductIntroRight <$> substVWith w i e s
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatCoproductElim cp s t a) =
+    Core.VCatCoproductElim
+      <$> substVWith w i e cp
+      <*> substVWith w i e s
+      <*> substVWith w i e t
       <*> substVWith w i e a
   substVWith w i e (Core.VUnitTy a) =
     Core.VUnitTy <$> substVWith w i e a

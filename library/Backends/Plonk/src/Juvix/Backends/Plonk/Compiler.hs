@@ -104,6 +104,12 @@ compileTerm _term@(Ann.Ann _ _ t) m a =
         pure $ foldl' (\acc (k, v) -> Map.insert k v acc) m pairs
       compileTerm b m' mempty
     p@(Ann.PairM _a1 _a2) -> panic $ show p <> "notImplemented"
+    p@(Ann.CatProductIntroM _a1 _a2) -> panic $ show p <> "notImplemented"
+    p@(Ann.CatProductElimLeftM _a1) -> panic $ show p <> "notImplemented"
+    p@(Ann.CatProductElimRightM _a1) -> panic $ show p <> "notImplemented"
+    p@(Ann.CatCoproductIntroLeftM _a1) -> panic $ show p <> "notImplemented"
+    p@(Ann.CatCoproductIntroRightM _a1) -> panic $ show p <> "notImplemented"
+    p@(Ann.CatCoproductElimM _cp _a1 _a2) -> panic $ show p <> "notImplemented"
     u@Ann.UnitM -> panic $ show u <> "notImplemented"
 
 compileTermWithWire :: (Integral f, Show f) => AnnTerm f -> IRM f Wire

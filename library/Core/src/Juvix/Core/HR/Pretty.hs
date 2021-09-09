@@ -298,8 +298,14 @@ instance PrimPretty primTy primVal => PP.PrettySyntax (Term primTy primVal) wher
     t@(Lam _ _) -> ppLams $ getLams t
     t@(Sig _ _ _ _) -> ppBinders $ getBinds t
     t@(Pair _ _) -> ppPairs $ getPairs t
-    t@CatProduct {} -> ppBinders $ getBinds t
-    t@CatCoproduct {} -> ppBinders $ getBinds t
+    t@CatProduct {} -> panic "pretty-printing for algebraic types not implemented yet" -- XXX TODO
+    t@CatCoproduct {} -> panic "pretty-printing for algebraic types not implemented yet" -- XXX TODO
+    t@CatProductIntro {} -> panic "pretty-printing for algebraic types not implemented yet" -- XXX TODO
+    t@CatProductElimLeft {} -> panic "pretty-printing for algebraic types not implemented yet" -- XXX TODO
+    t@CatProductElimRight {} -> panic "pretty-printing for algebraic types not implemented yet" -- XXX TODO
+    t@CatCoproductIntroLeft {} -> panic "pretty-printing for algebraic types not implemented yet" -- XXX TODO
+    t@CatCoproductIntroRight {} -> panic "pretty-printing for algebraic types not implemented yet" -- XXX TODO
+    t@CatCoproductElim {} -> panic "pretty-printing for algebraic types not implemented yet" -- XXX TODO
     Let π x b t -> ppLet π x b t
     UnitTy -> pure $ PP.annotate' ATyCon "Unit"
     Unit -> pure box

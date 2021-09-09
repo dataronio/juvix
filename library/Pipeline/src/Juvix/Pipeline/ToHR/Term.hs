@@ -146,22 +146,43 @@ transformApplication q a@(f Sexp.:> args)
         ~[xa, b] <- nargs s 2 xs
         (x, a) <- namedArg q xa
         HR.Sig π x a <$> transformTermHR q b
-      CatProductS Nothing -> do
-        ~[π, a, b] <- nargs s 3 xs
-        π <- transformUsage q π
-        go (Just (CatProductS (Just π))) [a, b]
-      CatProductS (Just π) -> do
-        ~[xa, b] <- nargs s 2 xs
-        (x, a) <- namedArg q xa
-        HR.CatProduct π x a <$> transformTermHR q b
-      CatCoproductS Nothing -> do
-        ~[π, a, b] <- nargs s 3 xs
-        π <- transformUsage q π
-        go (Just (CatCoproductS (Just π))) [a, b]
-      CatCoproductS (Just π) -> do
-        ~[xa, b] <- nargs s 2 xs
-        (x, a) <- namedArg q xa
-        HR.CatCoproduct π x a <$> transformTermHR q b
+      CatProductS -> do
+        ~[a, b] <- nargs s 2 xs
+        a <- transformTermHR q a
+        b <- transformTermHR q b
+        pure $ HR.CatProduct a b
+      CatCoproductS -> do
+        ~[a, b] <- nargs s 2 xs
+        a <- transformTermHR q a
+        b <- transformTermHR q b
+        pure $ HR.CatCoproduct a b
+      CatProductIntroS -> do
+        ~[a, b] <- nargs s 2 xs
+        a <- transformTermHR q a
+        b <- transformTermHR q b
+        pure $ HR.CatProductIntro a b
+      CatProductElimLeftS -> do
+        ~[a] <- nargs s 1 xs
+        a <- transformTermHR q a
+        pure $ HR.CatProductElimLeft a
+      CatProductElimRightS -> do
+        ~[a] <- nargs s 1 xs
+        a <- transformTermHR q a
+        pure $ HR.CatProductElimRight a
+      CatCoproductIntroLeftS -> do
+        ~[a] <- nargs s 1 xs
+        a <- transformTermHR q a
+        pure $ HR.CatCoproductIntroLeft a
+      CatCoproductIntroRightS -> do
+        ~[a] <- nargs s 1 xs
+        a <- transformTermHR q a
+        pure $ HR.CatCoproductIntroRight a
+      CatCoproductElimS -> do
+        ~[c, a, b] <- nargs s 3 xs
+        c <- transformTermHR q c
+        a <- transformTermHR q a
+        b <- transformTermHR q b
+        pure $ HR.CatCoproductElim c a b
       ColonS -> do
         ~[a, b] <- nargs s 2 xs
         a <- transformTermHR q a

@@ -80,12 +80,25 @@ extensibleWith
         -- Distinct from Pair because in its dependent form, the right-hand
         -- side will inherently be a Pi type whose domain is the type of the
         -- left-hand side, and whose codomain is type-valued.
-        CatProduct Usage (Term primTy primVal) (Term primTy primVal)
+        CatProduct (Term primTy primVal) (Term primTy primVal)
       | -- | Category-theoretical coproduct type.  In its dependent form, it will have
         -- a type-valued domain parameter, and the left-hand side and right-hand
         -- side will both be Pi types with that same domain, and with
         -- type-valued codomains.
-        CatCoproduct Usage (Term primTy primVal) (Term primTy primVal)
+        CatCoproduct (Term primTy primVal) (Term primTy primVal)
+      | -- | Higher-order introduction rule for category-theoretical product.
+        CatProductIntro (Term primTy primVal) (Term primTy primVal)
+      | -- | Higher-order left projection for category-theoretical product.
+        CatProductElimLeft (Term primTy primVal)
+      | -- | Higher-order right projection for category-theoretical product.
+        CatProductElimRight (Term primTy primVal)
+      | -- | Higher-order left injection for category-theoretical coproduct.
+        CatCoproductIntroLeft (Term primTy primVal)
+      | -- | Higher-order right injection for category-theoretical coproduct.
+        CatCoproductIntroRight (Term primTy primVal)
+      | -- | Higher-order elimination category-theoretical coproduct (in
+        -- effect, a case statement).
+        CatCoproductElim (Term primTy primVal) (Term primTy primVal) (Term primTy primVal)
       | -- | Let binder.
         -- the local definition is bound to de Bruijn index 0.
         Let Usage (Elim primTy primVal) (Term primTy primVal)
@@ -118,8 +131,14 @@ extensibleWith
       | VLam (Value primTy primVal)
       | VSig Usage (Value primTy primVal) (Value primTy primVal)
       | VPair (Value primTy primVal) (Value primTy primVal)
-      | VCatProduct Usage (Value primTy primVal) (Value primTy primVal)
-      | VCatCoproduct Usage (Value primTy primVal) (Value primTy primVal)
+      | VCatProduct (Value primTy primVal) (Value primTy primVal)
+      | VCatCoproduct (Value primTy primVal) (Value primTy primVal)
+      | VCatProductIntro (Value primTy primVal) (Value primTy primVal)
+      | VCatProductElimLeft (Value primTy primVal)
+      | VCatProductElimRight (Value primTy primVal)
+      | VCatCoproductIntroLeft (Value primTy primVal)
+      | VCatCoproductIntroRight (Value primTy primVal)
+      | VCatCoproductElim (Value primTy primVal) (Value primTy primVal) (Value primTy primVal)
       | VUnitTy
       | VUnit
       | VNeutral (Neutral primTy primVal)
@@ -194,6 +213,12 @@ type QuoteContext ext primTy primVal =
     XVPair ext primTy primVal ~ XPair ext primTy primVal,
     XVCatProduct ext primTy primVal ~ XCatProduct ext primTy primVal,
     XVCatCoproduct ext primTy primVal ~ XCatCoproduct ext primTy primVal,
+    XVCatProductIntro ext primTy primVal ~ XCatProductIntro ext primTy primVal,
+    XVCatProductElimLeft ext primTy primVal ~ XCatProductElimLeft ext primTy primVal,
+    XVCatProductElimRight ext primTy primVal ~ XCatProductElimRight ext primTy primVal,
+    XVCatCoproductIntroLeft ext primTy primVal ~ XCatCoproductIntroLeft ext primTy primVal,
+    XVCatCoproductIntroRight ext primTy primVal ~ XCatCoproductIntroRight ext primTy primVal,
+    XVCatCoproductElim ext primTy primVal ~ XCatCoproductElim ext primTy primVal,
     XVUnitTy ext primTy primVal ~ XUnitTy ext primTy primVal,
     XVUnit ext primTy primVal ~ XUnit ext primTy primVal,
     XVPrim ext primTy primVal ~ XPrim ext primTy primVal,
@@ -214,8 +239,14 @@ quote (VPi π s t ext) = Pi π (quote s) (quote t) ext
 quote (VLam s ext) = Lam (quote s) ext
 quote (VSig π s t ext) = Sig π (quote s) (quote t) ext
 quote (VPair s t ext) = Pair (quote s) (quote t) ext
-quote (VCatProduct π s t ext) = CatProduct π (quote s) (quote t) ext
-quote (VCatCoproduct π s t ext) = CatCoproduct π (quote s) (quote t) ext
+quote (VCatProduct s t ext) = CatProduct (quote s) (quote t) ext
+quote (VCatCoproduct s t ext) = CatCoproduct (quote s) (quote t) ext
+quote (VCatProductIntro s t ext) = CatProductIntro (quote s) (quote t) ext
+quote (VCatProductElimLeft s ext) = CatProductElimLeft (quote s) ext
+quote (VCatProductElimRight s ext) = CatProductElimRight (quote s) ext
+quote (VCatCoproductIntroLeft s ext) = CatCoproductIntroLeft (quote s) ext
+quote (VCatCoproductIntroRight s ext) = CatCoproductIntroRight (quote s) ext
+quote (VCatCoproductElim c s t ext) = CatCoproductElim (quote c) (quote s) (quote t) ext
 quote (VUnitTy ext) = UnitTy ext
 quote (VUnit ext) = Unit ext
 quote (VPrim pri ext) = Prim pri ext

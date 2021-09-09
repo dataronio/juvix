@@ -168,6 +168,24 @@ eraseTerm (Typed.Pair s t ann) = do
     else Erasure.Pair <$> eraseTerm s <*> eraseTerm t <*> eraseType ty
 eraseTerm t@Typed.CatProduct {} = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm t@Typed.CatCoproduct {} = throwEra $ Erasure.UnsupportedTermT t
+eraseTerm (Typed.CatProductIntro s t ann) = do
+  let ty@(IR.VCatProduct _ _) = Typed.annType ann
+  Erasure.CatProductIntro <$> eraseTerm s <*> eraseTerm t <*> eraseType ty
+eraseTerm (Typed.CatProductElimLeft s ann) = do
+  let ty@(IR.VCatProduct _ _) = Typed.annType ann
+  Erasure.CatProductElimLeft <$> eraseTerm s <*> eraseType ty
+eraseTerm (Typed.CatProductElimRight s ann) = do
+  let ty@(IR.VCatProduct _ _) = Typed.annType ann
+  Erasure.CatProductElimRight <$> eraseTerm s <*> eraseType ty
+eraseTerm (Typed.CatCoproductIntroLeft s ann) = do
+  let ty@(IR.VCatCoproduct _ _) = Typed.annType ann
+  Erasure.CatCoproductIntroLeft <$> eraseTerm s <*> eraseType ty
+eraseTerm (Typed.CatCoproductIntroRight s ann) = do
+  let ty@(IR.VCatCoproduct _ _) = Typed.annType ann
+  Erasure.CatCoproductIntroRight <$> eraseTerm s <*> eraseType ty
+eraseTerm (Typed.CatCoproductElim cp s t ann) = do
+  let ty@(IR.VCatCoproduct _ _) = Typed.annType ann
+  Erasure.CatCoproductElim <$> eraseTerm cp <*> eraseTerm s <*> eraseTerm t <*> eraseType ty
 eraseTerm t@(Typed.UnitTy {}) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Unit ann) = Erasure.Unit <$> eraseType (Typed.annType ann)
 eraseTerm (Typed.Let π b t anns) = do
@@ -231,8 +249,14 @@ eraseType (IR.VSig π a b) = do
         <*> withName \_ -> eraseType b
 eraseType v@(IR.VPair _ _) = do
   throwEra $ Erasure.UnsupportedTypeV v
-eraseType v@IR.VCatProduct {} = throwEra $ Erasure.UnsupportedTypeV v
-eraseType v@IR.VCatCoproduct {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType (IR.VCatProduct a b) = Erasure.CatProduct <$> eraseType a <*> eraseType b
+eraseType (IR.VCatCoproduct a b) = Erasure.CatCoproduct <$> eraseType a <*> eraseType b
+eraseType v@IR.VCatProductIntro {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatProductElimLeft {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatProductElimRight {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatCoproductIntroLeft {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatCoproductIntroRight {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatCoproductElim {} = throwEra $ Erasure.UnsupportedTypeV v
 eraseType IR.VUnitTy = do
   pure Erasure.UnitTy
 eraseType IR.VUnit = do

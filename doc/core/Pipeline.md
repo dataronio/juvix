@@ -153,10 +153,6 @@ extTerm =
         IR.typePi = Just [[t|NameSymbol.T|]],
         IR.nameSig = "Sig0",
         IR.typeSig = Just [[t|NameSymbol.T|]],
-        IR.typeCatProduct = Just [[t|NameSymbol.T|]],
-        IR.nameCatProduct = "CatProduct0",
-        IR.typeCatCoproduct = Just [[t|NameSymbol.T|]],
-        IR.nameCatCoproduct = "CatCoproduct0",
         IR.nameLet = "Let0",
         IR.typeLet = Just [[t|NameSymbol.T|]]
       }

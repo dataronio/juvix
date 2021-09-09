@@ -82,9 +82,21 @@ data Special
   | -- | sigma type
     PairS (Maybe Usage.T)
   | -- | category-theoretical product
-    CatProductS (Maybe Usage.T)
+    CatProductS
   | -- | category-theoretical coproduct
-    CatCoproductS (Maybe Usage.T)
+    CatCoproductS
+  | -- | category-theoretical product introduction rule
+    CatProductIntroS
+  | -- | category-theoretical product left projection
+    CatProductElimLeftS
+  | -- | category-theoretical product right projection
+    CatProductElimRightS
+  | -- | category-theoretical coproduct left injection
+    CatCoproductIntroLeftS
+  | -- | category-theoretical coproduct right injection
+    CatCoproductIntroRightS
+  | -- | category-theoretical coproduct elimination rule
+    CatCoproductElimS
   | -- | type annotation
     ColonS
   | -- | type of types

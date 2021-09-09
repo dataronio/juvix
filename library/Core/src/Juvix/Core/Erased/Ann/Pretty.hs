@@ -21,11 +21,19 @@ instance PrimPretty1 primVal => PP.PrettySyntax (Term primTy primVal) where
     Prim p -> fmap HR.toPPAnn <$> PP.pretty' p
     LamM {arguments, body} -> HR.ppLams (arguments, body)
     p@(PairM _ _) -> HR.ppPairs $ getPairs p
+    p@(CatProductIntroM _ _) -> HR.ppPairs $ getPairs p
+    p@(CatProductElimLeftM _) -> panic "pretty-printing productelimleft not yet implemented"
+    p@(CatProductElimRightM _) -> panic "pretty-printing productelimright not yet implemented"
+    p@(CatCoproductIntroLeftM _) -> panic "pretty-printing coproductintroleft not yet implemented"
+    p@(CatCoproductIntroRightM _) -> panic "pretty-printing coproductintroleft not yet implemented"
+    p@(CatCoproductElimM _ _ _) -> HR.ppPairs $ getPairs p
     UnitM -> pure HR.box
     AppM s ts -> HR.ppApps s ts
 
 getPairs :: Term primTy primVal -> [Term primTy primVal]
 getPairs (PairM s t) = term s : getPairs (term t)
+getPairs (CatProductIntroM s t) = term s : getPairs (term t)
+getPairs (CatCoproductElimM cp s t) = term cp : getPairs (term s) ++ getPairs (term t)
 getPairs t = [t]
 
 type instance PP.Ann (Type _) = PPAnn

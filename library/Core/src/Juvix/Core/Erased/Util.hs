@@ -15,6 +15,12 @@ free = Set.toList . go Set.empty
       Prim _ -> Set.empty
       Lam v b -> go (Set.insert v used) b
       Pair s t -> go used s `Set.union` go used t
+      CatProductIntro s t -> go used s `Set.union` go used t
+      CatProductElimLeft s -> go used s
+      CatProductElimRight s -> go used s
+      CatCoproductIntroLeft s -> go used s
+      CatCoproductIntroRight s -> go used s
+      CatCoproductElim cp s t -> go used cp `Set.union` go used s `Set.union` go used t
       Unit -> Set.empty
       Let v b t -> go used b `Set.union` go (Set.insert v used) t
       App a b -> go used a `Set.union` go used b
