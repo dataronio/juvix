@@ -29,6 +29,19 @@ compileProgram t = do
       llvmmod = LLVM.buildModule "juvix-module" $ mkMain t
   return $ toStrict $ LLVM.ppllvm llvmmod
 
+-- | Write the main function of the module. Here two distinct cases can be
+-- observed:
+--
+-- * The term @t@ is a lambda abstraction; this is the case when the main
+-- function takes one or more arguments. Within the scope of the input
+-- program, this lambda is never applied, as this only happens when the program
+-- is executed.
+-- A global function is written for the lambda and called in the main function.
+-- The arguments for the call are passed on from main.
+--
+-- * The term @t@ is any other term than a lambda abstraction, we can write the
+-- body of the main function by compiling @t@. The main function itself does
+-- not have any parameters in this case.
 mkMain ::
   LLVM.MonadModuleBuilder m =>
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
