@@ -37,6 +37,8 @@ instance PrimPretty1 primTy => PP.PrettySyntax (Type primTy) where
     PrimTy t -> fmap HR.toPPAnn <$> PP.pretty' t
     t@(Pi _ _ _) -> HR.ppBinders $ getBinds t
     t@(Sig _ _ _) -> HR.ppBinders $ getBinds t
+    t@CatProduct {} -> HR.ppBinders $ getBinds t
+    t@CatCoproduct {} -> HR.ppBinders $ getBinds t
     UnitTy -> pure $ PP.annotate' ATyCon "Unit"
 
 getBinds :: Type primTy -> HR.WithBinders (Type primTy)
