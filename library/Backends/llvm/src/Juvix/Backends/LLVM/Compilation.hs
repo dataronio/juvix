@@ -72,9 +72,12 @@ mkMain t@(ErasedAnn.Ann usage ty t') = do
       _ -> compileTerm mempty t
     LLVM.ret out
 
+-- | Compile a term to its equivalent LLVM code.
 compileTerm ::
   (LLVM.MonadIRBuilder m, LLVM.MonadModuleBuilder m) =>
+  -- | Environment of Juvix variables to LLVM function arguments.
   Env ->
+  -- | The term to compile.
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   m LLVM.Operand
 compileTerm env (ErasedAnn.Ann usage ty t) = case t of
