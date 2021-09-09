@@ -23,6 +23,7 @@ import qualified Prelude as P
 -- | Compile the input program to an LLVM module.
 compileProgram ::
   Monad m =>
+  -- | Term to compile.
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   FeedbackT [] P.String m Text
 compileProgram t = do
