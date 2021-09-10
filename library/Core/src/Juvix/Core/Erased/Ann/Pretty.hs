@@ -7,11 +7,44 @@ module Juvix.Core.Erased.Ann.Pretty
   )
 where
 
+------------------------------------------------------------------------------
+
 import Juvix.Core.Erased.Ann.Types
+  ( AnnTerm (term),
+    Term
+      ( AppM,
+        CatCoproductElimM,
+        CatCoproductIntroLeftM,
+        CatCoproductIntroRightM,
+        CatProductElimLeftM,
+        CatProductElimRightM,
+        CatProductIntroM,
+        LamM,
+        PairM,
+        Prim,
+        UnitM,
+        Var,
+        arguments,
+        body
+      ),
+    Type (..),
+  )
 import Juvix.Core.HR.Pretty (PPAnn, PPAnn' (..), PrimPretty1)
 import qualified Juvix.Core.HR.Pretty as HR
-import Juvix.Library hiding (Type)
+import qualified Juvix.Core.HR.Types as HR
+import Juvix.Library
+  ( Applicative (pure),
+    Functor (fmap),
+    panic,
+    reverse,
+    ($),
+    (++),
+    (.),
+    (<$>),
+  )
 import qualified Juvix.Library.PrettyPrint as PP
+
+------------------------------------------------------------------------------
 
 type instance PP.Ann (Term _ _) = PPAnn
 
@@ -26,7 +59,7 @@ instance PrimPretty1 primVal => PP.PrettySyntax (Term primTy primVal) where
     p@(CatProductElimRightM _) -> panic "pretty-printing productelimright not yet implemented"
     p@(CatCoproductIntroLeftM _) -> panic "pretty-printing coproductintroleft not yet implemented"
     p@(CatCoproductIntroRightM _) -> panic "pretty-printing coproductintroleft not yet implemented"
-    p@(CatCoproductElimM _ _ _) -> HR.ppPairs $ getPairs p
+    p@(CatCoproductElimM {}) -> HR.ppPairs $ getPairs p
     UnitM -> pure HR.box
     AppM s ts -> HR.ppApps s ts
 
@@ -43,8 +76,8 @@ instance PrimPretty1 primTy => PP.PrettySyntax (Type primTy) where
     SymT x -> HR.pname x
     Star i -> HR.ppStar i
     PrimTy t -> fmap HR.toPPAnn <$> PP.pretty' t
-    t@(Pi _ _ _) -> HR.ppBinders $ getBinds t
-    t@(Sig _ _ _) -> HR.ppBinders $ getBinds t
+    t@Pi {} -> HR.ppBinders $ getBinds t
+    t@Sig {} -> HR.ppBinders $ getBinds t
     t@CatProduct {} -> HR.ppBinders $ getBinds t
     t@CatCoproduct {} -> HR.ppBinders $ getBinds t
     UnitTy -> pure $ PP.annotate' ATyCon "Unit"
@@ -52,6 +85,10 @@ instance PrimPretty1 primTy => PP.PrettySyntax (Type primTy) where
 getBinds :: Type primTy -> HR.WithBinders (Type primTy)
 getBinds = go []
   where
+    go ::
+      [HR.Binder (Type primTy)] ->
+      Type primTy ->
+      HR.WithBinders (Type primTy)
     go acc (Pi π s t) = go (HR.Binder HR.PI π "_" s : acc) t
     go acc (Sig π s t) = go (HR.Binder HR.SIG π "_" s : acc) t
     go acc t = (reverse acc, t)
