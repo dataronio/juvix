@@ -86,16 +86,16 @@ hrToIR' = \case
     pure (IR.CatCoproduct a b)
   HR.CatProductIntro s t ->
     IR.CatProductIntro <$> hrToIR' s <*> hrToIR' t
-  HR.CatProductElimLeft s ->
-    IR.CatProductElimLeft <$> hrToIR' s
-  HR.CatProductElimRight s ->
-    IR.CatProductElimRight <$> hrToIR' s
+  HR.CatProductElimLeft a s ->
+    IR.CatProductElimLeft <$> hrToIR' a <*> hrToIR' s
+  HR.CatProductElimRight a s ->
+    IR.CatProductElimRight <$> hrToIR' a <*> hrToIR' s
   HR.CatCoproductIntroLeft s ->
     IR.CatCoproductIntroLeft <$> hrToIR' s
   HR.CatCoproductIntroRight s ->
     IR.CatCoproductIntroRight <$> hrToIR' s
-  HR.CatCoproductElim cp s t ->
-    IR.CatCoproductElim <$> hrToIR' cp <*> hrToIR' s <*> hrToIR' t
+  HR.CatCoproductElim a b cp s t ->
+    IR.CatCoproductElim <$> hrToIR' a <*> hrToIR' b <*> hrToIR' cp <*> hrToIR' s <*> hrToIR' t
   HR.UnitTy -> pure IR.UnitTy
   HR.Unit -> pure IR.Unit
   HR.Let π n l b -> do
@@ -184,16 +184,16 @@ irToHR' = \case
     pure (HR.CatCoproduct a b)
   IR.CatProductIntro s t -> do
     HR.CatProductIntro <$> irToHR' s <*> irToHR' t
-  IR.CatProductElimLeft s -> do
-    HR.CatProductElimLeft <$> irToHR' s
-  IR.CatProductElimRight s -> do
-    HR.CatProductElimRight <$> irToHR' s
+  IR.CatProductElimLeft a s -> do
+    HR.CatProductElimLeft <$> irToHR' a <*> irToHR' s
+  IR.CatProductElimRight a s -> do
+    HR.CatProductElimRight <$> irToHR' a <*> irToHR' s
   IR.CatCoproductIntroLeft s -> do
     HR.CatCoproductIntroLeft <$> irToHR' s
   IR.CatCoproductIntroRight s -> do
     HR.CatCoproductIntroRight <$> irToHR' s
-  IR.CatCoproductElim cp s t -> do
-    HR.CatCoproductElim <$> irToHR' cp <*> irToHR' s <*> irToHR' t
+  IR.CatCoproductElim a b cp s t -> do
+    HR.CatCoproductElim <$> irToHR' a <*> irToHR' b <*> irToHR' cp <*> irToHR' s <*> irToHR' t
   IR.UnitTy -> pure HR.UnitTy
   IR.Unit -> pure HR.Unit
   IR.Let π l b -> do
@@ -302,11 +302,11 @@ varsTerm = \case
   IR.CatProduct s t -> varsTerm s <> varsTerm t
   IR.CatCoproduct s t -> varsTerm s <> varsTerm t
   IR.CatProductIntro s t -> varsTerm s <> varsTerm t
-  IR.CatProductElimLeft s -> varsTerm s
-  IR.CatProductElimRight s -> varsTerm s
+  IR.CatProductElimLeft a s -> varsTerm a <> varsTerm s
+  IR.CatProductElimRight a s -> varsTerm a <> varsTerm s
   IR.CatCoproductIntroLeft s -> varsTerm s
   IR.CatCoproductIntroRight s -> varsTerm s
-  IR.CatCoproductElim cp s t -> varsTerm cp <> varsTerm s <> varsTerm t
+  IR.CatCoproductElim a b cp s t -> varsTerm a <> varsTerm b <> varsTerm cp <> varsTerm s <> varsTerm t
   IR.Let _ e t -> varsElim e <> varsTerm t
   IR.UnitTy -> mempty
   IR.Unit -> mempty

@@ -112,17 +112,19 @@ instance
     Core.CatProductIntro <$> patSubst' b m s
       <*> patSubst' b m t
       <*> patSubst' b m a
-  patSubst' b m (Core.CatProductElimLeft s a) =
-    Core.CatProductElimLeft <$> patSubst' b m s <*> patSubst' b m a
-  patSubst' b m (Core.CatProductElimRight s a) =
-    Core.CatProductElimRight <$> patSubst' b m s <*> patSubst' b m a
+  patSubst' b m (Core.CatProductElimLeft t s a) =
+    Core.CatProductElimLeft <$> patSubst' b m t <*> patSubst' b m s <*> patSubst' b m a
+  patSubst' b m (Core.CatProductElimRight t s a) =
+    Core.CatProductElimRight <$> patSubst' b m t <*> patSubst' b m s <*> patSubst' b m a
   patSubst' b m (Core.CatCoproductIntroLeft s a) =
     Core.CatCoproductIntroLeft <$> patSubst' b m s <*> patSubst' b m a
   patSubst' b m (Core.CatCoproductIntroRight s a) =
     Core.CatCoproductIntroRight <$> patSubst' b m s <*> patSubst' b m a
-  patSubst' b m (Core.CatCoproductElim cp s t a) =
+  patSubst' b m (Core.CatCoproductElim t1 t2 cp s t a) =
     Core.CatCoproductElim
-      <$> patSubst' b m cp
+      <$> patSubst' b m t1
+      <*> patSubst' b m t2
+      <*> patSubst' b m cp
       <*> patSubst' b m s
       <*> patSubst' b m t
       <*> patSubst' b m a

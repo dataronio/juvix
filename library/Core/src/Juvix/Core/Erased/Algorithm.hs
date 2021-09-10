@@ -168,24 +168,18 @@ eraseTerm (Typed.Pair s t ann) = do
     else Erasure.Pair <$> eraseTerm s <*> eraseTerm t <*> eraseType ty
 eraseTerm t@Typed.CatProduct {} = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm t@Typed.CatCoproduct {} = throwEra $ Erasure.UnsupportedTermT t
-eraseTerm (Typed.CatProductIntro s t ann) = do
-  let ty@(IR.VCatProduct _ _) = Typed.annType ann
-  Erasure.CatProductIntro <$> eraseTerm s <*> eraseTerm t <*> eraseType ty
-eraseTerm (Typed.CatProductElimLeft s ann) = do
-  let ty@(IR.VCatProduct _ _) = Typed.annType ann
-  Erasure.CatProductElimLeft <$> eraseTerm s <*> eraseType ty
-eraseTerm (Typed.CatProductElimRight s ann) = do
-  let ty@(IR.VCatProduct _ _) = Typed.annType ann
-  Erasure.CatProductElimRight <$> eraseTerm s <*> eraseType ty
-eraseTerm (Typed.CatCoproductIntroLeft s ann) = do
-  let ty@(IR.VCatCoproduct _ _) = Typed.annType ann
-  Erasure.CatCoproductIntroLeft <$> eraseTerm s <*> eraseType ty
-eraseTerm (Typed.CatCoproductIntroRight s ann) = do
-  let ty@(IR.VCatCoproduct _ _) = Typed.annType ann
-  Erasure.CatCoproductIntroRight <$> eraseTerm s <*> eraseType ty
-eraseTerm (Typed.CatCoproductElim cp s t ann) = do
-  let ty@(IR.VCatCoproduct _ _) = Typed.annType ann
-  Erasure.CatCoproductElim <$> eraseTerm cp <*> eraseTerm s <*> eraseTerm t <*> eraseType ty
+eraseTerm (Typed.CatProductIntro s t ann) =
+  Erasure.CatProductIntro <$> eraseTerm s <*> eraseTerm t <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatProductElimLeft a s ann) =
+  Erasure.CatProductElimLeft <$> eraseTerm a <*> eraseTerm s <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatProductElimRight a s ann) =
+  Erasure.CatProductElimRight <$> eraseTerm a <*> eraseTerm s <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatCoproductIntroLeft s ann) =
+  Erasure.CatCoproductIntroLeft <$> eraseTerm s <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatCoproductIntroRight s ann) =
+  Erasure.CatCoproductIntroRight <$> eraseTerm s <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatCoproductElim a b cp s t ann) =
+  Erasure.CatCoproductElim <$> eraseTerm a <*> eraseTerm b <*> eraseTerm cp <*> eraseTerm s <*> eraseTerm t <*> eraseType (Typed.annType ann)
 eraseTerm t@(Typed.UnitTy {}) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Unit ann) = Erasure.Unit <$> eraseType (Typed.annType ann)
 eraseTerm (Typed.Let π b t anns) = do

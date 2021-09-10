@@ -7,74 +7,6 @@ sig (+) : int -> int -> int
 let (+) = %LLVM.add
 declare infixl (+) 5
 
-sig (-) : int -> int -> int
-let (-) = %LLVM.sub
-declare infixl (-) 5
-
--- sig my-prim-type : ty
--- let my-prim-type = int
-
--- sig my-prim-val : my-prim-type
--- let my-prim-val = 42
-
--- let alg-pair-type = %Builtin.Pair
-
--- sig my-pair-type : ty
--- let my-pair-type = alg-pair-type (n : int) (int -> int)
-
--- sig my-pair-func : int -> int
--- let my-pair-func n = n
-
--- sig my-pair-val : my-pair-type
--- let my-pair-val = (3, my-pair-func)
-
--- let my-product = cat-product
-
--- let my-coproduct = cat-coproduct
-
--- sig my-int-product : ty
--- let my-int-product = my-product int int
-
--- sig my-int-coproduct : ty
--- let my-int-coproduct = my-coproduct int int
-
--- sig my-int-product-id : my-int-product -> my-int-product
--- let my-int-product-id x = x
-
--- sig my-int-coproduct-id : my-int-coproduct -> my-int-coproduct
--- let my-int-coproduct-id x = x
-
--- sig my-int-product-val : my-int-product
--- let my-int-product-val = 5
-
--- sig product-intro : ty
--- let product-intro = (a : ty) -> (b : ty) -> a -> b -> cat-product a b
-
--- sig product-elim-left : ty
--- let product-elim-left = (a : ty) -> (b : ty) -> cat-product a b -> a
-
--- sig product-elim-right : ty
--- let product-elim-right = (a : ty) -> (b : ty) -> cat-product a b -> b
-
--- sig coproduct-intro-left : ty
--- let coproduct-intro-left = (a : ty) -> (b : ty) -> a -> cat-coproduct a b
-
--- sig coproduct-intro-right : ty
--- let coproduct-intro-right = (a : ty) -> (b : ty) -> b -> cat-coproduct a b
-
--- sig coproduct-elim : ty
--- let coproduct-elim =
-  -- (a : ty) -> (b : ty) -> (c : ty) -> cat-coproduct a b ->
-  -- (a -> c) -> (b -> c) -> c
-
--- sig product-test : my-int-product
--- let product-test = cat-product-intro 1 2
-
--- let cat-product-elim-left-test = cat-product-elim-left
-
--- sig product-left-test : int
--- let product-left-test = cat-product-elim-left-test int int product-test
-
 sig int-plus-two : int -> int
 let int-plus-two i = i + 2
 
@@ -84,10 +16,10 @@ let int-plus-three i = i + 3
 sig main : int
 let main =
   let prod = cat-product-intro 1 2 : cat-product int int in -- (1, 2)
-  let pleft = cat-product-elim-left prod : int in -- 1
-  let pright = cat-product-elim-right prod : int in -- 2
+  let pleft = cat-product-elim-left int prod : int in -- 1
+  let pright = cat-product-elim-right int prod : int in -- 2
   let cpleft = cat-coproduct-intro-left 3 : cat-coproduct int int in -- Left 3
   let cpright = cat-coproduct-intro-right 4 : cat-coproduct int int in -- Right 4
-  let cpleftelim = cat-coproduct-elim cpleft int-plus-two int-plus-three : int in -- 5
-  let cprightelim = cat-coproduct-elim cpright int-plus-two int-plus-three : int in --7
-  42 + cpleftelim
+  let cpleftelim = cat-coproduct-elim int int cpleft int-plus-two int-plus-three : int in -- 5
+  let cprightelim = cat-coproduct-elim int int cpright int-plus-two int-plus-three : int in --7
+  pleft + pright + cpleftelim + cprightelim

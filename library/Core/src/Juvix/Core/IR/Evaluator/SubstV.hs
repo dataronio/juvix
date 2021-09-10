@@ -131,11 +131,15 @@ instance
     Core.VCatProductIntro <$> substVWith w i e s
       <*> substVWith w i e t
       <*> substVWith w i e a
-  substVWith w i e (Core.VCatProductElimLeft s a) =
-    Core.VCatProductElimLeft <$> substVWith w i e s
+  substVWith w i e (Core.VCatProductElimLeft t s a) =
+    Core.VCatProductElimLeft
+      <$> substVWith w i e t
+      <*> substVWith w i e s
       <*> substVWith w i e a
-  substVWith w i e (Core.VCatProductElimRight s a) =
-    Core.VCatProductElimRight <$> substVWith w i e s
+  substVWith w i e (Core.VCatProductElimRight t s a) =
+    Core.VCatProductElimRight
+      <$> substVWith w i e t
+      <*> substVWith w i e s
       <*> substVWith w i e a
   substVWith w i e (Core.VCatCoproductIntroLeft s a) =
     Core.VCatCoproductIntroLeft <$> substVWith w i e s
@@ -143,9 +147,11 @@ instance
   substVWith w i e (Core.VCatCoproductIntroRight s a) =
     Core.VCatCoproductIntroRight <$> substVWith w i e s
       <*> substVWith w i e a
-  substVWith w i e (Core.VCatCoproductElim cp s t a) =
+  substVWith w i e (Core.VCatCoproductElim t1 t2 cp s t a) =
     Core.VCatCoproductElim
       <$> substVWith w i e cp
+      <*> substVWith w i e t1
+      <*> substVWith w i e t2
       <*> substVWith w i e s
       <*> substVWith w i e t
       <*> substVWith w i e a
