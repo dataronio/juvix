@@ -370,9 +370,7 @@
                                             )
                                             ( Elim
                                                 ( Free
-                                                    ( Global
-                                                        ( "Datatypes" :| [ "x" ] )
-                                                    ) ()
+                                                    ( Pattern 0 ) ()
                                                 ) ()
                                             ) ()
                                         )
@@ -455,9 +453,7 @@
                                                 )
                                                 ( Elim
                                                     ( Free
-                                                        ( Global
-                                                            ( "Datatypes" :| [ "x" ] )
-                                                        ) ()
+                                                        ( Pattern 2 ) ()
                                                     ) ()
                                                 ) ()
                                             )
@@ -795,9 +791,7 @@
                                             )
                                             ( Elim
                                                 ( Free
-                                                    ( Global
-                                                        ( "Datatypes" :| [ "x" ] )
-                                                    ) ()
+                                                    ( Pattern 1 ) ()
                                                 ) ()
                                             ) ()
                                         ) ()
@@ -1068,36 +1062,6 @@
             )
         )
     ,
-        ( "Datatypes" :| [ "x" ]
-        , RawGFunction
-            ( RawFunction
-                { rawFunName = "Datatypes" :| [ "x" ]
-                , rawFunUsage = GSAny
-                , rawFunType = Elim
-                    ( Free
-                        ( Global
-                            ( "Prelude" :|
-                                [ "Circuit"
-                                , "field"
-                                ]
-                            )
-                        ) ()
-                    ) ()
-                , rawFunClauses = RawFunClause
-                    { rawClauseTel = []
-                    , rawClausePats = []
-                    , rawClauseBody = Prim
-                        ( PConst
-                            ( P
-                                ( 3 `modulo` 52435875175126190479447740508185965837690552500527637822603658699938581184513 )
-                            )
-                        ) ()
-                    , rawClauseCatchall = False
-                    } :| []
-                }
-            )
-        )
-    ,
         ( "Datatypes" :| [ "fticTestFunc" ]
         , RawGFunction
             ( RawFunction
@@ -1132,9 +1096,7 @@
                         [ PVar 0 () ]
                     , rawClauseBody = Elim
                         ( Free
-                            ( Global
-                                ( "Datatypes" :| [ "x" ] )
-                            ) ()
+                            ( Pattern 0 ) ()
                         ) ()
                     , rawClauseCatchall = False
                     } :| []

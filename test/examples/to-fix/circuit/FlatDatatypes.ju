@@ -1,0 +1,15 @@
+mod FlatDatatypes where
+
+open Prelude
+open Circuit
+open Circuit.Field
+
+type pq : ty = | P field field | Q field field field
+
+sig patternMatch : pq -> field
+let patternMatch (P x y) = x + y
+let patternMatch (Q x y z) = x + y + z
+
+sig main : field  -- -> field -> field -> field
+let main =
+  patternMatch (P 1 2)

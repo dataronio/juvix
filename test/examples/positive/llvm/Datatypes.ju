@@ -1,7 +1,0 @@
-mod Datatypes where
-
-open Prelude
-open LLVM
-
-sig main : int
-let main = 0

@@ -26,7 +26,7 @@ instance Pipeline.HasBackend BLLVM where
   stdlibs _ = ["stdlib/LLVM.ju"]
 
   -- Copied over from the Michelson backend, and adapter where necessary.
-  typecheck ctx = Pipeline.typecheck' ctx llvm Set
+  typecheck ctx = Pipeline.typecheck' ctx llvm
 
   compile out term = do
     let raw = ErasedAnn.toRaw term

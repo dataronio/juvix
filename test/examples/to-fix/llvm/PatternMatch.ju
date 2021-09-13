@@ -1,0 +1,24 @@
+mod Datatypes where
+
+open Prelude
+open LLVM
+
+sig (+) : int -> int -> int
+let (+) = %LLVM.add
+declare infixl (+) 5
+
+type pq : ty = | P int int | Q int int int
+
+sig one : int
+let one = 1
+
+sig patternMatch : pq -> int
+let patternMatch (P one y) = 1
+let patternMatch (P x y) = x + y
+let patternMatch (Q x y z) = x + y + z
+
+sig main : int
+let main =
+  let pm = patternMatch (P 1 2) in
+  -- patternMatch (P 1 2)
+  9

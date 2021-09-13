@@ -51,7 +51,7 @@ type CompConstraints primTy primVal compErr m =
   )
 
 constMapPrim :: Erasure.MapPrim a a ty val
-constMapPrim _ x = Right x
+constMapPrim _ = Right
 
 lookupMapPrim ::
   Erasure.MapPrim
@@ -167,16 +167,28 @@ typecheckErase term usage ty = do
     Left err -> throw @"error" (Types.TypecheckerError err)
 
 toRaw :: (Show ty, Show val) => ErasedAnn.AnnTerm ty (ErasedAnn.TypedPrim ty val) -> ErasedAnn.AnnTerm ty val
-toRaw t@(ErasedAnn.Ann {term}) = t {ErasedAnn.term = toRaw1 term}
+toRaw t@ErasedAnn.Ann {term} = t {ErasedAnn.term = toRaw1 term}
   where
     toRaw1 (ErasedAnn.Var x) = ErasedAnn.Var x
     toRaw1 (ErasedAnn.Prim p) = primToRaw p
-    toRaw1 (ErasedAnn.LamM {..}) = ErasedAnn.LamM {body = toRaw body, ..}
+    toRaw1 ErasedAnn.LamM {..} = ErasedAnn.LamM {body = toRaw body, ..}
     toRaw1 (ErasedAnn.PairM l r) = ErasedAnn.PairM (toRaw l) (toRaw r)
+    toRaw1 (ErasedAnn.CatProductIntroM l r) = ErasedAnn.CatProductIntroM (toRaw l) (toRaw r)
+    toRaw1 (ErasedAnn.CatProductElimLeftM a t) = ErasedAnn.CatProductElimLeftM (toRaw a) (toRaw t)
+    toRaw1 (ErasedAnn.CatProductElimRightM a t) = ErasedAnn.CatProductElimRightM (toRaw a) (toRaw t)
+    toRaw1 (ErasedAnn.CatCoproductIntroLeftM t) = ErasedAnn.CatCoproductIntroLeftM (toRaw t)
+    toRaw1 (ErasedAnn.CatCoproductIntroRightM t) = ErasedAnn.CatCoproductIntroRightM (toRaw t)
+    toRaw1 (ErasedAnn.CatCoproductElimM a b cp l r) =
+      ErasedAnn.CatCoproductElimM
+        (toRaw a)
+        (toRaw b)
+        (toRaw cp)
+        (toRaw l)
+        (toRaw r)
     toRaw1 ErasedAnn.UnitM = ErasedAnn.UnitM
     toRaw1 (ErasedAnn.AppM f xs) = ErasedAnn.AppM (toRaw f) (toRaw <$> xs)
-    primToRaw (App.Return {retTerm}) = ErasedAnn.Prim retTerm
-    primToRaw (App.Cont {fun, args}) =
+    primToRaw App.Return {retTerm} = ErasedAnn.Prim retTerm
+    primToRaw App.Cont {fun, args} =
       ErasedAnn.AppM (takeToTerm fun) (argsToTerms (App.type' fun) args)
 
     argsToTerms ts xs = go (toList ts) xs
@@ -212,7 +224,7 @@ returnToTerm (App.Return ty term) =
 returnToTerm (App.Cont take args nat) = notImplemented
 
 takeToTerm :: (Show primTy) => App.Take (Types.PrimType primTy) primVal -> AnnTerm primTy primVal
-takeToTerm (App.Take {usage, type', term}) =
+takeToTerm App.Take {usage, type', term} =
   ErasedAnn.Ann
     { usage,
       type' = ErasedAnn.fromPrimType type',
@@ -253,6 +265,31 @@ convertTerm term usage =
           let left' = convertTerm left usage
               right' = convertTerm right usage
            in Ann usage ty' $ PairM left' right'
+        E.CatProductIntro left right _ ->
+          let left' = convertTerm left usage
+              right' = convertTerm right usage
+           in Ann usage ty' $ CatProductIntroM left' right'
+        E.CatProductElimLeft a t _ ->
+          let a' = convertTerm a usage
+              t' = convertTerm t usage
+           in Ann usage ty' $ CatProductElimLeftM a' t'
+        E.CatProductElimRight a t _ ->
+          let a' = convertTerm a usage
+              t' = convertTerm t usage
+           in Ann usage ty' $ CatProductElimRightM a' t'
+        E.CatCoproductIntroLeft t _ ->
+          let t' = convertTerm t usage
+           in Ann usage ty' $ CatCoproductIntroLeftM t'
+        E.CatCoproductIntroRight t _ ->
+          let t' = convertTerm t usage
+           in Ann usage ty' $ CatCoproductIntroRightM t'
+        E.CatCoproductElim a b cp left right _ ->
+          let a' = convertTerm a usage
+              b' = convertTerm b usage
+              cp' = convertTerm cp usage
+              left' = convertTerm left usage
+              right' = convertTerm right usage
+           in Ann usage ty' $ CatCoproductElimM a' b' cp' left' right'
         E.Unit _ ->
           Ann usage ty' UnitM
         E.App f a _ ->
@@ -273,4 +310,6 @@ convertType ty =
     E.PrimTy p -> PrimTy p
     E.Pi u a r -> Pi u (convertType a) (convertType r)
     E.Sig u a b -> Sig u (convertType a) (convertType b)
+    E.CatProduct a b -> CatProduct (convertType a) (convertType b)
+    E.CatCoproduct a b -> CatCoproduct (convertType a) (convertType b)
     E.UnitTy -> UnitTy

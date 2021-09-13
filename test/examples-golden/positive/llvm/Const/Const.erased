@@ -14,7 +14,7 @@ Ann
                         { typeBits = 8 }
                     ) :| []
                 }
-            , retTerm = LitInt 0
+            , retTerm = LitInt 10
             }
         )
     }

@@ -37,6 +37,9 @@ leftoversOk (Leftovers {loLocals, loPatVars}) =
 leftoverOk :: Usage.T -> Bool
 leftoverOk ρ = ρ == Usage.SAny || ρ == mempty
 
+star0Ann :: Usage.T -> Typed.AnnotationT IR.T primTy primVal
+star0Ann σ = Typed.Annotation σ (IR.VStar 0)
+
 -- | Checks a 'Term against an annotation and returns a decorated term if
 -- successful.
 typeTerm ::
@@ -208,6 +211,56 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
       tAnn <- Typed.Annotation σ <$> substApp b s'
       t' <- typeTerm' t tAnn
       pure $ Typed.Pair s' t' ann
+    Core.CatProduct a b _ -> do
+      requireZero σ
+      void $ requireStar ty
+      a' <- typeTerm' a ann
+      b' <- typeTerm' b ann
+      pure $ Typed.CatProduct a' b' ann
+    Core.CatCoproduct a b _ -> do
+      requireZero σ
+      void $ requireStar ty
+      a' <- typeTerm' a ann
+      b' <- typeTerm' b ann
+      pure $ Typed.CatCoproduct a' b' ann
+    Core.CatProductIntro s t _ -> do
+      (π, a, b) <- requireCatProduct ty
+      let sAnn = Typed.Annotation (σ <.> π) a
+      let tAnn = Typed.Annotation (σ <.> π) b
+      s' <- typeTerm' s sAnn
+      t' <- typeTerm' t tAnn
+      pure $ Typed.CatProductIntro s' t' ann
+    Core.CatProductElimLeft a s _ -> do
+      a' <- typeTerm' a (star0Ann σ)
+      av <- evalTC a'
+      let sAnn = Typed.Annotation σ (IR.VCatProduct ty av)
+      s' <- typeTerm' s sAnn
+      pure $ Typed.CatProductElimLeft a' s' ann
+    Core.CatProductElimRight a s _ -> do
+      a' <- typeTerm' a (star0Ann σ)
+      av <- evalTC a'
+      let sAnn = Typed.Annotation σ (IR.VCatProduct av ty)
+      s' <- typeTerm' s sAnn
+      pure $ Typed.CatProductElimRight a' s' ann
+    Core.CatCoproductIntroLeft s _ -> do
+      (π, a, _b) <- requireCatCoproduct ty
+      let sAnn = Typed.Annotation (σ <.> π) a
+      s' <- typeTerm' s sAnn
+      pure $ Typed.CatCoproductIntroLeft s' ann
+    Core.CatCoproductIntroRight s _ -> do
+      (π, _a, b) <- requireCatCoproduct ty
+      let sAnn = Typed.Annotation (σ <.> π) b
+      s' <- typeTerm' s sAnn
+      pure $ Typed.CatCoproductIntroRight s' ann
+    Core.CatCoproductElim a b cp s t _ -> do
+      a' <- typeTerm' a (star0Ann σ)
+      av <- evalTC a'
+      b' <- typeTerm' b (star0Ann σ)
+      bv <- evalTC b'
+      cp' <- typeTerm' cp (Typed.Annotation σ (IR.VCatCoproduct av bv))
+      s' <- typeTerm' s (Typed.Annotation σ (IR.VPi σ av ty))
+      t' <- typeTerm' t (Typed.Annotation σ (IR.VPi σ bv ty))
+      pure $ Typed.CatCoproductElim a' b' cp' s' t' ann
     Core.UnitTy _ -> do
       requireZero σ
       void $ requireStar ty
@@ -366,6 +419,20 @@ requireSig ::
   m (TyParts primTy primVal)
 requireSig (IR.VSig π a b) = pure (π, a, b)
 requireSig ty = Error.throwTC (Error.ShouldBePairType ty)
+
+requireCatProduct ::
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
+  m (TyParts primTy primVal)
+requireCatProduct (IR.VCatProduct a b) = pure (Usage.SAny, a, b)
+requireCatProduct ty = Error.throwTC (Error.ShouldBeCatProductType ty)
+
+requireCatCoproduct ::
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Typed.ValueT IR.T primTy primVal ->
+  m (TyParts primTy primVal)
+requireCatCoproduct (IR.VCatCoproduct a b) = pure (Usage.SAny, a, b)
+requireCatCoproduct ty = Error.throwTC (Error.ShouldBeCatCoproductType ty)
 
 requireUnitTy ::
   Error.HasThrowTC' IR.T ext primTy primVal m =>

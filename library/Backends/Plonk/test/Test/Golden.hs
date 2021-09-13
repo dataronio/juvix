@@ -123,7 +123,7 @@ erasedTests =
         >>= Pipeline.toSexp (Plonk.BPlonk @Fr)
         >>= Pipeline.toHR (Plonk.param @Fr)
         >>= Pipeline.toIR
-        >>= Pipeline.toErased (Plonk.param @Fr) Plonk.PField
+        >>= Pipeline.toErased (Plonk.param @Fr)
 
     isNotPrelude (p NonEmpty.:| _) _ = p /= "Prelude"
 

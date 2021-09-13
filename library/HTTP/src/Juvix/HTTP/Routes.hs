@@ -193,7 +193,7 @@ typecheckSt req = do
     parseSt req
       >>= continueSuccess modifySexp (Pipeline.toHR (Plonk.param @Fr)) filterSexp
       >>= continueSuccess modifyHR Pipeline.toIR filterHR
-      >>= continueSuccess modifyIR (Pipeline.toErased (Plonk.param @Fr) Plonk.PField) filterIR
+      >>= continueSuccess modifyIR (Pipeline.toErased (Plonk.param @Fr)) filterIR
   case erasedF of
     Feedback.Success _ m -> do
       modifyErased $ filterErased m
@@ -257,7 +257,7 @@ steps =
     toSexp = liftIO . Feedback.runFeedbackT . Pipeline.toSexp (Plonk.BPlonk @Fr)
     toHR = liftIO . Feedback.runFeedbackT . Pipeline.toHR (Plonk.param @Fr)
     toIR = liftIO . Feedback.runFeedbackT . Pipeline.toIR
-    toErased = liftIO . Feedback.runFeedbackT . Pipeline.toErased (Plonk.param @Fr) Plonk.PField
+    toErased = liftIO . Feedback.runFeedbackT . Pipeline.toErased (Plonk.param @Fr)
     toCircuit erasedAnn =
       let circ = Plonk.compileCircuit erasedAnn
        in pure . Feedback.Success [] $ Circuit {circ, circPretty = Plonk.prettifyCircuit circ, circDot = Plonk.arithCircuitToDot circ}

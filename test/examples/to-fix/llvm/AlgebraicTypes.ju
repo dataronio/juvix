@@ -1,0 +1,30 @@
+mod AlgebraicTypes where
+
+open Prelude
+open LLVM
+
+sig (+) : int -> int -> int
+let (+) = %LLVM.add
+declare infixl (+) 5
+
+sig int-plus-two : int -> int
+let int-plus-two i = i + 2
+
+sig int-plus-three : int -> int
+let int-plus-three i = i + 3
+
+sig main : int
+let main =
+  -- let prod = cat-product-intro 1 2 : cat-product int int in -- (1, 2)
+  -- let pleft = cat-product-elim-left int prod : int in -- 1
+  -- let pright = cat-product-elim-right int prod : int in -- 2
+  -- let cpleft = cat-coproduct-intro-left 3 : cat-coproduct int int in -- Left 3
+  -- let cpright = cat-coproduct-intro-right 4 : cat-coproduct int int in -- Right 4
+  -- let cpleftelim = cat-coproduct-elim int int cpleft int-plus-two int-plus-three : int in -- 5
+  -- let cprightelim = cat-coproduct-elim int int cpright int-plus-two int-plus-three : int in -- 7
+  -- pleft + pright + cpleftelim + cprightelim
+  -- pleft
+  cat-product-elim-left int (cat-product-intro 1 2) -- 1
+  -- cat-product-elim-right int (cat-product-intro 1 2) -- 2
+  -- cat-coproduct-elim int int (cat-coproduct-intro-left 3) int-plus-two int-plus-three -- 5
+  -- cat-coproduct-elim int int (cat-coproduct-intro-right 4) int-plus-two int-plus-three -- 7

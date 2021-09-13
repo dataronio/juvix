@@ -4,30 +4,16 @@ open Prelude
 open Circuit
 open Circuit.Field
 
-sig x : field
-let x = 3
-
 type verySimpleType = One field
 
 sig verySimpleTerm : verySimpleType
 let verySimpleTerm = One 0
 
+type bar : ty = | P field field |  Q field field field
+
 sig patternMatch : bar -> field
 let patternMatch (P x y) = x^2 + y^2
 let patternMatch (Q x y z) = x^2 + y^2 + z^2
-
-type bar : ty = | P field field |  Q field field field
-
--- type point : ty = Po2 { x : field, y : field } | Po3 { x : field , y: field, z: field}
-
--- sig norm : point -> field
--- let norm sp = case sp of
---     | Po2 x y -> x^2 + y^2
---     | Po3 x y z -> x^2 + y^2 + z^2 
-
--- sig norm : point -> field
--- let norm (Po2 x y) = x^2 + y^2
--- let norm (Po3 x y z) = x^2 + y^2 
 
 type functionTypeInConstructor :
   ty = FTIC_Left field | FTIC_Right field -> field
@@ -47,7 +33,7 @@ sig ssize : sExpField -> field
 let ssize (Atom x) = 1
 let ssize (SPair x y) = ssize x + ssize y
 
-sig main : field  -- -> field -> field -> field
+sig main : field
 let main =
   let vst = verySimpleTerm in
   let pm = patternMatch (Q 0 1 2) in

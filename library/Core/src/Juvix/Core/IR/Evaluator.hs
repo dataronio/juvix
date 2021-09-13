@@ -76,7 +76,8 @@ type ShowAllV extT primTy primVal =
 -- | Perform inlining of variables to globals in the input program.
 inlineAllGlobals ::
   ( EvalPatSubst ext primTy primVal,
-    NoExtensions ext primTy primVal
+    NoExtensions ext primTy primVal,
+    ShowAllV ext primTy primVal
   ) =>
   -- | Term to perform inlining on.
   Core.Term ext primTy primVal ->
@@ -101,6 +102,22 @@ inlineAllGlobals t lookupFun patternMap =
       Core.Lam (inlineAllGlobals t lookupFun patternMap) ann
     Core.Pi u t1 t2 ann ->
       Core.Pi u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
+    Core.CatProduct t1 t2 ann ->
+      Core.CatProduct (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
+    Core.CatCoproduct t1 t2 ann ->
+      Core.CatCoproduct (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
+    Core.CatProductIntro x1 x2 ann ->
+      Core.CatProductIntro (inlineAllGlobals x1 lookupFun patternMap) (inlineAllGlobals x2 lookupFun patternMap) ann
+    Core.CatProductElimLeft a x ann ->
+      Core.CatProductElimLeft (inlineAllGlobals a lookupFun patternMap) (inlineAllGlobals x lookupFun patternMap) ann
+    Core.CatProductElimRight a x ann ->
+      Core.CatProductElimRight (inlineAllGlobals a lookupFun patternMap) (inlineAllGlobals x lookupFun patternMap) ann
+    Core.CatCoproductIntroLeft x ann ->
+      Core.CatCoproductIntroLeft (inlineAllGlobals x lookupFun patternMap) ann
+    Core.CatCoproductIntroRight x ann ->
+      Core.CatCoproductIntroRight (inlineAllGlobals x lookupFun patternMap) ann
+    Core.CatCoproductElim a b cp x1 x2 ann ->
+      Core.CatCoproductElim (inlineAllGlobals a lookupFun patternMap) (inlineAllGlobals b lookupFun patternMap) (inlineAllGlobals cp lookupFun patternMap) (inlineAllGlobals x1 lookupFun patternMap) (inlineAllGlobals x2 lookupFun patternMap) ann
     Core.Prim {} -> t
     Core.PrimTy {} -> t
     Core.Star {} -> t
@@ -109,7 +126,8 @@ inlineAllGlobals t lookupFun patternMap =
 -- | Perform inling of references to globals in an elimination.
 inlineAllGlobalsElim ::
   ( EvalPatSubst ext primTy primVal,
-    NoExtensions ext primTy primVal
+    NoExtensions ext primTy primVal,
+    ShowAllV ext primTy primVal
   ) =>
   -- | Elimination to perform inlining on.
   Core.Elim ext primTy primVal ->
@@ -153,6 +171,22 @@ evalTermWith g exts (Core.Sig π s t _) =
   IR.VSig π <$> evalTermWith g exts s <*> evalTermWith g exts t
 evalTermWith g exts (Core.Pair s t _) =
   IR.VPair <$> evalTermWith g exts s <*> evalTermWith g exts t
+evalTermWith g exts (Core.CatProduct s t _) =
+  IR.VCatProduct <$> evalTermWith g exts s <*> evalTermWith g exts t
+evalTermWith g exts (Core.CatCoproduct s t _) =
+  IR.VCatCoproduct <$> evalTermWith g exts s <*> evalTermWith g exts t
+evalTermWith g exts (Core.CatProductIntro s t _) =
+  IR.VCatProductIntro <$> evalTermWith g exts s <*> evalTermWith g exts t
+evalTermWith g exts (Core.CatProductElimLeft a s _) =
+  IR.VCatProductElimLeft <$> evalTermWith g exts a <*> evalTermWith g exts s
+evalTermWith g exts (Core.CatProductElimRight a s _) =
+  IR.VCatProductElimRight <$> evalTermWith g exts a <*> evalTermWith g exts s
+evalTermWith g exts (Core.CatCoproductIntroLeft s _) =
+  IR.VCatCoproductIntroLeft <$> evalTermWith g exts s
+evalTermWith g exts (Core.CatCoproductIntroRight s _) =
+  IR.VCatCoproductIntroRight <$> evalTermWith g exts s
+evalTermWith g exts (Core.CatCoproductElim a b cp s t _) =
+  IR.VCatCoproductElim <$> evalTermWith g exts a <*> evalTermWith g exts b <*> evalTermWith g exts cp <*> evalTermWith g exts s <*> evalTermWith g exts t
 evalTermWith _ _ (Core.UnitTy _) =
   pure IR.VUnitTy
 evalTermWith _ _ (Core.Unit _) =
@@ -222,7 +256,10 @@ evalTerm g t = evalTermWith g rejectExts $ OnlyExts.onlyExtsT t
 toLambda' ::
   forall ext' ext primTy primVal.
   ( EvalPatSubst ext' primTy primVal,
-    NoExtensions ext primTy primVal
+    NoExtensions ext primTy primVal,
+    Show primTy,
+    Show primVal,
+    Show (Core.Pattern ext primTy primVal)
   ) =>
   -- | Usage information of the function.
   Core.GlobalUsage ->
@@ -254,7 +291,10 @@ toLambda' π' ty' pats rhs = do
     lam x = Core.Lam x ()
 
 -- | Extract variable from a pattern definition.
-singleVar :: Alternative f => Core.Pattern ext primTy primVal -> f Core.PatternVar
+singleVar ::
+  (Show (Core.Pattern ext primTy primVal), Alternative f) =>
+  Core.Pattern ext primTy primVal ->
+  f Core.PatternVar
 singleVar (Core.PVar p _) = pure p
 singleVar _ = empty
 
@@ -294,7 +334,10 @@ toOnlyExtsE = extTransformE $ OnlyExts.injector
 toLambda ::
   forall ext ext' primTy primVal.
   ( EvalPatSubst ext' primTy primVal,
-    NoExtensions ext primTy primVal
+    NoExtensions ext primTy primVal,
+    Show primTy,
+    Show primVal,
+    Show (Core.Pattern ext primTy primVal)
   ) =>
   Core.Global IR.T ext primTy primVal ->
   Maybe (Core.Elim (OnlyExts.T ext') primTy primVal)
@@ -308,7 +351,11 @@ toLambda _ = Nothing
 toLambdaR ::
   forall ext' ext primTy primVal.
   ( EvalPatSubst ext' primTy primVal,
-    NoExtensions ext primTy primVal
+    NoExtensions ext primTy primVal,
+    Show primTy,
+    Show primVal,
+    Show (Core.RawGlobal ext primTy primVal),
+    Show (Core.Pattern ext primTy primVal)
   ) =>
   Core.RawGlobal ext primTy primVal ->
   Maybe (Core.Elim (OnlyExts.T ext') primTy primVal)
@@ -322,7 +369,10 @@ toLambdaR _ = Nothing
 -- translate the (possible) term into an elimination.
 lookupFun ::
   ( EvalPatSubst ext' primTy primVal,
-    NoExtensions ext primTy primVal
+    NoExtensions ext primTy primVal,
+    Show primTy,
+    Show primVal,
+    Show (Core.Pattern ext primTy primVal)
   ) =>
   Core.Globals IR.T ext primTy primVal ->
   LookupFun (OnlyExts.T ext') primTy primVal
@@ -332,7 +382,11 @@ lookupFun globals x =
 -- | Variant of `lookupFun` that works on `RawGlobals'`.
 rawLookupFun ::
   ( EvalPatSubst ext' primTy primVal,
-    NoExtensions ext primTy primVal
+    NoExtensions ext primTy primVal,
+    Show primTy,
+    Show primVal,
+    Show (Core.RawGlobal ext primTy primVal),
+    Show (Core.Pattern ext primTy primVal)
   ) =>
   Core.RawGlobals ext primTy primVal ->
   LookupFun (OnlyExts.T ext') primTy primVal
@@ -341,6 +395,9 @@ rawLookupFun globals x =
 
 -- | Variant of `lookupFun` that creates a extension free elimination.
 lookupFun' ::
+  ( Show primTy,
+    Show primVal
+  ) =>
   EvalPatSubst IR.T primTy primVal =>
   Core.Globals IR.T IR.T primTy primVal ->
   LookupFun IR.T primTy primVal
@@ -348,7 +405,10 @@ lookupFun' globals x = lookupFun @IR.T globals x >>| extForgetE
 
 -- | Variant of `lookupFun'` that works on `RawGlobals`.
 rawLookupFun' ::
-  EvalPatSubst IR.T primTy primVal =>
+  ( EvalPatSubst IR.T primTy primVal,
+    Show primTy,
+    Show primVal
+  ) =>
   Core.RawGlobals IR.T primTy primVal ->
   LookupFun IR.T primTy primVal
 rawLookupFun' globals x = rawLookupFun @IR.T globals x >>| extForgetE

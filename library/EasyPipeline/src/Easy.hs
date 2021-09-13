@@ -23,6 +23,9 @@ module Easy where
 import qualified Data.ByteString as BS
 import qualified Data.Field.Galois as Field
 import qualified Data.HashMap.Strict as HM
+import qualified Juvix.Backends.LLVM.Parameterization as LLVM.Param
+import qualified Juvix.Backends.LLVM.Pipeline as LLVM
+import qualified Juvix.Backends.LLVM.Primitive as LLVM.Prim
 import qualified Juvix.Backends.Michelson.Parameterisation as Michelson.Param
 import qualified Juvix.Backends.Michelson.Pipeline as Michelson
 import qualified Juvix.Backends.Plonk as Plonk
@@ -102,6 +105,19 @@ defMichelson =
         ],
       param = Michelson.Param.michelson,
       typeAgainst = Michelson.Param.Set
+    }
+
+-- @defLLVM@ gives us LLVM prelude
+defLLVM :: Options LLVM.Prim.PrimTy LLVM.Prim.RawPrimVal
+defLLVM =
+  def
+    { prelude =
+        -- TODO: Avoid relative paths
+        [ "../../stdlib/Prelude.ju",
+          "../../stdlib/LLVM.ju"
+        ],
+      param = LLVM.Param.llvm,
+      typeAgainst = LLVM.Prim.Set
     }
 
 -- @defCircuit@ gives us the circuit prelude
@@ -468,7 +484,7 @@ erase ::
 erase input options = do
   (patToSym, globalDefs) <- coreify input options
   feed <-
-    Feedback.runFeedbackT (Pipeline.toErased (param options) (typeAgainst options) (patToSym, globalDefs))
+    Feedback.runFeedbackT (Pipeline.toErased (param options) (patToSym, globalDefs))
   case feed of
     Feedback.Success msg erased -> do
       printCompactParens msg
@@ -489,7 +505,7 @@ eraseFile ::
 eraseFile fp options = do
   (patToSym, globalDefs) <- coreifyFile fp options
   feed <-
-    Feedback.runFeedbackT (Pipeline.toErased (param options) (typeAgainst options) (patToSym, globalDefs))
+    Feedback.runFeedbackT (Pipeline.toErased (param options) (patToSym, globalDefs))
   case feed of
     Feedback.Success msg erased -> do
       printCompactParens msg

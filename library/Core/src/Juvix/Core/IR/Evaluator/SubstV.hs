@@ -119,6 +119,42 @@ instance
     Core.VPair <$> substVWith w i e s
       <*> substVWith w i e t
       <*> substVWith w i e a
+  substVWith w i e (Core.VCatProduct s t a) =
+    Core.VCatProduct <$> substVWith w i e s
+      <*> substVWith (succ w) (succ i) e t
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatCoproduct s t a) =
+    Core.VCatCoproduct <$> substVWith w i e s
+      <*> substVWith (succ w) (succ i) e t
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatProductIntro s t a) =
+    Core.VCatProductIntro <$> substVWith w i e s
+      <*> substVWith w i e t
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatProductElimLeft t s a) =
+    Core.VCatProductElimLeft
+      <$> substVWith w i e t
+      <*> substVWith w i e s
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatProductElimRight t s a) =
+    Core.VCatProductElimRight
+      <$> substVWith w i e t
+      <*> substVWith w i e s
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatCoproductIntroLeft s a) =
+    Core.VCatCoproductIntroLeft <$> substVWith w i e s
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatCoproductIntroRight s a) =
+    Core.VCatCoproductIntroRight <$> substVWith w i e s
+      <*> substVWith w i e a
+  substVWith w i e (Core.VCatCoproductElim t1 t2 cp s t a) =
+    Core.VCatCoproductElim
+      <$> substVWith w i e cp
+      <*> substVWith w i e t1
+      <*> substVWith w i e t2
+      <*> substVWith w i e s
+      <*> substVWith w i e t
+      <*> substVWith w i e a
   substVWith w i e (Core.VUnitTy a) =
     Core.VUnitTy <$> substVWith w i e a
   substVWith w i e (Core.VUnit a) =
@@ -194,7 +230,7 @@ vapp s t ann =
     Core.VNeutral f _ -> pure $ Core.VNeutral (Core.NApp f s ann) mempty
     Core.VPrimTy p _ -> case t of
       Core.VPrimTy q _ ->
-        app' ApplyErrorT Core.VPrimTy (\_ -> Param.pureArg) p q
+        app' ApplyErrorT Core.VPrimTy (const Param.pureArg) p q
       Core.VNeutral (Core.NFree (Core.Global y) _) _ ->
         -- TODO pattern vars also
         app' ApplyErrorT Core.VPrimTy Param.freeArg p y
@@ -204,7 +240,7 @@ vapp s t ann =
         Left $ CannotApply s t NoApplyError
     Core.VPrim p _ -> case t of
       Core.VPrim q _ ->
-        app' ApplyErrorV Core.VPrim (\_ -> Param.pureArg) p q
+        app' ApplyErrorV Core.VPrim (const Param.pureArg) p q
       Core.VNeutral (Core.NFree (Core.Global y) _) _ ->
         -- TODO pattern vars also
         app' ApplyErrorV Core.VPrim Param.freeArg p y
@@ -228,7 +264,7 @@ vapp s t ann =
       case mkArg Proxy y of
         Nothing -> Left $ CannotApply s t NoApplyError
         Just y ->
-          Param.apply1 p y |> bimap (CannotApply s t . err) (\r -> con r mempty)
+          Param.apply1 p y |> bimap (CannotApply s t . err) (`con` mempty)
 
 -- | Generic substitution for @f@.
 class GHasWeak f => GHasSubstV extV primTy primVal f where
@@ -359,7 +395,7 @@ instance
   ) =>
   HasSubstValue ext primTy primVal (App.Take ty term)
   where
-  substValueWith b i e (App.Take {term}) = substValueWith b i e term
+  substValueWith b i e App.Take {term} = substValueWith b i e term
 
 instance
   ( HasSubstValue ext primTy primVal (App.ParamVar ext),
@@ -414,12 +450,12 @@ instance
     (Param.TypedPrim primTy primVal)
     (Param.TypedPrim primTy primVal)
   where
-  substValueWith b i e (App.Cont {fun, args}) = do
+  substValueWith b i e App.Cont {fun, args} = do
     let app f x = vapp f x ()
     let fun' = IR.VPrim (App.takeToReturn fun)
     args' <- traverse (substValueWith b i e . argToValue) args
     foldlM app fun' args'
-  substValueWith _ _ _ ret@(App.Return {}) =
+  substValueWith _ _ _ ret@App.Return {} =
     pure $ IR.VPrim ret
 
 -- | Transform an `App.Arg` into a `IR.Value`.
@@ -427,9 +463,9 @@ argToValue ::
   App.Arg (Param.PrimType primTy) primVal ->
   IR.Value primTy (Param.TypedPrim primTy primVal)
 argToValue = \case
-  App.TermArg (App.Return {retType, retTerm}) ->
+  App.TermArg App.Return {retType, retTerm} ->
     IR.VPrim $ App.Return {retType, retTerm}
-  App.TermArg (App.Cont {fun, args, numLeft}) ->
+  App.TermArg App.Cont {fun, args, numLeft} ->
     notImplemented
   App.BoundArg i -> Core.VBound i
   App.FreeArg x -> Core.VFree $ Core.Global x

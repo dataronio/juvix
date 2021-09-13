@@ -1,0 +1,27 @@
+mod PatternMatch where
+
+open Prelude
+open Circuit
+open Circuit.Field
+
+type sExpField = Atom field | SPair sExpField sExpField
+
+sig s1 : sExpField
+let s1 = SPair (Atom 1) (SPair (SPair (Atom 2) (Atom 3)) (Atom 4))
+
+sig ssize : sExpField -> field
+let ssize (Atom x) = 1
+let ssize (SPair x y) = ssize x + ssize y
+
+type pq : ty = | P field field | Q field field field
+
+sig three : field
+let three = 3
+
+sig patternMatch : pq -> field
+let patternMatch (P three y) = x + y
+let patternMatch (P x y) = x + y
+let patternMatch (Q x y z) = x + y + z
+
+sig main : field
+let main = let pm = patternMatch (P 3 4) in 1

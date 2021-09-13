@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -205,7 +204,7 @@ argToReturn _ = empty
 
 -- | Translate a 'Take' into a 'Return''.
 takeToReturn :: Take ty term -> Return' ext ty term
-takeToReturn (Take {type', term}) = Return {retType = type', retTerm = term}
+takeToReturn Take {type', term} = Return {retType = type', retTerm = term}
 
 data PPAnn' ty term
   = APunct
@@ -232,7 +231,7 @@ instance
   (PP.PrettySyntax ty, PP.PrettySyntax term) =>
   PP.PrettySyntax (Take ty term)
   where
-  pretty' (Take {usage, term, type'}) = prettyTyped usage term type'
+  pretty' Take {usage, term, type'} = prettyTyped usage term type'
 
 prettyTyped ::
   ( PP.PrecReader m,

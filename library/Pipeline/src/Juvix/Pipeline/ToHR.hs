@@ -10,7 +10,6 @@ module Juvix.Pipeline.ToHR
 where
 
 import qualified Data.HashMap.Strict as HM
-import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Context as Context
 import qualified Juvix.Context.Traversal as Context
 import qualified Juvix.Core.Base as Core

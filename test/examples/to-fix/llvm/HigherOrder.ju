@@ -1,0 +1,13 @@
+mod HigherOrder where
+
+open Prelude
+open LLVM
+
+sig higherorder : (int -> int) -> int
+let higherorder f = f 10
+
+sig g : int -> int
+let g _ = 20
+
+sig main : int
+let main = higherorder g

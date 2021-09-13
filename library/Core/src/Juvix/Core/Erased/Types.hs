@@ -13,10 +13,10 @@ import Juvix.Library
 data T
   deriving (Show, Read, Data)
 
-extendTerm "Term" [] [t|T|] (\_ -> defaultExtTerm)
+extendTerm "Term" [] [t|T|] (const defaultExtTerm)
 
 type TermT primTy primVal = Term (Typed.Prim primTy primVal)
 
-extendType "Type" [] [t|T|] (\_ -> defaultExtType)
+extendType "Type" [] [t|T|] (const defaultExtType)
 
 type TypeAssignment primTy = TypeAssignment' T primTy

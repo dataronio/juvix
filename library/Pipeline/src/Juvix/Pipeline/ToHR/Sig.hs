@@ -136,6 +136,14 @@ transformSpecialRhs _ (Sexp.List [name, prim])
       "Builtin" :| ["SAny"] -> pure $ Just SAnyS
       "Builtin" :| ["Colon"] -> pure $ Just ColonS
       "Builtin" :| ["Type"] -> pure $ Just TypeS
+      "Builtin" :| ["CatProduct"] -> pure $ Just $ CatProductS
+      "Builtin" :| ["CatCoproduct"] -> pure $ Just $ CatCoproductS
+      "Builtin" :| ["CatProductIntro"] -> pure $ Just $ CatProductIntroS
+      "Builtin" :| ["CatProductElimLeft"] -> pure $ Just $ CatProductElimLeftS
+      "Builtin" :| ["CatProductElimRight"] -> pure $ Just $ CatProductElimRightS
+      "Builtin" :| ["CatCoproductIntroLeft"] -> pure $ Just $ CatCoproductIntroLeftS
+      "Builtin" :| ["CatCoproductIntroRight"] -> pure $ Just $ CatCoproductIntroRightS
+      "Builtin" :| ["CatCoproductElim"] -> pure $ Just $ CatCoproductElimS
       "Builtin" :| (s : ss) -> throwFF $ UnknownBuiltin $ s :| ss
       _ -> pure Nothing
 transformSpecialRhs q prim
@@ -149,6 +157,14 @@ transformSpecialRhs q (Sexp.List [f, arg])
         case head of
           Just (ArrowS Nothing) -> Just . ArrowS . Just <$> transformUsage q arg
           Just (PairS Nothing) -> Just . PairS . Just <$> transformUsage q arg
+          Just CatProductS -> pure $ Just $ CatProductS
+          Just CatCoproductS -> pure $ Just $ CatCoproductS
+          Just CatProductIntroS -> pure $ Just $ CatProductIntroS
+          Just CatProductElimLeftS -> pure $ Just $ CatProductElimLeftS
+          Just CatProductElimRightS -> pure $ Just $ CatProductElimRightS
+          Just CatCoproductIntroLeftS -> pure $ Just $ CatCoproductIntroLeftS
+          Just CatCoproductIntroRightS -> pure $ Just $ CatCoproductIntroRightS
+          Just CatCoproductElimS -> pure $ Just $ CatCoproductElimS
           _ -> pure Nothing
 transformSpecialRhs _ _ = pure Nothing
 

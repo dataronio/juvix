@@ -5,6 +5,9 @@ import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 
 -- | Extend binders, i.e Lam, Pi, Sig, Let with a human readable name (NameSymbol)
+-- We only need to define extensions for binding forms, not all constructors --
+-- for example, constructors for algebraic types such as products and coproducts
+-- do not need extensions here.
 extTerm :: p1 -> p2 -> Core.ExtTerm
 extTerm _primTy _primVal =
   Core.defaultExtTerm

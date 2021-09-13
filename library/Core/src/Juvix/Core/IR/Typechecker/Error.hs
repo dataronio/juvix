@@ -37,6 +37,12 @@ data TypecheckError' extV extT primTy primVal
   | ShouldBePairType
       { typeActual :: ValueT extV primTy primVal
       }
+  | ShouldBeCatProductType
+      { typeActual :: ValueT extV primTy primVal
+      }
+  | ShouldBeCatCoproductType
+      { typeActual :: ValueT extV primTy primVal
+      }
   | ShouldBeUnitType
       { typeActual :: ValueT extV primTy primVal
       }
@@ -156,6 +162,8 @@ instance
     ShouldBeStar ty -> expected "a type" ty
     ShouldBeFunctionType ty -> expected "a function" ty
     ShouldBePairType ty -> expected "a pair" ty
+    ShouldBeCatProductType ty -> expected "a categorical product" ty
+    ShouldBeCatCoproductType ty -> expected "a categorical coproduct" ty
     ShouldBeUnitType ty -> expected "a unit" ty
     LeftoverUsage π ->
       -- TODO: leftover usage of what???

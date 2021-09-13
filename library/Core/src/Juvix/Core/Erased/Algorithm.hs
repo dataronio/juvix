@@ -5,6 +5,8 @@ module Juvix.Core.Erased.Algorithm
   )
 where
 
+------------------------------------------------------------------------------
+
 import Data.List (genericIndex)
 import qualified Juvix.Core.Base.Types as Core
 import Juvix.Core.Erased.Algorithm.Types as Erasure
@@ -14,15 +16,22 @@ import Juvix.Library hiding (empty)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 
+------------------------------------------------------------------------------
+
 type ErasureM primTy1 primTy2 primVal1 primVal2 m =
   ( HasState "nextName" Int m,
     HasState "nameStack" [NameSymbol.T] m,
     HasThrow "erasureError" (Erasure.Error primTy1 primVal1) m,
     HasReader "mapPrimTy" (Erasure.MapPrim primTy1 primTy2 primTy1 primVal1) m,
-    HasReader "mapPrimVal" (Erasure.MapPrim primVal1 primVal2 primTy1 primVal1) m
+    HasReader "mapPrimVal" (Erasure.MapPrim primVal1 primVal2 primTy1 primVal1) m,
+    Show primTy1,
+    Show primTy2,
+    Show primVal1,
+    Show primVal2
   )
 
 erase ::
+  (Show primTy1, Show primTy2, Show primVal1, Show primVal2) =>
   Erasure.MapPrim primTy1 primTy2 primTy1 primVal1 ->
   Erasure.MapPrim primVal1 primVal2 primTy1 primVal1 ->
   Typed.Term' primTy1 primVal1 ->
@@ -153,20 +162,47 @@ eraseTerm t@(Typed.Star _ _) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm t@(Typed.PrimTy _ _) = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Prim p ann) = do
   Erasure.Prim <$> erasePrimVal p <*> eraseType (Typed.annType ann)
-eraseTerm t@(Typed.Pi _ _ _ _) = throwEra $ Erasure.UnsupportedTermT t
+eraseTerm t@Typed.Pi {} = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Lam t anns) = do
   let ty@(IR.VPi π _ _) = Typed.annType $ Typed.baResAnn anns
   (x, t) <- withName \x -> (x,) <$> eraseTerm t
   if π == mempty
     then pure t
     else Erasure.Lam x t <$> eraseType ty
-eraseTerm t@(Typed.Sig {}) = throwEra $ Erasure.UnsupportedTermT t
+eraseTerm t@Typed.Sig {} = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Pair s t ann) = do
   let ty@(IR.VSig π _ _) = Typed.annType ann
   if π == mempty
     then eraseTerm t
     else Erasure.Pair <$> eraseTerm s <*> eraseTerm t <*> eraseType ty
-eraseTerm t@(Typed.UnitTy {}) = throwEra $ Erasure.UnsupportedTermT t
+eraseTerm t@Typed.CatProduct {} = throwEra $ Erasure.UnsupportedTermT t
+eraseTerm t@Typed.CatCoproduct {} = throwEra $ Erasure.UnsupportedTermT t
+eraseTerm (Typed.CatProductIntro s t ann) =
+  Erasure.CatProductIntro <$> eraseTerm s <*> eraseTerm t <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatProductElimLeft a s ann) = do
+  case s of
+    Typed.CatProductIntro s' _ _ -> eraseTerm s'
+    _ -> Erasure.CatProductElimLeft <$> eraseTerm a <*> eraseTerm s <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatProductElimRight a s ann) =
+  case s of
+    Typed.CatProductIntro _ t' _ -> eraseTerm t'
+    _ -> Erasure.CatProductElimRight <$> eraseTerm a <*> eraseTerm s <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatCoproductIntroLeft s ann) =
+  Erasure.CatCoproductIntroLeft <$> eraseTerm s <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatCoproductIntroRight s ann) =
+  Erasure.CatCoproductIntroRight <$> eraseTerm s <*> eraseType (Typed.annType ann)
+eraseTerm (Typed.CatCoproductElim a b cp s t ann) =
+  case cp of
+    Typed.CatCoproductIntroLeft s' _ ->
+      Erasure.App <$> eraseTerm s <*> eraseTerm s' <*> eraseType (Typed.annType ann)
+    Typed.CatCoproductIntroRight s' _ ->
+      Erasure.App <$> eraseTerm t <*> eraseTerm s' <*> eraseType (Typed.annType ann)
+    _ ->
+      Erasure.CatCoproductElim <$> eraseTerm a <*> eraseTerm b <*> eraseTerm cp
+        <*> eraseTerm s
+        <*> eraseTerm t
+        <*> eraseType (Typed.annType ann)
+eraseTerm t@Typed.UnitTy {} = throwEra $ Erasure.UnsupportedTermT t
 eraseTerm (Typed.Unit ann) = Erasure.Unit <$> eraseType (Typed.annType ann)
 eraseTerm (Typed.Let π b t anns) = do
   (x, t) <- withName \x -> (x,) <$> eraseTerm t
@@ -191,7 +227,7 @@ eraseElim (Typed.Bound x ann) = do
 eraseElim (Typed.Free (Core.Global x) ann) = do
   Erasure.Var x <$> eraseType (Typed.annType ann)
 eraseElim e@(Typed.Free (Core.Pattern _) _) = do
-  -- FIXME ??????
+  -- TODO: Review this! "FIXME ??????"
   throwEra $ Erasure.UnsupportedTermE e
 eraseElim (Typed.App e s ann) = do
   let IR.VPi π _ _ = Typed.annType $ Typed.getElimAnn e
@@ -229,6 +265,14 @@ eraseType (IR.VSig π a b) = do
         <*> withName \_ -> eraseType b
 eraseType v@(IR.VPair _ _) = do
   throwEra $ Erasure.UnsupportedTypeV v
+eraseType (IR.VCatProduct a b) = Erasure.CatProduct <$> eraseType a <*> eraseType b
+eraseType (IR.VCatCoproduct a b) = Erasure.CatCoproduct <$> eraseType a <*> eraseType b
+eraseType v@IR.VCatProductIntro {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatProductElimLeft {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatProductElimRight {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatCoproductIntroLeft {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatCoproductIntroRight {} = throwEra $ Erasure.UnsupportedTypeV v
+eraseType v@IR.VCatCoproductElim {} = throwEra $ Erasure.UnsupportedTypeV v
 eraseType IR.VUnitTy = do
   pure Erasure.UnitTy
 eraseType IR.VUnit = do
@@ -260,7 +304,7 @@ pushName = do
   x <- gets @"nextName" $ NameSymbol.fromText . show
   modify @"nextName" succ
   modify @"nameStack" (x :)
-  pure $ x
+  pure x
 
 popName ::
   ( HasState "nameStack" [a] m,

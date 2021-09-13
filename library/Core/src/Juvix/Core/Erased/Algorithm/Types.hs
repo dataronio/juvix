@@ -14,6 +14,8 @@ import Juvix.Core.Base.Types (GlobalName, GlobalUsage, PatternVar)
 import qualified Juvix.Core.Erased.Base.Types as Erased
 import Juvix.Core.Erased.Types as Type
   ( Type,
+    pattern CatCoproduct,
+    pattern CatProduct,
     pattern Pi,
     pattern PrimTy,
     pattern Sig,
@@ -160,6 +162,12 @@ do
           Erased.typePrim = typed,
           Erased.typeLam = typed,
           Erased.typePair = typed,
+          Erased.typeCatProductIntro = typed,
+          Erased.typeCatProductElimLeft = typed,
+          Erased.typeCatProductElimRight = typed,
+          Erased.typeCatCoproductIntroLeft = typed,
+          Erased.typeCatCoproductIntroRight = typed,
+          Erased.typeCatCoproductElim = typed,
           Erased.typeUnit = typed,
           Erased.typeLet = typedTuple,
           Erased.typeApp = typed
@@ -254,6 +262,12 @@ getType (Var _ ty) = ty
 getType (Prim _ ty) = ty
 getType (Lam _ _ ty) = ty
 getType (Pair _ _ ty) = ty
+getType (CatProductIntro _ _ ty) = ty
+getType (CatProductElimLeft _ _ ty) = ty
+getType (CatProductElimRight _ _ ty) = ty
+getType (CatCoproductIntroLeft _ ty) = ty
+getType (CatCoproductIntroRight _ ty) = ty
+getType (CatCoproductElim _ _ _ _ _ ty) = ty
 getType (Unit ty) = ty
 getType (Let _ _ _ (_, ty)) = ty
 getType (App _ _ ty) = ty
@@ -263,6 +277,12 @@ eraseAnn (Var sym _) = Erased.Var sym
 eraseAnn (Prim p _) = Erased.Prim p
 eraseAnn (Lam s b _) = Erased.Lam s (eraseAnn b)
 eraseAnn (Pair a b _) = Erased.Pair (eraseAnn a) (eraseAnn b)
+eraseAnn (CatProductIntro a b _) = Erased.CatProductIntro (eraseAnn a) (eraseAnn b)
+eraseAnn (CatProductElimLeft t a _) = Erased.CatProductElimLeft (eraseAnn t) (eraseAnn a)
+eraseAnn (CatProductElimRight t a _) = Erased.CatProductElimRight (eraseAnn t) (eraseAnn a)
+eraseAnn (CatCoproductIntroLeft a _) = Erased.CatCoproductIntroLeft (eraseAnn a)
+eraseAnn (CatCoproductIntroRight a _) = Erased.CatCoproductIntroRight (eraseAnn a)
+eraseAnn (CatCoproductElim t1 t2 cp a b _) = Erased.CatCoproductElim (eraseAnn t1) (eraseAnn t2) (eraseAnn cp) (eraseAnn a) (eraseAnn b)
 eraseAnn (Unit _) = Erased.Unit
 eraseAnn (Let s a b _) = Erased.Let s (eraseAnn a) (eraseAnn b)
 eraseAnn (App a b _) = Erased.App (eraseAnn a) (eraseAnn b)

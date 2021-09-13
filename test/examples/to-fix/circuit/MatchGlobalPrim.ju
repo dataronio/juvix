@@ -1,0 +1,20 @@
+mod MatchGlobalPrim where
+
+open Prelude
+open Circuit
+open Circuit.Field
+
+type functionTypeInConstructor :
+  ty = FTIC_Left field | FTIC_Right field -> field
+
+sig fticTestFunc : field -> field
+let fticTestFunc x = x
+
+sig fticTestTerm : functionTypeInConstructor
+let fticTestTerm = FTIC_Right fticTestFunc
+
+sig x : field
+let x = 1
+
+sig main : field
+let main = let ftict = fticTestTerm in 0

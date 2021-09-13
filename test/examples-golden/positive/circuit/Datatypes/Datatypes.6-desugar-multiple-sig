@@ -5,11 +5,14 @@
 ,
     ( "open" "Circuit.Field" )
 ,
-    ( ":defsig-match" "x" "field" ( () 3 ) )
-,
     ( "type" "verySimpleType" () ( "One" "field" ) )
 ,
     ( ":defsig-match" "verySimpleTerm" "verySimpleType" ( () ( "One" 0 ) ) )
+,
+    ( "type"
+        ( "bar" ":type" "ty" ) ()
+        ( "P" "field" "field" )
+        ( "Q" "field" "field" "field" ) )
 ,
     ( ":defsig-match" "patternMatch"
         ( ":infix" "->" "bar" "field" )
@@ -22,11 +25,6 @@
                 ( ":infix" "+" 2
                     ( ":infix" "^" "y"
                         ( ":infix" "+" 2 ( ":infix" "^" "z" 2 ) ) ) ) ) ) )
-,
-    ( "type"
-        ( "bar" ":type" "ty" ) ()
-        ( "P" "field" "field" )
-        ( "Q" "field" "field" "field" ) )
 ,
     ( "type"
         ( "functionTypeInConstructor" ":type" "ty" ) ()
