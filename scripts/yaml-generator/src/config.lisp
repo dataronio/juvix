@@ -418,7 +418,7 @@ common ones to include"
                    *sexp*)
    ;; hack name, for sub dirs
    :name "EasyPipeline"
-   :extra-deps (big-dep-list)
+   :extra-deps (append (big-dep-list) (list *llvm-hs-deps*))
    :extra "allow-newer: true"))
 
 (defparameter *http*
