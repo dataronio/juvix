@@ -28,6 +28,7 @@ transformSig ::
     HasThrowFF HR.T primTy primVal m,
     HasParam primTy primVal m,
     HasCoreSigs HR.T primTy primVal m,
+    HasClosure m,
     Show primTy,
     Show primVal
   ) =>
@@ -50,7 +51,13 @@ extractDataConstructorSigs (typeCons Sexp.:> _ Sexp.:> dataCons)
 extractDataConstructorSigs _t = []
 
 transformNormalSig ::
-  (ReduceEff HR.T primTy primVal m, HasPatVars m, HasParam primTy primVal m, Show primTy, Show primVal) =>
+  ( ReduceEff HR.T primTy primVal m,
+    HasPatVars m,
+    HasParam primTy primVal m,
+    HasClosure m,
+    Show primTy,
+    Show primVal
+  ) =>
   NameSymbol.Mod ->
   NameSymbol.T ->
   Ctx.Definition Sexp.T Sexp.T Sexp.T ->
@@ -85,6 +92,7 @@ transformValSig ::
   ( HasThrowFF HR.T primTy primVal m,
     HasParam primTy primVal m,
     HasCoreSigs HR.T primTy primVal m,
+    HasClosure m,
     Show primTy,
     Show primVal
   ) =>
@@ -105,7 +113,8 @@ transformSpecial ::
   ( Show primTy,
     Show primVal,
     HasThrowFF ext primTy primVal m,
-    HasCoreSigs ext primTy primVal m
+    HasCoreSigs ext primTy primVal m,
+    HasClosure m
   ) =>
   NameSymbol.Mod ->
   Ctx.Definition Sexp.T Sexp.T Sexp.T ->
@@ -122,7 +131,8 @@ transformSpecialRhs ::
   ( Show primTy,
     Show primVal,
     HasThrowFF ext primTy primVal m,
-    HasCoreSigs ext primTy primVal m
+    HasCoreSigs ext primTy primVal m,
+    HasClosure m
   ) =>
   NameSymbol.Mod ->
   Sexp.T ->
@@ -147,7 +157,8 @@ transformSpecialRhs _ (Sexp.List [name, prim])
       "Builtin" :| (s : ss) -> throwFF $ UnknownBuiltin $ s :| ss
       _ -> pure Nothing
 transformSpecialRhs q prim
-  | Just a@Sexp.A {} <- Sexp.atomFromT prim = getSpecialSig q (Sexp.Atom a)
+  | Just a@Sexp.A {} <- Sexp.atomFromT prim =
+    getSpecialSig q (Sexp.Atom a)
 transformSpecialRhs q (Sexp.List [f, arg])
   | Just Sexp.A {atomName} <- Sexp.atomFromT f =
     case show atomName of

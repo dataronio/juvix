@@ -16,6 +16,7 @@ transformTypeSig ::
   ( ReduceEff HR.T primTy primVal m,
     HasPatVars m,
     HasParam primTy primVal m,
+    HasClosure m,
     Show primTy,
     Show primVal
   ) =>
@@ -39,7 +40,13 @@ transformTypeSig q _name (_name2 Sexp.:> typeCon Sexp.:> args Sexp.:> typeForm)
 transformTypeSig _ _ _ = error "malformed type"
 
 transformConSigs ::
-  (ReduceEff HR.T primTy primVal m, HasPatVars m, HasParam primTy primVal m, Show primTy, Show primVal) =>
+  ( HasClosure m,
+    ReduceEff HR.T primTy primVal m,
+    HasPatVars m,
+    HasParam primTy primVal m,
+    Show primTy,
+    Show primVal
+  ) =>
   -- | namespace containing declaration
   NameSymbol.Mod ->
   -- | datatype head
@@ -80,6 +87,7 @@ transformProduct ::
     HasThrowFF HR.T primTy primVal m,
     HasParam primTy primVal m,
     HasCoreSigs HR.T primTy primVal m,
+    HasClosure m,
     Show primTy,
     Show primVal
   ) =>
@@ -97,7 +105,7 @@ transformProduct q hd typeCon (x, prod) =
     makeSig ty = CoreSig (Core.ConSig {sigConType = Just ty})
 
 transformConSig ::
-  (ReduceEff HR.T primTy primVal m, HasPatVars m, Show primTy, Show primVal) =>
+  (ReduceEff HR.T primTy primVal m, HasPatVars m, Show primTy, Show primVal, HasClosure m) =>
   NameSymbol.Mod ->
   NameSymbol.T ->
   -- | datatype head

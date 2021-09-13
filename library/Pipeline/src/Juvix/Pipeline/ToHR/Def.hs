@@ -8,6 +8,7 @@ where
 
 import Data.HashMap.Strict (HashMap)
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Ctx
 import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.Base.Types as Core
@@ -30,6 +31,7 @@ import Prelude (error)
 
 transformDef ::
   ( ReduceEff HR.T primTy primVal m,
+    HasClosure m,
     HasNextPatVar m,
     HasPatVars m,
     Show primTy,
@@ -97,13 +99,18 @@ transformDef x def = do
       | Just args <- Sexp.toList args' = do
         put @"patVars" mempty
         put @"nextPatVar" 0
+        -- capture old closure env, to restore
+        oldClosure <- get @"closure"
         pattsHR <- traverse transformArg args
         clauseBody <- transformTermHR q body
+        -- restore closure after we transform the body, having the
+        -- locals go out of scope
+        put @"closure" oldClosure
         pure $ Core.RawFunClause [] pattsHR clauseBody False
     transformClause _ _ = error "malformed tansformClause"
 
 transformArg ::
-  (HasThrowFF HR.T primTy primVal m, HasParam primTy primVal m) =>
+  (HasThrowFF HR.T primTy primVal m, HasParam primTy primVal m, HasClosure m) =>
   Sexp.T ->
   m (HR.Pattern primTy primVal)
 transformArg p@(name Sexp.:> _rest)
@@ -112,7 +119,7 @@ transformArg p@(name Sexp.:> _rest)
 transformArg pat = transformPat pat
 
 transformPat ::
-  (HasThrowFF HR.T primTy primVal m, HasParam primTy primVal m) =>
+  (HasThrowFF HR.T primTy primVal m, HasParam primTy primVal m, HasClosure m) =>
   Sexp.T ->
   m (HR.Pattern primTy primVal)
 transformPat p@(asCon Sexp.:> con)
@@ -121,10 +128,12 @@ transformPat p@(asCon Sexp.:> con)
   | Sexp.isAtomNamed asCon ":as" =
     throwFF $ PatternUnimplemented p
   | Just args <- Sexp.toList con,
-    Just Sexp.A {atomName} <- Sexp.atomFromT asCon =
+    Just Sexp.A {atomName} <- Sexp.atomFromT asCon = do
+    modify @"closure" (Closure.insertGeneric (NameSymbol.toSymbol atomName))
     HR.PCon atomName <$> traverse transformPat args
 transformPat n
   | Just x <- Sexp.nameFromT n = do
+    modify @"closure" (Closure.insertGeneric (NameSymbol.toSymbol x))
     pure $ HR.PVar x
   | Just n@Sexp.N {} <- Sexp.atomFromT n =
     HR.PPrim <$> getParamConstant n

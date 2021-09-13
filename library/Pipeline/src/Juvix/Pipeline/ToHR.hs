@@ -10,6 +10,7 @@ module Juvix.Pipeline.ToHR
 where
 
 import qualified Data.HashMap.Strict as HM
+import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Context
 import qualified Juvix.Context.Traversal as Context
 import qualified Juvix.Core.Base as Core
@@ -88,6 +89,7 @@ contextToHR ctx param =
 addSig ::
   ( Show primTy,
     Show primVal,
+    HasState "closure" Closure.T m,
     HasThrow "fromFrontendError" (Types.Error HR.T primTy primVal) m,
     HasReader "param" (P.Parameterisation primTy primVal) m,
     HasState "coreSigs" (Types.CoreSigs HR.T primTy primVal) m,
@@ -102,6 +104,7 @@ addSig (Context.Entry x feDef) = do
 addDef ::
   ( Show primTy,
     Show primVal,
+    HasState "closure" Closure.T m,
     HasThrow "fromFrontendError" (Types.Error HR.T primTy primVal) m,
     HasReader "param" (P.Parameterisation primTy primVal) m,
     HasState "coreDefs" (Types.CoreDefs HR.T primTy primVal) m,

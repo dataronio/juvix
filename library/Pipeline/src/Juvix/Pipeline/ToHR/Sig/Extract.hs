@@ -1,6 +1,7 @@
 module Juvix.Pipeline.ToHR.Sig.Extract where
 
 import Data.HashMap.Strict (HashMap)
+import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Ctx
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.HR as HR
@@ -83,7 +84,8 @@ getSpecialSig ::
   ( Show primTy,
     Show primVal,
     HasCoreSigs ext primTy primVal m,
-    HasThrowFF ext primTy primVal m
+    HasThrowFF ext primTy primVal m,
+    HasClosure m
   ) =>
   NameSymbol.Mod ->
   Sexp.T ->
@@ -96,7 +98,13 @@ getSpecialSig q x
       case sig of
         Just (SpecialSig s) -> pure $ Just s
         Just _ -> pure Nothing
-        Nothing -> throwFF $ WrongSigType x Nothing
+        Nothing -> do
+          closure <- get @"closure"
+          case Closure.lookup (NameSymbol.toSymbol x) closure of
+            Nothing ->
+              throwFF $ WrongSigType x Nothing
+            Just {} ->
+              pure Nothing
 getSpecialSig _ _ = pure Nothing
 
 -- | Lookup signature from a qualified symbol.

@@ -14,7 +14,8 @@ transformUsage ::
   ( Show primTy,
     Show primVal,
     HasThrowFF ext primTy primVal m,
-    HasCoreSigs ext primTy primVal m
+    HasCoreSigs ext primTy primVal m,
+    HasClosure m
   ) =>
   NameSymbol.Mod ->
   Sexp.T ->
@@ -28,7 +29,8 @@ transformGUsage ::
   ( Show primTy,
     Show primVal,
     HasThrowFF ext primTy primVal m,
-    HasCoreSigs ext primTy primVal m
+    HasCoreSigs ext primTy primVal m,
+    HasClosure m
   ) =>
   NameSymbol.Mod ->
   Maybe Sexp.T ->
@@ -43,7 +45,8 @@ isSAny ::
   ( Show primTy,
     Show primVal,
     HasCoreSigs ext primTy primVal m,
-    HasThrowFF ext primTy primVal m
+    HasThrowFF ext primTy primVal m,
+    HasClosure m
   ) =>
   NameSymbol.Mod ->
   Sexp.T ->
