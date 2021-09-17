@@ -1,143 +1,198 @@
-# Juvix
-<img src="Juvix_logo.png" width="250" height="250">
-
-![GitHub](https://img.shields.io/github/license/anoma/juvix)
+Juvix ![GitHub](https://img.shields.io/github/license/anoma/juvix)
 [![Build Status](https://ci.heliax.dev/api/badges/anoma/juvix/status.svg)](https://ci.heliax.dev/anoma/juvix)
 ![GitHub issues](https://img.shields.io/github/issues/anoma/juvix)
+[![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#experimental)
+![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/anoma/juvix?include_prereleases)
+====
 
-## Overview
+Description
+-----------
 
-[Juvix](https://juvix.org/) synthesizes a high-level frontend syntax, dependent-linearly-typed core language, whole-program optimisation system,
-and backend-swappable execution model into a single unified stack for writing formally verifiable, efficiently executable
-smart contracts which can be deployed to a variety of distributed ledgers.
+<img align="right" width="300" height="300" src="Juvix_logo.png">
 
-Juvix is designed to address the problems that we have experienced while trying to write & deploy decentralised applications and that we observe in the ecosystem at large:
-the difficulty of effective verification, the ceiling of compositional complexity, the illegibility of execution costs, and the lock-in to particular backends.
-In order to do so, Juvix draws upon and aims to productionise a deep reservoir of prior academic research in programming language design & type theory which we believe has a high degree of applicability to these problems.
+Juvix is a dependently functional programming language for writing
+efficient formally-verified smart contracts, which can be
+deployed to various distributed ledgers. Juvix addresses many issues that we have
+experienced while trying to write and deploy decentralised
+applications present in the ecosystem of smart-contracts: 
+- the difficulty of
+adequate program verification, 
+- the ceiling of compositional
+complexity, 
+- the illegibility of execution costs, and
+- the lock-in to
+particular backends.
 
-Juvix's compiler architecture is purpose-built from the ground up for the particular requirements and economic trade-offs
-of the smart contract use case — it prioritises behavioural verifiability, semantic precision, and output code efficiency over compilation speed,
-syntactical familiarity, and backwards compatibility with existing blockchain virtual machines.
+The Juvix compiler synthesises a high-level frontend syntax with
+support for dependent-linearly types and several other cutting-edge
+research ideas from programming language design and type theory. For
+more details, see [the Juvix language
+reference WIP](./doc/reference/language-reference.pdf).
 
-For more design details, see [the language
-reference](./doc/reference/language-reference.pdf).
+Prerequisites
+--------------
 
-<!--## Screenshots TODO -->
-<!-- Include logo/demo screenshot with labels.
-- vscode screenshot
-- eg contracts -->
-
-## Caveats
-
-This is pre-alpha software released for experimentation & research purposes only.
-
-Do not expect API stability. Expect bugs. Expect divergence from canonical protocol implementations.
-
-Formal verification of various properties of the Juvix language & compiler in Agda is [in progress](experimental/qtt-agda) but not yet complete.
-
-No warranty is provided or implied.
-
-## Installation
-
-<!-- ### Requirements
-
-The following are required to build Juvix:
-
-- [libff](https://github.com/scipr-lab/libff)
-- [libsecp256k1](https://github.com/bitcoin-core/secp256k1)
-- [Openssl Libssl API](https://wiki.openssl.org/index.php/Libssl_API) -->
-
-
-[Stack](https://haskellstack.org) required. 8GB RAM required for `stack` installation.
+* Install [Stack](https://haskellstack.org):
 
   - For Ubuntu        : `apt install stack`
   - For Debian        : `apt install haskell-stack`
   - For Arch Linux    : `pacman -S stack`
   - For macOS : `brew install haskell-stack`
-  - For Windows, following the instructions [here](https://docs.haskellstack.org/en/stable/install_and_upgrade/#windows).
-<!-- - **libsecp256k1**
-  - For Ubuntu/Debian : `apt install libsecp256k1-dev`
-  - For Arch Linux : `pacman -S libsecp256k1`
-  - For macOS : `brew tap cuber/homebrew-libsecp256k1 && brew install libsecp256k1`
-- **Openssl Libssl API**
-  - For Ubuntu/Debian : `apt install libssl-dev`
-  - For Arch Linux : `pacman -S openssl`
-  - For macOS : `brew install openssl` -->
+  - For Windows, following the instructions
+  [here](https://docs.haskellstack.org/en/stable/install_and_upgrade/#windows).
+  
+  It is required at least 8GB RAM for `stack` installation.
 
-### Building
+* You might need to install the following third-party libraries.
 
-After cloning Juvix into a local directory, go into the local Juvix directory, and build and install the binary to the local path with:
+  - [libff](https://github.com/scipr-lab/libff),
+  - [libsecp256k1](https://github.com/bitcoin-core/secp256k1), and
+  - [openssl libssl](https://wiki.openssl.org/index.php/Libssl_API).
 
-```bash
-make
-```
-Expect the installation to take some time.
-For Windows users: to be able to use the command *make*, please visit [this link](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows).
 
-### Building with optimisations
+Installation
+------------
 
-For full optimisations (but slower compile times):
+1. To install Juvix, you can download its sources using
+   [Git](http://git-scm.com/) from the [Github
+   repository](https://github.com/anoma/juvix.git). Then, the program
+   can be downloaded and installed with the following commands:
 
-```bash
-make build-prod
-```
+   ````bash
+   $ git clone https://github.com/anoma/juvix.git
+   $ cd juvix
+   $ stack install
+   ````
+   
+   If the installation succeeds, you must be able to run the juvix command
+   from any location. To get the complete list of commands, please run `juvix --help`.
+   
+   ```
+   $  juvix version
+   Juvix version 0.1.1.19-a2111a3
+   Branch: develop
+   Commit: a2111a389be0e17291f2903d1ec7d7b94bd60cf8
+   Date: Mon Sep 13 13:26:18 2021 -0500
+   ```
 
-## Usage
+2. For a more experienced user, after cloning Juvix into a local
+   directory, to build and install the binary to the local path, you
+   can run the following make commands: `make` or for full optimisations
+   (but slower compile times): `make build-prod`.
+
+   For Windows users, to use the command *make*, please visit [this
+   link](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows).
+   
+
+Examples
+--------
 
 ### Writing and compiling your first `.ju` contract
 
-See the tutorials and documentations on the [Juvix website](https://juvix.org/).
+To write Juvix programs, you can use any text editor. However, we
+recommend to use VSCode with the [Juvix syntax highlighting
+package](https://marketplace.visualstudio.com/items?itemName=metastate.language-juvix).
+In the following example, we will code a smart contract using the backend for
+[Michelson](https://www.michelson.org/), the language of [Tezos](https://tezos.com/).
 
-### Visual Studio Code support
+1. Located at the Juvix folder, e.g.,
 
-Install the [Juvix package](https://marketplace.visualstudio.com/items?itemName=metastate.language-juvix)
-to get syntax highlighting support for Juvix in VSCode.
+```bash
+$ pwd
+/tmp/juvix
+```
 
-Other IDE supports will be added over time.
+2. create the file `identity.ju`. The file content should be as follows.
 
-## Report a bug
+```haskell
+mod identity where
 
-If you found a bug please open an issue and detail the bug. We will fix it as soon as we can.
+open Prelude
+open Prelude.Michelson
 
-## Contributing
+sig cons-pair : list operation -> int -> pair (list operation) int
+let cons-pair = %Michelson.pair
+
+sig nil : list operation
+let nil = %Michelson.nil
+
+sig car : pair int int -> int
+let car = %Michelson.car
+
+sig main : pair int int -> pair (list operation) int
+let main = \params ->
+  cons-pair nil (car params)
+```
+
+3. Then, you can run the following commands using the Michelson backend.
+
+- To simply type-check your code:
+
+  ```bash
+  $ juvix typecheck identity.ju -b michelson
+  ```
+
+- To compile your code to a Michelson `.tz` file, please run the following command:
+
+  ```bash
+  $ juvix compile identity.ju identity.tz -b michelson
+  ()
+  ```
+  
+  As a result, you obtain a contract that can be deployed using
+  standard procedures outlined [in the Tezos documentation](https://tezos.gitlab.io/alpha/cli-commands.html?highlight=originate).
+  Direct integration with the Juvix toolchain is still work in progress.
+  
+  ```c++
+  $ cat identity.tz
+  parameter int;
+  storage int;
+  code { { DIG 0;
+         DUP;
+         DUG 1;
+         CAR;
+         NIL operation;
+         PAIR;
+         DIP { DROP } } };
+  ```
+
+More examples of Juvix programs can be found in [`examples`](./examples) and [`test`](./test) folders.
+
+
+Testing
+-------
+
+We have plenty of examples in the folder `test`. To test Juvix against
+these examples, please run the command:
+
+```bash
+$ make test
+```
+
+To open a REPL , you can run one the following commands:
+
+```bash
+$ make repl-lib    # REPL with the library scoped
+$ make repl-exe    # REPL with the executable scoped
+```
+    
+Known limitations
+-----------------
+
+This is a software released for experimentation and research purposes
+only. Do not expect API stability. Expect divergence from canonical
+protocol implementations. No warranty is provided or implied.
+
+Contributing
+------------
 
 We welcome contributions to the development of Juvix. See
 [CONTRIBUTING.md](./doc/CONTRIBUTING.md) for contribution guidelines.
 
-### Installation requirements
-
-#### Formatter
-
-[Ormolu](https://github.com/tweag/ormolu) required for source formatting. Run
-`stack install ormolu` to get the latest version (0.0.3.1).
-
-#### Documentation Generator
-
-[Roswell](https://github.com/roswell/roswell) is required for automatic generation of documentation in [doc/Code](https://github.com/metastatedev/juvix/tree/develop/doc/Code).
-
-Once Roswell is installed one only needs to add `~/.roswell/bin` to their bash path along with running `ros install heliaxdev/org-generation`.
-
-Then run `scripts/precommit.sh`.
-
-#### REPL
-
-To open a REPL with the library scoped:
-
-```bash
-make repl-lib
-```
-
-To open a REPL with the executable scoped:
-
-```bash
-make repl-exe
-```
-
-## Be part of the community
+Community
+---------
 
 We would love to hear what you think of Juvix! Join our community:
 
 - Follow us on [Twitter](https://twitter.com/juvixlang)
 - Subscribe to our [newsletter](https://juvix.org/)
-
-<!-- TODO add links to discord, reddit, etc. -->

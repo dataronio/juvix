@@ -2,11 +2,26 @@
 
 Contributions are welcome! Please follow the [style guide](https://github.com/cryptiumlabs/juvix/blob/develop/doc/STYLEGUIDE.md) and the below guidelines.
 
+### Installation requirements
+
 ## Code formatting
 
-The formatter should run each time you commit. See "Pre-commit hooks" section
-below.
-See also the [style guide](https://github.com/cryptiumlabs/juvix/blob/develop/doc/STYLEGUIDE.md).
+The formatter should run each time you commit. See "Pre-commit hooks"
+section below. See also the [style
+guide](https://github.com/cryptiumlabs/juvix/blob/develop/doc/STYLEGUIDE.md).
+
+[Ormolu](https://github.com/tweag/ormolu) required for source formatting. Run
+`stack install ormolu` to get the latest version (0.0.3.1).
+
+#### Documentation Generator
+
+[Roswell](https://github.com/roswell/roswell) is required for automatic generation of documentation in [doc/Code](https://github.com/metastatedev/juvix/tree/develop/doc/Code).
+
+Once Roswell is installed one only needs to add `~/.roswell/bin` to their bash path along with running `ros install heliaxdev/org-generation`.
+
+Then run `scripts/precommit.sh`.
+
+
 
 ## Documentation
 
