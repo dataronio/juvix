@@ -33,6 +33,7 @@ module Juvix.Sexp.Structure.CoreNamed where
 import Juvix.Library hiding (Field, Meta, fromInteger, toInteger)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
+import Juvix.Sexp.Structure
 import Juvix.Sexp.Structure.Helpers
 
 newtype Star = Star {starUniverse :: Integer} deriving (Show)
@@ -512,3 +513,43 @@ toLookup form
 fromLookup :: Lookup -> Sexp.T
 fromLookup (Lookup sexp1 symbol2) =
   Sexp.listStar [Sexp.atom nameLookup, sexp1, fromSymbol `toStarList` symbol2]
+
+----------------------------------------
+-- Typeclass Instances
+----------------------------------------
+
+instance Structure Pi where
+  to = toPi
+  from = fromPi
+
+instance Structure Binder where
+  to = toBinder
+  from = fromBinder
+
+instance Structure Lam where
+  to = toLam
+  from = fromLam
+
+instance Structure Sigma where
+  to = toSigma
+  from = fromSigma
+
+instance Structure Pair where
+  to = toPair
+  from = fromPair
+
+instance Structure Let where
+  to = toLet
+  from = fromLet
+
+instance Structure App where
+  to = toApp
+  from = fromApp
+
+instance Structure Ann where
+  to = toAnn
+  from = fromAnn
+
+instance Structure Meta where
+  to = toMeta
+  from = fromMeta

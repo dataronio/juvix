@@ -1,35 +1,35 @@
-name:                Sexp
+name:                Witch
 version:             0.1.0.0
-github:              "heliaxdev/Juvix"
-license:             GPL-3
-author:              "Heliax AG <hello@heliax.dev>"
-maintainer:          "Heliax AG <hello@heliax.dev>"
-copyright:           "2021 Heliax AG"
+github:              "githubuser/Witch"
+license:             BSD3
+author:              "Author name here"
+maintainer:          "example@example.com"
+copyright:           "2020 Author name here"
 
-extra-source-files:
-- README.org
-
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/Sexp#readme>
+description:         Please see the README on GitHub at <https://github.com/githubuser/Witch#readme>
 
 dependencies:
-- aeson
-- base >= 4.7 && < 5
+- base >= 4.11 && < 5
 - standard-library
-- containers
+- core
+- frontend
+- Sexp
+- Context
+- translate
+- extensible-data
 - unordered-containers
 - stm-containers
+- list-t
 - lens
-- text
+- containers
+- dlist
+- syb
 - megaparsec
-- bytestring
-- hashable
+- EasyPipeline
+- tasty
+- tasty-hunit
+- tasty-silver
+- tasty-quickcheck
 
 default-extensions:
   - NoImplicitPrelude
@@ -40,7 +40,6 @@ default-extensions:
   - UnicodeSyntax
   - GADTs
   - DerivingVia
-  - MultiParamTypeClasses
   - MultiWayIf
   - DataKinds
   - TypeApplications
@@ -59,7 +58,6 @@ default-extensions:
   - GeneralizedNewtypeDeriving
   - StandaloneDeriving
   - BlockArguments
-  - FunctionalDependencies
 
 ghc-options:
   - -ferror-spans
@@ -75,14 +73,24 @@ library:
   source-dirs: src
 
 tests:
-  Sexp-test:
+  witch-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -g
     dependencies:
-    - Sexp
+    - translate
     - tasty
     - tasty-hunit
+    - tasty-silver
+    - tasty-quickcheck
+    - text
+    - bytestring
+    - pretty-simple
+    - Witch
+    - Pipeline
+    - Sexp
+    - Context

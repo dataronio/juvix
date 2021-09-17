@@ -52,7 +52,8 @@ allParserTests =
       effect,
       fullEffect,
       ret,
-      via_
+      via_,
+      do_
     ]
 
 infixTests :: T.TestTree
@@ -139,9 +140,9 @@ many1FunctionsParser =
         <> "  case check of \n"
         <> "  | seven -> 11 \n"
         <> "  | eleven -> 7 \n"
-        <> "  | f  -> open Fails in \n"
-        <> "          print failed; \n"
-        <> "          fail"
+        <> "  | f  -> open Fails in"
+        <> "          print failed;"
+        <> "          fail unit"
     )
     [ ( AST.Inf (AST.Name "a") "+" (AST.Name "b")
           |> AST.Infix
@@ -212,13 +213,19 @@ many1FunctionsParser =
                      --
 
                      (AST.Name "failed" :| [])
-                       |> AST.App (AST.Name "print")
-                       |> AST.Application
+                       |> AST.DoOp' (AST.Name "print")
+                       |> AST.DoOp
                        |> AST.DoBody Nothing
-                       |> (:| [AST.DoBody Nothing (AST.Name "fail")])
+                       |> ( :|
+                              [ (AST.Name "unit" :| [])
+                                  |> AST.DoOp' (AST.Name "fail")
+                                  |> AST.DoOp
+                                  |> AST.DoBody Nothing
+                              ]
+                          )
                        |> AST.Do''
                        |> AST.Do
-                       |> AST.OpenExpress "Fails"
+                       |> AST.OpenExpress ("Fails" :| [])
                        |> AST.OpenExpr
                        |> AST.MatchL (AST.MatchLogic (AST.MatchName "f") Nothing)
                    ]
@@ -346,7 +353,7 @@ effect =
   shouldParseAs
     "effect definition"
     Parser.parse
-    "effect Pure = let pure : x -> string"
+    "effect Pure = let pure : x -> string end"
     $ AST.NoHeader
       [ [ AST.Name ("string" :| [])
             |> AST.Inf (AST.Name ("x" :| [])) ("->" :| [])
@@ -362,7 +369,7 @@ fullEffect =
   shouldParseAs
     "effect full definition"
     Parser.parse
-    "effect Print = let print : string -> unit let pure : x -> string"
+    "effect Print = let print : string -> unit let pure : x -> string end"
     $ AST.NoHeader
       [ AST.Eff
           "Print"
@@ -383,7 +390,7 @@ ret =
   shouldParseAs
     "effect handler of pure effect"
     Parser.parse
-    "handler pureEff = let pure x = toString x"
+    "handler pureEff = let pure x = toString x end"
     $ AST.NoHeader
       [ [ AST.Name ("x" :| []) :| []
             |> AST.App (AST.Name ("toString" :| []))
@@ -407,9 +414,9 @@ via_ =
     Parser.parse
     "let foo = prog via print"
     $ AST.NoHeader
-      [ AST.Name ("prog" :| []) :| []
-          |> AST.App (AST.Name ("print" :| []))
-          |> AST.Application
+      [ AST.Name ("prog" :| [])
+          |> AST.Via (AST.Name ("print" :| []))
+          |> AST.EffApp
           |> AST.Body
           |> AST.Like "foo" []
           |> AST.Func
@@ -421,7 +428,7 @@ handler =
   shouldParseAs
     "effect handler with op"
     Parser.parse
-    "handler printer = let print x = print x let pure x = toString x"
+    "handler printer = let print x k = print x let pure x = toString x end"
     $ AST.NoHeader
       [ [ AST.Name ("x" :| []) :| []
             |> AST.App ("print" :| [] |> AST.Name)
@@ -430,6 +437,8 @@ handler =
             |> AST.Like
               "print"
               [ AST.MatchLogic (AST.MatchName "x") Nothing
+                  |> AST.ConcreteA,
+                AST.MatchLogic (AST.MatchName "k") Nothing
                   |> AST.ConcreteA
               ]
             |> AST.Op,
@@ -446,6 +455,32 @@ handler =
         ]
           |> AST.Hand "printer"
           |> AST.Handler
+      ]
+
+do_ :: T.TestTree
+do_ =
+  shouldParseAs
+    "effect usage in programs"
+    Parser.parse
+    "let prog = print hello-world; pure \"hi\""
+    $ AST.NoHeader
+      [ (AST.Name "hello-world" :| [])
+          |> AST.DoOp' (AST.Name "print")
+          |> AST.DoOp
+          |> AST.DoBody Nothing
+          |> ( :|
+                 [ AST.Constant (AST.String (AST.Sho "hi"))
+                     |> AST.DoPure'
+                     |> AST.DoPure
+                     |> AST.DoBody Nothing
+                 ]
+             )
+          |> AST.Do''
+          |> AST.Do
+          |> AST.Body
+          |> AST.Like "prog" []
+          |> AST.Func
+          |> AST.Function
       ]
 
 --------------------------------------------------------------------------------

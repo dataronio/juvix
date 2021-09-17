@@ -1,4 +1,4 @@
-;;; Hello, this is code that generators the functions in Structure.hs
+;;; Hello, this is code that generates the functions in Structure.hs
 ;;; Please ignore this file if you don't want to generate any more.
 ;;; However, if you want to generate more please provide a spec like
 
@@ -300,6 +300,10 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Infix" (repeat 3 "sexp") ":infix")
 
+  (generate-haskell "Do" '("sexp") ":do" :list-star t)
+
+  (generate-haskell "Arrow" '("sexp" "sexp") "%<-")
+
   (generate-haskell "OpenIn" (repeat 2 "sexp") ":open-in")
 
   (generate-haskell "Open" '("sexp") "open")
@@ -310,15 +314,37 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "DefModule" (repeat 3 "sexp") ":defmodule" :list-star t)
 
+  (generate-haskell "Do" '("sexp") ":do" :list-star t)
+
+  (generate-haskell "RecordNoPunned" '("notPunnedGroup") ":record-no-pun"
+                    :list-star t
+                    :un-grouped t)
+
   (generate-haskell "LetModule" (repeat 4 "sexp") ":let-mod")
 
   (generate-haskell "Effect" (repeat 2 "sexp") ":defeff")
 
   (generate-haskell "DefHandler" (repeat 2 "sexp") ":defHandler")
 
+  (generate-haskell "LetRet" (repeat 2 "sexp") ":defret")
+
+  (generate-haskell "LetOp" (repeat 2 "sexp") ":defop")
+
   (generate-haskell "RecordDec" '("nameUsage") ":record-d" :list-star t)
 
-  (generate-haskell "Primitive" '("sexp") ":primitive"))
+  (generate-haskell "Primitive" '("sexp") ":primitive")
+
+  (generate-haskell "Binder" '("nameSymbol" "sexp") nil)
+
+  (generate-haskell "DoDeep" '("doBodyFull") ":do" :list-star t)
+
+  (generate-haskell "DoPure" (repeat 2 "sexp") ":do-pure")
+
+  (generate-haskell "DoOp" (repeat 2 "sexp") ":do-op")
+
+  (generate-haskell "Via" (repeat 2 "sexp") ":via")
+
+  (generate-haskell "Handler" '("sexp" "letRet" "letOp") ":let-handler" :list-star t))
 
 (defun transition-types ()
   (generate-haskell "ArgBody" '("sexp" "sexp") nil)
@@ -331,15 +357,20 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "DefunSigMatch" '("sexp" "sexp" "argBody") ":defsig-match" :list-star t)
 
-  ;; bodys here, as there are multiple!
   (generate-haskell "LetMatch" '("sexp" "argBodys" "sexp") ":let-match")
 
   (generate-haskell "LetHandler" (repeat 3 "sexp") ":let-handler")
 
+  (generate-haskell "DefHandler" (repeat 2 "sexp") ":defHandler")
+
   (generate-haskell "RecordNoPunned" '("notPunnedGroup") ":record-no-pun"
                     :list-star t
                     :un-grouped t)
-  (generate-haskell "LambdaCase" '("argBody") ":lambda-case" :list-star t))
+  (generate-haskell "LambdaCase" '("argBody") ":lambda-case" :list-star t)
+
+  (generate-haskell "LetHandler" (repeat 3 "sexp") ":let-handler")
+
+  (generate-haskell "Handler" '("sexp" "letRet" "letOp") ":let-handler" :list-star t))
 
 (defun core-named-representation ()
   (generate-haskell "Star" '("integer") ":star")
@@ -369,5 +400,7 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
   (generate-haskell "Meta" '("sexp" "integer") nil)
 
   (generate-haskell "Field" (list "nameSymbol" "sexp" "sexp") nil)
+
   (generate-haskell "RecordTy" (list "field") ":record-ty" :list-star t)
+
   (generate-haskell "Lookup" (list "sexp" "symbol") ":lookup" :list-star t))

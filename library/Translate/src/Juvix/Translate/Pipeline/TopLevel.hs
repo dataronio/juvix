@@ -14,10 +14,10 @@ transTopLevel (Types.Declaration i) = Sexp.atom "declare" Sexp.:> transDeclarati
 transTopLevel (Types.Signature sig) = Sexp.atom ":defsig" Sexp.:> transSig sig
 transTopLevel (Types.Function f) = transDefun f
 transTopLevel (Types.Effect eff) = transEffect eff
-transTopLevel (Types.Handler h) = transHand h
 transTopLevel (Types.Module m) = transModule m
 transTopLevel Types.TypeClass = Sexp.atom ":type-class"
 transTopLevel (Types.Type t) = transType t
+transTopLevel (Types.Handler h) = transHand h
 
 transExpr :: Types.Expression -> Sexp.T
 transExpr (Types.UniverseName n) = transUniverseExpression n
@@ -35,6 +35,7 @@ transExpr (Types.LetType l) = transLetType l
 transExpr (Types.ModuleE m) = transModuleE m
 transExpr (Types.ArrowE a) = transArrowE a
 transExpr (Types.Lambda l) = transLambda l
+transExpr (Types.EffApp e) = transVia e
 transExpr (Types.Tuple t) = transTuple t
 transExpr (Types.Match m) = transMatch m
 transExpr (Types.Block b) = transBlock b
@@ -217,6 +218,14 @@ transOperation (Types.Op like) = Sexp.list [Sexp.atom ":defop", name, args, body
   where
     (name, args, body) = transLike False transExpr like
 
+transVia :: Types.EffApp -> Sexp.T
+transVia (Types.Via effappHand effappArg) =
+  Sexp.list
+    [ Sexp.atom ":via",
+      transExpr effappHand,
+      transExpr effappArg
+    ]
+
 --------------------------------------------------------------------------------
 -- Match Expansion
 --------------------------------------------------------------------------------
@@ -361,9 +370,21 @@ transDo (Types.Do'' bs) =
 
 transDoBody :: Types.DoBody -> Sexp.T
 transDoBody (Types.DoBody Nothing expr) =
-  transExpr expr
+  Sexp.list [Sexp.atom ":do-body", transComp expr]
 transDoBody (Types.DoBody (Just n) expr) =
-  Sexp.list [Sexp.atom "%<-", Sexp.atom (NameSymbol.fromSymbol n), transExpr expr]
+  Sexp.list [Sexp.atom ":do-body-binder", Sexp.atom (NameSymbol.fromSymbol n), transComp expr]
+
+transComp :: Types.Computation -> Sexp.T
+transComp (Types.DoOp op) = transDoOp op
+transComp (Types.DoPure op) = transDoPure op
+
+transDoOp :: Types.DoOp -> Sexp.T
+transDoOp (Types.DoOp' name args) =
+  Sexp.list [Sexp.atom ":do-op", transExpr name, Sexp.list (NonEmpty.toList (transExpr <$> args))]
+
+transDoPure :: Types.DoPure -> Sexp.T
+transDoPure (Types.DoPure' arg) =
+  Sexp.list [Sexp.atom ":do-pure", transExpr arg]
 
 transArrowE :: Types.ArrowExp -> Sexp.T
 transArrowE (Types.Arr' l u r) =

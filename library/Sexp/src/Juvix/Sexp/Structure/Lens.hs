@@ -15,7 +15,6 @@ Lens.makeLensesWith Lens.camelCaseFields ''Transition.LambdaCase
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Signature
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.DefunSigMatch
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.RecordNoPunned
-Lens.makeLensesWith Lens.camelCaseFields ''Transition.LetHandler
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Defun
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Let
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.LetMatch
@@ -25,7 +24,6 @@ Lens.makeLensesWith Lens.camelCaseFields ''Transition.If
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.IfNoElse
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Case
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DeconBody
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Do
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Arrow
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Lambda
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Record
@@ -43,9 +41,6 @@ Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetType
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetSignature
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DefModule
 Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetModule
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DefHandler
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Effect
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Primitive
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Star
 Lens.makeLensesWith Lens.camelCaseFields ''Named.PrimTy
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Prim
@@ -62,3 +57,12 @@ Lens.makeLensesWith Lens.camelCaseFields ''Named.Meta
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Dot
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Field
 Lens.makeLensesWith Lens.camelCaseFields ''Named.RecordTy
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DefHandler
+Lens.makeLensesWith Lens.camelCaseFields ''Transition.LetHandler
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Effect
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetRet
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetOp
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Do
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DoOp
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DoPure
+Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Primitive

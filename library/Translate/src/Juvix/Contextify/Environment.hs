@@ -282,7 +282,8 @@ namedForms =
     ":defeff",
     ":defhandler",
     ":defop",
-    ":opsig"
+    ":opsig",
+    ":via"
   ]
 
 -- | @searchAndClosureNoCtx@ like searchAndClosure but does not rely on
@@ -308,6 +309,7 @@ searchAndClosureNoCtx a as cont
   | named ":let-type" = letType as cont
   | named "type" = type' as cont
   | named ":lambda" = lambda as cont
+  | named "handler" = handler as cont
   where
     named = Sexp.isAtomNamed (Sexp.Atom a)
 searchAndClosureNoCtx _ _ _ = error "improper closure call"
@@ -465,6 +467,11 @@ letMatch (Sexp.List [name, bindings, body]) cont
       bod <- cont body
       pure $ Sexp.list [name, Sexp.unGroupBy2 form, bod]
 letMatch _ _ = error "malformed let-match"
+
+-- | @handler@ follows the exact same logic as @let-match@
+handler :: HasClosure m => Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
+handler sexp@(Sexp.List [name, bindings, body]) cont = letMatch sexp cont
+handler _ _ = error "malformed handler"
 
 -- | @case'@ is similar to @lambdaCase@ except that it has a term it's
 -- matching on that it must first change without having an extra

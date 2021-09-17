@@ -98,11 +98,11 @@ topLevel =
   P.try (Types.Type <$> typeP)
     <|> P.try fun
     <|> P.try modT
-    <|> P.try (Types.Handler <$> handlerParser)
     <|> P.try (Types.ModuleOpen <$> moduleOpen)
     <|> P.try (Types.Signature <$> signature')
     <|> P.try (Types.Declaration <$> declaration)
     <|> P.try (Types.Effect <$> effParser)
+    <|> P.try (Types.Handler <$> handlerParser)
 
 expressionGen' ::
   Parser Types.Expression -> Parser Types.Expression
@@ -141,7 +141,7 @@ app'' :: Parser Types.Expression
 app'' = Types.Application <$> P.try application
 
 all'' :: Parser Types.Expression
-all'' = P.try do''' <|> app'' <|> (Types.Application <$> P.try via_)
+all'' = P.try do''' <|> app'' <|> (Types.EffApp <$> P.try via_)
 
 expressionGen :: Parser Types.Expression -> Parser Types.Expression
 expressionGen p =
@@ -485,6 +485,7 @@ handlerParser = do
   name <- prefixSymbolSN
   J.skipLiner J.equals
   ops <- P.many (J.spaceLiner opParser)
+  reserved "end"
   pure $ Types.Hand name ops
 
 opParser :: Parser Types.Operation
@@ -503,6 +504,7 @@ effParser = do
   name <- prefixSymbolSN
   J.skipLiner J.equals
   ops <- P.many (J.spaceLiner opSig)
+  reserved "end"
   pure $ Types.Eff {effName = name, effOps = ops}
 
 opSig :: Parser Types.Signature
@@ -519,12 +521,12 @@ opSig = do
   exp <- expression
   pure (Types.Sig name maybeUsage exp typeclasses)
 
-via_ :: Parser Types.Application
+via_ :: Parser Types.EffApp
 via_ = do
-  args <- J.many1H (spaceLiner expressionArguments)
+  args <- spaceLiner expressionArguments
   reserved "via"
   name <- spaceLiner (expressionGen' (fail ""))
-  pure (Types.App name args)
+  pure (Types.Via name args)
 
 --------------------------------------------------------------------------------
 -- Arrow Type parser
@@ -727,16 +729,31 @@ doBind :: Parser [Types.DoBody]
 doBind = do
   name <- prefixSymbolSN
   spaceLiner (P.string "<-")
-  body <- expression'SN
+  body <- compParse
   pure [Types.DoBody (Just name) body]
 
 doNotBind :: Parser [Types.DoBody]
 doNotBind = do
-  body <- expression'SN
+  body <- compParse
   pure [Types.DoBody Nothing body]
 
 do'' :: Parser [Types.DoBody]
 do'' = Expr.makeExprParser (P.try doBind <|> doNotBind) table P.<?> "bind expr"
+
+compParse :: Parser Types.Computation
+compParse = doPureParser <|> doOpParser
+
+doOpParser :: Parser Types.Computation
+doOpParser = do
+  name <- spaceLiner (expressionGen' (fail ""))
+  args <- J.many1H (spaceLiner expressionArguments)
+  pure (Types.DoOp $ Types.DoOp' name args)
+
+doPureParser :: Parser Types.Computation
+doPureParser = do
+  reserved "pure"
+  arg <- spaceLiner expressionArguments
+  pure (Types.DoPure $ Types.DoPure' arg)
 
 --------------------------------------------------------------------------------
 -- Symbol Handlers

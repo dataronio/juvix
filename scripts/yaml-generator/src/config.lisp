@@ -336,6 +336,8 @@ common ones to include"
                      *standard-library-extra-deps*
                      *eac-solver*)))
 
+
+
 ;; Define these before pipeline due to mutual recursion
 (defparameter *Pipeline*
   (make-stack-yaml
@@ -437,6 +439,22 @@ common ones to include"
    :extra-deps (cons *servant-deps* (big-dep-list))
    :extra "allow-newer: true"))
 
+(defparameter *Witch*
+  (make-stack-yaml
+   :name "Witch"
+   :packages   (list *core*
+                     *frontend*
+                     *standard-library*
+                     *translate*
+                     *Context*
+                     *sexp*
+                     *pipeline*
+                     *plonk*
+                     *Michelson*
+                     *Easy-Pipeline*)
+   :extra-deps (big-dep-list)
+   :extra "allow-newer: true"))
+
 (defparameter *juvix*
   (make-stack-yaml
    :name "Juvix"
@@ -450,10 +468,10 @@ common ones to include"
                    *http*
                    *plonk*
                    *llvm*
+                   *Witch*
                    *Context*
                    *sexp*)
    :path-to-other "./library/"
    :extra-deps
    (cons *servant-deps* (cons *llvm-hs-deps* (big-dep-list)))
    :extra "allow-newer: true"))
-

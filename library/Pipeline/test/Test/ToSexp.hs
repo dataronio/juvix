@@ -1,5 +1,6 @@
 module Test.ToSexp (top) where
 
+import qualified Juvix.Desugar as Desugar
 import qualified Juvix.Frontend.Parser as Parser
 import qualified Juvix.Frontend.Types as Types
 import Juvix.Library hiding (head)
@@ -29,7 +30,6 @@ top =
       tupleTest,
       listTest,
       recordTest,
-      doTest,
       lambdaTest,
       openTest,
       parenTest,
@@ -38,7 +38,8 @@ top =
       condTest,
       caseTest,
       handlerTest,
-      effectTest
+      effectTest,
+      viaTest
     ]
 
 --------------------------------------------------------------------------------
@@ -267,26 +268,6 @@ recordTest =
     basic = Parser.parse "let foo = {a, b = 2}" |> singleEleErr
     basicE = Sexp.parse "(:defun foo () (:record (a) (b 2)))"
 
-doTest :: T.TestTree
-doTest =
-  T.testGroup
-    "do parser"
-    [T.testCase "basic" (basic T.@=? basicE)]
-  where
-    basic =
-      Parser.parse
-        "let foo xs = \
-        \  a <- xs; \
-        \  more-comp; \
-        \  pure a"
-        |> singleEleErr
-    basicE =
-      Sexp.parse
-        "(:defun foo (xs) \
-        \    (:do (%<- a xs) \
-        \         more-comp \
-        \         (pure a)))"
-
 lambdaTest :: T.TestTree
 lambdaTest =
   T.testGroup
@@ -411,7 +392,7 @@ handlerTest =
   where
     basic =
       Parser.parse
-        "handler print = let print x = print x let pure x = toString x"
+        "handler print = let print x = print x let pure x = toString x end"
         |> singleEleErr
     basicExpected =
       Sexp.parse
@@ -426,11 +407,41 @@ effectTest =
   where
     basic =
       Parser.parse
-        "effect Print = let print : string -> unit let pure : x -> string"
+        "effect Print = let print : string -> unit let pure : x -> string end"
         |> singleEleErr
     basicExpected =
       Sexp.parse
         "(:defeff Print ((print (:infix -> string unit)) (pure (:infix -> x string))))"
+
+doTest :: T.TestTree
+doTest =
+  T.testGroup
+    "do sexp parser"
+    [ T.testCase "basic" (basic T.@=? basicExpected)
+    ]
+  where
+    basic =
+      Parser.parse
+        "let prog = do print \"yolo\"; pure 42"
+        |> singleEleErr
+    basicExpected =
+      Sexp.parse
+        "(:defun prog () (:do ((print \"yolo\") (pure 42))))"
+
+viaTest :: T.TestTree
+viaTest =
+  T.testGroup
+    "_ via _ sexp parser"
+    [ T.testCase "basic" (basic T.@=? basicExpected)
+    ]
+  where
+    basic =
+      Parser.parse
+        "let foo = prog via printer"
+        |> singleEleErr
+    basicExpected =
+      Sexp.parse
+        "(:defun foo () (:via printer prog))"
 
 --------------------------------------------------------------------------------
 -- Helpers

@@ -1,0 +1,12 @@
+mod Prelude.Handler where
+
+handler printer =
+  let print = printLn
+  let pure x = toString x
+end
+
+let prog a =
+  print a;
+  pure a
+
+let foo = prog via printer

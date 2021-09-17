@@ -63,6 +63,7 @@ patternVarTests =
             (IR.Elim (IR.Free (Core.Pattern 1)))
         )
 
+grabSingleBody :: Maybe (Core.RawGlobal ext primTy primVal) -> Core.Term ext primTy primVal
 grabSingleBody
   ( Just
       ( Core.RawGFunction

@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Juvix.Context.Precedence
   ( default',
     left,
@@ -12,22 +14,31 @@ where
 
 import qualified Data.Aeson as A
 import Data.Data
+import Data.Hashable (Hashable (..), hash)
 import Juvix.Library (Eq, Generic, Int, Read, Show, Symbol)
 
 data Associativity
   = Left
   | Right
   | NonAssoc
-  deriving (Eq, Show, Read, Data, Generic)
+  deriving (Eq, Show, Data, Read, Generic)
+
+data Precedence = Pred Associativity Int
+  deriving (Eq, Show, Data, Read, Generic)
+
+instance Hashable Associativity where
+  hash Left = 1
+  hash Right = 2
+  hash NonAssoc = 3
+
+instance Hashable Precedence where
+  hash (Pred assoc num) = hash (hash assoc, hash num)
 
 instance A.ToJSON Associativity where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 instance A.FromJSON Associativity where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
-
-data Precedence = Pred Associativity Int
-  deriving (Eq, Show, Read, Data, Generic)
 
 instance A.ToJSON Precedence where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})

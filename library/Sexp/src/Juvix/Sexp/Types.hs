@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ViewPatterns #-}
@@ -8,6 +10,7 @@ module Juvix.Sexp.Types where
 
 import Control.Lens hiding (List, (:>), (|>))
 import qualified Data.Aeson as A
+import Data.Hashable ()
 import Juvix.Library hiding (foldr, show, toList)
 import qualified Juvix.Library.LineNum as LineNum
 import qualified Juvix.Library.NameSymbol as NameSymbol
@@ -48,6 +51,15 @@ instance Ord Atom where
   compare (N i1 _) (N i2 _) = compare i1 i2
   compare (N _ _) (A _ _) = GT
   compare (A _ _) (N _ _) = LT
+
+instance Hashable Atom where
+  hash (A {atomName, atomLineNum}) = hash (hash atomName, hash atomLineNum)
+  hash (N {atomNum, atomLineNum}) = hash (hash atomNum, hash atomLineNum)
+
+instance Hashable T where
+  hash (Atom atom) = hash atom
+  hash Nil = 1
+  hash (Cons {tCar, tCdr}) = hash (hash tCar, hash tCdr)
 
 makeLensesWith camelCaseFields ''Atom
 

@@ -18,6 +18,18 @@ type Base = Symbol
 
 type Mod = [Symbol]
 
+class Name a where
+  toSym :: a -> Symbol
+  fromSym :: Symbol -> a
+
+instance Name T where
+  toSym = toSymbol
+  fromSym = fromSymbol
+
+instance Name Symbol where
+  toSym x = x
+  fromSym x = x
+
 toNonEmptySymbol :: T -> NonEmpty Symbol
 toNonEmptySymbol = identity
 
@@ -90,6 +102,9 @@ takePrefixOfInternal (s :| smaller) (b :| bigger)
 
 cons :: Symbol -> T -> T
 cons = NonEmpty.cons
+
+append :: T -> T -> T
+append = (<>)
 
 hd :: T -> Symbol
 hd = NonEmpty.head

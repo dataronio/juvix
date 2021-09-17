@@ -420,6 +420,15 @@ temporary lexical bindings as our code encounters binders.
   + [[HashMap]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
+***** Abstract
+Closure.T serves as the data structure in which we will store
+temporary lexical bindings as our code encounters binders.
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Juvix/Sexp]]
 **** Context <<Juvix/Context>>
 - Serves as the context for lower level programs of the =Juvix=
   Programming Language
@@ -1295,6 +1304,7 @@ with any stage of the compiler while modifying the source code.
   + [[Library]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
+  + [[Desugar]]
 * Sexp
 ** Setup <<Sexp/Setup>>
 ** src
@@ -1321,6 +1331,9 @@ sexp type and all the various helper functionality one can need
   + [[LineNum]]
   + [[NameSymbol]]
 ***** Structure
+- _Relies on_
+  + [[Library]]
+  + [[Juvix/Sexp]]
 ****** CoreNamed
 Hardening S-expressions into a more readable form. Here we use a
 mixture of record structures and aliases. Each cover a form that we
@@ -1354,6 +1367,7 @@ _TODO_
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[Structure/Helpers]]
+  + [[Structure]]
 ****** Frontend <<Structure/Frontend>>
 Hardening S-expressions into a more readable form. Here we use a
 mixture of record structures and aliases. Each cover a form that we
@@ -1387,6 +1401,7 @@ _TODO_
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[Structure/Helpers]]
+  + [[Structure]]
 ****** Helpers <<Structure/Helpers>>
 - _Relies on_
   + [[Library]]
@@ -1431,6 +1446,7 @@ _TODO_
   + [[Juvix/Sexp]]
   + [[Structure/Frontend]]
   + [[Structure/Helpers]]
+  + [[Structure]]
 ** test
 *** Main <<Sexp/test/Main>>
 - _Relies on_
@@ -1812,6 +1828,10 @@ done with no extra information needed. Thus we export the following passes
   + [[Desugar/Passes]]
   + [[Library]]
   + [[Juvix/Sexp]]
+  + [[Desugar]]
+  + [[Frontend/Types]]
+  + [[TopLevel]]
+  + [[Frontend/Parser]]
 **** Sexp
 ***** Helpers <<Sexp/Helpers>>
 - _Relies on_
@@ -1824,3 +1844,63 @@ done with no extra information needed. Thus we export the following passes
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[TopLevel]]
+* Witch
+** Setup <<Witch/Setup>>
+** src
+*** Juvix
+**** Witch
+***** CPSTranslation <<Witch/CPSTranslation>>
+- _Relies on_
+  + [[Transform]]
+  + [[Library]]
+  + [[Juvix/Sexp]]
+  + [[Juvix/Context]]
+****** SexpHelpers
+- _Relies on_
+  + [[Library]]
+  + [[Juvix/Sexp]]
+  + [[Structure]]
+  + [[Structure/Frontend]]
+  + [[Transition]]
+  + [[CoreNamed]]
+  + [[NameSymbol]]
+****** Transform
+The CPS translation implemented here deals with higher-order continuations.
+| We work with continuations at the meta-language level (Haskell) and
+| source language (Juvix post-effects). For that, we convert the stack
+| between static and dynamic contexts.
+| Cryptic parts of the code are commented with a version that is more human-readable
+| and it appears above and horizontally-aligned with the code it explains.
+algorithm:
+put all handlers into context
+search for all vias
+for all vias
+ - if current via contain any via, remove nested vias from main list
+ - create a stack for via's handler
+ - traverse over values and computations applying stacks as per rules
+end for vias
+remove all handlers from context
+- _Relies on_
+  + [[Library]]
+  + [[Juvix/Sexp]]
+  + [[SexpHelpers]]
+  + [[Structure/Frontend]]
+  + [[Transition]]
+  + [[CoreNamed]]
+  + [[NameSymbol]]
+  + [[NameSpace]]
+  + [[Juvix/Context]]
+  + [[Precedence]]
+** test
+*** CPSTranslation <<test/CPSTranslation>>
+- _Relies on_
+  + [[Frontend/Parser]]
+  + [[Frontend/Types]]
+  + [[Library]]
+  + [[Pipeline/ToSexp]]
+  + [[Desugar]]
+  + [[Juvix/Sexp]]
+  + [[Witch/CPSTranslation]]
+*** Main <<Witch/test/Main>>
+- _Relies on_
+  + [[Library]]

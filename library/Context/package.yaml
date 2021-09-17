@@ -28,6 +28,7 @@ dependencies:
 - stm-containers
 - lens
 - text
+- hashable
 
 default-extensions:
   - NoImplicitPrelude

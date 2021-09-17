@@ -427,8 +427,8 @@ grabNames _ acc = acc
 handlerTransform :: Sexp.T -> Sexp.T
 handlerTransform xs = Sexp.foldPred xs (== Structure.nameDefHandler) handTrans
   where
-    handTrans atom cdr
-      | Just mod <- Structure.toDefHandler (Sexp.Atom atom Sexp.:> cdr) =
+    handTrans atom _
+      | Just mod <- Structure.toDefHandler xs =
         let (ret_, ops_) = filterRet (mod ^. ops)
          in Structure.LetHandler (mod ^. name) ops_ ret_
               |> Structure.fromLetHandler
@@ -438,7 +438,7 @@ handlerTransform xs = Sexp.foldPred xs (== Structure.nameDefHandler) handTrans
 filterRet :: Sexp.T -> (Sexp.T, Sexp.T)
 filterRet form = Sexp.foldr removeRet (Sexp.Nil, Sexp.Nil) form
   where
-    removeRet form@(_ Sexp.:> name Sexp.:> _) (ret, acc)
-      | Sexp.isAtomNamed name "pure" = (form, acc)
-      | otherwise = (ret, form Sexp.:> acc)
+    removeRet form@(_ Sexp.:> name Sexp.:> args Sexp.:> body Sexp.:> Sexp.Nil) (ret, acc)
+      | Sexp.isAtomNamed name "pure" = (Structure.fromLetRet $ Structure.LetRet args body, acc)
+      | otherwise = (ret, Sexp.snoc form acc)
     removeRet _ _ = error "can't happen"

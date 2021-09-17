@@ -14,6 +14,8 @@ top =
     [ lastWorksAsExpected,
       foldrWorksAsExpted,
       foldPredWorksAsExpted,
+      foldPredWorksAsExpted2,
+      foldPredWorksAsExpted3,
       listWorksAsExpected,
       listStarWorksAsExpected
     ]
@@ -63,6 +65,60 @@ foldPredWorksAsExpted =
       Sexp.parse "(if x y (if z l))"
     Right expectedNest =
       Sexp.parse "(:if x y (:if z l))"
+
+foldPredWorksAsExpted2 :: T.TestTree
+foldPredWorksAsExpted2 =
+  T.testGroup
+    "foldPred works as Exptected"
+    [ T.testCase
+        "foldPred properly searches"
+        ( Sexp.foldPred nest (== "if") (\_ sexp -> Sexp.Cons (Sexp.atom ":if") sexp)
+            T.@=? expectedNest
+        )
+    ]
+  where
+    Right nest =
+      Sexp.parse "(g x y (f z l))"
+    Right expectedNest =
+      Sexp.parse "(g x y (f z l))"
+
+foldPredWorksAsExpted3 :: T.TestTree
+foldPredWorksAsExpted3 =
+  T.testGroup
+    "foldPred works as Exptected"
+    [ T.testCase
+        "foldPred can deal with bigger sexp"
+        ( Sexp.foldPred nest (== ":defop") (\_ sexp -> Sexp.Cons (Sexp.atom ":op") sexp)
+            T.@=? expectedNest
+        )
+    ]
+  where
+    Right nest =
+      Sexp.parse
+        ( "(:defmodule Printer ()                     "
+            <> "   (:defhandler printer                     "
+            <> "    ((:defop print () printLn)              "
+            <> "     (:defop pure (x) (toString x))))       "
+            <> "   (:defun prog (a)                         "
+            <> "      (:do                                  "
+            <> "          (:do-body (:do-op print (a)))     "
+            <> "          (:do-body (:do-pure a))))         "
+            <> "   (:defun foo ()                           "
+            <> "      (:via printer prog)))))"
+        )
+    Right expectedNest =
+      Sexp.parse
+        ( "(:defmodule Printer ()                       "
+            <> "   (:defhandler printer                     "
+            <> "    ((:op print () printLn)                 "
+            <> "     (:op pure (x) (toString x))))          "
+            <> "   (:defun prog (a)                         "
+            <> "      (:do                                  "
+            <> "          (:do-body (:do-op print (a)))     "
+            <> "          (:do-body (:do-pure a))))         "
+            <> "   (:defun foo ()                           "
+            <> "      (:via printer prog)))))"
+        )
 
 listWorksAsExpected :: T.TestTree
 listWorksAsExpected =

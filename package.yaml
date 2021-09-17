@@ -36,6 +36,7 @@ dependencies:
   - frontend
   - core
   - translate
+  - Witch
   - michelson
   - plonk
   - EasyPipeline
@@ -162,3 +163,7 @@ executables:
       - pretty-simple
       - raw-strings-qq
       - yaml
+
+build:
+  library-profiling: true
+  executable-profiling: true

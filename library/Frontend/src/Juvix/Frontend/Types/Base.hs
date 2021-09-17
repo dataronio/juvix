@@ -32,8 +32,8 @@ data TopLevel
   | Signature Signature
   | Module Module
   | Function Function
-  | Handler Handler
   | Effect Effect
+  | Handler Handler
   | Declaration Declaration
   | TypeClass
   | TypeClassInstance
@@ -280,6 +280,7 @@ data Expression
   | ExpRecord ExpRecord
   | RecordDec Record
   | Do Do
+  | EffApp EffApp
   | -- Added due to merge
     ArrowE ArrowExp
   | NamedTypeE NamedType
@@ -343,6 +344,12 @@ data Application = App
   }
   deriving (Show, Read, Eq, Generic)
 
+data EffApp = Via
+  { effappHand :: Expression,
+    effappArg :: Expression
+  }
+  deriving (Show, Read, Generic, Eq)
+
 -- Was a newtype but extensible adds fields
 newtype Do
   = Do'' (NonEmpty DoBody)
@@ -351,7 +358,23 @@ newtype Do
 -- promote this to a match!!!
 data DoBody = DoBody
   { doBodyName :: Maybe Symbol,
-    doBodyExpr :: Expression
+    doBodyExpr :: Computation -- computation as in effect
+  }
+  deriving (Show, Read, Eq, Generic)
+
+data Computation
+  = DoOp DoOp
+  | DoPure DoPure
+  deriving (Show, Read, Eq, Generic)
+
+data DoOp = DoOp'
+  { opName :: Expression,
+    opArgs :: NonEmpty Expression
+  }
+  deriving (Show, Read, Eq, Generic)
+
+data DoPure = DoPure'
+  { pureArg :: Expression
   }
   deriving (Show, Read, Eq, Generic)
 
@@ -768,6 +791,70 @@ instance A.ToJSON Handler where
       )
 
 instance A.FromJSON Handler where
+  parseJSON =
+    A.genericParseJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
+
+instance A.ToJSON EffApp where
+  toJSON =
+    A.genericToJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
+
+instance A.FromJSON EffApp where
+  parseJSON =
+    A.genericParseJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
+
+instance A.ToJSON Computation where
+  toJSON =
+    A.genericToJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
+
+instance A.FromJSON Computation where
+  parseJSON =
+    A.genericParseJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
+
+instance A.ToJSON DoOp where
+  toJSON =
+    A.genericToJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
+
+instance A.FromJSON DoOp where
+  parseJSON =
+    A.genericParseJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
+
+instance A.ToJSON DoPure where
+  toJSON =
+    A.genericToJSON
+      ( A.defaultOptions
+          { A.sumEncoding = A.ObjectWithSingleField
+          }
+      )
+
+instance A.FromJSON DoPure where
   parseJSON =
     A.genericParseJSON
       ( A.defaultOptions

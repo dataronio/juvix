@@ -93,3 +93,4 @@ tests:
     - tasty-silver
     - tasty-quickcheck
     - text
+    - Context

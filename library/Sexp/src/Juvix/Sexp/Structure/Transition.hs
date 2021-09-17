@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 -- |
@@ -35,9 +36,10 @@
 --        can automatically fill in this meta data
 module Juvix.Sexp.Structure.Transition where
 
-import Juvix.Library hiding (Type)
+import Juvix.Library hiding (Handler, Type)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
+import Juvix.Sexp.Structure
 import qualified Juvix.Sexp.Structure.Frontend as Frontend
 import Juvix.Sexp.Structure.Helpers
 
@@ -49,7 +51,10 @@ data DefunMatch = DefunMatch
   deriving (Show)
 
 -- | @ArgBody@ abstracts over the details of arguments and body
-data ArgBody = ArgBody {argsBodyArgs :: Sexp.T, argsBodyBody :: Sexp.T}
+data ArgBody = ArgBody
+  { argsBodyArgs :: Sexp.T,
+    argsBodyBody :: Sexp.T
+  }
   deriving (Show)
 
 newtype LambdaCase = LambdaCase [ArgBody]
@@ -100,9 +105,16 @@ newtype RecordNoPunned = RecordNoPunned
   deriving (Show)
 
 data LetHandler = LetHandler
-  { letHandlername :: Sexp.T,
+  { letHandlerName :: Sexp.T,
     letHandlerOps :: Sexp.T,
     letHandlerRet :: Sexp.T
+  }
+  deriving (Show)
+
+data Handler = Handler
+  { handlerName :: Sexp.T,
+    handlerRet :: Frontend.LetRet,
+    handlerOps :: [Frontend.LetOp]
   }
   deriving (Show)
 
@@ -137,15 +149,6 @@ toArgBodys = fromStarList toArgBody . Sexp.groupBy2
 
 matchConstructor :: Sexp.T -> Sexp.T
 matchConstructor x = Sexp.list [x]
-
---------------------
--- NotPunned no Grouping
---------------------
-fromNotPunnedGroup :: [Frontend.NotPunned] -> Sexp.T
-fromNotPunnedGroup = Sexp.unGroupBy2 . toStarList Frontend.fromNotPunned
-
-toNotPunnedGroup :: Sexp.T -> Maybe [Frontend.NotPunned]
-toNotPunnedGroup = Frontend.toNotPunnedGroup
 
 ----------------------------------------
 -- Generated
@@ -301,32 +304,6 @@ fromLetMatch (LetMatch sexp1 argBodys2 sexp3) =
   Sexp.list [Sexp.atom nameLetMatch, sexp1, fromArgBodys argBodys2, sexp3]
 
 ----------------------------------------
--- LetHandler
-----------------------------------------
-
-nameLetHandler :: NameSymbol.T
-nameLetHandler = ":let-handler"
-
-isLetHandler :: Sexp.T -> Bool
-isLetHandler (Sexp.Cons form _) = Sexp.isAtomNamed form nameLetHandler
-isLetHandler _ = False
-
-toLetHandler :: Sexp.T -> Maybe LetHandler
-toLetHandler form
-  | isLetHandler form =
-    case form of
-      _nameLetHandler Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil ->
-        LetHandler sexp1 sexp2 sexp3 |> Just
-      _ ->
-        Nothing
-  | otherwise =
-    Nothing
-
-fromLetHandler :: LetHandler -> Sexp.T
-fromLetHandler (LetHandler sexp1 sexp2 sexp3) =
-  Sexp.list [Sexp.atom nameLetHandler, sexp1, sexp2, sexp3]
-
-----------------------------------------
 -- RecordNoPunned
 ----------------------------------------
 
@@ -342,7 +319,7 @@ toRecordNoPunned form
   | isRecordNoPunned form =
     case form of
       _nameRecordNoPunned Sexp.:> notPunnedGroup1
-        | Just notPunnedGroup1 <- toNotPunnedGroup notPunnedGroup1 ->
+        | Just notPunnedGroup1 <- Frontend.toNotPunnedGroup notPunnedGroup1 ->
           RecordNoPunned notPunnedGroup1 |> Just
       _ ->
         Nothing
@@ -351,7 +328,7 @@ toRecordNoPunned form
 
 fromRecordNoPunned :: RecordNoPunned -> Sexp.T
 fromRecordNoPunned (RecordNoPunned notPunnedGroup1) =
-  Sexp.listStar [Sexp.atom nameRecordNoPunned, fromNotPunnedGroup notPunnedGroup1]
+  Sexp.listStar [Sexp.atom nameRecordNoPunned, Frontend.fromNotPunnedGroup notPunnedGroup1]
 
 ----------------------------------------
 -- LambdaCase
@@ -379,3 +356,97 @@ toLambdaCase form
 fromLambdaCase :: LambdaCase -> Sexp.T
 fromLambdaCase (LambdaCase argBody1) =
   Sexp.listStar [Sexp.atom nameLambdaCase, fromArgBody `toStarList` argBody1]
+
+----------------------------------------
+-- LetHandler
+----------------------------------------
+
+nameLetHandler :: NameSymbol.T
+nameLetHandler = ":lethandler"
+
+isLetHandler :: Sexp.T -> Bool
+isLetHandler (Sexp.Cons form _) = Sexp.isAtomNamed form nameLetHandler
+isLetHandler _ = False
+
+toLetHandler :: Sexp.T -> Maybe LetHandler
+toLetHandler form
+  | isLetHandler form =
+    case form of
+      _nameLetHandler Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil ->
+        LetHandler sexp1 sexp2 sexp3 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromLetHandler :: LetHandler -> Sexp.T
+fromLetHandler (LetHandler sexp1 sexp2 sexp3) =
+  Sexp.list [Sexp.atom nameLetHandler, sexp1, Sexp.list [Sexp.atom ":ops", sexp2], sexp3]
+
+----------------------------------------
+-- Handler
+----------------------------------------
+
+nameHandler :: NameSymbol.T
+nameHandler = nameLetHandler
+
+isHandler :: Sexp.T -> Bool
+isHandler = isLetHandler
+
+toHandler :: Sexp.T -> Maybe Handler
+toHandler form =
+  toLetHandler form >>= transform
+  where
+    transform :: LetHandler -> Maybe Handler
+    transform (LetHandler {..}) =
+      let ret_ = Frontend.toLetRet letHandlerRet
+          ops_ = toLetOps letHandlerOps
+          name_ = letHandlerName
+       in pure Handler <*> pure name_ <*> ret_ <*> ops_
+
+fromHandler :: Handler -> Sexp.T
+fromHandler (Handler name ret ops) =
+  Sexp.list [Sexp.atom nameLetHandler, name, Frontend.fromLetRet ret, Sexp.list (Frontend.fromLetOp <$> ops)]
+
+toLetOps :: Sexp.T -> Maybe [Frontend.LetOp]
+toLetOps form = Sexp.toList (Sexp.cdr form) >>= traverse Frontend.toLetOp
+
+----------------------------------------
+-- Typeclass Instances
+----------------------------------------
+
+instance Structure DefunMatch where
+  to = toDefunMatch
+  from = fromDefunMatch
+
+instance Structure ArgBody where
+  to = toArgBody
+  from = fromArgBody
+
+instance Structure If where
+  to = toIf
+  from = fromIf
+
+instance Structure IfNoElse where
+  to = toIfNoElse
+  from = fromIfNoElse
+
+instance Structure DefunSigMatch where
+  to = toDefunSigMatch
+  from = fromDefunSigMatch
+
+instance Structure LetMatch where
+  to = toLetMatch
+  from = fromLetMatch
+
+instance Structure RecordNoPunned where
+  to = toRecordNoPunned
+  from = fromRecordNoPunned
+
+instance Structure LetHandler where
+  to = toLetHandler
+  from = fromLetHandler
+
+instance Structure Handler where
+  to = toHandler
+  from = fromHandler

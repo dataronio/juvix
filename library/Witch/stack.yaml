@@ -2,32 +2,18 @@ resolver: lts-17.3
 
 packages:
 - .
-- ./library/StandardLibrary
-- ./library/Frontend
-- ./library/Core
-- ./library/Pipeline
-- ./library/Translate
-- ./library/Backends/Michelson
-- ./library/EasyPipeline
-- ./library/HTTP
-- ./library/Backends/Plonk
-- ./library/Backends/llvm
-- ./library/Witch
-- ./library/Context
-- ./library/Sexp
+- ../Core
+- ../Frontend
+- ../StandardLibrary
+- ../Translate
+- ../Context
+- ../Sexp
+- ../Pipeline
+- ../Backends/Plonk
+- ../Backends/Michelson
+- ../EasyPipeline
 
 extra-deps:
-
-###################
-# For HTTP server #
-###################
-- servant-static-th-1.0.0.0
-
-################################
-# LLVM-HS Library dependencies #
-################################
-- llvm-hs-pure-9.0.0
-- llvm-hs-pretty-0.9.0.0
 
 ########################
 # General Dependencies #

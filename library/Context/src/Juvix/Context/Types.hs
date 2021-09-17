@@ -115,6 +115,9 @@ newtype Information
   deriving (Show, Read, Generic, Eq, Data)
   deriving newtype (A.ToJSON, A.FromJSON)
 
+instance Hashable Information where
+  hash (Prec pred) = hash pred
+
 newtype PathError
   = VariableShared NameSymbol.T
   deriving (Show, Read, Eq, Generic)

@@ -75,3 +75,8 @@ cradle:
       component: "EasyPipeline"
     - path: ./library/EasyPipeline/test
       component: "EasyPipeline:test:EasyPipeline-test"
+
+    - path: ./library/Witch/src
+      component: "Witch"
+    - path: ./library/Witch/test
+      component: "Witch:test:witch-test"

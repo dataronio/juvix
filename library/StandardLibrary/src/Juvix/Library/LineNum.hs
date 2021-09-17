@@ -1,11 +1,12 @@
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Juvix.Library.LineNum where
 
 import Control.Lens
 import qualified Data.Aeson as A
-import Juvix.Library
+import Juvix.Library (Data, Eq, Generic, Hashable (hash), Int, Ord, Show)
 
 data T = T {tLine :: Int, tCol :: Int} deriving (Show, Eq, Ord, Data, Generic)
 
@@ -14,5 +15,8 @@ instance A.ToJSON T where
 
 instance A.FromJSON T where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance Hashable T where
+  hash T {tLine, tCol} = hash (hash tLine, hash tCol)
 
 makeLensesWith camelCaseFields ''T
