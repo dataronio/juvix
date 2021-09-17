@@ -4,14 +4,11 @@ module Juvix.Backends.LLVM.Pipeline
   )
 where
 
-import qualified Data.HashMap.Strict as HM
 import Juvix.Backends.LLVM.Compilation
 import Juvix.Backends.LLVM.Parameterization
 import Juvix.Backends.LLVM.Primitive
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
-import qualified Juvix.Core.IR as IR
 import Juvix.Library
-import Juvix.Library.Feedback
 import qualified Juvix.Pipeline as Pipeline
 
 -- | Identifier for the LLVM backend.

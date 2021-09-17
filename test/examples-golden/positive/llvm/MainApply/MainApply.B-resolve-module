@@ -1,0 +1,27 @@
+Rec
+    { recordContents = T
+        { public = fromList
+            [
+                ( "main"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "TopLevel.Prelude.LLVM.int"
+                        , defTerm =
+                            ( ":lambda-case" ( () ( "f" 10 20 ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "f"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int"
+                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int" "TopLevel.Prelude.LLVM.int" ) )
+                        , defTerm =
+                            ( ":lambda-case" ( ( "x" "_" ) "x" ) )
+                        , defPrecedence = Pred Left 9 } ) ) ]
+        , private = fromList [] }
+    , recordMTy = Nothing
+    , recordOpenList = []
+    , recordQualifiedMap = map }

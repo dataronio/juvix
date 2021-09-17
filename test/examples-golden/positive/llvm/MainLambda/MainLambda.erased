@@ -1,0 +1,45 @@
+Ann
+    { usage = SAny
+    , type' = Pi SAny
+        ( PrimTy
+            ( PrimTy
+                ( IntegerType
+                    { typeBits = 8 }
+                )
+            )
+        )
+        ( Pi SAny
+            ( PrimTy
+                ( PrimTy
+                    ( IntegerType
+                        { typeBits = 8 }
+                    )
+                )
+            )
+            ( PrimTy
+                ( PrimTy
+                    ( IntegerType
+                        { typeBits = 8 }
+                    )
+                )
+            )
+        )
+    , term = LamM
+        { capture = []
+        , arguments =
+            [ "0" :| []
+            , "1" :| []
+            ]
+        , body = Ann
+            { usage = SAny
+            , type' = PrimTy
+                ( PrimTy
+                    ( IntegerType
+                        { typeBits = 8 }
+                    )
+                )
+            , term = Var
+                ( "1" :| [] )
+            }
+        }
+    }

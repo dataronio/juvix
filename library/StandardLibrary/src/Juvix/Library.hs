@@ -52,6 +52,7 @@ module Juvix.Library
     StateField,
     ReaderField,
     WriterField,
+    init,
   )
 where
 
@@ -97,7 +98,7 @@ import Protolude hiding
     yield,
     (:.:),
   )
-import Prelude (Show (..), String, error)
+import Prelude (Show (..), String, error, init)
 
 (∨) :: Bool -> Bool -> Bool
 (∨) = (||)

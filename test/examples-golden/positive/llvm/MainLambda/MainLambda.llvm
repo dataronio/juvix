@@ -1,0 +1,15 @@
+"; ModuleID = 'juvix-module'
+
+
+ 
+
+
+define external ccc  i8 @lam_0(i8  %arg_0, i8  %arg_1)    {
+  ret i8 %arg_1 
+}
+
+
+define external ccc  i8 @main(i8  %arg_0, i8  %arg_1)    {
+  %1 =  call ccc  i8  @lam_0(i8  %arg_0, i8  %arg_1)  
+  ret i8 %1 
+}"

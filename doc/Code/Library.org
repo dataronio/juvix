@@ -365,6 +365,8 @@ Surface language
   + [[Ann]]
   + [[Library]]
   + [[Feedback]]
+  + [[HashMap]]
+  + [[NameSymbol]]
 ******* Parameterization <<LLVM/Parameterization>>
 Parameterization and application of the LLVM backend primitives.
 - _Relies on_
@@ -381,9 +383,7 @@ The basic connection between the backend and the Juvix pipeline.
   + [[LLVM/Parameterization]]
   + [[Primitive]]
   + [[Ann]]
-  + [[Core/IR]]
   + [[Library]]
-  + [[Feedback]]
   + [[Juvix/Pipeline]]
 ******* Primitive
 Representation of LLVM primitives in Juvix.
