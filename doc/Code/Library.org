@@ -1151,6 +1151,7 @@ with any stage of the compiler while modifying the source code.
   + [[Library]]
 ***** ToHR
 - _Relies on_
+  + [[Closure]]
   + [[Juvix/Context]]
   + [[Traversal]]
   + [[Core/Base]]
@@ -1160,7 +1161,6 @@ with any stage of the compiler while modifying the source code.
   + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Juvix/Frontend]]
-  + [[Closure]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Parser]]
@@ -1189,8 +1189,8 @@ with any stage of the compiler while modifying the source code.
   + [[Juvix/Sexp]]
 ****** Env <<ToHR/Env>>
 - _Relies on_
-  + [[Juvix/Context]]
   + [[Closure]]
+  + [[Juvix/Context]]
   + [[Core/Base/Types]]
   + [[HR]]
   + [[Core/IR]]
