@@ -1,7 +1,11 @@
 module Test.Parameterisation (top) where
 
 import GHC.Base
-import Juvix.Backends.Michelson.Compilation.Types (Op, PrimTy (Application, Option, PrimTy), RawPrimVal (EDivI, Inst))
+import Juvix.Backends.Michelson.Compilation.Types
+  ( Op,
+    RawPrimTy (Application, Option, PrimTy),
+    RawPrimVal (EDivI, Inst),
+  )
 import Juvix.Backends.Michelson.DSL.Untyped (blank)
 import Juvix.Backends.Michelson.Parameterisation (michelson)
 import Juvix.Core.Parameterisation (PrimType (PrimType), hasType)
@@ -9,43 +13,43 @@ import qualified Michelson.Untyped as MU
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 
-hasMichelsonType :: RawPrimVal -> NonEmpty PrimTy -> Bool
+hasMichelsonType :: RawPrimVal -> NonEmpty RawPrimTy -> Bool
 hasMichelsonType val ty = hasType michelson val (PrimType ty)
 
-primMichelsonType :: MU.T -> MU.TypeAnn -> PrimTy
+primMichelsonType :: MU.T -> MU.TypeAnn -> RawPrimTy
 primMichelsonType ty ann = PrimTy (MU.Ty ty ann)
 
-unannotatedType :: MU.T -> PrimTy
+unannotatedType :: MU.T -> RawPrimTy
 unannotatedType ty = primMichelsonType ty blank
 
 unannotatedInstr :: (MU.VarAnn -> MU.InstrAbstract Op) -> RawPrimVal
 unannotatedInstr instr = Inst (instr blank)
 
-primBool :: PrimTy
+primBool :: RawPrimTy
 primBool = unannotatedType MU.TBool
 
-primNat :: PrimTy
+primNat :: RawPrimTy
 primNat = unannotatedType MU.TNat
 
-primInt :: PrimTy
+primInt :: RawPrimTy
 primInt = unannotatedType MU.TInt
 
-primTimestamp :: PrimTy
+primTimestamp :: RawPrimTy
 primTimestamp = unannotatedType MU.TTimestamp
 
-primKeyHash :: PrimTy
+primKeyHash :: RawPrimTy
 primKeyHash = unannotatedType MU.TKeyHash
 
-primOperation :: PrimTy
+primOperation :: RawPrimTy
 primOperation = unannotatedType MU.TOperation
 
-binOp :: PrimTy -> NonEmpty PrimTy
+binOp :: RawPrimTy -> NonEmpty RawPrimTy
 binOp ty = ty :| [ty, ty]
 
-natBinOp :: NonEmpty PrimTy
+natBinOp :: NonEmpty RawPrimTy
 natBinOp = binOp primNat
 
-intBinOp :: NonEmpty PrimTy
+intBinOp :: NonEmpty RawPrimTy
 intBinOp = binOp primInt
 
 lslInstr :: RawPrimVal

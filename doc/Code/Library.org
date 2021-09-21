@@ -46,11 +46,11 @@ Module that implements the backend parameters for the Michelson backend.
   + [[Core/HR/Pretty]]
   + [[Evaluator]]
   + [[Core/Parameterisation]]
+  + [[Core/Pretty]]
   + [[Core/Types]]
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
-  + [[PrettyPrint]]
   + [[Library/Usage]]
 ******* Pipeline <<Michelson/Pipeline>>
 - _Relies on_
@@ -144,7 +144,8 @@ Module that implements the backend parameters for the Michelson backend.
   + [[Instructions]]
   + [[Untyped]]
   + [[Utils]]
-  + [[Ann/Types]]
+  + [[Ann]]
+  + [[Application]]
   + [[Library]]
   + [[Library]]
   + [[NameSymbol]]
@@ -185,6 +186,8 @@ Module that implements the backend parameters for the Michelson backend.
   + [[Untyped]]
   + [[Optimisation]]
   + [[Ann]]
+  + [[Application]]
+  + [[Core/Parameterisation]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Usage]]
@@ -371,7 +374,6 @@ Surface language
 Parameterization and application of the LLVM backend primitives.
 - _Relies on_
   + [[Primitive]]
-  + [[Application]]
   + [[Core/Base/Types]]
   + [[Evaluator]]
   + [[Core/Parameterisation]]
@@ -487,10 +489,9 @@ Traversals serves as generic Context Traversal modules.
 Types to support partial application and polymorphic primitives.
 - _Relies on_
   + [[Core/Base/Types]]
-  + [[Core/HR/Pretty]]
+  + [[Core/Pretty]]
   + [[IR/Types]]
   + [[Library]]
-  + [[PrettyPrint]]
   + [[Library/Usage]]
 ***** Parameterisation <<Core/Parameterisation>>
 Juvix parameterises the type theory & core language over a set of
@@ -503,12 +504,20 @@ relation.
 - _Relies on_
   + [[Application]]
   + [[Core/Base/Types]]
-  + [[Core/HR/Pretty]]
+  + [[Core/Pretty]]
   + [[IR/Types]]
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
+  + [[Library/Usage]]
+***** Pretty <<Core/Pretty>>
+- _Relies on_
+  + [[Core/Base]]
+  + [[Library]]
+  + [[NameSymbol]]
   + [[PrettyPrint]]
+  + [[PrettyPrint]]
+  + [[Library/Usage]]
 ***** Translate
 - _Relies on_
   + [[Core/Base/Types]]
@@ -609,6 +618,7 @@ keeps the extensions.
   + [[Erased/Base/Types]]
   + [[Erased/Types]]
   + [[Erased/Types]]
+  + [[HR/Types]]
   + [[Core/HR/Pretty]]
   + [[Core/IR]]
   + [[Typechecker/Types]]
@@ -666,7 +676,7 @@ keeps the extensions.
 ******* Types <<Ann/Types>>
 - _Relies on_
   + [[Application]]
-  + [[Base/Types/Base]]
+  + [[Core/Base/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[NameSymbol]]
@@ -690,17 +700,17 @@ keeps the extensions.
   + [[NameSymbol]]
 ****** Pretty <<Core/HR/Pretty>>
 - _Relies on_
-  + [[Core/Base]]
+  + [[Core/Pretty]]
   + [[HR/Types]]
   + [[Library]]
   + [[NameSymbol]]
-  + [[PrettyPrint]]
-  + [[Library/Usage]]
 ****** Types <<HR/Types>>
 - _Relies on_
+  + [[Library]]
   + [[Core/Base/Types]]
   + [[Extend]]
-  + [[Library]]
+  + [[Application]]
+  + [[NameSymbol]]
 ***** IR <<Core/IR>>
 - _Relies on_
   + [[CheckTerm]]
@@ -781,6 +791,7 @@ values.
   + [[Evaluator/Types]]
   + [[Evaluator/Weak]]
   + [[IR/Types]]
+  + [[Typechecker/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[Library/Usage]]
@@ -1299,12 +1310,12 @@ with any stage of the compiler while modifying the source code.
   + [[Juvix/Sexp]]
 **** ToSexp <<Test/ToSexp>>
 - _Relies on_
+  + [[Desugar]]
   + [[Frontend/Parser]]
   + [[Frontend/Types]]
   + [[Library]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
-  + [[Desugar]]
 * Sexp
 ** Setup <<Sexp/Setup>>
 ** src
@@ -1366,8 +1377,8 @@ _TODO_
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
-  + [[Structure/Helpers]]
   + [[Structure]]
+  + [[Structure/Helpers]]
 ****** Frontend <<Structure/Frontend>>
 Hardening S-expressions into a more readable form. Here we use a
 mixture of record structures and aliases. Each cover a form that we
@@ -1400,8 +1411,8 @@ _TODO_
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
-  + [[Structure/Helpers]]
   + [[Structure]]
+  + [[Structure/Helpers]]
 ****** Helpers <<Structure/Helpers>>
 - _Relies on_
   + [[Library]]
@@ -1444,9 +1455,9 @@ _TODO_
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
+  + [[Structure]]
   + [[Structure/Frontend]]
   + [[Structure/Helpers]]
-  + [[Structure]]
 ** test
 *** Main <<Sexp/test/Main>>
 - _Relies on_
@@ -1825,13 +1836,13 @@ done with no extra information needed. Thus we export the following passes
 **** Desugar
 ***** Sexp <<Desugar/Sexp>>
 - _Relies on_
+  + [[Desugar]]
   + [[Desugar/Passes]]
+  + [[Frontend/Parser]]
+  + [[Frontend/Types]]
   + [[Library]]
   + [[Juvix/Sexp]]
-  + [[Desugar]]
-  + [[Frontend/Types]]
   + [[TopLevel]]
-  + [[Frontend/Parser]]
 **** Sexp
 ***** Helpers <<Sexp/Helpers>>
 - _Relies on_
@@ -1851,54 +1862,39 @@ done with no extra information needed. Thus we export the following passes
 **** Witch
 ***** CPSTranslation <<Witch/CPSTranslation>>
 - _Relies on_
-  + [[Transform]]
+  + [[Juvix/Context]]
   + [[Library]]
   + [[Juvix/Sexp]]
-  + [[Juvix/Context]]
+  + [[Transform]]
 ****** SexpHelpers
 - _Relies on_
   + [[Library]]
+  + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[Structure]]
+  + [[CoreNamed]]
   + [[Structure/Frontend]]
   + [[Transition]]
-  + [[CoreNamed]]
-  + [[NameSymbol]]
 ****** Transform
-The CPS translation implemented here deals with higher-order continuations.
-| We work with continuations at the meta-language level (Haskell) and
-| source language (Juvix post-effects). For that, we convert the stack
-| between static and dynamic contexts.
-| Cryptic parts of the code are commented with a version that is more human-readable
-| and it appears above and horizontally-aligned with the code it explains.
-algorithm:
-put all handlers into context
-search for all vias
-for all vias
- - if current via contain any via, remove nested vias from main list
- - create a stack for via's handler
- - traverse over values and computations applying stacks as per rules
-end for vias
-remove all handlers from context
 - _Relies on_
+  + [[Juvix/Context]]
+  + [[NameSpace]]
+  + [[Precedence]]
   + [[Library]]
+  + [[NameSymbol]]
   + [[Juvix/Sexp]]
-  + [[SexpHelpers]]
+  + [[CoreNamed]]
   + [[Structure/Frontend]]
   + [[Transition]]
-  + [[CoreNamed]]
-  + [[NameSymbol]]
-  + [[NameSpace]]
-  + [[Juvix/Context]]
-  + [[Precedence]]
+  + [[SexpHelpers]]
 ** test
 *** CPSTranslation <<test/CPSTranslation>>
 - _Relies on_
+  + [[Desugar]]
   + [[Frontend/Parser]]
   + [[Frontend/Types]]
   + [[Library]]
   + [[Pipeline/ToSexp]]
-  + [[Desugar]]
   + [[Juvix/Sexp]]
   + [[Witch/CPSTranslation]]
 *** Main <<Witch/test/Main>>

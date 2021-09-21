@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedLists #-}
 
 -- | Tests for the type checker and evaluator in Core/IR/Typechecker.hs
-module Typechecker where
+module Typechecker (coreCheckerEval) where
 
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base as Core
@@ -21,33 +21,25 @@ import qualified Juvix.Library.Usage as Usage
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 
+type TermT ty val = Core.Term IR.T (KindedType ty) (TypedPrim ty val)
+
+type ElimT ty val = Core.Elim IR.T (KindedType ty) (TypedPrim ty val)
+
 type NatTerm = Core.Term IR.T Nat.Ty Nat.Val
 
-type NatElim = IR.Elim Nat.Ty Nat.Val
+type NatTermT = TermT Nat.Ty Nat.Val
 
-type NatValue = Core.Value IR.T Nat.Ty Nat.Val
+type NatElimT = ElimT Nat.Ty Nat.Val
+
+type NatElim = IR.Elim Nat.Ty Nat.Val
 
 type NatValueT = Typed.ValueT IR.T Nat.Ty Nat.Val
 
 type NatAnnotation = Typed.AnnotationT IR.T Nat.Ty Nat.Val
 
-type UnitTerm = Core.Term IR.T Unit.Ty Unit.Val
-
-type UnitElim = IR.Elim Unit.Ty Unit.Val
-
-type UnitValue = Core.Value IR.T Unit.Ty Unit.Val
-
-type UnitValueT = Typed.ValueT IR.T Unit.Ty Unit.Val
-
 type UnitAnnotation = Typed.AnnotationT IR.T Unit.Ty Unit.Val
 
 type AllTerm = Core.Term IR.T All.Ty All.Val
-
-type AllElim = IR.Elim All.Ty All.Val
-
-type AllValue = Core.Value IR.T All.Ty All.Val
-
-type AllValueT = Typed.ValueT IR.T All.Ty All.Val
 
 type AllAnnotation = Typed.AnnotationT IR.T All.Ty All.Val
 
@@ -72,12 +64,6 @@ assertEitherIsAsExpected False (Right r) =
       ++ ")"
 assertEitherIsAsExpected False (Left _) = pure ()
 
-assertIsRight :: (HasCallStack, Show a, Show b) => Either a b -> T.Assertion
-assertIsRight = assertEitherIsAsExpected True
-
-assertIsLeft :: (HasCallStack, Show a, Show b) => Either a b -> T.Assertion
-assertIsLeft = assertEitherIsAsExpected False
-
 -- unit test generator for typeTerm
 assertCheckResultWith ::
   ( HasCallStack,
@@ -85,20 +71,16 @@ assertCheckResultWith ::
     Show primVal,
     Eq primTy,
     Eq primVal,
-    CanApply (TypedPrim primTy primVal),
-    CanApply primTy,
-    Eq (Arg primTy),
-    Show (Arg primTy),
-    Eq (Arg (TypedPrim primTy primVal)),
-    Show (Arg (TypedPrim primTy primVal)),
-    Eq (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra primTy),
-    Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
-    Show (ApplyErrorExtra (TypedPrim primTy primVal)),
+    CanPrimApply P.Star primTy,
+    CanPrimApply primTy primVal,
+    Eq (PrimApplyError primTy),
+    Show (PrimApplyError primTy),
+    Eq (PrimApplyError primVal),
+    Show (PrimApplyError primVal),
     Typed.PrimSubstValue primTy primVal,
     Typed.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (TypedPrim primTy primVal)
@@ -130,20 +112,16 @@ shouldCheckWith ::
     Show primVal,
     Eq primTy,
     Eq primVal,
-    CanApply (TypedPrim primTy primVal),
-    CanApply primTy,
-    Eq (Arg primTy),
-    Show (Arg primTy),
-    Eq (Arg (TypedPrim primTy primVal)),
-    Show (Arg (TypedPrim primTy primVal)),
-    Eq (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra primTy),
-    Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
-    Show (ApplyErrorExtra (TypedPrim primTy primVal)),
+    CanPrimApply P.Star primTy,
+    CanPrimApply primTy primVal,
+    Eq (PrimApplyError primTy),
+    Show (PrimApplyError primTy),
+    Eq (PrimApplyError primVal),
+    Show (PrimApplyError primVal),
     Typed.PrimSubstValue primTy primVal,
     Typed.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (TypedPrim primTy primVal)
@@ -164,20 +142,16 @@ shouldFailWith ::
     Show primVal,
     Eq primTy,
     Eq primVal,
-    CanApply (TypedPrim primTy primVal),
-    CanApply primTy,
-    Eq (Arg primTy),
-    Show (Arg primTy),
-    Eq (Arg (TypedPrim primTy primVal)),
-    Show (Arg (TypedPrim primTy primVal)),
-    Eq (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra primTy),
-    Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
-    Show (ApplyErrorExtra (TypedPrim primTy primVal)),
+    CanPrimApply P.Star primTy,
+    CanPrimApply primTy primVal,
+    Eq (PrimApplyError primTy),
+    Show (PrimApplyError primTy),
+    Eq (PrimApplyError primVal),
+    Show (PrimApplyError primVal),
     Typed.PrimSubstValue primTy primVal,
     Typed.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (TypedPrim primTy primVal)
@@ -197,20 +171,16 @@ assertCheckResult ::
     Show primVal,
     Eq primTy,
     Eq primVal,
-    CanApply (TypedPrim primTy primVal),
-    CanApply primTy,
-    Eq (Arg primTy),
-    Show (Arg primTy),
-    Eq (Arg (TypedPrim primTy primVal)),
-    Show (Arg (TypedPrim primTy primVal)),
-    Eq (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra primTy),
-    Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
-    Show (ApplyErrorExtra (TypedPrim primTy primVal)),
+    CanPrimApply P.Star primTy,
+    CanPrimApply primTy primVal,
+    Eq (PrimApplyError primTy),
+    Show (PrimApplyError primTy),
+    Eq (PrimApplyError primVal),
+    Show (PrimApplyError primVal),
     Typed.PrimSubstValue primTy primVal,
     Typed.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (TypedPrim primTy primVal)
@@ -230,20 +200,16 @@ shouldCheck ::
     Show primVal,
     Eq primTy,
     Eq primVal,
-    CanApply (TypedPrim primTy primVal),
-    CanApply primTy,
-    Eq (Arg primTy),
-    Show (Arg primTy),
-    Eq (Arg (TypedPrim primTy primVal)),
-    Show (Arg (TypedPrim primTy primVal)),
-    Eq (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra primTy),
-    Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
-    Show (ApplyErrorExtra (TypedPrim primTy primVal)),
+    CanPrimApply P.Star primTy,
+    CanPrimApply primTy primVal,
+    Eq (PrimApplyError primTy),
+    Show (PrimApplyError primTy),
+    Eq (PrimApplyError primVal),
+    Show (PrimApplyError primVal),
     Typed.PrimSubstValue primTy primVal,
     Typed.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (TypedPrim primTy primVal)
@@ -261,20 +227,16 @@ shouldFail ::
     Show primVal,
     Eq primTy,
     Eq primVal,
-    CanApply (TypedPrim primTy primVal),
-    CanApply primTy,
-    Eq (Arg primTy),
-    Show (Arg primTy),
-    Eq (Arg (TypedPrim primTy primVal)),
-    Show (Arg (TypedPrim primTy primVal)),
-    Eq (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra primTy),
-    Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
-    Show (ApplyErrorExtra (TypedPrim primTy primVal)),
+    CanPrimApply P.Star primTy,
+    CanPrimApply primTy primVal,
+    Eq (PrimApplyError primTy),
+    Show (PrimApplyError primTy),
+    Eq (PrimApplyError primVal),
+    Show (PrimApplyError primVal),
     Typed.PrimSubstValue primTy primVal,
     Typed.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (TypedPrim primTy primVal)
@@ -293,20 +255,16 @@ shouldInferWith ::
     Show primVal,
     Eq primTy,
     Eq primVal,
-    CanApply (TypedPrim primTy primVal),
-    CanApply primTy,
-    Eq (Arg primTy),
-    Show (Arg primTy),
-    Eq (Arg (TypedPrim primTy primVal)),
-    Show (Arg (TypedPrim primTy primVal)),
-    Eq (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra primTy),
-    Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
-    Show (ApplyErrorExtra (TypedPrim primTy primVal)),
+    CanPrimApply P.Star primTy,
+    CanPrimApply primTy primVal,
+    Eq (PrimApplyError primTy),
+    Show (PrimApplyError primTy),
+    Eq (PrimApplyError primVal),
+    Show (PrimApplyError primVal),
     Typed.PrimSubstValue primTy primVal,
     Typed.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (TypedPrim primTy primVal)
@@ -330,20 +288,16 @@ shouldInfer ::
     Show primVal,
     Eq primTy,
     Eq primVal,
-    CanApply (TypedPrim primTy primVal),
-    CanApply primTy,
-    Eq (Arg primTy),
-    Show (Arg primTy),
-    Eq (Arg (TypedPrim primTy primVal)),
-    Show (Arg (TypedPrim primTy primVal)),
-    Eq (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra primTy),
-    Eq (ApplyErrorExtra (TypedPrim primTy primVal)),
-    Show (ApplyErrorExtra (TypedPrim primTy primVal)),
+    CanPrimApply P.Star primTy,
+    CanPrimApply primTy primVal,
+    Eq (PrimApplyError primTy),
+    Show (PrimApplyError primTy),
+    Eq (PrimApplyError primVal),
+    Show (PrimApplyError primVal),
     Typed.PrimSubstValue primTy primVal,
     Typed.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (TypedPrim primTy primVal)
@@ -366,9 +320,9 @@ shouldEval' ::
     CanApply primTy,
     Eq (Eval.Error IR.T IR.T primTy primVal),
     Show (Eval.Error IR.T IR.T primTy primVal),
-    Eval.HasPatSubstTerm (OnlyExts.T IR.T) primTy primVal primTy,
+    Eval.HasPatSubstType (OnlyExts.T IR.T) primTy primVal primTy,
     Eval.HasPatSubstTerm (OnlyExts.T IR.T) primTy primVal primVal,
-    Eval.HasSubstValue IR.T primTy primVal primTy,
+    Eval.HasSubstValueType IR.T primTy primVal primTy,
     Eval.HasSubstValue IR.T primTy primVal primVal,
     Eval.HasWeak primVal
   ) =>
@@ -390,9 +344,9 @@ shouldEval ::
     CanApply primTy,
     Eq (Eval.Error IR.T IR.T primTy primVal),
     Show (Eval.Error IR.T IR.T primTy primVal),
-    Eval.HasPatSubstTerm (OnlyExts.T IR.T) primTy primVal primTy,
+    Eval.HasPatSubstType (OnlyExts.T IR.T) primTy primVal primTy,
     Eval.HasPatSubstTerm (OnlyExts.T IR.T) primTy primVal primVal,
-    Eval.HasSubstValue IR.T primTy primVal primTy,
+    Eval.HasSubstValueType IR.T primTy primVal primTy,
     Eval.HasSubstValue IR.T primTy primVal primVal,
     Eval.HasWeak primVal
   ) =>
@@ -508,21 +462,23 @@ evaluations :: T.TestTree
 evaluations =
   T.testGroup
     "Evaluations"
-    [ shouldEval add12 (natV 3),
-      shouldEval sub52 (natV 3),
-      shouldEval identityApplication (natV 1),
-      shouldEval (IR.Elim identityAppINat1) (natV 1),
-      shouldEval (IR.Elim identityAppI) videntity,
-      shouldEval (IR.Elim kApp1_2) (natV 1),
+    [ shouldEval add12 (natVT 3),
+      shouldEval sub52 (natVT 3),
+      shouldEval identityApplicationT (natVT 1),
+      shouldEval (IR.Elim identityAppINat1T) (natVT 1),
+      shouldEval (IR.Elim identityAppIT) videntity,
+      shouldEval (IR.Elim kApp1_2T) (natVT 1),
       shouldEval' typGlobals (IR.Elim (IR.Free (Core.Global "ty"))) (IR.VStar 0),
       shouldEval' typGlobals (name "tz") (vname "tz"),
       shouldEval' typGlobals (name "B") (vname "A"),
       shouldEval' typGlobals (name "C") (vname "A")
     ]
   where
-    add12 = IR.Elim $ add `IR.App` nat 1 `IR.App` nat 2
-    sub52 = IR.Elim $ sub `IR.App` nat 5 `IR.App` nat 2
-    sub = IR.Ann Usage.SAny (IR.Prim Nat.Sub) addTyT 0
+    add12 = IR.Elim $ add `IR.App` nat' 1 `IR.App` nat' 2
+    sub52 = IR.Elim $ sub `IR.App` nat' 5 `IR.App` nat' 2
+    binPrim op = App.Return {retTerm = op, retType = [Nat.Ty, Nat.Ty, Nat.Ty]}
+    sub = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Sub) addTyT' 0
+    add = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Add) addTyT' 0
     videntity = IR.VLam $ Core.VBound 0
     name = IR.Elim . IR.Free . Core.Global
     vname = Core.VFree . Core.Global
@@ -613,81 +569,42 @@ depIdentityCompTySAny =
 -- \x.x 1
 identityApplication :: NatTerm
 identityApplication =
-  IR.Elim
-    ( IR.App -- Applying
-        ( IR.Ann -- the function that has annotation of
-            one -- usage 1
-            identity -- the identity function,
-            -- which has annotation (1, 1 Nat -> Nat)
-            (IR.Pi one natT' natT')
-            -- type of 1 Nat -> Nat
-            0
-        )
-        (IR.Prim (Nat.Val 1)) -- applies to 1
-    )
+  IR.Elim $
+    IR.Ann one identity (IR.Pi one natT' natT') 0 `IR.App` nat 1
+
+-- \x.x 1
+identityApplicationT :: NatTermT
+identityApplicationT =
+  IR.Elim $
+    IR.Ann one identity (IR.Pi one natTK natTK) 0 `IR.App` nat' 1
 
 -- computation annotation (1, Nat)
 natTy :: NatAnnotation
 natTy = one `ann` natT
 
--- (I:1 (1 Nat->Nat) -> (1 Nat->Nat) I:(1 Nat->Nat) ) 1 type checked to Nat.Ty
-identityAppINat1 :: NatElim
-identityAppINat1 =
-  IR.App -- applying (identity to identity) to 1
-    ( IR.App -- applying identity to identity
-        ( IR.Ann
-            one -- sig usage, the first 1 in the annotation
-            identity -- has annotation (1, 1 ((1 Nat -> Nat)) -> (1 Nat -> Nat))
-            ( IR.Pi
-                one -- the second 1 in the annotation
-                (IR.Pi one natT' natT')
-                -- the third 1 in the annotation, (1 Nat -> Nat)
-                (IR.Pi one natT' natT')
-                -- the forth 1 in the annotation, (1 Nat -> Nat)
-            )
-            0
-        )
-        ( IR.Elim
-            ( IR.Ann
-                one -- sig usage, the first 1 in the annotation
-                identity -- has annotation (1, 1 Nat -> Nat)
-                ( IR.Pi
-                    one -- the second 1 in the annotation
-                    natT' -- 1 Nat ->
-                    natT' -- Nat
-                )
-                0
-            )
-        )
-    )
-    (IR.Prim (Nat.Val 1))
-
 -- I:(Nat->Nat)->(Nat->Nat) I:(Nat->Nat) type checked to (Nat->Nat)
 -- I:(Nat->Nat) I:(Nat->Nat) correctly does not type checked
 identityAppI :: NatElim
 identityAppI =
-  IR.App -- applying identity to identity
-    ( IR.Ann
-        one -- sig usage, the first 1 in the annotation
-        identity -- has annotation (1, (1, (1 Nat -> Nat) ) -> (1 Nat -> Nat) ) )
-        ( IR.Pi
-            one -- the second 1 in the annotation
-            (IR.Pi one natT' natT')
-            -- the third 1 in the annotation 1 Nat -> Nat
-            (IR.Pi one natT' natT')
-            -- the forth 1 in the annotation 1 Nat -> Nat
-        )
-        0
-    )
-    ( IR.Elim
-        ( IR.Ann
-            one -- sig usage, the first 1 of the annotation
-            identity -- annotation (1, 1 Nat -> Nat)
-            (IR.Pi one natT' natT')
-            -- the second 1 of the annotation, 1 Nat -> Nat
-            0
-        )
-    )
+  let natToNat = (IR.Pi one natT' natT')
+      idAt ty = IR.Ann one identity (IR.Pi one ty ty) 0
+   in idAt natToNat `IR.App` IR.Elim (idAt natT')
+
+-- I:(Nat->Nat)->(Nat->Nat) I:(Nat->Nat) type checked to (Nat->Nat)
+-- I:(Nat->Nat) I:(Nat->Nat) correctly does not type checked
+identityAppIT :: NatElimT
+identityAppIT =
+  let natToNat = (IR.Pi one natTK natTK)
+      idAt ty = IR.Ann one identity (IR.Pi one ty ty) 0
+   in idAt natToNat `IR.App` IR.Elim (idAt natTK)
+
+-- (I:1 (1 Nat->Nat) -> (1 Nat->Nat) I:(1 Nat->Nat) ) 1 type checked to Nat.Ty
+identityAppINat1 :: NatElim
+identityAppINat1 = identityAppI `IR.App` nat 1
+
+-- (I:1 (1 Nat->Nat) -> (1 Nat->Nat) I:(1 Nat->Nat) ) 1 type checked to Nat.Ty
+identityAppINat1T :: NatElimT
+identityAppINat1T = identityAppIT `IR.App` nat' 1
 
 kcombinator :: forall primTy primVal. Core.Term IR.T primTy primVal -- K = \x.\y.x
 kcombinator = IR.Lam (IR.Lam (IR.Elim (IR.Bound 1)))
@@ -709,17 +626,7 @@ kCompTy =
 -- K computation annotation (1, 1 Nat -> 0 () -> Nat)
 kCompTyWithUnit :: AllAnnotation
 kCompTyWithUnit =
-  one
-    `ann` IR.VPi -- sig usage of k
-    -- first input, 1 Nat
-      one -- is used once in the output
-      (IR.VPrimTy (All.NatTy Nat.Ty)) -- of type Nat
-      ( IR.VPi -- second input, 0 Unit
-          mempty -- is not used in the output
-          (IR.VPrimTy (All.UnitTy Unit.Ty)) -- of type Unit
-          (IR.VPrimTy (All.NatTy Nat.Ty))
-          -- the output is of type Nat
-      )
+  one `ann` IR.VPi one natTAll (IR.VPi mempty unitTAll natTAll)
 
 -- I K computation annotation
 -- (1, 1 (1 Nat -> 0 Nat -> Nat) ->
@@ -773,8 +680,22 @@ kApp1 =
     0
     `IR.App` nat 1
 
-kApp1_2 :: NatElim
-kApp1_2 = kApp1 `IR.App` nat 2
+-- (K: Nat -> Nat -> Nat 1) should type check to Nat -> Nat
+kApp1T :: NatElimT
+kApp1T =
+  IR.Ann -- K
+    one -- sig usage
+    kcombinator -- annotation (1, (1 Nat -> 0 Nat -> Nat))
+    ( IR.Pi
+        one
+        natTK -- (1 Nat ->
+        (IR.Pi mempty natTK natTK) -- 0 Nat -> Nat)
+    )
+    0
+    `IR.App` nat' 1
+
+kApp1_2T :: NatElimT
+kApp1_2T = kApp1T `IR.App` nat' 2
 
 -- computation annotation (π Nat -> Nat)
 natToNatTy' :: Usage.T -> NatAnnotation
@@ -912,111 +833,6 @@ depKCompTyT =
         IR.Pi mempty (IR.Elim $ IR.Bound 1) $
           IR.Elim $ IR.Bound 3
 
--- S combinator: Sxyz = xz(yz)
--- Because S returns functions, it's not general because of the annotations.
--- For example, S KSK = KK (SK) = K:Nat-> Nat-> Nat
--- this S takes in KSK, and has x and y annotated as follows:
--- (x = K that takes inputs
---     (1) K, with type signature of z, and
---     (2) SK, the S takes in K and 2 Nats, and has the signature (Nat -> Nat -> Nat) -> Nat -> Nat -> Nat,
---             the K has the type signature of z. So SK has the signature of Nat -> Nat -> Nat
--- so x has the signature of (Nat -> Nat -> Nat) -> (Nat -> Nat -> Nat) -> (Nat -> Nat -> Nat)
--- (y = S that takes in K and 2 Nats and returns a Nat:) (Nat -> Nat-> Nat) -> Nat -> Nat -> Nat
--- (z = K:) Nat -> Nat -> Nat
--- (returns z) -> Nat -> Nat -> Nat
--- To sum, type signature of S in this example is:
--- ((Nat -> Nat -> Nat) -> (Nat -> Nat -> Nat) -> (Nat -> Nat -> Nat)) ->
--- ((Nat -> Nat -> Nat) -> Nat -> Nat -> Nat)
--- (Nat -> Nat -> Nat)
--- this example is too long, not doing this atm
-
--- example of s combinator with the following signature:
--- the first has type signature of 1 Nat -> 0 Nat -> Nat
--- the second input has type signature 1 Nat -> Nat
--- the third input is Nat
--- type signature of this S is 1 (1 Nat -> 0 Nat -> Nat) -> 1 (1 Nat -> Nat) -> 2 Nat -> Nat
-scombinator :: NatTerm -- S = \x.\y.\z. (xz) (yz)
-scombinator =
-  IR.Lam --x/first input (Bound 2, counting from output)
-    ( IR.Lam --y/second input (Bound 1, counting from output)
-        ( IR.Lam --z/third input (Bound 0, counting from output)
-            ( IR.Elim
-                ( IR.App -- xz applies to yz
-                    ( IR.Ann
-                        one
-                        ( IR.Elim
-                            ( IR.App -- x applies to z
-                                ( IR.Ann
-                                    one -- usage of x
-                                    (IR.Elim (IR.Bound 2)) -- x
-                                    ( IR.Pi
-                                        one
-                                        natT'
-                                        (IR.Pi mempty natT' natT') -- Annotation of x: (1 Nat -> 0 Nat -> Nat)
-                                    )
-                                    0
-                                )
-                                (IR.Elim (IR.Bound 0)) -- z
-                            )
-                        )
-                        ( IR.Pi -- Annotation of xz: 0 Nat -> Nat
-                            mempty
-                            natT'
-                            natT'
-                        )
-                        0
-                    )
-                    ( IR.Elim
-                        ( IR.App -- y applies to z
-                            ( IR.Ann
-                                one -- usage of y
-                                (IR.Elim (IR.Bound 1)) -- y
-                                (IR.Pi one natT' natT') -- Annotation of y, (1 Nat -> Nat)
-                                0
-                            )
-                            (IR.Elim (IR.Bound 0)) -- z
-                        )
-                    )
-                )
-            )
-        )
-    )
-
--- S xyz = (xz) (yz)
--- computation annotation of S (1, 1 (1 Nat -> 0 Nat -> Nat) -> 1 (1 Nat -> Nat) -> 2 Nat -> Nat )
-scombinatorCompNatTy :: NatAnnotation
-scombinatorCompNatTy =
-  one
-    `ann` IR.VPi -- sig usage of S
-    --
-      one -- usage of 1 (1 Nat -> 0 Nat -> Nat)
-      ( IR.VPi
-          one
-          natT -- (1 Nat ->
-          ( IR.VPi
-              mempty
-              natT -- 0 Nat ->
-              natT -- Nat) ->
-          )
-      )
-      ( IR.VPi -- second input, (1 Nat -> Nat)
-          one -- usage of (1 Nat -> Nat)
-          ( IR.VPi
-              one
-              natT --(1 Nat ->
-              natT -- Nat) ->
-          )
-          ( IR.VPi
-              Usage.SAny
-              natT -- w Nat ->
-              natT -- Nat
-          )
-      )
-
--- K 1 (I 1) = 1, so should type checked to (1, Nat)
-ski1CompNatTy :: NatAnnotation
-ski1CompNatTy = one `ann` natT
-
 dependentPairComp :: T.TestTree
 dependentPairComp =
   T.testGroup
@@ -1028,12 +844,6 @@ dependentPairComp =
       shouldCheck All.t natTypeNatValuePair allAnn,
       shouldCheck All.t (allSig 0) (starAnn 1)
     ]
-
-twoNatsAnn :: NatAnnotation
-twoNatsAnn = one `ann` IR.VSig one natT natT
-
-twoNats :: NatTerm
-twoNats = IR.Pair (nat 0) (nat 1)
 
 boxNatAnn :: NatAnnotation
 boxNatAnn = one `ann` IR.VSig mempty (IR.VStar 0) (Core.VBound 0)
@@ -1068,34 +878,13 @@ starAnn n = zero `ann` IR.VStar n
 allSig :: Natural -> AllTerm
 allSig n = IR.Sig (Usage.SNat 0) (IR.Star n) (IR.Elim (IR.Bound 0))
 
-add :: NatElim
-add = IR.Ann Usage.SAny (IR.Prim Nat.Add) addTyT 0
-
-addTyT :: NatTerm
-addTyT = IR.Pi Usage.SAny natT' $ IR.Pi Usage.SAny natT' $ natT'
+addTyT' :: NatTermT
+addTyT' = IR.Pi Usage.SAny natTK $ IR.Pi Usage.SAny natTK $ natTK
 
 addTy :: NatValueT
 addTy = IR.VPi Usage.SAny natT $ IR.VPi Usage.SAny natT $ natT
 
-one' :: forall primTy primVal. Core.Term IR.T primTy primVal
-one' = IR.Lam $ IR.Lam $ IR.Elim $ IR.App (IR.Bound 1) (IR.Elim (IR.Bound 0))
-
-oneCompTy :: NatAnnotation
-oneCompTy = one `ann` IR.VPi one (IR.VPi one natT natT) (IR.VPi one natT natT)
-
-two :: Core.Term IR.T primTy primVal
-two =
-  IR.Lam $
-    IR.Lam $
-      IR.Elim $
-        IR.App (IR.Bound 1) (IR.Elim (IR.App (IR.Bound 1) (IR.Elim (IR.Bound 0))))
-
-twoCompTy :: NatAnnotation
-twoCompTy = one `ann` IR.VPi two (IR.VPi one natT natT) (IR.VPi one natT natT)
-  where
-    two = Usage.SNat 2
-
-typGlobals :: Core.Globals IR.T IR.T Unit.Ty (TypedPrim Unit.Ty Unit.Val)
+typGlobals :: Typed.GlobalsT IR.T IR.T Unit.Ty Unit.Val
 typGlobals =
   Map.fromList
     [ ("A", Core.GAbstract (Core.Abstract "A" Core.GZero (IR.VStar 0))),
@@ -1143,32 +932,34 @@ fTerm = IR.Elim fElim
 fElim :: IR.Elim primTy primVal
 fElim = IR.Free (Core.Global "F")
 
-faTerm :: Core.Term IR.T primTy primVal
-faTerm = IR.Elim faElim
-
 faElim :: IR.Elim primTy primVal
 faElim = fElim `IR.App` aTerm
 
 nat :: Natural -> Core.Term IR.T primTy Nat.Val
 nat = IR.Prim . Nat.Val
 
-natV :: Natural -> Core.Value IR.T primTy Nat.Val
-natV = IR.VPrim . Nat.Val
+nat' :: Natural -> Core.Term IR.T primTy (TypedPrim Nat.Ty Nat.Val)
+nat' n = IR.Prim $ App.Return {retTerm = Nat.Val n, retType = [Nat.Ty]}
+
+natVT :: Natural -> Typed.ValueT IR.T Nat.Ty Nat.Val
+natVT n = IR.VPrim $ App.Return {retTerm = Nat.Val n, retType = [Nat.Ty]}
 
 natT' :: Core.Term IR.T Nat.Ty primVal
 natT' = IR.PrimTy Nat.Ty
 
-natT :: Core.Value IR.T Nat.Ty primVal
-natT = IR.VPrimTy Nat.Ty
+natTK :: TermT Nat.Ty primVal
+natTK = IR.PrimTy $ App.Return {retTerm = Nat.Ty, retType = [P.STAR]}
 
-unitT' :: Core.Term IR.T Unit.Ty primVal
-unitT' = IR.PrimTy Unit.Ty
+natT :: Typed.ValueT IR.T Nat.Ty primVal
+natT = IR.VPrimTy $ App.Return {retTerm = Nat.Ty, retType = [P.STAR]}
 
-unitT :: Core.Value IR.T Unit.Ty primVal
-unitT = IR.VPrimTy Unit.Ty
+natTAll :: Typed.ValueT IR.T All.Ty primVal
+natTAll = IR.VPrimTy $ App.Return {retTerm = All.NatTy Nat.Ty, retType = [P.STAR]}
 
-unit :: Core.Term IR.T primTy Unit.Val
-unit = IR.Prim Unit.Val
+unitT :: Typed.ValueT IR.T Unit.Ty primVal
+unitT = IR.VPrimTy $ App.Return {retTerm = Unit.Ty, retType = [P.STAR]}
 
-unit' :: Core.Term IR.T Unit.Ty (TypedPrim Unit.Ty Unit.Val)
-unit' = IR.Prim (App.Return {retType = P.PrimType [Unit.Ty], retTerm = Unit.Val})
+unitTAll :: Typed.ValueT IR.T All.Ty primVal
+unitTAll =
+  IR.VPrimTy $
+    App.Return {retTerm = All.UnitTy Unit.Ty, retType = [P.STAR]}

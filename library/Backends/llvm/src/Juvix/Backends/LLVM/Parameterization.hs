@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -fdefer-typed-holes #-}
 
 -- | Parameterization and application of the LLVM backend primitives.
 module Juvix.Backends.LLVM.Parameterization
@@ -9,22 +10,23 @@ module Juvix.Backends.LLVM.Parameterization
 where
 
 import Juvix.Backends.LLVM.Primitive
-import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.IR.Evaluator as IR
 import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library
 import qualified LLVM.AST.Type as LLVM
 
-instance Param.CanApply PrimTy where
-  -- TODO: Needs to implement apply
-  arity = arityTy
+instance Param.CanPrimApply Param.Star PrimTy where
+  primArity = arityTy
 
-instance Param.CanApply (PrimVal ext) where
   -- TODO: Needs to implement apply
-  arity val = case val of
-    App.Cont {} -> App.numLeft val
-    App.Return {} -> arityRaw $ App.retTerm val
+  primApply = _
+
+instance Param.CanPrimApply PrimTy RawPrimVal where
+  primArity = arityRaw
+
+  -- TODO: Needs to implement apply
+  primApply = _
 
 -- | Parameters for the LLVM backend.
 llvm :: Param.Parameterisation PrimTy RawPrimVal
@@ -72,15 +74,15 @@ instance IR.HasWeak RawPrimVal where weakBy' _ _ t = t
 
 instance
   Monoid (Core.XVPrimTy ext PrimTy primVal) =>
-  IR.HasSubstValue ext PrimTy primVal PrimTy
+  IR.HasSubstValueType ext PrimTy primVal PrimTy
   where
-  substValueWith _ _ _ t = pure $ Core.VPrimTy t mempty
+  substValueTypeWith _ _ _ t = pure $ Core.VPrimTy t mempty
 
 instance
   Monoid (Core.XPrimTy ext PrimTy primVal) =>
-  IR.HasPatSubstTerm ext PrimTy primVal PrimTy
+  IR.HasPatSubstType ext PrimTy primVal PrimTy
   where
-  patSubstTerm' _ _ t = pure $ Core.PrimTy t mempty
+  patSubstType' _ _ t = pure $ Core.PrimTy t mempty
 
 instance
   Monoid (Core.XPrim ext primTy RawPrimVal) =>

@@ -19,14 +19,14 @@ import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 import Prelude (String)
 
-type RawMichelson f = f Michelson.PrimTy Michelson.RawPrimVal
+type RawMichelson f = f Michelson.RawPrimTy Michelson.RawPrimVal
 
 type RawMichelsonTerm = RawMichelson IR.Term
 
 type RawMichelsonElim = RawMichelson IR.Elim
 
 type MichelsonCompConstraints m =
-  ErasedAnn.CompConstraints' Michelson.PrimTy Michelson.RawPrimVal Michelson.CompilationError m
+  ErasedAnn.CompConstraints' Michelson.RawPrimTy Michelson.RawPrimVal Michelson.CompilationError m
 
 type MichelsonComp res =
   forall m.
@@ -91,12 +91,12 @@ tests =
 coreToMichelson :: MichelsonComp (Either Michelson.CompilationError Michelson.EmptyInstr)
 coreToMichelson term usage ty = do
   ann <- ErasedAnn.irToErasedAnn term usage ty
-  pure $ fst $ Michelson.compileExpr $ ErasedAnn.toRaw ann
+  pure $ fst $ Michelson.compileExpr ann
 
 coreToMichelsonContract :: MichelsonComp (Either Michelson.CompilationError (Michelson.Contract' Michelson.ExpandedOp, Michelson.SomeContract))
 coreToMichelsonContract term usage ty = do
   ann <- ErasedAnn.irToErasedAnn term usage ty
-  pure $ fst $ Michelson.compileContract $ ErasedAnn.toRaw ann
+  pure $ fst $ Michelson.compileContract ann
 
 exec ::
   EnvExec primTy primVal Michelson.CompilationError a ->
@@ -110,7 +110,7 @@ exec (EnvE env) param globals = do
   (ret, env) <- runStateT (runExceptT env) (Env param [] globals)
   pure (ret, log env)
 
-type Globals = Core.Globals IR.T IR.T Michelson.PrimTy Michelson.PrimValIR
+type Globals = Core.Globals IR.T IR.T Michelson.PrimTyIR Michelson.PrimValIR
 
 type AnnTuple = (RawMichelsonTerm, Usage.T, RawMichelsonTerm)
 

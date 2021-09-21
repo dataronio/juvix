@@ -5,6 +5,7 @@
 -- values.
 module Juvix.Core.IR.Evaluator.SubstV
   ( HasSubstValue (..),
+    HasSubstValueType (..),
     substV,
     vapp,
   )
@@ -15,6 +16,7 @@ import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base.Types as Core
 import Juvix.Core.IR.Evaluator.Types
 import Juvix.Core.IR.Evaluator.Weak
+import qualified Juvix.Core.IR.Typechecker.Types as Typed
 import qualified Juvix.Core.IR.Types as IR
 import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library
@@ -72,6 +74,18 @@ class HasWeak a => HasSubstValue extV primTy primVal a where
     a ->
     Either (ErrorValue extV primTy primVal) (Core.Value extV primTy primVal)
 
+-- | Class of terms that support substitution, resulting in a `IR.Value`.
+class HasWeak a => HasSubstValueType extV primTy primVal a where
+  substValueTypeWith ::
+    -- | How many bindings have been traversed so far.
+    Natural ->
+    -- | Variable to substitute.
+    Core.BoundVar ->
+    -- | Value to substitute with.
+    Core.Value extV primTy primVal ->
+    a ->
+    Either (ErrorValue extV primTy primVal) (Core.Value extV primTy primVal)
+
 type ShowAllV extV primTy primVal =
   ( Core.ValueAll Show extV primTy primVal,
     Core.NeutralAll Show extV primTy primVal,
@@ -83,7 +97,7 @@ type ShowAllV extV primTy primVal =
 type AllSubstV extV primTy primVal =
   ( Core.ValueAll (HasSubstV extV primTy primVal) extV primTy primVal,
     Core.NeutralAll (HasSubstV extV primTy primVal) extV primTy primVal,
-    HasSubstValue extV primTy primVal primTy,
+    HasSubstValueType extV primTy primVal primTy,
     HasSubstValue extV primTy primVal primVal,
     Param.CanApply primTy,
     Param.CanApply primVal,
@@ -103,7 +117,7 @@ instance
     Core.VStar n <$> substVWith w i e a
   substVWith w i e (Core.VPrimTy p _) =
     -- TODO what about the annotation?
-    substValueWith w i e p
+    substValueTypeWith w i e p
   substVWith w i e (Core.VPi π s t a) =
     Core.VPi π <$> substVWith w i e s
       <*> substVWith (succ w) (succ i) e t
@@ -254,8 +268,12 @@ vapp s t ann =
     app' ::
       forall ann arg fun.
       (Param.CanApply fun, Monoid ann, Show arg) =>
+      -- | map a primitive error to an evaluator error
       (Param.ApplyError fun -> ApplyError primTy primVal) ->
+      -- | constructor for a primitive ('Core.VPrim' or 'Core.VPrimTy')
       (fun -> ann -> Core.Value extV primTy primVal) ->
+      -- | map an argument to an 'Param.Arg'
+      -- ('Param.pureArg', 'Param.freeArg', 'Param.boundArg')
       (Proxy fun -> arg -> Maybe (Param.Arg fun)) ->
       fun ->
       arg ->
@@ -362,110 +380,62 @@ instance
 instance HasSubstV ext primTy primVal Symbol where
   substVWith _ _ _ x = pure x
 
+-- TODO generalise @IR.T@
 instance
-  ( AllSubstV extV primTy primVal,
-    Monoid (Core.XVNeutral extV primTy primVal),
-    Monoid (Core.XVLam extV primTy primVal),
-    Monoid (Core.XVPrimTy extV primTy primVal),
-    Monoid (Core.XVPrim extV primTy primVal)
-  ) =>
-  HasSubstValue extV primTy primVal (Core.Value extV primTy primVal)
-  where
-  substValueWith = substVWith
-
-instance
-  ( AllSubstV ext primTy primVal,
-    Monoid (Core.XNBound ext primTy primVal),
-    Monoid (Core.XNFree ext primTy primVal),
-    Monoid (Core.XVNeutral ext primTy primVal),
-    Monoid (Core.XVLam ext primTy primVal),
-    Monoid (Core.XVPrimTy ext primTy primVal),
-    Monoid (Core.XVPrim ext primTy primVal)
-  ) =>
-  HasSubstValue ext primTy primVal App.DeBruijn
-  where
-  substValueWith b i e (App.BoundVar j) =
-    substNeutralWith b i e (Core.NBound j mempty) mempty
-  substValueWith _ _ _ (App.FreeVar x) =
-    pure $ Core.VNeutral (Core.NFree (Core.Global x) mempty) mempty
-
-instance
-  ( HasWeak ty,
-    HasSubstValue ext primTy primVal term
-  ) =>
-  HasSubstValue ext primTy primVal (App.Take ty term)
-  where
-  substValueWith b i e App.Take {term} = substValueWith b i e term
-
-instance
-  ( HasSubstValue ext primTy primVal (App.ParamVar ext),
-    HasSubstValue ext primTy primVal ty,
-    HasSubstValue ext primTy primVal term
-  ) =>
-  HasSubstValue ext primTy primVal (App.Arg' ext ty term)
-  where
-  substValueWith b i e (App.VarArg x) = substValueWith b i e x
-  substValueWith b i e (App.TermArg t) = substValueWith b i e t
-
-instance
-  ( HasWeak ty,
-    HasWeak (App.ParamVar ext),
-    HasSubstValue ext primTy primVal term
-  ) =>
-  HasSubstValue ext primTy primVal (App.Return' ext ty term)
-  where
-  substValueWith b i e App.Return {retTerm} = substValueWith b i e retTerm
-  substValueWith b i e (App.Cont fun@App.Take {usage, type', term} args numLeft) =
-    substValueWith b i e fun
-
-instance
-  ( HasSubstValue ext primTy primVal a,
-    Core.ValueAll HasWeak ext primTy primVal,
-    Core.NeutralAll HasWeak ext primTy primVal,
-    HasWeak primTy,
+  ( HasWeak primTy,
     HasWeak primVal,
-    Monoid (Core.XVPi ext primTy primVal)
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
+    Show primTy,
+    Show primVal
   ) =>
-  HasSubstValue ext primTy primVal (NonEmpty a)
+  HasSubstValueType
+    IR.T
+    (Param.KindedType primTy)
+    (Param.TypedPrim primTy primVal)
+    (Param.KindedType primTy)
   where
-  substValueWith b i e tys =
-    foldr1 pi <$> traverse (substValueWith b i e) tys
-    where
-      pi s t = Core.VPi Usage.SAny s (weak t) mempty
+  substValueTypeWith b i e (App.Cont {fun, args}) = do
+    args <- traverse (substVWith b i e . argToValueType) args
+    foldlM (\f x -> vapp f x ()) (IR.VPrimTy $ App.takeToReturn fun) args
+  substValueTypeWith _ _ _ ret@(App.Return {}) =
+    pure $ IR.VPrimTy ret
 
 -- TODO generalise @IR.T@
 instance
-  {-# OVERLAPS #-}
   ( HasWeak primTy,
     HasWeak primVal,
-    HasSubstValue IR.T primTy (Param.TypedPrim primTy primVal) primTy,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
     Show primTy,
     Show primVal
   ) =>
   HasSubstValue
     IR.T
-    primTy
+    (Param.KindedType primTy)
     (Param.TypedPrim primTy primVal)
     (Param.TypedPrim primTy primVal)
   where
-  substValueWith b i e App.Cont {fun, args} = do
-    let app f x = vapp f x ()
-    let fun' = IR.VPrim (App.takeToReturn fun)
-    args' <- traverse (substValueWith b i e . argToValue) args
-    foldlM app fun' args'
-  substValueWith _ _ _ ret@App.Return {} =
+  substValueWith b i e (App.Cont {fun, args}) = do
+    args <- traverse (substVWith b i e . argToValue) args
+    foldlM (\f x -> vapp f x ()) (IR.VPrim $ App.takeToReturn fun) args
+  substValueWith _ _ _ ret@(App.Return {}) =
     pure $ IR.VPrim ret
+
+-- | Transform an `App.Arg` into a `IR.Value`.
+argToValueType ::
+  App.Arg (Param.PrimType Param.Star) primTy ->
+  Typed.ValueT IR.T primTy primVal
+argToValueType = \case
+  App.TermArg ret -> IR.VPrimTy ret
+  App.BoundArg i -> Core.VBound i
+  App.FreeArg x -> Core.VFree $ Core.Global x
 
 -- | Transform an `App.Arg` into a `IR.Value`.
 argToValue ::
   App.Arg (Param.PrimType primTy) primVal ->
-  IR.Value primTy (Param.TypedPrim primTy primVal)
+  Typed.ValueT IR.T primTy primVal
 argToValue = \case
-  App.TermArg App.Return {retType, retTerm} ->
-    IR.VPrim $ App.Return {retType, retTerm}
-  App.TermArg App.Cont {fun, args, numLeft} ->
-    notImplemented
+  App.TermArg ret -> IR.VPrim ret
   App.BoundArg i -> Core.VBound i
   App.FreeArg x -> Core.VFree $ Core.Global x

@@ -25,7 +25,7 @@ data PipelineError primTy primVal compErr
     --   error.
     TypecheckerError (Typed.TypecheckError primTy primVal)
   | -- EACError (EAC.Errors primTy primVal)
-    ErasureError (Erasure.Error primTy (TypedPrim primTy primVal))
+    ErasureError (Erasure.Error (KindedType primTy) (TypedPrim primTy primVal))
   | PrimError compErr
   deriving (Generic)
 
@@ -33,19 +33,18 @@ deriving instance
   ( Show primTy,
     Show primVal,
     Show compErr,
-    Show (Arg primTy),
-    Show (Arg (Typed.Prim primTy primVal)),
-    Show (ApplyErrorExtra primTy),
-    Show (ApplyErrorExtra (Typed.Prim primTy primVal))
+    Show (PrimApplyError primTy),
+    Show (PrimApplyError primVal)
   ) =>
   Show (PipelineError primTy primVal compErr)
 
 type instance PP.Ann (PipelineError _ _ _) = HR.PPAnn
 
 instance
-  ( HR.PrettyText compErr,
-    HR.PrettyText (ApplyErrorExtra primTy),
-    HR.PrettyText (ApplyErrorExtra (TypedPrim primTy primVal)),
+  ( HR.PrettyText' compErr,
+    HR.PrettyText' (PrimApplyError primTy),
+    HR.PrettyText' (ApplyErrorExtra primTy),
+    HR.PrettyText' (ApplyErrorExtra (TypedPrim primTy primVal)),
     HR.PrimPretty primTy (TypedPrim primTy primVal),
     HR.PrimPretty (Arg primTy) (Arg (TypedPrim primTy primVal)),
     HR.PrimPretty1 primVal

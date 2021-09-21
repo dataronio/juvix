@@ -252,3 +252,5 @@ instance HasWeak App.DeBruijn where
   weakBy' b i (App.BoundVar j) =
     App.BoundVar $ if j >= i then j + b else j
   weakBy' _ _ (App.FreeVar x) = App.FreeVar x
+
+instance HasWeak Param.Star

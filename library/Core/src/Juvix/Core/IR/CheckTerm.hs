@@ -50,9 +50,9 @@ typeTerm ::
     Show ext,
     ShowExt ext primTy primVal,
     Env.CanTC' ext primTy primVal m,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
-    Eval.HasPatSubstTerm
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
@@ -72,9 +72,9 @@ typeTermWith ::
     Show ext,
     ShowExt ext primTy primVal,
     Env.CanTC' ext primTy primVal m,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
-    Eval.HasPatSubstTerm
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
@@ -99,9 +99,9 @@ typeElim ::
     Show ext,
     ShowExt ext primTy primVal,
     Env.CanTC' ext primTy primVal m,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
-    Eval.HasPatSubstTerm
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
@@ -122,9 +122,9 @@ typeElimWith ::
     Show ext,
     ShowExt ext primTy primVal,
     Env.CanTC' ext primTy primVal m,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
-    Eval.HasPatSubstTerm
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
@@ -158,9 +158,9 @@ typeTerm' ::
     Show primTy,
     (Show (Core.ElimX ext primTy primVal)),
     Env.CanInnerTC' ext primTy primVal m,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
-    Eval.HasPatSubstTerm
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
@@ -179,7 +179,8 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
     Core.PrimTy t _ -> do
       requireZero σ
       void $ requireStar ty
-      pure $ Typed.PrimTy t ann
+      let t' = App.Return {retTerm = t, retType = Param.PrimType $ Param.STAR :| []}
+      pure $ Typed.PrimTy t' ann
     Core.Prim p _ -> do
       p' <- typePrim p ty
       pure $ Typed.Prim p' $ Typed.Annotation σ ty
@@ -291,9 +292,9 @@ typeElim' ::
     Show ext,
     ShowExt ext primTy primVal,
     Env.CanInnerTC' ext primTy primVal m,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
-    Eval.HasPatSubstTerm
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
@@ -397,11 +398,20 @@ toPrimTy ::
   Env.CanInnerTC' ext primTy primVal m =>
   Typed.ValueT IR.T primTy primVal ->
   m (Param.PrimType primTy)
-toPrimTy ty = maybe (Error.throwTC $ Error.NotPrimTy ty) (pure . Param.PrimType) $ go ty
+toPrimTy ty =
+  maybe
+    (Error.throwTC $ Error.NotPrimTy ty)
+    (pure . Param.PrimType)
+    $ go ty
   where
-    go (IR.VPrimTy t) = pure $ t :| []
-    go (IR.VPi _ (IR.VPrimTy s) t) = (s <|) <$> go t
+    go (IR.VPrimTy t) = (:| []) <$> groundPrimTy t
+    go (IR.VPi _ (IR.VPrimTy s) t) = (<|) <$> groundPrimTy s <*> go t
     go _ = empty
+
+-- FIXME support variables too
+groundPrimTy :: Alternative f => Typed.PrimTy primTy -> f primTy
+groundPrimTy (App.Cont {}) = empty
+groundPrimTy (App.Return {retTerm}) = pure retTerm
 
 type TyParts primTy primVal =
   (Usage.T, Typed.ValueT IR.T primTy primVal, Typed.ValueT IR.T primTy primVal)
@@ -492,9 +502,16 @@ usePatVar π var = do
     Nothing -> do
       Error.throwTC (Error.UnboundPatVar var)
 
+type TCEvalError primTy primVal =
+  Eval.Error
+    IR.T
+    Typed.T
+    (Param.KindedType primTy)
+    (Param.TypedPrim primTy primVal)
+
 liftEval ::
   Error.HasThrowTC' extV extT primTy primVal m =>
-  Either (Eval.Error IR.T Typed.T primTy (Param.TypedPrim primTy primVal)) a ->
+  Either (TCEvalError primTy primVal) a ->
   m a
 liftEval = either (Error.throwTC . Error.EvalError) pure
 
@@ -503,11 +520,11 @@ substApp ::
     Error.HasThrowTC' IR.T extT primTy primVal m,
     Env.HasGlobals primTy primVal m,
     Eval.HasWeak primVal,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
     Env.PrimSubstValue primTy primVal,
     Env.PrimPatSubstTerm primTy primVal,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Param.TypedPrim primTy primVal)
@@ -525,17 +542,12 @@ substApp ty arg = do
 evalTC ::
   ( Error.HasThrowTC' IR.T ext primTy primVal m,
     Env.HasGlobals primTy primVal m,
-    Param.CanApply primTy,
-    Param.CanApply (Param.TypedPrim primTy primVal),
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
     Eval.HasWeak primTy,
     Eval.HasWeak primVal,
     Env.PrimSubstValue primTy primVal,
     Env.PrimPatSubstTerm primTy primVal,
-    Eval.HasPatSubstTerm
-      (OnlyExts.T Typed.T)
-      primTy
-      (Param.TypedPrim primTy primVal)
-      primTy,
     Show primVal,
     Show primTy
   ) =>

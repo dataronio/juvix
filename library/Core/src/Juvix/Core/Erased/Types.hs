@@ -1,6 +1,6 @@
 module Juvix.Core.Erased.Types
   ( module Juvix.Core.Erased.Types,
-    Term (..),
+    Term' (..),
     Type' (..),
     TypeAssignment',
   )
@@ -8,7 +8,7 @@ where
 
 import Juvix.Core.Erased.Base.Types
 import qualified Juvix.Core.IR.Typechecker.Types as Typed
-import Juvix.Library
+import Juvix.Library hiding (Type)
 
 data T
   deriving (Show, Read, Data)

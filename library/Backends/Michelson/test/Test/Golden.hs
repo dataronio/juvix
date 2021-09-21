@@ -63,7 +63,7 @@ typecheck ::
   FilePath ->
   Pipeline.Pipeline
     ( ErasedAnn.AnnTermT
-        Michelson.PrimTy
+        Michelson.RawPrimTy
         Michelson.RawPrimVal
     )
 typecheck file = do

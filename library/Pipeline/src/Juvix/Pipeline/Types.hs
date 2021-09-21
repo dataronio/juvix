@@ -19,7 +19,7 @@ type Exec primTy primVal compErr =
   IO
     ( Either
         (Core.PipelineError primTy primVal compErr)
-        (Erasure.Term primTy (ErasedAnn.TypedPrim primTy primVal)),
+        (Erasure.Term primTy (ErasedAnn.Prim primTy primVal)),
       [Core.PipelineLog primTy primVal]
     )
 

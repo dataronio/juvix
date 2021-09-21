@@ -63,8 +63,8 @@ typecheckTests =
         typecheckTestsNeg "test/examples/negative/circuit/typecheck"
       ]
   where
-    typecheckTestsPos = plonkGoldenTests ".typecheck" (expectSuccess . typecheck)
-    typecheckTestsNeg = plonkGoldenTests ".typecheck" (expectFailure . typecheck)
+    typecheckTestsPos = plonkGoldenTests ".typecheck" (expectSuccess . toNoQuotes typecheck)
+    typecheckTestsNeg = plonkGoldenTests ".typecheck" (expectFailure . toNoQuotes typecheck)
 
 typecheck file = do
   contract <- liftIO $ readFile file

@@ -85,7 +85,7 @@ hrToIRRawFunClause Core.RawFunClause {rawClauseTel, rawClausePats, rawClauseBody
           ..
         }
 
-hrToIRRawTeleEle :: forall primTy primVal. Core.RawTeleEle' HR.T primTy primVal -> Core.RawTeleEle' IR.T primTy primVal
+hrToIRRawTeleEle :: forall primTy primVal. HasCallStack => Core.RawTeleEle' HR.T primTy primVal -> Core.RawTeleEle' IR.T primTy primVal
 hrToIRRawTeleEle Core.RawTeleEle {rawTy, rawExtension, ..} =
   Core.RawTeleEle
     { rawTy = hrToIR rawTy,

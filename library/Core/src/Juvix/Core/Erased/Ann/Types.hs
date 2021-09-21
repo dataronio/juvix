@@ -4,15 +4,9 @@ module Juvix.Core.Erased.Ann.Types where
 
 import qualified Data.Aeson as A
 import Juvix.Core.Application (IsParamVar (..))
-import Juvix.Core.Base.Types.Base (Universe)
-import Juvix.Core.Parameterisation (TypedPrim')
-import Juvix.Library
-  ( Eq,
-    Generic,
-    Maybe (Just, Nothing),
-    Read,
-    Show,
-  )
+import Juvix.Core.Base.Types (Universe)
+import Juvix.Core.Parameterisation (KindedType', TypedPrim')
+import Juvix.Library hiding (Type)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
 
@@ -25,11 +19,15 @@ instance IsParamVar T where
   freeVar _ = Just
   boundVar _ _ = Nothing
 
-type TypedPrim ty val = TypedPrim' T ty val
+type Prim ty val = TypedPrim' T ty val
 
-type TermT ty val = Term ty (TypedPrim ty val)
+type PrimTy ty = KindedType' T ty
 
-type AnnTermT ty val = AnnTerm ty (TypedPrim ty val)
+type TypeT ty = Type (PrimTy ty)
+
+type TermT ty val = Term (PrimTy ty) (Prim ty val)
+
+type AnnTermT ty val = AnnTerm (PrimTy ty) (Prim ty val)
 
 data Term primTy primVal
   = Var NameSymbol.T
@@ -75,6 +73,11 @@ data AnnTerm primTy primVal = Ann
   }
   deriving (Show, Read, Eq, Generic)
 
+pattern AnnAny :: Type primTy -> Term primTy primVal -> AnnTerm primTy primVal
+pattern AnnAny {typeA, termA} =
+  Ann {usage = Usage.SAny, type' = typeA, term = termA}
+
+-- TODO ∷ make usageFromType Fold!
 usageFromType :: Type primTy -> [Usage.T]
 usageFromType (Pi usage _ xs) = usage : usageFromType xs
 usageFromType (Sig usage _ xs) = usage : usageFromType xs

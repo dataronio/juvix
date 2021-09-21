@@ -1,7 +1,32 @@
 Ann
     { usage = SAny
-    , type' = Pi SAny ( PrimTy PField )
-        ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
+    , type' = Pi SAny
+        ( PrimTy
+            ( Return
+                { retType = PrimType
+                    { getPrimType = STAR :| [] }
+                , retTerm = PField
+                }
+            )
+        )
+        ( Pi SAny
+            ( PrimTy
+                ( Return
+                    { retType = PrimType
+                        { getPrimType = STAR :| [] }
+                    , retTerm = PField
+                    }
+                )
+            )
+            ( PrimTy
+                ( Return
+                    { retType = PrimType
+                        { getPrimType = STAR :| [] }
+                    , retTerm = PField
+                    }
+                )
+            )
+        )
     , term = LamM
         { capture = []
         , arguments =
@@ -10,12 +35,43 @@ Ann
             ]
         , body = Ann
             { usage = SAny
-            , type' = PrimTy PField
+            , type' = PrimTy
+                ( Return
+                    { retType = PrimType
+                        { getPrimType = STAR :| [] }
+                    , retTerm = PField
+                    }
+                )
             , term = AppM
                 ( Ann
                     { usage = SAny
-                    , type' = Pi SAny ( PrimTy PField )
-                        ( Pi SAny ( PrimTy PField ) ( PrimTy PField ) )
+                    , type' = Pi SAny
+                        ( PrimTy
+                            ( Return
+                                { retType = PrimType
+                                    { getPrimType = STAR :| [] }
+                                , retTerm = PField
+                                }
+                            )
+                        )
+                        ( Pi SAny
+                            ( PrimTy
+                                ( Return
+                                    { retType = PrimType
+                                        { getPrimType = STAR :| [] }
+                                    , retTerm = PField
+                                    }
+                                )
+                            )
+                            ( PrimTy
+                                ( Return
+                                    { retType = PrimType
+                                        { getPrimType = STAR :| [] }
+                                    , retTerm = PField
+                                    }
+                                )
+                            )
+                        )
                     , term = Prim
                         ( Return
                             { retType = PrimType
@@ -31,13 +87,25 @@ Ann
                 )
                 [ Ann
                     { usage = SAny
-                    , type' = PrimTy PField
+                    , type' = PrimTy
+                        ( Return
+                            { retType = PrimType
+                                { getPrimType = STAR :| [] }
+                            , retTerm = PField
+                            }
+                        )
                     , term = Var
                         ( "0" :| [] )
                     }
                 , Ann
                     { usage = SAny
-                    , type' = PrimTy PField
+                    , type' = PrimTy
+                        ( Return
+                            { retType = PrimType
+                                { getPrimType = STAR :| [] }
+                            , retTerm = PField
+                            }
+                        )
                     , term = Var
                         ( "1" :| [] )
                     }

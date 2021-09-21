@@ -13,6 +13,11 @@ module Juvix.Core.Application
     Take (..),
     argToReturn,
     takeToReturn,
+    returnToTake,
+    argToTake,
+    mapArgs,
+    castReturn,
+    castArg,
   )
 where
 
@@ -20,10 +25,9 @@ import qualified Data.Aeson as A
 import Data.Bifoldable
 import Data.Bitraversable
 import qualified Juvix.Core.Base.Types as Core
-import qualified Juvix.Core.HR.Pretty as HR
 import qualified Juvix.Core.IR.Types as IR
+import qualified Juvix.Core.Pretty as PP
 import Juvix.Library
-import qualified Juvix.Library.PrettyPrint as PP
 import qualified Juvix.Library.Usage as Usage
 
 -- | A primitive along with its type, and possibly some arguments.
@@ -163,6 +167,20 @@ instance Bitraversable (Arg' ext) where
   bitraverse _ _ (VarArg x) = pure $ VarArg x
   bitraverse f g (TermArg t) = TermArg <$> bitraverse f g t
 
+castArg ::
+  (ParamVar ext1 ~ ParamVar ext2) =>
+  Arg' ext1 ty val ->
+  Arg' ext2 ty val
+castArg (VarArg x) = VarArg x
+castArg (TermArg ret) = TermArg $ castReturn ret
+
+castReturn ::
+  (ParamVar ext1 ~ ParamVar ext2) =>
+  Return' ext1 ty val ->
+  Return' ext2 ty val
+castReturn (Return {..}) = Return {..}
+castReturn (Cont {args, ..}) = Cont {args = castArg <$> args, ..}
+
 -- | An argument to a partially applied primitive, which must be fully-applied
 -- itself.
 data Take ty term = Take
@@ -206,6 +224,14 @@ argToReturn _ = empty
 takeToReturn :: Take ty term -> Return' ext ty term
 takeToReturn Take {type', term} = Return {retType = type', retTerm = term}
 
+returnToTake :: Alternative f => Return' ext ty term -> f (Take ty term)
+returnToTake (Cont {}) = empty
+returnToTake (Return {retType, retTerm}) =
+  pure $ Take {type' = retType, term = retTerm, usage = Usage.SAny}
+
+argToTake :: MonadPlus f => Arg' ext ty term -> f (Take ty term)
+argToTake = argToReturn >=> returnToTake
+
 data PPAnn' ty term
   = APunct
   | ATyAnn (PP.Ann ty)
@@ -215,15 +241,15 @@ data PPAnn' ty term
 type PPAnn ty term = Last (PPAnn' ty term)
 
 instance
-  (HR.ToPPAnn (PP.Ann ty), HR.ToPPAnn (PP.Ann term)) =>
-  HR.ToPPAnn (PPAnn ty term)
+  (PP.ToPPAnn (PP.Ann ty), PP.ToPPAnn (PP.Ann term)) =>
+  PP.ToPPAnn (PPAnn ty term)
   where
   toPPAnn a =
     a >>= \case
-      APunct -> pure HR.APunct
-      ATyAnn ann -> HR.toPPAnn ann
-      ATmAnn ann -> HR.toPPAnn ann
-      AVar -> pure HR.AName
+      APunct -> pure PP.APunct
+      ATyAnn ann -> PP.toPPAnn ann
+      ATmAnn ann -> PP.toPPAnn ann
+      AVar -> pure PP.AName
 
 type instance PP.Ann (Take ty term) = PPAnn ty term
 
@@ -241,7 +267,7 @@ prettyTyped ::
   Usage.T ->
   term ->
   ty ->
-  m (PP.Doc (Last (PPAnn' ty term)))
+  m (PP.Doc' (Last (PPAnn' ty term)))
 prettyTyped π tm ty =
   PP.parens' APunct
     <$> PP.hangA
@@ -286,3 +312,10 @@ instance PP.PrettySyntax DeBruijn where
   pretty' = \case
     BoundVar i -> pure $ PP.show i
     FreeVar x -> PP.pretty' x
+
+mapArgs ::
+  (Arg' ext1 ty val -> Arg' ext2 ty val) ->
+  Return' ext1 ty val ->
+  Return' ext2 ty val
+mapArgs _ (Return {retType, retTerm}) = Return {retType, retTerm}
+mapArgs f c@(Cont {args}) = c {args = map f args}

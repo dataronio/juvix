@@ -48,7 +48,7 @@ type EvalPatSubst ext primTy primVal =
   ( HasPatSubst (OnlyExts.T ext) primTy primVal (Core.TermX ext primTy primVal),
     HasPatSubst (OnlyExts.T ext) primTy primVal (Core.ElimX ext primTy primVal),
     -- FIXME?
-    HasPatSubstTerm (OnlyExts.T ext) primTy primVal primTy,
+    HasPatSubstType (OnlyExts.T ext) primTy primVal primTy,
     HasPatSubstTerm (OnlyExts.T ext) primTy primVal primVal
   )
 
@@ -61,7 +61,7 @@ type CanEval extT extG primTy primVal =
     EvalPatSubst extT primTy primVal,
     -- no extensions (only annotations) allowed in global context
     NoExtensions extG primTy primVal,
-    HasSubstValue IR.T primTy primVal primTy,
+    HasSubstValueType IR.T primTy primVal primTy,
     HasSubstValue IR.T primTy primVal primVal,
     ShowAllV extT primTy primVal
   )

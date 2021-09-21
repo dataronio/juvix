@@ -2,18 +2,26 @@ Ann
     { usage = SAny
     , type' = Pi SAny
         ( PrimTy
-            ( Application Pair
-                ( PrimTy ( Ty TNat : ) :|
-                    [ PrimTy ( Ty TNat : ) ]
-                )
+            ( Return
+                { retType = PrimType
+                    { getPrimType = STAR :| [] }
+                , retTerm = Application Pair
+                    ( PrimTy ( Ty TNat : ) :|
+                        [ PrimTy ( Ty TNat : ) ]
+                    )
+                }
             )
         )
         ( PrimTy
-            ( Application Pair
-                ( Application List
-                    ( PrimTy ( Ty TOperation : ) :| [] ) :|
-                    [ PrimTy ( Ty TNat : ) ]
-                )
+            ( Return
+                { retType = PrimType
+                    { getPrimType = STAR :| [] }
+                , retTerm = Application Pair
+                    ( Application List
+                        ( PrimTy ( Ty TOperation : ) :| [] ) :|
+                        [ PrimTy ( Ty TNat : ) ]
+                    )
+                }
             )
         )
     , term = LamM
@@ -23,31 +31,48 @@ Ann
         , body = Ann
             { usage = SAny
             , type' = PrimTy
-                ( Application Pair
-                    ( Application List
-                        ( PrimTy ( Ty TOperation : ) :| [] ) :|
-                        [ PrimTy ( Ty TNat : ) ]
-                    )
+                ( Return
+                    { retType = PrimType
+                        { getPrimType = STAR :| [] }
+                    , retTerm = Application Pair
+                        ( Application List
+                            ( PrimTy ( Ty TOperation : ) :| [] ) :|
+                            [ PrimTy ( Ty TNat : ) ]
+                        )
+                    }
                 )
             , term = AppM
                 ( Ann
                     { usage = SAny
                     , type' = Pi SAny
                         ( PrimTy
-                            ( Application List
-                                ( PrimTy ( Ty TOperation : ) :| [] )
+                            ( Return
+                                { retType = PrimType
+                                    { getPrimType = STAR :| [] }
+                                , retTerm = Application List
+                                    ( PrimTy ( Ty TOperation : ) :| [] )
+                                }
                             )
                         )
                         ( Pi SAny
                             ( PrimTy
-                                ( PrimTy ( Ty TNat : ) )
+                                ( Return
+                                    { retType = PrimType
+                                        { getPrimType = STAR :| [] }
+                                    , retTerm = PrimTy ( Ty TNat : )
+                                    }
+                                )
                             )
                             ( PrimTy
-                                ( Application Pair
-                                    ( Application List
-                                        ( PrimTy ( Ty TOperation : ) :| [] ) :|
-                                        [ PrimTy ( Ty TNat : ) ]
-                                    )
+                                ( Return
+                                    { retType = PrimType
+                                        { getPrimType = STAR :| [] }
+                                    , retTerm = Application Pair
+                                        ( Application List
+                                            ( PrimTy ( Ty TOperation : ) :| [] ) :|
+                                            [ PrimTy ( Ty TNat : ) ]
+                                        )
+                                    }
                                 )
                             )
                         )
@@ -72,8 +97,12 @@ Ann
                 [ Ann
                     { usage = SAny
                     , type' = PrimTy
-                        ( Application List
-                            ( PrimTy ( Ty TOperation : ) :| [] )
+                        ( Return
+                            { retType = PrimType
+                                { getPrimType = STAR :| [] }
+                            , retTerm = Application List
+                                ( PrimTy ( Ty TOperation : ) :| [] )
+                            }
                         )
                     , term = Prim
                         ( Return
@@ -88,20 +117,40 @@ Ann
                 , Ann
                     { usage = SAny
                     , type' = PrimTy
-                        ( PrimTy ( Ty TNat : ) )
+                        ( Return
+                            { retType = PrimType
+                                { getPrimType = STAR :| [] }
+                            , retTerm = PrimTy ( Ty TNat : )
+                            }
+                        )
                     , term = AppM
                         ( Ann
                             { usage = SAny
                             , type' = Pi SAny
                                 ( PrimTy
-                                    ( PrimTy ( Ty TNat : ) )
+                                    ( Return
+                                        { retType = PrimType
+                                            { getPrimType = STAR :| [] }
+                                        , retTerm = PrimTy ( Ty TNat : )
+                                        }
+                                    )
                                 )
                                 ( Pi SAny
                                     ( PrimTy
-                                        ( PrimTy ( Ty TNat : ) )
+                                        ( Return
+                                            { retType = PrimType
+                                                { getPrimType = STAR :| [] }
+                                            , retTerm = PrimTy ( Ty TNat : )
+                                            }
+                                        )
                                     )
                                     ( PrimTy
-                                        ( PrimTy ( Ty TNat : ) )
+                                        ( Return
+                                            { retType = PrimType
+                                                { getPrimType = STAR :| [] }
+                                            , retTerm = PrimTy ( Ty TNat : )
+                                            }
+                                        )
                                     )
                                 )
                             , term = Prim
@@ -120,7 +169,12 @@ Ann
                         [ Ann
                             { usage = SAny
                             , type' = PrimTy
-                                ( PrimTy ( Ty TNat : ) )
+                                ( Return
+                                    { retType = PrimType
+                                        { getPrimType = STAR :| [] }
+                                    , retTerm = PrimTy ( Ty TNat : )
+                                    }
+                                )
                             , term = Prim
                                 ( Return
                                     { retType = PrimType
@@ -133,7 +187,12 @@ Ann
                         , Ann
                             { usage = SAny
                             , type' = PrimTy
-                                ( PrimTy ( Ty TNat : ) )
+                                ( Return
+                                    { retType = PrimType
+                                        { getPrimType = STAR :| [] }
+                                    , retTerm = PrimTy ( Ty TNat : )
+                                    }
+                                )
                             , term = Prim
                                 ( Return
                                     { retType = PrimType

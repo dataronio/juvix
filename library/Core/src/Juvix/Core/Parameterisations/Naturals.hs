@@ -54,44 +54,30 @@ typeOf Mul = P.PrimType $ Ty :| [Ty, Ty]
 hasType :: Val -> P.PrimType Ty -> Bool
 hasType x ty = ty == typeOf x
 
-instance P.CanApply Ty where
-  arity Ty = 0
-  apply f xs = Left $ P.ExtraArguments f xs
+instance P.CanPrimApply P.Star Ty where
+  primArity Ty = 0
+  primApply _ _ = panic "ill typed"
 
-instance P.CanApply Val where
-  arity = pred . fromIntegral . length . typeOf
-  apply f xs = app f $ toList xs
+instance P.CanPrimApply Ty Val where
+  primArity = pred . fromIntegral . length . typeOf
+  primApply f xs = app (App.term f) $ map App.term (toList xs)
     where
+      app n [] = Right (typeOf n, n)
       app Add (Val x : xs) = app (Curried Add x) xs
       app Sub (Val x : xs) = app (Curried Sub x) xs
       app Mul (Val x : xs) = app (Curried Mul x) xs
       app (Curried Add x) (Val y : ys) = app (Val (x + y)) ys
       app (Curried Sub x) (Val y : ys) = app (Val (x - y)) ys
       app (Curried Mul x) (Val y : ys) = app (Val (x * y)) ys
-      app n [] = Right n
-      app f (x : xs) = Left $ P.ExtraArguments f (x :| xs)
-
-instance P.CanApply (P.TypedPrim Ty Val) where
-  arity (App.Cont {numLeft}) = numLeft
-  arity (App.Return {retTerm}) = P.arity retTerm
-
-  -- partial application handled by Val so Cont should never appear
-  apply (App.Return {retTerm = f}) xs'
-    | Just xs <- traverse unReturn xs' =
-      P.mapApplyErr wrap $ P.apply f xs
-    where
-      unReturn (App.Return {retTerm}) = Just retTerm
-      unReturn _ = Nothing
-      wrap x = App.Return {retTerm = x, retType = typeOf x}
-  apply f' xs' = Left $ P.InvalidArguments f' xs'
+      app _ (_ : _) = panic "ill typed"
 
 instance E.HasWeak Ty where weakBy' _ _ ty = ty
 
-instance Monoid (Core.XVPrimTy ext Ty val) => E.HasSubstValue ext Ty val Ty where
-  substValueWith _ _ _ ty = pure $ Core.VPrimTy ty mempty
+instance Monoid (Core.XVPrimTy ext Ty val) => E.HasSubstValueType ext Ty val Ty where
+  substValueTypeWith _ _ _ ty = pure $ Core.VPrimTy ty mempty
 
-instance Monoid (Core.XPrimTy ext Ty val) => E.HasPatSubstTerm ext Ty val Ty where
-  patSubstTerm' _ _ ty = pure $ Core.PrimTy ty mempty
+instance Monoid (Core.XPrimTy ext Ty val) => E.HasPatSubstType ext Ty val Ty where
+  patSubstType' _ _ ty = pure $ Core.PrimTy ty mempty
 
 instance E.HasWeak Val where weakBy' _ _ val = val
 

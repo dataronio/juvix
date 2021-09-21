@@ -2,6 +2,7 @@ module Juvix.Core.Erased.Ann.Prim
   ( fromAnn,
     toAnn,
     fromPrimType,
+    fromPrimTypeT,
   )
 where
 
@@ -25,3 +26,12 @@ fromPrimType (P.PrimType tys) = go tys
   where
     go (t :| []) = Types.PrimTy t
     go (t :| (u : us)) = Types.Pi Usage.SAny (Types.PrimTy t) $ go $ u :| us
+
+fromPrimTypeT :: P.PrimType primTy -> Types.TypeT primTy
+fromPrimTypeT (P.PrimType tys) = go tys
+  where
+    go (t :| []) = atom t
+    go (t :| (u : us)) = Types.Pi Usage.SAny (atom t) $ go $ u :| us
+    atom t =
+      Types.PrimTy $
+        App.Return {retTerm = t, retType = P.PrimType $ pure P.STAR}

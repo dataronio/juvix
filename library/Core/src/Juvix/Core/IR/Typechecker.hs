@@ -33,16 +33,17 @@ typeCheckDeclaration ::
     ShowExt extT primTy primVal,
     Show (Core.Pattern extT primTy primVal),
     Show (Core.RawGlobal extT primTy primVal),
-    Show (Core.Pattern extT primTy (Typed.Prim primTy primVal)),
+    Core.PatternAll Show extT (Param.KindedType primTy) (Typed.Prim primTy primVal),
     Eval.CanEval extT IR.T primTy primVal,
     Eval.EvalPatSubst IR.T primTy primVal,
     Eval.EvalPatSubst IR.T primTy (Param.TypedPrim primTy primVal),
-    Eval.NoExtensions extT primTy (Param.TypedPrim primTy primVal),
+    Eval.NoExtensions extT (Typed.PrimTy primTy) (Typed.Prim primTy primVal),
     Eval.NoExtensions extT primTy primVal,
     Env.CanTC' extT primTy primVal m,
-    Param.CanApply (Param.TypedPrim primTy primVal),
+    Param.CanPrimApply Param.Star primTy,
+    Param.CanPrimApply primTy primVal,
     HasReader "globals" (Typed.GlobalsT IR.T extT primTy primVal) m,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T T)
       primTy
       (Param.TypedPrim primTy primVal)

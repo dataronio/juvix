@@ -25,6 +25,7 @@ import Juvix.Core.Erased.Types as Type
   )
 import qualified Juvix.Core.Erased.Types as Erased
 import qualified Juvix.Core.HR.Pretty as HR
+import qualified Juvix.Core.HR.Types as HR
 import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.IR.Typechecker.Types as Typed
 import qualified Juvix.Core.Parameterisation as Param
@@ -173,7 +174,15 @@ do
           Erased.typeApp = typed
         }
 
-type TermT primTy primVal = Term primTy (Typed.Prim primTy primVal)
+type TypeT primTy =
+  Type (PrimTy primTy)
+
+type TermT primTy primVal =
+  Term (PrimTy primTy) (Prim primTy primVal)
+
+type Prim primTy primVal = Param.TypedPrim' HR.T primTy primVal
+
+type PrimTy primTy = Param.KindedType' HR.T primTy
 
 -- TODO: Figure out how to do this with extensible.
 -- IR.extendDatatype "Datatype" [] [t|T|] extDatatype

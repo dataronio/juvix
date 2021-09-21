@@ -52,9 +52,9 @@ unsafeEvalGlobal globals g =
 
 -- | Type primitive values of a global definition
 typePrims ::
-  (Show ty, Show val) =>
+  (Show ty, Show val, Param.CanPrimApply k ty) =>
   Core.RawGlobal IR.T ty val ->
-  Core.RawGlobal IR.T ty (Param.TypedPrim ty val)
+  Core.RawGlobal IR.T (Param.KindedType ty) (Param.TypedPrim ty val)
 typePrims g =
   case g of
     Core.RawGDatatype (Core.RawDatatype n pos a l cons) ->
@@ -67,9 +67,9 @@ typePrims g =
       Core.RawGAbstract (Core.RawAbstract n u (baseToReturn t))
 
 argReturn ::
-  (Show ty, Show val) =>
+  Param.CanPrimApply k ty =>
   Core.RawDataArg IR.T ty val ->
-  Core.RawDataArg IR.T ty (Param.TypedPrim ty val)
+  Core.RawDataArg IR.T (Param.KindedType ty) (Param.TypedPrim ty val)
 argReturn arg@Core.RawDataArg {rawArgType} =
   arg {Core.rawArgType = baseToReturn rawArgType}
 
@@ -84,9 +84,9 @@ argEval globals arg@Core.RawDataArg {rawArgName, rawArgUsage, rawArgType} =
   Core.DataArg rawArgName rawArgUsage (unsafeEval globals rawArgType)
 
 conReturn ::
-  (Show ty, Show val) =>
+  Param.CanPrimApply k ty =>
   Core.RawDataCon IR.T ty val ->
-  Core.RawDataCon IR.T ty (Param.TypedPrim ty val)
+  Core.RawDataCon IR.T (Param.KindedType ty) (Param.TypedPrim ty val)
 conReturn con@Core.RawDataCon {rawConType, rawConDef} =
   con {Core.rawConType = baseToReturn rawConType, Core.rawConDef = funReturn <$> rawConDef}
 
@@ -101,9 +101,9 @@ conEval globals con@Core.RawDataCon {rawConName, rawConType, rawConDef} =
   Core.DataCon rawConName (unsafeEval globals rawConType) (funEval globals <$> rawConDef)
 
 funReturn ::
-  (Show ty, Show val) =>
+  Param.CanPrimApply k ty =>
   Core.RawFunction IR.T ty val ->
-  Core.RawFunction IR.T ty (Param.TypedPrim ty val)
+  Core.RawFunction IR.T (Param.KindedType ty) (Param.TypedPrim ty val)
 funReturn (Core.RawFunction name usage term clauses) =
   Core.RawFunction name usage (baseToReturn term) (funClauseReturn <$> clauses)
 
@@ -118,9 +118,9 @@ funEval globals (Core.RawFunction name usage term clauses) =
   Core.Function name usage (unsafeEval globals term) (funClauseEval globals <$> clauses)
 
 funClauseReturn ::
-  (Show ty, Show val) =>
+  Param.CanPrimApply k ty =>
   Core.RawFunClause IR.T ty val ->
-  Core.RawFunClause IR.T ty (Param.TypedPrim ty val)
+  Core.RawFunClause IR.T (Param.KindedType ty) (Param.TypedPrim ty val)
 funClauseReturn (Core.RawFunClause tel patts term catchall) =
   Core.RawFunClause (telescopeReturn tel) (map pattEval patts) (baseToReturn term) catchall
 
@@ -141,12 +141,13 @@ funClauseEval globals (Core.RawFunClause tel patts rhs catchall) =
     Nothing --TODO
 
 telescopeReturn ::
-  (Show ty, Show val) =>
+  Param.CanPrimApply k ty =>
   Core.RawTelescope IR.T ty val ->
-  Core.RawTelescope IR.T ty (Param.TypedPrim ty val)
+  Core.RawTelescope IR.T (Param.KindedType ty) (Param.TypedPrim ty val)
 telescopeReturn = fmap f
   where
-    f t@Core.RawTeleEle {rawTy, rawExtension} = t {Core.rawTy = baseToReturn rawTy, Core.rawExtension = rawExtension}
+    f t@Core.RawTeleEle {rawTy, rawExtension} =
+      t {Core.rawTy = baseToReturn rawTy, Core.rawExtension = rawExtension}
 
 telescopeEval ::
   ( IR.CanEval IR.T IR.T primTy primVal,
@@ -166,9 +167,9 @@ telescopeEval globals ts = f <$> ts
         }
 
 pattEval ::
-  (Show ty, Show val) =>
+  Param.CanPrimApply k ty =>
   IR.Pattern ty val ->
-  IR.Pattern ty (Param.TypedPrim ty val)
+  IR.Pattern (Param.KindedType ty) (Param.TypedPrim ty val)
 pattEval patt =
   case patt of
     IR.PCon n ps -> IR.PCon n (map pattEval ps)
@@ -180,35 +181,53 @@ pattEval patt =
     IR.PPrim p -> panic "Primitive values in patterns are not yet implemented."
 
 baseToReturn ::
-  (Show ty, Show val) =>
+  Param.CanPrimApply k ty =>
   Core.Term IR.T ty val ->
-  Core.Term IR.T ty (Param.TypedPrim ty val)
+  Core.Term IR.T (Param.KindedType ty) (Param.TypedPrim ty val)
 baseToReturn t =
   case t of
     IR.Star u -> IR.Star u
-    IR.PrimTy p -> IR.PrimTy p
-    IR.Prim p -> panic "Primitive values in patterns are not yet implemented."
+    IR.PrimTy p ->
+      IR.PrimTy (CoreApp.Return (Param.PrimType kind) p)
+      where
+        kind =
+          Param.STAR
+            :| replicate (fromIntegral $ Param.primArity p) Param.STAR
+    IR.Prim p -> IR.Prim (CoreApp.Return (Param.PrimType $ notImplemented :| []) p)
     IR.Pi u x y -> IR.Pi u (baseToReturn x) (baseToReturn y)
     IR.Lam t -> IR.Lam (baseToReturn t)
     IR.Sig u x y -> IR.Sig u (baseToReturn x) (baseToReturn y)
     IR.Pair x y -> IR.Pair (baseToReturn x) (baseToReturn y)
-    IR.CatProduct x y -> IR.CatProduct (baseToReturn x) (baseToReturn y)
-    IR.CatCoproduct x y -> IR.CatCoproduct (baseToReturn x) (baseToReturn y)
-    IR.CatProductIntro x y -> IR.CatProductIntro (baseToReturn x) (baseToReturn y)
-    IR.CatProductElimLeft a x -> IR.CatProductElimLeft (baseToReturn a) (baseToReturn x)
-    IR.CatProductElimRight a x -> IR.CatProductElimRight (baseToReturn a) (baseToReturn x)
-    IR.CatCoproductIntroLeft x -> IR.CatCoproductIntroLeft (baseToReturn x)
-    IR.CatCoproductIntroRight x -> IR.CatCoproductIntroRight (baseToReturn x)
-    IR.CatCoproductElim a b cp x y -> IR.CatCoproductElim (baseToReturn a) (baseToReturn b) (baseToReturn cp) (baseToReturn x) (baseToReturn y)
+    IR.CatProduct x y ->
+      IR.CatProduct (baseToReturn x) (baseToReturn y)
+    IR.CatCoproduct x y ->
+      IR.CatCoproduct (baseToReturn x) (baseToReturn y)
+    IR.CatProductIntro x y ->
+      IR.CatProductIntro (baseToReturn x) (baseToReturn y)
+    IR.CatProductElimLeft a x ->
+      IR.CatProductElimLeft (baseToReturn a) (baseToReturn x)
+    IR.CatProductElimRight a x ->
+      IR.CatProductElimRight (baseToReturn a) (baseToReturn x)
+    IR.CatCoproductIntroLeft x ->
+      IR.CatCoproductIntroLeft (baseToReturn x)
+    IR.CatCoproductIntroRight x ->
+      IR.CatCoproductIntroRight (baseToReturn x)
+    IR.CatCoproductElim a b cp x y ->
+      IR.CatCoproductElim
+        (baseToReturn a)
+        (baseToReturn b)
+        (baseToReturn cp)
+        (baseToReturn x)
+        (baseToReturn y)
     IR.Let u a b -> IR.Let u (elimToReturn a) (baseToReturn b)
     IR.UnitTy -> IR.UnitTy
     IR.Unit -> IR.Unit
     IR.Elim e -> IR.Elim (elimToReturn e)
 
 elimToReturn ::
-  (Show ty, Show val) =>
+  Param.CanPrimApply k ty =>
   Core.Elim IR.T ty val ->
-  Core.Elim IR.T ty (Param.TypedPrim ty val) -- ty' --(TypedPrim ty val)
+  Core.Elim IR.T (Param.KindedType ty) (Param.TypedPrim ty val)
 elimToReturn e =
   case e of
     IR.Bound b -> IR.Bound b

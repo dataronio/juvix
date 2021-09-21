@@ -1,13 +1,19 @@
 {-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Juvix.Core.Erased.Ann.Conversion
   ( irToErasedAnn,
     toRaw,
+    toRawTerm,
+    toRawType,
+    primToRaw,
     CompConstraints',
     CompConstraints,
     returnToTerm,
     takeToTerm,
+    argToTerm,
+    argToType,
   )
 where
 
@@ -34,7 +40,7 @@ type CompConstraints' primTy primVal compErr m =
   ( HasWriter "log" [Types.PipelineLog primTy primVal] m,
     HasReader "parameterisation" (Types.Parameterisation primTy primVal) m,
     HasThrow "error" (Types.PipelineError primTy primVal compErr) m,
-    HasReader "globals" (Core.Globals IR.T IR.T primTy (Types.TypedPrim primTy primVal)) m
+    HasReader "globals" (Typed.GlobalsT IR.T IR.T primTy primVal) m
   )
 
 type CompConstraints primTy primVal compErr m =
@@ -43,43 +49,33 @@ type CompConstraints primTy primVal compErr m =
     Eq primVal,
     Show primTy,
     Show primVal,
-    Types.CanApply primTy,
-    Types.CanApply (Types.TypedPrim primTy primVal),
+    Types.CanPrimApply Types.Star primTy,
+    Types.CanPrimApply primTy primVal,
     TC.PrimSubstValue primTy primVal,
     TC.PrimPatSubstTerm primTy primVal,
     Eval.HasWeak primVal
   )
 
-constMapPrim :: Erasure.MapPrim a a ty val
-constMapPrim _ = Right
-
-lookupMapPrim ::
-  Erasure.MapPrim
-    (Types.TypedPrim ty val)
-    (ErasedAnn.TypedPrim ty val)
-    ty
-    (Types.TypedPrim ty val)
-lookupMapPrim _ (App.Return ty tm) = pure $ App.Return ty tm
-lookupMapPrim ns (App.Cont f xs n) =
-  App.Cont f <$> traverse lookupArg xs <*> pure n
+irToHRMapPrim ::
+  Erasure.MapPrim (Types.TypedPrim ty val) (E.Prim ty val) ty' val'
+irToHRMapPrim ns = lookupRet
   where
     lookupArg (App.BoundArg i) =
-      atMay ns (fromIntegral i)
-        |> maybe (error i) (pure . App.VarArg)
+      atMay ns (fromIntegral i) |> maybe (error i) (pure . App.VarArg)
     lookupArg (App.FreeArg x) = pure $ App.VarArg x
-    lookupArg (App.TermArg (App.Return ty term)) =
-      pure $ App.TermArg (App.Return ty term)
-    lookupArg (App.TermArg (App.Cont take args nat)) =
-      notImplemented
-    error i =
-      Left $
-        Erasure.InternalError $
-          "unknown de Bruijn index " <> show i
+    lookupArg (App.TermArg ret) = App.TermArg <$> lookupRet ret
+
+    lookupRet (App.Return {..}) = pure $ App.Return {..}
+    lookupRet (App.Cont {args, ..}) = do
+      args <- traverse lookupArg args
+      pure $ App.Cont {..}
+
+    error i = Left $ Erasure.InternalError $ "unknown de Bruijn index " <> show i
 
 irToErasedAnn ::
   forall err ty val m.
   ( CompConstraints ty val err m,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       ty
       (Types.TypedPrim ty val)
@@ -88,16 +84,15 @@ irToErasedAnn ::
   IR.Term ty val ->
   Usage.T ->
   IR.Term ty val ->
-  m (ErasedAnn.AnnTerm ty (ErasedAnn.TypedPrim ty val))
+  m (ErasedAnn.AnnTermT ty val)
 irToErasedAnn term usage ty = do
-  -- FIXME: allow any universe!
   (term, _) <- typecheckErase' term usage ty
   pure $ convertTerm term usage
 
 -- For standard evaluation, no elementary affine check, no MonadIO required.
 typecheckEval ::
   ( CompConstraints primTy primVal compErr m,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Types.TypedPrim primTy primVal)
@@ -105,8 +100,8 @@ typecheckEval ::
   ) =>
   Core.Term IR.T primTy primVal ->
   Usage.T ->
-  IR.Value primTy (Types.TypedPrim primTy primVal) ->
-  m (IR.Value primTy (Types.TypedPrim primTy primVal))
+  Typed.ValueT IR.T primTy primVal ->
+  m (Typed.ValueT IR.T primTy primVal)
 typecheckEval term usage ty = do
   -- Fetch the parameterisation, needed for typechecking.
   param <- ask @"parameterisation"
@@ -121,7 +116,7 @@ typecheckEval term usage ty = do
 -- For standard evaluation, no elementary affine check, no MonadIO required.
 typecheckErase' ::
   ( CompConstraints primTy primVal compErr m,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Types.TypedPrim primTy primVal)
@@ -130,11 +125,9 @@ typecheckErase' ::
   IR.Term primTy primVal ->
   Usage.T ->
   IR.Term primTy primVal ->
-  m
-    ( Erasure.Term primTy (ErasedAnn.TypedPrim primTy primVal),
-      IR.Value primTy (Types.TypedPrim primTy primVal)
-    )
+  m (Erasure.TermT primTy primVal, Typed.ValueT IR.T primTy primVal)
 typecheckErase' term usage ty = do
+  -- FIXME: allow any universe!
   ty <- typecheckEval ty (Usage.SNat 0) (IR.VStar 0)
   term <- typecheckErase term usage ty
   pure (term, ty)
@@ -142,7 +135,7 @@ typecheckErase' term usage ty = do
 -- For standard evaluation, no elementary affine check, no MonadIO required.
 typecheckErase ::
   ( CompConstraints primTy primVal compErr m,
-    Eval.HasPatSubstTerm
+    Eval.HasPatSubstType
       (OnlyExts.T Typed.T)
       primTy
       (Types.TypedPrim primTy primVal)
@@ -150,8 +143,8 @@ typecheckErase ::
   ) =>
   IR.Term primTy primVal ->
   Usage.T ->
-  IR.Value primTy (Types.TypedPrim primTy primVal) ->
-  m (Erasure.Term primTy (ErasedAnn.TypedPrim primTy primVal))
+  Typed.ValueT IR.T primTy primVal ->
+  m (Erasure.TermT primTy primVal)
 typecheckErase term usage ty = do
   -- Fetch the parameterisation, needed for typechecking.
   param <- ask @"parameterisation"
@@ -161,69 +154,122 @@ typecheckErase term usage ty = do
     |> IR.execTC globals
     |> fst of
     Right tyTerm -> do
-      case Erasure.erase constMapPrim lookupMapPrim tyTerm usage of
+      case Erasure.erase irToHRMapPrim irToHRMapPrim tyTerm usage of
         Right res -> pure res
         Left err -> throw @"error" (Types.ErasureError err)
     Left err -> throw @"error" (Types.TypecheckerError err)
 
-toRaw :: (Show ty, Show val) => ErasedAnn.AnnTerm ty (ErasedAnn.TypedPrim ty val) -> ErasedAnn.AnnTerm ty val
-toRaw t@ErasedAnn.Ann {term} = t {ErasedAnn.term = toRaw1 term}
+toRaw :: ErasedAnn.AnnTermT ty val -> ErasedAnn.AnnTerm ty val
+toRaw (ErasedAnn.Ann {term, type', ..}) =
+  ErasedAnn.Ann {term = toRawTerm term, type' = toRawType type', ..}
+
+toRawTerm :: ErasedAnn.TermT ty val -> ErasedAnn.Term ty val
+toRawTerm (ErasedAnn.Var x) = ErasedAnn.Var x
+toRawTerm (ErasedAnn.Prim p) = primToRaw p
+toRawTerm (ErasedAnn.LamM {..}) = ErasedAnn.LamM {body = toRaw body, ..}
+toRawTerm (ErasedAnn.PairM l r) = ErasedAnn.PairM (toRaw l) (toRaw r)
+toRawTerm (ErasedAnn.CatProductIntroM l r) =
+  ErasedAnn.CatProductIntroM (toRaw l) (toRaw r)
+toRawTerm (ErasedAnn.CatProductElimLeftM a t) =
+  ErasedAnn.CatProductElimLeftM (toRaw a) (toRaw t)
+toRawTerm (ErasedAnn.CatProductElimRightM a t) =
+  ErasedAnn.CatProductElimRightM (toRaw a) (toRaw t)
+toRawTerm (ErasedAnn.CatCoproductIntroLeftM t) =
+  ErasedAnn.CatCoproductIntroLeftM (toRaw t)
+toRawTerm (ErasedAnn.CatCoproductIntroRightM t) =
+  ErasedAnn.CatCoproductIntroRightM (toRaw t)
+toRawTerm (ErasedAnn.CatCoproductElimM a b cp l r) =
+  ErasedAnn.CatCoproductElimM (toRaw a) (toRaw b) (toRaw cp) (toRaw l) (toRaw r)
+toRawTerm ErasedAnn.UnitM = ErasedAnn.UnitM
+toRawTerm (ErasedAnn.AppM f xs) = ErasedAnn.AppM (toRaw f) (toRaw <$> xs)
+
+toRawType :: HasCallStack => ErasedAnn.TypeT ty -> ErasedAnn.Type ty
+toRawType (ErasedAnn.SymT x) = ErasedAnn.SymT x
+toRawType (ErasedAnn.Star ℓ) = ErasedAnn.Star ℓ
+toRawType (ErasedAnn.PrimTy t) =
+  case t of
+    App.Return {retTerm} -> ErasedAnn.PrimTy retTerm
+    App.Cont {} -> notImplemented
+-- FIXME for this we need type application in ErasedAnn.Type
+toRawType (ErasedAnn.Pi π a b) = ErasedAnn.Pi π (toRawType a) (toRawType b)
+toRawType (ErasedAnn.Sig π a b) = ErasedAnn.Sig π (toRawType a) (toRawType b)
+toRawType (ErasedAnn.CatProduct a b) =
+  ErasedAnn.CatProduct (toRawType a) (toRawType b)
+toRawType (ErasedAnn.CatCoproduct a b) =
+  ErasedAnn.CatCoproduct (toRawType a) (toRawType b)
+toRawType ErasedAnn.UnitTy = ErasedAnn.UnitTy
+
+primToRaw :: ErasedAnn.Prim ty val -> ErasedAnn.Term ty val
+primToRaw (App.Return {retTerm}) = ErasedAnn.Prim retTerm
+primToRaw (App.Cont {fun, args}) =
+  ErasedAnn.AppM (takeToTerm fun) (argsToTerms (App.type' fun) args)
   where
-    toRaw1 (ErasedAnn.Var x) = ErasedAnn.Var x
-    toRaw1 (ErasedAnn.Prim p) = primToRaw p
-    toRaw1 ErasedAnn.LamM {..} = ErasedAnn.LamM {body = toRaw body, ..}
-    toRaw1 (ErasedAnn.PairM l r) = ErasedAnn.PairM (toRaw l) (toRaw r)
-    toRaw1 (ErasedAnn.CatProductIntroM l r) = ErasedAnn.CatProductIntroM (toRaw l) (toRaw r)
-    toRaw1 (ErasedAnn.CatProductElimLeftM a t) = ErasedAnn.CatProductElimLeftM (toRaw a) (toRaw t)
-    toRaw1 (ErasedAnn.CatProductElimRightM a t) = ErasedAnn.CatProductElimRightM (toRaw a) (toRaw t)
-    toRaw1 (ErasedAnn.CatCoproductIntroLeftM t) = ErasedAnn.CatCoproductIntroLeftM (toRaw t)
-    toRaw1 (ErasedAnn.CatCoproductIntroRightM t) = ErasedAnn.CatCoproductIntroRightM (toRaw t)
-    toRaw1 (ErasedAnn.CatCoproductElimM a b cp l r) =
-      ErasedAnn.CatCoproductElimM
-        (toRaw a)
-        (toRaw b)
-        (toRaw cp)
-        (toRaw l)
-        (toRaw r)
-    toRaw1 ErasedAnn.UnitM = ErasedAnn.UnitM
-    toRaw1 (ErasedAnn.AppM f xs) = ErasedAnn.AppM (toRaw f) (toRaw <$> xs)
-    primToRaw App.Return {retTerm} = ErasedAnn.Prim retTerm
-    primToRaw App.Cont {fun, args} =
-      ErasedAnn.AppM (takeToTerm fun) (argsToTerms (App.type' fun) args)
-
     argsToTerms ts xs = go (toList ts) xs
-      where
-        go _ [] = []
-        go (_ : ts) (App.TermArg (App.Return ty term) : as) =
-          returnToTerm (App.Return ty term) : go ts as
-        go (_ : ts) (App.TermArg (App.Cont fun args numLeft) : as) =
-          notImplemented
-        go (t : ts) (App.VarArg x : as) =
-          varTerm t x : go ts as
-        go [] (_ : _) =
-          -- a well typed application can't have more arguments than arrows
-          undefined
-        varTerm t x =
-          ErasedAnn.Ann
-            { usage = Usage.SAny, -- FIXME should usages even exist after erasure?
-              type' = ErasedAnn.PrimTy t,
-              term = ErasedAnn.Var x
-            }
+    go _ [] = []
+    go (_ : ts) (App.TermArg ret : as) =
+      returnToTerm ret : go ts as
+    go (t : ts) (App.VarArg x : as) =
+      varTerm t x : go ts as
+    go [] (_ : _) =
+      -- a well typed application can't have more arguments than arrows
+      panic "Erased.Ann.Conversion: argsToTerms: too many arguments"
 
+    varTerm t x =
+      ErasedAnn.Ann
+        { usage = Usage.SAny, -- FIXME should usages even exist after erasure?
+          type' = ErasedAnn.PrimTy t,
+          term = ErasedAnn.Var x
+        }
+
+-- | Promotes a 'Return' to an 'AnnTerm'. Assumes that its input is well-typed!
 returnToTerm ::
   forall k (ext :: k) primTy primVal.
-  Show primTy =>
+  App.ParamVar ext ~ NameSymbol.T =>
   App.Return' ext (Types.PrimType primTy) primVal ->
   AnnTerm primTy primVal
 returnToTerm (App.Return ty term) =
-  ErasedAnn.Ann
-    { usage = Usage.SAny, -- FIXME should usages even exist after erasure?
-      type' = ErasedAnn.fromPrimType ty,
-      term = ErasedAnn.Prim term
+  ErasedAnn.AnnAny
+    { typeA = ErasedAnn.fromPrimType ty,
+      termA = ErasedAnn.Prim term
     }
-returnToTerm (App.Cont take args nat) = notImplemented
+returnToTerm (App.Cont {fun, args}) =
+  ErasedAnn.AnnAny {typeA, termA}
+  where
+    App.Take {type' = type0@(Types.PrimType (toList -> tys)), term = head'} = fun
+    typeA =
+      case drop (length args) tys of
+        [] -> panic "Erased.Ann.Conversion.returnToTerm: too many arguments"
+        t : ts -> ErasedAnn.fromPrimType $ Types.PrimType $ t :| ts
+    termA = ErasedAnn.AppM head args'
+    head =
+      ErasedAnn.AnnAny
+        { typeA = ErasedAnn.fromPrimType type0,
+          termA = ErasedAnn.Prim head'
+        }
+    args' = zipWith makeArg tys args
+      where
+        makeArg ty arg =
+          ErasedAnn.AnnAny
+            { typeA = ErasedAnn.PrimTy ty,
+              termA = argToTerm arg
+            }
 
-takeToTerm :: (Show primTy) => App.Take (Types.PrimType primTy) primVal -> AnnTerm primTy primVal
+argToTerm ::
+  App.ParamVar ext ~ NameSymbol.T =>
+  App.Arg' ext (Types.PrimType primTy) primVal ->
+  Term primTy primVal
+argToTerm (App.VarArg x) = ErasedAnn.Var x
+argToTerm (App.TermArg t) = ErasedAnn.term $ returnToTerm t
+
+argToType ::
+  App.ParamVar ext ~ NonEmpty Symbol =>
+  App.Arg' ext ty term ->
+  Type (App.Return' ext ty term)
+argToType = \case
+  App.VarArg x -> SymT x
+  App.TermArg ty -> PrimTy ty
+
+takeToTerm :: App.Take (Types.PrimType primTy) primVal -> AnnTerm primTy primVal
 takeToTerm App.Take {usage, type', term} =
   ErasedAnn.Ann
     { usage,
@@ -235,13 +281,13 @@ free :: forall primTy primVal. E.Term primTy primVal -> [NameSymbol.T]
 free = Erased.free . E.eraseAnn
 
 -- | Take a typed term and some usage, and annotate the return term with that usage
-convertTerm :: E.Term primTy primVal -> Usage.T -> AnnTerm primTy primVal
+convertTerm :: E.TermT primTy primVal -> Usage.T -> AnnTermT primTy primVal
 convertTerm term usage =
   let ty = E.getType term
       ty' = convertType ty
    in case term of
         E.Var sym _ -> Ann usage ty' (Var sym)
-        E.Prim p _ -> Ann usage ty' (Prim p)
+        E.Prim p _ -> Ann usage ty' $ Prim $ App.castReturn p
         E.Let sym bind body (bindTy, _) ->
           -- Calculate captures.
           let captures = Erased.free (Erased.Lam sym (E.eraseAnn body))
@@ -302,12 +348,12 @@ convertTerm term usage =
           where
             a' = convertTerm a usage
 
-convertType :: E.Type primTy -> Type primTy
+convertType :: E.TypeT primTy -> TypeT primTy
 convertType ty =
   case ty of
     E.Star u -> Star u
     E.SymT s -> SymT s
-    E.PrimTy p -> PrimTy p
+    E.PrimTy p -> PrimTy $ App.castReturn p
     E.Pi u a r -> Pi u (convertType a) (convertType r)
     E.Sig u a b -> Sig u (convertType a) (convertType b)
     E.CatProduct a b -> CatProduct (convertType a) (convertType b)

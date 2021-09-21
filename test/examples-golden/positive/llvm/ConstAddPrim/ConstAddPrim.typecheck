@@ -1,35 +1,51 @@
 Ann
     { usage = SAny
     , type' = PrimTy
-        ( PrimTy
-            ( IntegerType
-                { typeBits = 8 }
-            )
+        ( Return
+            { retType = PrimType
+                { getPrimType = STAR :| [] }
+            , retTerm = PrimTy
+                ( IntegerType
+                    { typeBits = 8 }
+                )
+            }
         )
     , term = AppM
         ( Ann
             { usage = SAny
             , type' = Pi SAny
                 ( PrimTy
-                    ( PrimTy
-                        ( IntegerType
-                            { typeBits = 8 }
-                        )
+                    ( Return
+                        { retType = PrimType
+                            { getPrimType = STAR :| [] }
+                        , retTerm = PrimTy
+                            ( IntegerType
+                                { typeBits = 8 }
+                            )
+                        }
                     )
                 )
                 ( Pi SAny
                     ( PrimTy
-                        ( PrimTy
-                            ( IntegerType
-                                { typeBits = 8 }
-                            )
+                        ( Return
+                            { retType = PrimType
+                                { getPrimType = STAR :| [] }
+                            , retTerm = PrimTy
+                                ( IntegerType
+                                    { typeBits = 8 }
+                                )
+                            }
                         )
                     )
                     ( PrimTy
-                        ( PrimTy
-                            ( IntegerType
-                                { typeBits = 8 }
-                            )
+                        ( Return
+                            { retType = PrimType
+                                { getPrimType = STAR :| [] }
+                            , retTerm = PrimTy
+                                ( IntegerType
+                                    { typeBits = 8 }
+                                )
+                            }
                         )
                     )
                 )
@@ -58,10 +74,14 @@ Ann
         [ Ann
             { usage = SAny
             , type' = PrimTy
-                ( PrimTy
-                    ( IntegerType
-                        { typeBits = 8 }
-                    )
+                ( Return
+                    { retType = PrimType
+                        { getPrimType = STAR :| [] }
+                    , retTerm = PrimTy
+                        ( IntegerType
+                            { typeBits = 8 }
+                        )
+                    }
                 )
             , term = Prim
                 ( Return
@@ -78,10 +98,14 @@ Ann
         , Ann
             { usage = SAny
             , type' = PrimTy
-                ( PrimTy
-                    ( IntegerType
-                        { typeBits = 8 }
-                    )
+                ( Return
+                    { retType = PrimType
+                        { getPrimType = STAR :| [] }
+                    , retTerm = PrimTy
+                        ( IntegerType
+                            { typeBits = 8 }
+                        )
+                    }
                 )
             , term = Prim
                 ( Return

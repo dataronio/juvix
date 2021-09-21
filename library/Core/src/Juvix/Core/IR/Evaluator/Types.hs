@@ -31,16 +31,14 @@ data ApplyError primTy primVal
     ApplyErrorT (Param.ApplyError primTy)
 
 -- | Constraint definition for errors that can be pretty-printed.
-type ApplyErrorPretty primTy primVal =
-  ( PP.PrettyText (Param.ApplyError primTy),
-    HR.ToPPAnn (PP.Ann (Param.ApplyError primTy)),
-    PP.PrettySyntax primTy,
-    HR.ToPPAnn (PP.Ann primTy),
-    PP.PrettyText (Param.ApplyError primVal),
-    HR.ToPPAnn (PP.Ann (Param.ApplyError primVal)),
-    PP.PrettySyntax primVal,
-    HR.ToPPAnn (PP.Ann primVal)
+type ApplyErrorPretty1 prim =
+  ( PP.PrettyText (Param.ApplyError prim),
+    PP.PrettySyntax prim,
+    HR.ToPPAnn (PP.Ann prim)
   )
+
+type ApplyErrorPretty primTy primVal =
+  (ApplyErrorPretty1 primTy, ApplyErrorPretty1 primVal)
 
 -- | Get the corresponding syntax highlighting datatype for `ApplyError`.
 type instance PP.Ann (ApplyError _ _) = HR.PPAnn

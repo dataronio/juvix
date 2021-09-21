@@ -3,12 +3,18 @@ module Juvix.Core.HR.Types
   )
 where
 
+import Juvix.Core.Application (IsParamVar (..))
 import qualified Juvix.Core.Base.Types as Core
 import Juvix.Core.HR.Extend
-import Juvix.Library (Data, Show)
+import Juvix.Library
+import qualified Juvix.Library.NameSymbol as NameSymbol
 
-data T
-  deriving (Data, Show)
+data T deriving (Data, Show)
+
+instance IsParamVar T where
+  type ParamVar T = NameSymbol.T
+  freeVar _ = Just
+  boundVar _ _ = Nothing
 
 Core.extendTerm "Term" [] [t|T|] extTerm
 

@@ -36,7 +36,9 @@ run' _ (Options cmd _) = do
           ) =>
           b ->
           Pipeline.Pipeline ()
-        g b = runCmd' fin b (\b -> Pipeline.parse b >=> Pipeline.typecheck @b)
+        g b = runCmd' fin b \b ->
+          Pipeline.parse b
+            >=> Pipeline.typecheck @b
     Compile fin fout backend ->
       case backend of
         LLVM b -> g b
@@ -48,7 +50,10 @@ run' _ (Options cmd _) = do
           Pipeline.HasBackend b =>
           b ->
           Pipeline.Pipeline ()
-        g b = runCmd' fin b (\b -> Pipeline.parse b >=> Pipeline.typecheck @b >=> Pipeline.compile @b fout)
+        g b = runCmd' fin b \b ->
+          Pipeline.parse b
+            >=> Pipeline.typecheck @b
+            >=> Pipeline.compile @b fout
     Version -> do
       infoVersion <- liftIO infoVersionRepo
       liftIO $ putDoc infoVersion

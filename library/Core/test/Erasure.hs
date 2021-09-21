@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedLists #-}
 
-module Erasure where
+module Erasure (erasureTests) where
 
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Erased as Erased
@@ -16,19 +16,14 @@ import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 import Prelude (String)
 
-type ErasureType primTy primVal =
-  Either (Erasure.Error primTy primVal) (Erasure.Term primTy primVal)
-
 shouldEraseTo ::
   forall primTy primVal.
   ( Show primTy,
     Show primVal,
     Eq primTy,
     Eq primVal,
-    Eq (Core.ApplyErrorExtra primTy),
-    Show (Core.ApplyErrorExtra primTy),
-    Eq (Core.ApplyErrorExtra (Typed.Prim primTy primVal)),
-    Show (Core.ApplyErrorExtra (Typed.Prim primTy primVal))
+    Eq (Core.PrimApplyError primTy),
+    Show (Core.PrimApplyError primTy)
   ) =>
   String ->
   Core.Parameterisation primTy primVal ->
@@ -55,6 +50,9 @@ bann ::
   Typed.BindAnnotation IR.T primTy primVal
 bann = Typed.BindAnnotation
 
+unitTy' :: P.KindedType' ext Unit.Ty
+unitTy' = App.Return {retTerm = Unit.Ty, retType = Core.PrimType [P.STAR]}
+
 anyAnn :: IR.Value primTy primVal -> Typed.Annotation IR.T primTy primVal
 anyAnn = Typed.Annotation Usage.SAny
 
@@ -68,10 +66,10 @@ unitAnn0 :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
 unitAnn0 = zeroAnn unitTy
 
 unitTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
-unitTy = IR.VPrimTy Unit.Ty
+unitTy = IR.VPrimTy unitTy'
 
 unitTyT :: Typed.Term Unit.Ty Unit.Val
-unitTyT = Typed.PrimTy Unit.Ty (zeroAnn $ IR.VStar 0)
+unitTyT = Typed.PrimTy unitTy' (zeroAnn $ IR.VStar 0)
 
 erasureTests :: T.TestTree
 erasureTests =
@@ -223,9 +221,6 @@ appTerm =
         identityAnn2
     )
 
-appTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
-appTy = IR.VPi one identityTy identityTy
-
 constTerm :: Typed.Term Unit.Ty Unit.Val
 constTerm =
   Typed.Lam
@@ -249,9 +244,6 @@ constTy2T = Typed.Pi mempty identityTyT identityTyT (zeroAnn $ IR.VStar 0)
 
 unitTerm :: Typed.Term Unit.Ty Unit.Val
 unitTerm = Typed.Prim unitVal' unitAnn
-
-unitElim :: Typed.Elim Unit.Ty Unit.Val
-unitElim = Typed.Ann Usage.SAny unitTerm unitTyT 0 unitAnn
 
 unitTermE :: Erased.TermT Unit.Ty Unit.Val
 unitTermE = Erased.Prim unitVal'

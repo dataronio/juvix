@@ -48,16 +48,29 @@ type PrimSubstValue1 primTy primVal a =
   Eval.HasSubstValue IR.T primTy (Typed.Prim primTy primVal) a
 
 type PrimSubstValue primTy primVal =
-  ( PrimSubstValue1 primTy primVal primTy,
-    PrimSubstValue1 primTy primVal (Typed.Prim primTy primVal)
+  ( Eval.HasSubstValueType
+      IR.T
+      (Typed.PrimTy primTy)
+      (Typed.Prim primTy primVal)
+      (Typed.PrimTy primTy),
+    Eval.HasSubstValue
+      IR.T
+      (Typed.PrimTy primTy)
+      (Typed.Prim primTy primVal)
+      (Typed.Prim primTy primVal)
   )
 
-type PrimPatSubstTerm1 primTy primVal a =
-  Eval.HasPatSubstTerm (OnlyExts.T IR.T) primTy (Typed.Prim primTy primVal) a
-
 type PrimPatSubstTerm primTy primVal =
-  ( PrimPatSubstTerm1 primTy primVal primTy,
-    PrimPatSubstTerm1 primTy primVal (Typed.Prim primTy primVal)
+  ( Eval.HasPatSubstType
+      (OnlyExts.T IR.T)
+      (Typed.PrimTy primTy)
+      (Typed.Prim primTy primVal)
+      (Typed.PrimTy primTy),
+    Eval.HasPatSubstTerm
+      (OnlyExts.T IR.T)
+      (Typed.PrimTy primTy)
+      (Typed.Prim primTy primVal)
+      (Typed.Prim primTy primVal)
   )
 
 type CanTC' ext primTy primVal m =

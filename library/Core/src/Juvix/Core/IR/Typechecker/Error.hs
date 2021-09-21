@@ -78,14 +78,14 @@ data TypecheckError' extV extT primTy primVal
       { pattern_ :: Core.Pattern extT primTy primVal
       }
   | EvalError
-      { evalErr :: Eval.Error IR.T T primTy (P.TypedPrim primTy primVal)
+      { evalErr :: Eval.Error IR.T T (P.KindedType primTy) (P.TypedPrim primTy primVal)
       }
   | -- | datatype typechecking errors
     DatatypeError
       { invalidType :: Core.Term extT primTy primVal
       }
   | ConTypeError
-      { invalidConTy :: Core.Value extV primTy (P.TypedPrim primTy primVal)
+      { invalidConTy :: ValueT extV primTy primVal
       }
   | ParamError
       { expectedN :: Core.GlobalName,
@@ -102,16 +102,12 @@ type TypecheckError = TypecheckError' IR.T IR.T
 deriving instance
   ( Eq primTy,
     Eq primVal,
-    Eq (P.Arg primTy),
-    Eq (P.Arg (P.TypedPrim primTy primVal)),
-    Eq (P.ApplyErrorExtra primTy),
-    Eq (P.ApplyErrorExtra (P.TypedPrim primTy primVal)),
-    Core.ValueAll Eq extV primTy (P.TypedPrim primTy primVal),
-    Core.NeutralAll Eq extV primTy (P.TypedPrim primTy primVal),
+    Eq (P.PrimApplyError primTy),
+    Eq (P.PrimApplyError primVal),
+    Core.ValueAll Eq extV (P.KindedType primTy) (P.TypedPrim primTy primVal),
+    Core.NeutralAll Eq extV (P.KindedType primTy) (P.TypedPrim primTy primVal),
     Core.TermAll Eq extT primTy primVal,
-    Eq (Core.TermX extT primTy (P.TypedPrim primTy primVal)),
     Core.ElimAll Eq extT primTy primVal,
-    Eq (Core.ElimX extT primTy (P.TypedPrim primTy primVal)),
     Core.PatternAll Eq extT primTy primVal
   ) =>
   Eq (TypecheckError' extV extT primTy primVal)
@@ -119,16 +115,12 @@ deriving instance
 deriving instance
   ( Show primTy,
     Show primVal,
-    Show (P.Arg primTy),
-    Show (P.Arg (P.TypedPrim primTy primVal)),
-    Show (P.ApplyErrorExtra primTy),
-    Show (P.ApplyErrorExtra (P.TypedPrim primTy primVal)),
-    Core.ValueAll Show extV primTy (P.TypedPrim primTy primVal),
-    Core.NeutralAll Show extV primTy (P.TypedPrim primTy primVal),
+    Show (P.PrimApplyError primTy),
+    Show (P.PrimApplyError primVal),
+    Core.ValueAll Show extV (P.KindedType primTy) (P.TypedPrim primTy primVal),
+    Core.NeutralAll Show extV (P.KindedType primTy) (P.TypedPrim primTy primVal),
     Core.TermAll Show extT primTy primVal,
-    Show (Core.TermX extT primTy (P.TypedPrim primTy primVal)),
     Core.ElimAll Show extT primTy primVal,
-    Show (Core.ElimX extT primTy (P.TypedPrim primTy primVal)),
     Core.PatternAll Show extT primTy primVal
   ) =>
   Show (TypecheckError' extV extT primTy primVal)
@@ -140,7 +132,9 @@ type Doc = HR.Doc
 -- TODO generalise
 instance
   ( HR.PrimPretty primTy primVal,
-    Eval.ApplyErrorPretty primTy (P.TypedPrim primTy primVal)
+    Eval.ApplyErrorPretty primTy (P.TypedPrim primTy primVal),
+    PP.PrettyText (P.PrimApplyError primTy),
+    HR.ToPPAnn (PP.Ann (P.PrimApplyError primTy))
   ) =>
   PP.PrettyText (TypecheckError' IR.T IR.T primTy primVal)
   where

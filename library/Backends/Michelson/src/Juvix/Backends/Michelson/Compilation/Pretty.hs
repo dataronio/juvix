@@ -31,7 +31,7 @@ type TyAnn = Last TyAnn'
 
 type TDoc = PP.Doc TyAnn
 
-type instance PP.Ann PrimTy = TyAnn
+type instance PP.Ann RawPrimTy = TyAnn
 
 tycon :: TDoc -> TDoc
 tycon = PP.annotate' TAPrimTy
@@ -42,7 +42,7 @@ ptycon = pure . tycon
 appT :: (PP.PrecReader m, Foldable t) => m TDoc -> t (m TDoc) -> m TDoc
 appT = PP.app' TAPunct
 
-instance PP.PrettySyntax PrimTy where
+instance PP.PrettySyntax RawPrimTy where
   pretty' = \case
     PrimTy ty -> PP.pretty' ty
     Pair -> ptycon "pair"

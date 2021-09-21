@@ -84,7 +84,7 @@ compilePrim p m args = case p of
   n -> panic $ show n
 
 -- TODO: Make signature handle failure
-compileTerm :: (Integral f, Show f) => AnnTerm f -> Map NameSymbol.T Wire -> [AnnTerm f] -> IRM f (Either Wire (AffineCircuit Wire f))
+compileTerm :: (HasCallStack, Integral f, Show f) => AnnTerm f -> Map NameSymbol.T Wire -> [AnnTerm f] -> IRM f (Either Wire (AffineCircuit Wire f))
 compileTerm _term@(Ann.Ann _ _ t) m a =
   case t of
     Ann.Prim p -> compilePrim p m a

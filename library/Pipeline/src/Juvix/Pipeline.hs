@@ -61,18 +61,21 @@ type Constraints b =
     Show (Err b),
     Show (Val b),
     Show (Ty b),
-    Show (ApplyErrorExtra (Ty b)),
-    Show (ApplyErrorExtra (TypedPrim (Ty b) (Val b))),
-    Show (Arg (Ty b)),
-    Show (Arg (TypedPrim (Ty b) (Val b))),
-    CanApply (Ty b),
-    CanApply (TypedPrim (Ty b) (Val b)),
+    Show (Core.PrimApplyError (Ty b)),
+    Show (Core.PrimApplyError (Val b)),
+    Core.CanPrimApply Param.Star (Ty b),
+    Core.CanPrimApply (Ty b) (Val b),
     IR.HasWeak (Val b),
-    IR.HasSubstValue IR.T (Ty b) (TypedPrim (Ty b) (Val b)) (Ty b),
-    IR.HasPatSubstTerm (OnlyExts.T IR.T) (Ty b) (Val b) (Ty b),
+    IR.HasPatSubstType (OnlyExts.T IR.T) (Ty b) (Val b) (Ty b),
     IR.HasPatSubstTerm (OnlyExts.T IR.T) (Ty b) (Val b) (Val b),
-    IR.HasPatSubstTerm (OnlyExts.T IR.T) (Ty b) (TypedPrim (Ty b) (Val b)) (Ty b),
-    IR.HasPatSubstTerm (OnlyExts.T TypeChecker.T) (Ty b) (TypedPrim (Ty b) (Val b)) (Ty b)
+    IR.HasPatSubstType
+      (OnlyExts.T TypeChecker.T)
+      (Ty b)
+      (TypedPrim (Ty b) (Val b))
+      (Ty b),
+    -- TODO remove these constraints when inlining is no longer necessary?
+    IR.HasPatSubstType (OnlyExts.T IR.T) (Ty b) (TypedPrim (Ty b) (Val b)) (Ty b),
+    IR.HasSubstValueType IR.T (Ty b) (TypedPrim (Ty b) (Val b)) (Ty b)
   )
 
 data Error

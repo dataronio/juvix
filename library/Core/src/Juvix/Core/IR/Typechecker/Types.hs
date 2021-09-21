@@ -92,51 +92,53 @@ Core.extendElim "Elim'" [] [t|T|] $
             Core.typeAnn = typed
           }
 
-type Term primTy primVal = Term' primTy (P.TypedPrim primTy primVal)
+type Term primTy primVal = Term' (PrimTy primTy) (Prim primTy primVal)
 
-type Elim primTy primVal = Elim' primTy (P.TypedPrim primTy primVal)
+type Elim primTy primVal = Elim' (PrimTy primTy) (Prim primTy primVal)
 
 type Prim primTy primVal = P.TypedPrim primTy primVal
 
+type PrimTy primTy = P.KindedType primTy
+
 -- TODO: Remove T
 type GlobalT extV extT primTy primVal =
-  Core.Global extV extT primTy (P.TypedPrim primTy primVal)
+  Core.Global extV extT (PrimTy primTy) (Prim primTy primVal)
 
 type DatatypeT ext primTy primVal =
-  Core.Datatype ext primTy (P.TypedPrim primTy primVal)
+  Core.Datatype ext (PrimTy primTy) (Prim primTy primVal)
 
 type DataArgT ext primTy primVal =
-  Core.DataArg ext primTy (P.TypedPrim primTy primVal)
+  Core.DataArg ext (PrimTy primTy) (Prim primTy primVal)
 
 type DataConT ext primTy primVal =
-  Core.DataCon ext primTy (P.TypedPrim primTy primVal)
+  Core.DataCon ext (PrimTy primTy) (Prim primTy primVal)
 
 type FunctionT extV extT primTy primVal =
-  Core.Function extV extT primTy (P.TypedPrim primTy primVal)
+  Core.Function extV extT (PrimTy primTy) (Prim primTy primVal)
 
 type FunClauseT extT primTy primVal =
-  Core.FunClause extT primTy (P.TypedPrim primTy primVal)
+  Core.FunClause extT (PrimTy primTy) (Prim primTy primVal)
 
 type PatternT ext primTy primVal =
-  Core.Pattern ext primTy (P.TypedPrim primTy primVal)
+  Core.Pattern ext (PrimTy primTy) (Prim primTy primVal)
 
 type AbstractT extV primTy primVal =
-  Core.Abstract extV primTy (P.TypedPrim primTy primVal)
+  Core.Abstract extV (PrimTy primTy) (Prim primTy primVal)
 
 type GlobalsT extV extT primTy primVal =
-  Core.Globals extV extT primTy (P.TypedPrim primTy primVal)
+  Core.Globals extV extT (PrimTy primTy) (Prim primTy primVal)
 
 type ValueT ext primTy primVal =
-  Core.Value ext primTy (P.TypedPrim primTy primVal)
+  Core.Value ext (PrimTy primTy) (Prim primTy primVal)
 
 type NeutralT ext primTy primVal =
-  Core.Neutral ext primTy (P.TypedPrim primTy primVal)
+  Core.Neutral ext (PrimTy primTy) (Prim primTy primVal)
 
 type AnnotationT ext primTy primVal =
-  Annotation ext primTy (P.TypedPrim primTy primVal)
+  Annotation ext (PrimTy primTy) (Prim primTy primVal)
 
 type BindAnnotationT ext primTy primVal =
-  BindAnnotation ext primTy (P.TypedPrim primTy primVal)
+  BindAnnotation ext (PrimTy primTy) (Prim primTy primVal)
 
 getTermAnn :: Core.Term T primTy primVal -> Annotation IR.T primTy primVal
 getTermAnn (Star _ ann) = ann

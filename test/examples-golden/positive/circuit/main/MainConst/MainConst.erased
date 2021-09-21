@@ -1,6 +1,12 @@
 Ann
     { usage = SAny
-    , type' = PrimTy PField
+    , type' = PrimTy
+        ( Return
+            { retType = PrimType
+                { getPrimType = STAR :| [] }
+            , retTerm = PField
+            }
+        )
     , term = Prim
         ( Return
             { retType = PrimType

@@ -105,7 +105,7 @@ transformProduct q hd typeCon (x, prod) =
     makeSig ty = CoreSig (Core.ConSig {sigConType = Just ty})
 
 transformConSig ::
-  (ReduceEff HR.T primTy primVal m, HasPatVars m, Show primTy, Show primVal, HasClosure m) =>
+  (HasCallStack, ReduceEff HR.T primTy primVal m, HasPatVars m, Show primTy, Show primVal, HasClosure m) =>
   NameSymbol.Mod ->
   NameSymbol.T ->
   -- | datatype head

@@ -94,7 +94,7 @@ def =
     }
 
 -- @defMichelson@ gives us Michelson prelude
-defMichelson :: Options Michelson.Param.PrimTy Michelson.Param.RawPrimVal
+defMichelson :: Options Michelson.Param.RawPrimTy Michelson.Param.RawPrimVal
 defMichelson =
   def
     { prelude =
@@ -416,7 +416,7 @@ inline ::
   ( Show primTy,
     Show primVal,
     IR.HasPatSubstTerm (OnlyExts.T IR.T) primTy primVal primVal,
-    IR.HasPatSubstTerm (OnlyExts.T IR.T) primTy primVal primTy
+    IR.HasPatSubstType (OnlyExts.T IR.T) primTy primVal primTy
   ) =>
   ByteString ->
   Options primTy primVal ->
@@ -446,7 +446,7 @@ inlineFile ::
   ( Show primTy,
     Show primVal,
     IR.HasPatSubstTerm (OnlyExts.T IR.T) primTy primVal primVal,
-    IR.HasPatSubstTerm (OnlyExts.T IR.T) primTy primVal primTy
+    IR.HasPatSubstType (OnlyExts.T IR.T) primTy primVal primTy
   ) =>
   FilePath ->
   Options primTy primVal ->
