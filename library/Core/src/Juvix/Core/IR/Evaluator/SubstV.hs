@@ -188,7 +188,9 @@ substNeutralWith ::
     Monoid (Core.XVNeutral extV primTy primVal),
     Monoid (Core.XVLam extV primTy primVal),
     Monoid (Core.XVPrimTy extV primTy primVal),
-    Monoid (Core.XVPrim extV primTy primVal)
+    Monoid (Core.XVPrim extV primTy primVal),
+    Show primTy,
+    Show primVal
   ) =>
   -- | How many bindings have been traversed so far.
   Natural ->
@@ -228,7 +230,9 @@ vapp ::
     Monoid (Core.XVNeutral extV primTy primVal),
     Monoid (Core.XVLam extV primTy primVal),
     Monoid (Core.XVPrimTy extV primTy primVal),
-    Monoid (Core.XVPrim extV primTy primVal)
+    Monoid (Core.XVPrim extV primTy primVal),
+    Show primVal,
+    Show primTy
   ) =>
   -- | Function value.
   Core.Value extV primTy primVal ->
@@ -268,12 +272,8 @@ vapp s t ann =
     app' ::
       forall ann arg fun.
       (Param.CanApply fun, Monoid ann, Show arg) =>
-      -- | map a primitive error to an evaluator error
       (Param.ApplyError fun -> ApplyError primTy primVal) ->
-      -- | constructor for a primitive ('Core.VPrim' or 'Core.VPrimTy')
       (fun -> ann -> Core.Value extV primTy primVal) ->
-      -- | map an argument to an 'Param.Arg'
-      -- ('Param.pureArg', 'Param.freeArg', 'Param.boundArg')
       (Proxy fun -> arg -> Maybe (Param.Arg fun)) ->
       fun ->
       arg ->

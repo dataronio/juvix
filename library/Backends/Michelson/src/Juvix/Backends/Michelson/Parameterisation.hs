@@ -147,14 +147,6 @@ data TyAppError
 
 type instance PP.Ann TyAppError = HR.PPAnn
 
-instance PP.PrettyText TyAppError where
-  prettyT = \case
-    TooManyPrimArguments fun args ->
-      PP.sepIndent'
-        [ (False, "primitive applied to too many arguments:"),
-          (True, PP.runPretty0 $ PP.ppApps (App.term fun) (App.term <$> args))
-        ]
-
 -- | Instance for types.
 instance Core.CanPrimApply Core.Star RawPrimTy where
   type PrimApplyError RawPrimTy = TyAppError
@@ -307,7 +299,9 @@ builtinValues =
 michelson :: P.Parameterisation RawPrimTy RawPrimVal
 michelson =
   P.Parameterisation
-    { hasType,
+    { hasType = \x y ->
+        let ans = hasType x y
+         in ans,
       builtinTypes,
       builtinValues,
       stringVal = Just . Constant . M.ValueString . M.mkMTextUnsafe, -- TODO ?

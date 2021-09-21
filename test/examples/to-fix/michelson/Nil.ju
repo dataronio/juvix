@@ -1,0 +1,12 @@
+-- Test for constructing empty lists.
+
+mod Nil where
+
+open Prelude
+open Michelson
+
+sig nil-int : list int
+let nil-int = nil int
+
+sig main : list int
+let main = nil-int

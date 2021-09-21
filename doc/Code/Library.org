@@ -144,8 +144,8 @@ Module that implements the backend parameters for the Michelson backend.
   + [[Instructions]]
   + [[Untyped]]
   + [[Utils]]
-  + [[Ann]]
   + [[Application]]
+  + [[Ann]]
   + [[Library]]
   + [[Library]]
   + [[NameSymbol]]
@@ -185,8 +185,8 @@ Module that implements the backend parameters for the Michelson backend.
   + [[Interpret]]
   + [[Untyped]]
   + [[Optimisation]]
-  + [[Ann]]
   + [[Application]]
+  + [[Ann]]
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[NameSymbol]]
@@ -489,8 +489,8 @@ Traversals serves as generic Context Traversal modules.
 Types to support partial application and polymorphic primitives.
 - _Relies on_
   + [[Core/Base/Types]]
-  + [[Core/Pretty]]
   + [[IR/Types]]
+  + [[Core/Pretty]]
   + [[Library]]
   + [[Library/Usage]]
 ***** Parameterisation <<Core/Parameterisation>>
@@ -504,8 +504,8 @@ relation.
 - _Relies on_
   + [[Application]]
   + [[Core/Base/Types]]
-  + [[Core/Pretty]]
   + [[IR/Types]]
+  + [[Core/Pretty]]
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
@@ -618,8 +618,8 @@ keeps the extensions.
   + [[Erased/Base/Types]]
   + [[Erased/Types]]
   + [[Erased/Types]]
-  + [[HR/Types]]
   + [[Core/HR/Pretty]]
+  + [[HR/Types]]
   + [[Core/IR]]
   + [[Typechecker/Types]]
   + [[Core/Parameterisation]]
@@ -700,16 +700,16 @@ keeps the extensions.
   + [[NameSymbol]]
 ****** Pretty <<Core/HR/Pretty>>
 - _Relies on_
-  + [[Core/Pretty]]
   + [[HR/Types]]
+  + [[Core/Pretty]]
   + [[Library]]
   + [[NameSymbol]]
 ****** Types <<HR/Types>>
 - _Relies on_
-  + [[Library]]
+  + [[Application]]
   + [[Core/Base/Types]]
   + [[Extend]]
-  + [[Application]]
+  + [[Library]]
   + [[NameSymbol]]
 ***** IR <<Core/IR>>
 - _Relies on_
@@ -790,8 +790,8 @@ values.
   + [[Core/Base/Types]]
   + [[Evaluator/Types]]
   + [[Evaluator/Weak]]
-  + [[IR/Types]]
   + [[Typechecker/Types]]
+  + [[IR/Types]]
   + [[Core/Parameterisation]]
   + [[Library]]
   + [[Library/Usage]]

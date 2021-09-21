@@ -244,4 +244,4 @@ unsafeEval ::
   Core.Value IR.T primTy primVal
 unsafeEval globals t = case IR.evalTerm (IR.rawLookupFun' globals) t of
   Right v -> v
-  Left v -> panic "Failed to eval term"
+  Left v -> panic $ "Failed to eval term: " <> show v

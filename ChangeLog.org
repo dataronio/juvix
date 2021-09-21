@@ -1,8 +1,9 @@
 * Changelog for Juvix
 
+** 0.1.1.20
+- Merged changes that implemented primTy in terms of return. (see PR #979)
 ** 0.1.1.19
 - Introduce algebraic product and coproduct types (see PR #985)
-
 ** 0.1.1.18
 - Adds record lookup transformation for record symbols
   + Technically to all symbols with an unknown context address/path
