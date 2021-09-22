@@ -163,7 +163,3 @@ executables:
       - pretty-simple
       - raw-strings-qq
       - yaml
-
-build:
-  library-profiling: true
-  executable-profiling: true
