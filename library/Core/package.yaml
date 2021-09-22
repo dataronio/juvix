@@ -19,18 +19,9 @@ dependencies:
 - aeson
 - base >= 4.11 && < 5
 - standard-library
-- Sexp
-- text
-- parsec
 - extensible-data
 - containers
 - unordered-containers
-- stm-containers
-- lens
-- dlist
-- hashable
-- pretty-simple
-- pretty-compact
 - mtl
 
 default-extensions:
@@ -95,5 +86,4 @@ tests:
     - core
     - tasty
     - tasty-hunit
-    - tasty-silver
     - tasty-quickcheck

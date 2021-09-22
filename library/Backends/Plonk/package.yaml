@@ -19,20 +19,13 @@ dependencies:
   - base >= 4.7 && < 5
   - core
   - Pipeline
-  - translate
   - unordered-containers
   - containers
-  - elliptic-curve
   - filepath
   - galois-field
-  - pairing
-  - parsec
   - process-extras
-  - poly
-  - semirings
   - standard-library
   - text
-  - vector
   - wl-pprint-text
   
   ###########################
@@ -93,15 +86,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - bytestring
-    - directory
-    - generic-arbitrary
     - plonk
-    - protolude
-    - QuickCheck
-    - scientific
     - tasty
-    - tasty-golden
     - tasty-hunit
-    - tasty-quickcheck
-    - tasty-silver
     - unordered-containers

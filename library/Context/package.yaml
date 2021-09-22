@@ -23,7 +23,6 @@ dependencies:
 - base >= 4.7 && < 5
 - standard-library
 - Sexp
-- containers
 - unordered-containers
 - stm-containers
 - lens

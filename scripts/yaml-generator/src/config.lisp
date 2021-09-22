@@ -323,7 +323,7 @@ common ones to include"
 (defparameter *core*
   (make-stack-yaml
    :name       "Core"
-   :packages   (list *standard-library* *sexp*)
+   :packages   (list *standard-library*)
    :extra-deps (list (general-dependencies *extensible*)
                       *standard-library-extra-deps*
                       *eac-solver*)))
@@ -357,7 +357,7 @@ common ones to include"
    :name "Backends/llvm"
    :resolver 17.3
    :path-to-other "../../"
-   :packages (list *standard-library* *core* *Context* *pipeline* *translate* *frontend* *sexp*)
+   :packages (list *standard-library* *core* *Context* *pipeline* *frontend* *sexp*)
    :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *llvm-hs-deps*
 
@@ -379,7 +379,6 @@ common ones to include"
    :packages      (list *standard-library* *core* *pipeline* *Context*
                         ;; this is needed due to pipeline additions
                         ;; have left it unable to build. I think due to cyclic dependencies
-                        *translate*
                         *frontend*
                         *sexp*)
    :extra-deps    (list (make-general-dependencies *capability* *extensible* *prettiest*)
@@ -401,7 +400,6 @@ common ones to include"
                    *core*
                    *Context*
                    *pipeline*
-                   *translate*
                    *sexp*)
    :extra-deps (big-dep-list :plonk t)
    :extra "allow-newer: true"))
@@ -442,16 +440,14 @@ common ones to include"
 (defparameter *Witch*
   (make-stack-yaml
    :name "Witch"
-   :packages   (list *core*
-                     *frontend*
+   :packages   (list *frontend*
                      *standard-library*
                      *translate*
                      *Context*
                      *sexp*
                      *pipeline*
                      *plonk*
-                     *Michelson*
-                     *Easy-Pipeline*)
+                     *Michelson*)
    :extra-deps (big-dep-list)
    :extra "allow-newer: true"))
 

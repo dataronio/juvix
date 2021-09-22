@@ -23,7 +23,6 @@ dependencies:
 - base >= 4.7 && < 5
 - core
 - Pipeline
-- translate
 - llvm-hs-pretty
 - llvm-hs-pure >= 9.0 && < 9.1
 - standard-library
@@ -50,14 +49,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - bytestring
-    - directory
-    - generic-arbitrary
     - llvm
-    - QuickCheck
     - tasty
-    - tasty-golden
-    - tasty-hunit
-    - tasty-quickcheck
-    - tasty-silver
     - unordered-containers
 

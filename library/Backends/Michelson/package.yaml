@@ -19,22 +19,14 @@ dependencies:
 - base >= 4.7 && < 5
 - core
 - standard-library
-- translate
 - Pipeline
-- unordered-containers
 - containers
 - text
-- wl-pprint-text
-###########################
-# Dependency for Param
-###########################
-- parsec
 ###########################
 # Dependency for Morley
 ###########################
 - morley
 - vinyl
-- singletons
 - fmt
 - bytestring
 
@@ -91,5 +83,3 @@ tests:
     - pretty-simple
     - tasty
     - tasty-hunit
-    - tasty-silver
-    - tasty-quickcheck

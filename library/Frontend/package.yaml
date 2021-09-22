@@ -28,8 +28,6 @@ dependencies:
 - aeson
 - base >= 4.7 && < 5
 - standard-library
-- capability >= 0.2.0.0
-- lens
 - containers
 - text
 - bytestring
@@ -82,5 +80,3 @@ tests:
     - frontend
     - tasty
     - tasty-hunit
-    - tasty-silver
-    - tasty-quickcheck

@@ -14,23 +14,13 @@ extra-source-files:
 - README.md
 
 dependencies:
-  - aeson
   - base >= 4.11 && < 5
-  - Cabal
-  - capability >= 0.2.0.0
   - directory
-  - extensible-data
-  - galois-field
-  - lens
-  - megaparsec
-  - scientific
-  - syb
-  - temporary
-  - wl-pprint-text
+  - pretty-simple
+  ###########################
+  # Juvix Libraries
+  ###########################
   - Pipeline
-  ###########################
-  # Libraries
-  ###########################
   - standard-library
   - Sexp
   - frontend
@@ -41,40 +31,6 @@ dependencies:
   - plonk
   - EasyPipeline
   - llvm
-  # - interaction-net
-  # - InteractionNetIR
-  ###########################
-  # Dependency for OS
-  ###########################
-  - turtle
-  - time
-  - filepath
-  ###########################
-  # Dependency for Structs
-  ###########################
-  - text
-  - mtl
-  - containers
-  - unordered-containers
-  - hashable
-  - fgl
-  - fgl-visualize
-  - bytestring
-  ###########################
-  # Dependency for Server
-  ###########################
-  - servant
-  - servant-server
-  - servant-static-th
-
-  ###########################
-  # Dependency for Morley
-  ###########################
-  - morley
-  ###########################
-  # Dependency for debugging
-  ###########################
-  - pretty-simple
 
 default-extensions:
   - NoImplicitPrelude
@@ -153,13 +109,8 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - aeson
       - ansi-wl-pprint
-      - elliptic-curve
       - gitrev
-      - haskeline
       - juvix
       - optparse-applicative
       - pretty-simple
-      - raw-strings-qq
-      - yaml

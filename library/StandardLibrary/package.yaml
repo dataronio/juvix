@@ -23,7 +23,6 @@ dependencies:
 - containers
 - elliptic-curve >= 0.3.0
 - galois-field >= 1.0.2
-- hashable
 - lens
 - megaparsec
 - mtl
@@ -32,7 +31,6 @@ dependencies:
 - text
 - time
 - unordered-containers
-- wl-pprint-text
 - word8
 # Testing
 - directory

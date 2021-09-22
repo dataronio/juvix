@@ -6,7 +6,6 @@ packages:
 - ../../Core
 - ../../Context
 - ../../Pipeline
-- ../../Translate
 - ../../Frontend
 - ../../Sexp
 

@@ -11,25 +11,12 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.11 && < 5
 - standard-library
-- core
 - frontend
 - Sexp
 - Context
 - translate
-- extensible-data
-- unordered-containers
-- stm-containers
-- list-t
-- lens
-- containers
-- dlist
-- syb
-- megaparsec
-- EasyPipeline
 - tasty
 - tasty-hunit
-- tasty-silver
-- tasty-quickcheck
 
 default-extensions:
   - NoImplicitPrelude
@@ -85,11 +72,6 @@ tests:
     - translate
     - tasty
     - tasty-hunit
-    - tasty-silver
-    - tasty-quickcheck
-    - text
-    - bytestring
-    - pretty-simple
     - Witch
     - Pipeline
     - Sexp

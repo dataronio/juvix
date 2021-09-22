@@ -23,12 +23,9 @@ dependencies:
 - base >= 4.7 && < 5
 - standard-library
 - containers
-- unordered-containers
-- stm-containers
 - lens
 - text
 - megaparsec
-- bytestring
 - hashable
 
 default-extensions:

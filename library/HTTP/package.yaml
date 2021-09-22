@@ -9,56 +9,30 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
   - base >= 4.11 && < 5
-  - protolude
-  - wl-pprint-text
-  - hashable
-  - capability
-  - time
   - mtl
-  - lens
-  - text
+  
   # Juvix
   - standard-library
   - Sexp
   - frontend
   - core
-  - translate
   - michelson
   - Pipeline
   - Context
   - plonk
 
   # Data Structures
-  - containers
-  - insert-ordered-containers
   - unordered-containers
 
   # Serialization
-  - cereal
   - aeson
 
-  # Text
-  - bytestring
-  - text
-
-  # Quickcheck
-  - QuickCheck
-  - quickcheck-instances
-  - generic-random
-
   # Http
-  - wai
   - wai-cors
   - wai-extra
   - warp
-  - scientific
-  - servant
   - servant-server
-  - servant-static-th
 
-# Plonk-specific backend
-  - elliptic-curve
-  - galois-field
 
 default-extensions:
   - BlockArguments
@@ -133,7 +107,4 @@ tests:
     - juvix-http
     - pretty-simple
     - standard-library
-    - tasty
     - tasty-hunit
-    - tasty-quickcheck
-    - tasty-silver

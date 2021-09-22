@@ -2,7 +2,6 @@ resolver: lts-17.3
 
 packages:
 - .
-- ../Core
 - ../Frontend
 - ../StandardLibrary
 - ../Translate
@@ -11,7 +10,6 @@ packages:
 - ../Pipeline
 - ../Backends/Plonk
 - ../Backends/Michelson
-- ../EasyPipeline
 
 extra-deps:
 
