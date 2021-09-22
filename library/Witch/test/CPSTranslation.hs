@@ -52,8 +52,8 @@ simpleProg =
     expected =
       fmap
         Sexp.parse
-        [ "(:lethandler printer (:ops (:defop print () printLn)) (:defret (x) (toString x)))",
-          "(:defsig-match prog () ((a) (:do (:do-body (:do-op print (a))) (:do-body (:do-pure a)))))",
+        [ "(:lethandler printer (:defret (x) (toString x)) (:defop print () printLn))",
+          "(:defsig-match prog () ((a) (:do (:do-op print (a)) (:do-pure a))))",
           "(:defsig-match foo () (() (:via printer prog)))"
         ]
         |> sequence

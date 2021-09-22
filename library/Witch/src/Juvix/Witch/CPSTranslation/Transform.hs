@@ -174,8 +174,8 @@ addHandlersToContext context form =
    in pure (context', newForm)
   where
     addToContext handler context
-      | Just (Str.LetHandler {..}) <- Str.toLetHandler handler = do
-        Context.add (mkNameSpaceFrom letHandlerName) (mkDef handler) context
+      | Just (Str.Handler {..}) <- Str.toHandler handler = do
+        Context.add (mkNameSpaceFrom handlerName) (mkDef handler) context
       | otherwise = context
 
 -- make NameSpace.From
@@ -300,7 +300,7 @@ convertDo ::
   Str.Do ->
   Stacked m (Context.T Sexp.T ty sumRep) ->
   CPSTrans m ty sumRep
-convertDo (Str.Do {..}) form = convertDoBodyFull do_ form
+convertDo do'@(Str.Do {..}) form = convertDoBodyFull do_ form
   where
     convertDoBodyFull ::
       ExpressionIO m =>
@@ -325,7 +325,7 @@ convertDo (Str.Do {..}) form = convertDoBodyFull do_ form
       convert (Sexp.cdr doBodyFullBody) (mkTrans ctx [] stk)
 
     -- other dos are chained by adding them to the continuation
-    Just (do_ : dos) = Str.toDoBodyFull (Sexp.toList doStatements)
+    Just (Str.DoDeep (do_ : dos)) = Str.toDoDeep (Str.fromDo do')
 
 -- <prog> via <handler> ==> λκs. convert prog (convert handler [])
 convertVia ::

@@ -268,8 +268,8 @@ handlerWorkAsExpected =
     expected =
       Sexp.parse
         ( "(:lethandler printer                     "
-            <> "  (:ops (:defop print () printLn))       "
-            <> "  (:defret (x) (toString x)))            "
+            <> "  (:defret (x) (toString x))            "
+            <> "  (:defop print () printLn))       "
         )
 
 handlerTest2 :: T.TestTree
@@ -286,7 +286,7 @@ handlerTest2 =
         |> desugar
     basicExpected =
       Sexp.parse
-        "(:lethandler print (:ops (:defop print (x) (print x))) (:defret (x) (toString x)))"
+        "(:lethandler print (:defret (x) (toString x)) (:defop print (x) (print x)))"
 
 --------------------------------------------------------------------------------
 -- Helpers

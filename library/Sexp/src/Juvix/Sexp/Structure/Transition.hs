@@ -40,8 +40,14 @@ import Juvix.Library hiding (Handler, Type)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import Juvix.Sexp.Structure
+import Juvix.Sexp.Structure.Frontend (fromLetOp, fromLetRet, fromNotPunnedGroup, toLetOp, toLetRet, toNotPunnedGroup)
 import qualified Juvix.Sexp.Structure.Frontend as Frontend
 import Juvix.Sexp.Structure.Helpers
+
+newtype RecordNoPunned = RecordNoPunned
+  { recordNoPunnedValue :: [Frontend.NotPunned]
+  }
+  deriving (Show)
 
 -- | @Defun-match@ is a matching defun structure
 data DefunMatch = DefunMatch
@@ -99,15 +105,11 @@ data LetMatch = LetMatch
   }
   deriving (Show)
 
-newtype RecordNoPunned = RecordNoPunned
-  { recordNoPunnedValue :: [Frontend.NotPunned]
-  }
-  deriving (Show)
-
+-- DEPRECATED :: Unsafe to form on
 data LetHandler = LetHandler
   { letHandlerName :: Sexp.T,
-    letHandlerOps :: Sexp.T,
-    letHandlerRet :: Sexp.T
+    letHandlerRet :: Sexp.T,
+    letHandlerOps :: Sexp.T
   }
   deriving (Show)
 
@@ -170,6 +172,10 @@ fromArgBody :: ArgBody -> Sexp.T
 fromArgBody (ArgBody sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
 
+instance Structure ArgBody where
+  to = toArgBody
+  from = fromArgBody
+
 ----------------------------------------
 -- DefunMatch
 ----------------------------------------
@@ -197,6 +203,10 @@ fromDefunMatch :: DefunMatch -> Sexp.T
 fromDefunMatch (DefunMatch sexp1 argBody2) =
   Sexp.listStar [Sexp.atom nameDefunMatch, sexp1, fromArgBody `toStarList` argBody2]
 
+instance Structure DefunMatch where
+  to = toDefunMatch
+  from = fromDefunMatch
+
 ----------------------------------------
 -- If
 ----------------------------------------
@@ -223,6 +233,10 @@ fromIf :: If -> Sexp.T
 fromIf (If sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameIf, sexp1, sexp2, sexp3]
 
+instance Structure If where
+  to = toIf
+  from = fromIf
+
 ----------------------------------------
 -- IfNoElse
 ----------------------------------------
@@ -248,6 +262,10 @@ toIfNoElse form
 fromIfNoElse :: IfNoElse -> Sexp.T
 fromIfNoElse (IfNoElse sexp1 sexp2) =
   Sexp.list [Sexp.atom nameIfNoElse, sexp1, sexp2]
+
+instance Structure IfNoElse where
+  to = toIfNoElse
+  from = fromIfNoElse
 
 ----------------------------------------
 -- DefunSigMatch
@@ -276,6 +294,10 @@ fromDefunSigMatch :: DefunSigMatch -> Sexp.T
 fromDefunSigMatch (DefunSigMatch sexp1 sexp2 argBody3) =
   Sexp.listStar [Sexp.atom nameDefunSigMatch, sexp1, sexp2, fromArgBody `toStarList` argBody3]
 
+instance Structure DefunSigMatch where
+  to = toDefunSigMatch
+  from = fromDefunSigMatch
+
 ----------------------------------------
 -- LetMatch
 ----------------------------------------
@@ -303,6 +325,10 @@ fromLetMatch :: LetMatch -> Sexp.T
 fromLetMatch (LetMatch sexp1 argBodys2 sexp3) =
   Sexp.list [Sexp.atom nameLetMatch, sexp1, fromArgBodys argBodys2, sexp3]
 
+instance Structure LetMatch where
+  to = toLetMatch
+  from = fromLetMatch
+
 ----------------------------------------
 -- RecordNoPunned
 ----------------------------------------
@@ -319,7 +345,7 @@ toRecordNoPunned form
   | isRecordNoPunned form =
     case form of
       _nameRecordNoPunned Sexp.:> notPunnedGroup1
-        | Just notPunnedGroup1 <- Frontend.toNotPunnedGroup notPunnedGroup1 ->
+        | Just notPunnedGroup1 <- toNotPunnedGroup notPunnedGroup1 ->
           RecordNoPunned notPunnedGroup1 |> Just
       _ ->
         Nothing
@@ -328,7 +354,11 @@ toRecordNoPunned form
 
 fromRecordNoPunned :: RecordNoPunned -> Sexp.T
 fromRecordNoPunned (RecordNoPunned notPunnedGroup1) =
-  Sexp.listStar [Sexp.atom nameRecordNoPunned, Frontend.fromNotPunnedGroup notPunnedGroup1]
+  Sexp.listStar [Sexp.atom nameRecordNoPunned, fromNotPunnedGroup notPunnedGroup1]
+
+instance Structure RecordNoPunned where
+  to = toRecordNoPunned
+  from = fromRecordNoPunned
 
 ----------------------------------------
 -- LambdaCase
@@ -357,6 +387,10 @@ fromLambdaCase :: LambdaCase -> Sexp.T
 fromLambdaCase (LambdaCase argBody1) =
   Sexp.listStar [Sexp.atom nameLambdaCase, fromArgBody `toStarList` argBody1]
 
+instance Structure LambdaCase where
+  to = toLambdaCase
+  from = fromLambdaCase
+
 ----------------------------------------
 -- LetHandler
 ----------------------------------------
@@ -381,71 +415,39 @@ toLetHandler form
 
 fromLetHandler :: LetHandler -> Sexp.T
 fromLetHandler (LetHandler sexp1 sexp2 sexp3) =
-  Sexp.list [Sexp.atom nameLetHandler, sexp1, Sexp.list [Sexp.atom ":ops", sexp2], sexp3]
+  Sexp.list [Sexp.atom nameLetHandler, sexp1, sexp2, sexp3]
+
+instance Structure LetHandler where
+  to = toLetHandler
+  from = fromLetHandler
 
 ----------------------------------------
 -- Handler
 ----------------------------------------
 
 nameHandler :: NameSymbol.T
-nameHandler = nameLetHandler
+nameHandler = ":lethandler"
 
 isHandler :: Sexp.T -> Bool
-isHandler = isLetHandler
+isHandler (Sexp.Cons form _) = Sexp.isAtomNamed form nameHandler
+isHandler _ = False
 
 toHandler :: Sexp.T -> Maybe Handler
-toHandler form =
-  toLetHandler form >>= transform
-  where
-    transform :: LetHandler -> Maybe Handler
-    transform (LetHandler {..}) =
-      let ret_ = Frontend.toLetRet letHandlerRet
-          ops_ = toLetOps letHandlerOps
-          name_ = letHandlerName
-       in pure Handler <*> pure name_ <*> ret_ <*> ops_
+toHandler form
+  | isHandler form =
+    case form of
+      _nameHandler Sexp.:> sexp1 Sexp.:> letRet2 Sexp.:> letOp3
+        | Just letRet2 <- toLetRet letRet2,
+          Just letOp3 <- toLetOp `fromStarList` letOp3 ->
+          Handler sexp1 letRet2 letOp3 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
 
 fromHandler :: Handler -> Sexp.T
-fromHandler (Handler name ret ops) =
-  Sexp.list [Sexp.atom nameLetHandler, name, Frontend.fromLetRet ret, Sexp.list (Frontend.fromLetOp <$> ops)]
-
-toLetOps :: Sexp.T -> Maybe [Frontend.LetOp]
-toLetOps form = Sexp.toList (Sexp.cdr form) >>= traverse Frontend.toLetOp
-
-----------------------------------------
--- Typeclass Instances
-----------------------------------------
-
-instance Structure DefunMatch where
-  to = toDefunMatch
-  from = fromDefunMatch
-
-instance Structure ArgBody where
-  to = toArgBody
-  from = fromArgBody
-
-instance Structure If where
-  to = toIf
-  from = fromIf
-
-instance Structure IfNoElse where
-  to = toIfNoElse
-  from = fromIfNoElse
-
-instance Structure DefunSigMatch where
-  to = toDefunSigMatch
-  from = fromDefunSigMatch
-
-instance Structure LetMatch where
-  to = toLetMatch
-  from = fromLetMatch
-
-instance Structure RecordNoPunned where
-  to = toRecordNoPunned
-  from = fromRecordNoPunned
-
-instance Structure LetHandler where
-  to = toLetHandler
-  from = fromLetHandler
+fromHandler (Handler sexp1 letRet2 letOp3) =
+  Sexp.listStar [Sexp.atom nameHandler, sexp1, fromLetRet letRet2, fromLetOp `toStarList` letOp3]
 
 instance Structure Handler where
   to = toHandler

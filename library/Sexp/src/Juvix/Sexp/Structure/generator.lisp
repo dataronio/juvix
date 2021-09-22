@@ -75,11 +75,12 @@ is replaced with replacement."
 and a rhs that may contain a guard, so no = is assumed for the rhs"
   (indent-new-lines-by
    2
-   (if (listp args)
-       (format nil "~a ~{~a ~}~a" name args rhs)
-       (if (equalp (elt rhs 0) #\newline)
-           (format nil "~a ~a~a" name args rhs)
-           (format nil "~a ~a ~a" name args rhs)))))
+   (cond ((listp args)
+          (format nil "~a ~{~a ~}~a" name args rhs))
+         ((equalp (elt rhs 0) #\newline)
+          (format nil "~a ~a~a" name args rhs))
+         (t
+          (format nil "~a ~a ~a" name args rhs)))))
 
 (defun body (body &optional (new-line t))
   "constructs a haskell definition body"
@@ -153,6 +154,15 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 (defun deconstruct-constructor (con-name field-names)
   "generates a pattern match form of a constructor"
   (format nil "(~a ~a)" con-name (sep-list-by-space field-names)))
+
+(defun type-class-of (type-class-name name &rest instances)
+  (format nil
+          "instance ~A ~A where~A"
+          type-class-name
+          name
+          (indent-new-lines-by
+           2
+           (format nil "~%~{~A~^~%~}" instances))))
 
 ;; ***********************************************************
 ;; Generator Helpers
@@ -261,6 +271,12 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
                   (fun from-name
                        (deconstruct-constructor con-name arg-names)
                        (body from-body))
+                  ""
+                  ;; Type class Instance
+                  (type-class-of "Structure"
+                                 con-name
+                                 (fun "to" nil (body (to-name con-name) nil))
+                                 (fun "from" nil (body (from-name con-name) nil)))
                   "")))))))
 
 (defun frontend-types ()
@@ -300,10 +316,6 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Infix" (repeat 3 "sexp") ":infix")
 
-  (generate-haskell "Do" '("sexp") ":do" :list-star t)
-
-  (generate-haskell "Arrow" '("sexp" "sexp") "%<-")
-
   (generate-haskell "OpenIn" (repeat 2 "sexp") ":open-in")
 
   (generate-haskell "Open" '("sexp") "open")
@@ -316,35 +328,29 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Do" '("sexp") ":do" :list-star t)
 
-  (generate-haskell "RecordNoPunned" '("notPunnedGroup") ":record-no-pun"
-                    :list-star t
-                    :un-grouped t)
-
   (generate-haskell "LetModule" (repeat 4 "sexp") ":let-mod")
 
   (generate-haskell "Effect" (repeat 2 "sexp") ":defeff")
 
-  (generate-haskell "DefHandler" (repeat 2 "sexp") ":defHandler")
+  (generate-haskell "DefHandler" (repeat 2 "sexp") ":defhandler")
 
   (generate-haskell "LetRet" (repeat 2 "sexp") ":defret")
 
-  (generate-haskell "LetOp" (repeat 2 "sexp") ":defop")
+  (generate-haskell "LetOp" (repeat 3 "sexp") ":defop")
 
   (generate-haskell "RecordDec" '("nameUsage") ":record-d" :list-star t)
 
   (generate-haskell "Primitive" '("sexp") ":primitive")
 
-  (generate-haskell "Binder" '("nameSymbol" "sexp") nil)
+  (generate-haskell "Binder" '("nameSymbol" "sexp") ":<-")
 
   (generate-haskell "DoDeep" '("doBodyFull") ":do" :list-star t)
 
-  (generate-haskell "DoPure" (repeat 2 "sexp") ":do-pure")
+  (generate-haskell "DoPure" '("sexp") ":do-pure")
 
   (generate-haskell "DoOp" (repeat 2 "sexp") ":do-op")
 
-  (generate-haskell "Via" (repeat 2 "sexp") ":via")
-
-  (generate-haskell "Handler" '("sexp" "letRet" "letOp") ":let-handler" :list-star t))
+  (generate-haskell "Via" (repeat 2 "sexp") ":via"))
 
 (defun transition-types ()
   (generate-haskell "ArgBody" '("sexp" "sexp") nil)
@@ -359,18 +365,15 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "LetMatch" '("sexp" "argBodys" "sexp") ":let-match")
 
-  (generate-haskell "LetHandler" (repeat 3 "sexp") ":let-handler")
-
-  (generate-haskell "DefHandler" (repeat 2 "sexp") ":defHandler")
-
   (generate-haskell "RecordNoPunned" '("notPunnedGroup") ":record-no-pun"
                     :list-star t
                     :un-grouped t)
+
   (generate-haskell "LambdaCase" '("argBody") ":lambda-case" :list-star t)
 
-  (generate-haskell "LetHandler" (repeat 3 "sexp") ":let-handler")
+  (generate-haskell "LetHandler" (repeat 3 "sexp") ":lethandler")
 
-  (generate-haskell "Handler" '("sexp" "letRet" "letOp") ":let-handler" :list-star t))
+  (generate-haskell "Handler" '("sexp" "letRet" "letOp") ":lethandler" :list-star t))
 
 (defun core-named-representation ()
   (generate-haskell "Star" '("integer") ":star")

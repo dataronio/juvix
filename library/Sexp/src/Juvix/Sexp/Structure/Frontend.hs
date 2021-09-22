@@ -239,12 +239,12 @@ data LetRet = LetRet
   }
   deriving (Show)
 
-data Do = Do
+newtype Do = Do
   { doStatements :: Sexp.T
   }
   deriving (Show)
 
-data DoDeep = DoDeep
+newtype DoDeep = DoDeep
   { doDeepStatements :: [DoBodyFull]
   }
   deriving (Show)
@@ -257,11 +257,17 @@ data DoBodyFull
   | NoBinder {doBodyFullBody :: Sexp.T}
   deriving (Show)
 
+--
+
+-- Used to transform into WithBinder
 data Binder = Binder
   { binderName :: NameSymbol.T,
     binderBody :: Sexp.T
   }
   deriving (Show)
+
+-- Used to for NoBinder
+newtype DoBody = DoBody {doBodySexp :: Sexp.T}
 
 data DoOp = DoOp
   { doOpName :: Sexp.T,
@@ -269,7 +275,7 @@ data DoOp = DoOp
   }
   deriving (Show)
 
-data DoPure = DoPure
+newtype DoPure = DoPure
   { doPureArg :: Sexp.T
   }
   deriving (Show)
@@ -314,6 +320,30 @@ fromNameBind :: NameBind -> Sexp.T
 fromNameBind (Pun pun) = fromPunned pun
 fromNameBind (NotPun notPun) = fromNotPunned notPun
 
+instance Structure NameBind where
+  to = toNameBind
+  from = fromNameBind
+
+--------------------
+-- Do Body Full
+--------------------
+
+-- TODO ∷ Change the frontend generator, as this does not fulfill it.
+toDoBodyFull :: Sexp.T -> Maybe DoBodyFull
+toDoBodyFull sexp =
+  fmap binderToBody (toBinder sexp) <|> Just (NoBinder sexp)
+
+fromDoBodyFull :: DoBodyFull -> Sexp.T
+fromDoBodyFull (NoBinder sexp) = sexp
+fromDoBodyFull (WithBinder name body) = Binder name body |> fromBinder
+
+binderToBody :: Binder -> DoBodyFull
+binderToBody (Binder name body) = WithBinder name body
+
+instance Structure DoBodyFull where
+  to = toDoBodyFull
+  from = fromDoBodyFull
+
 ----------------------------------------
 -- Generated
 ----------------------------------------
@@ -344,6 +374,10 @@ fromType :: Type -> Sexp.T
 fromType (Type sexp1 sexp2 sexp3) =
   Sexp.listStar [Sexp.atom nameType, sexp1, sexp2, sexp3]
 
+instance Structure Type where
+  to = toType
+  from = fromType
+
 ----------------------------------------
 -- LetType
 ----------------------------------------
@@ -369,6 +403,10 @@ toLetType form
 fromLetType :: LetType -> Sexp.T
 fromLetType (LetType sexp1 sexp2 sexp3 sexp4) =
   Sexp.list [Sexp.atom nameLetType, sexp1, sexp2, sexp3, sexp4]
+
+instance Structure LetType where
+  to = toLetType
+  from = fromLetType
 
 ----------------------------------------
 -- Defun
@@ -396,6 +434,10 @@ fromDefun :: Defun -> Sexp.T
 fromDefun (Defun sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameDefun, sexp1, sexp2, sexp3]
 
+instance Structure Defun where
+  to = toDefun
+  from = fromDefun
+
 ----------------------------------------
 -- Signature
 ----------------------------------------
@@ -421,6 +463,10 @@ toSignature form
 fromSignature :: Signature -> Sexp.T
 fromSignature (Signature sexp1 sexp2) =
   Sexp.list [Sexp.atom nameSignature, sexp1, sexp2]
+
+instance Structure Signature where
+  to = toSignature
+  from = fromSignature
 
 ----------------------------------------
 -- LetSignature
@@ -448,6 +494,10 @@ fromLetSignature :: LetSignature -> Sexp.T
 fromLetSignature (LetSignature sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameLetSignature, sexp1, sexp2, sexp3]
 
+instance Structure LetSignature where
+  to = toLetSignature
+  from = fromLetSignature
+
 ----------------------------------------
 -- Let
 ----------------------------------------
@@ -474,6 +524,10 @@ fromLet :: Let -> Sexp.T
 fromLet (Let sexp1 sexp2 sexp3 sexp4) =
   Sexp.list [Sexp.atom nameLet, sexp1, sexp2, sexp3, sexp4]
 
+instance Structure Let where
+  to = toLet
+  from = fromLet
+
 ----------------------------------------
 -- PredAns
 ----------------------------------------
@@ -489,6 +543,10 @@ toPredAns form =
 fromPredAns :: PredAns -> Sexp.T
 fromPredAns (PredAns sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
+
+instance Structure PredAns where
+  to = toPredAns
+  from = fromPredAns
 
 ----------------------------------------
 -- Cond
@@ -517,6 +575,10 @@ fromCond :: Cond -> Sexp.T
 fromCond (Cond predAns1) =
   Sexp.listStar [Sexp.atom nameCond, fromPredAns `toStarList` predAns1]
 
+instance Structure Cond where
+  to = toCond
+  from = fromCond
+
 ----------------------------------------
 -- DeconBody
 ----------------------------------------
@@ -532,6 +594,10 @@ toDeconBody form =
 fromDeconBody :: DeconBody -> Sexp.T
 fromDeconBody (DeconBody sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
+
+instance Structure DeconBody where
+  to = toDeconBody
+  from = fromDeconBody
 
 ----------------------------------------
 -- Case
@@ -560,6 +626,10 @@ fromCase :: Case -> Sexp.T
 fromCase (Case sexp1 deconBody2) =
   Sexp.listStar [Sexp.atom nameCase, sexp1, fromDeconBody `toStarList` deconBody2]
 
+instance Structure Case where
+  to = toCase
+  from = fromCase
+
 ----------------------------------------
 -- Arrow
 ----------------------------------------
@@ -585,6 +655,10 @@ toArrow form
 fromArrow :: Arrow -> Sexp.T
 fromArrow (Arrow sexp1 sexp2) =
   Sexp.list [Sexp.atom nameArrow, sexp1, sexp2]
+
+instance Structure Arrow where
+  to = toArrow
+  from = fromArrow
 
 ----------------------------------------
 -- Lambda
@@ -612,6 +686,10 @@ fromLambda :: Lambda -> Sexp.T
 fromLambda (Lambda sexp1 sexp2) =
   Sexp.list [Sexp.atom nameLambda, sexp1, sexp2]
 
+instance Structure Lambda where
+  to = toLambda
+  from = fromLambda
+
 ----------------------------------------
 -- Punned
 ----------------------------------------
@@ -627,6 +705,10 @@ toPunned form =
 fromPunned :: Punned -> Sexp.T
 fromPunned (Punned sexp1) =
   Sexp.list [sexp1]
+
+instance Structure Punned where
+  to = toPunned
+  from = fromPunned
 
 ----------------------------------------
 -- NotPunned
@@ -644,6 +726,10 @@ fromNotPunned :: NotPunned -> Sexp.T
 fromNotPunned (NotPunned sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
 
+instance Structure NotPunned where
+  to = toNotPunned
+  from = fromNotPunned
+
 ----------------------------------------
 -- NameUsage
 ----------------------------------------
@@ -659,6 +745,10 @@ toNameUsage form =
 fromNameUsage :: NameUsage -> Sexp.T
 fromNameUsage (NameUsage sexp1 sexp2 sexp3) =
   Sexp.list [sexp1, sexp2, sexp3]
+
+instance Structure NameUsage where
+  to = toNameUsage
+  from = fromNameUsage
 
 ----------------------------------------
 -- Record
@@ -687,6 +777,10 @@ fromRecord :: Record -> Sexp.T
 fromRecord (Record nameBind1) =
   Sexp.listStar [Sexp.atom nameRecord, fromNameBind `toStarList` nameBind1]
 
+instance Structure Record where
+  to = toRecord
+  from = fromRecord
+
 ----------------------------------------
 -- Infix
 ----------------------------------------
@@ -712,6 +806,10 @@ toInfix form
 fromInfix :: Infix -> Sexp.T
 fromInfix (Infix sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameInfix, sexp1, sexp2, sexp3]
+
+instance Structure Infix where
+  to = toInfix
+  from = fromInfix
 
 ----------------------------------------
 -- OpenIn
@@ -739,6 +837,10 @@ fromOpenIn :: OpenIn -> Sexp.T
 fromOpenIn (OpenIn sexp1 sexp2) =
   Sexp.list [Sexp.atom nameOpenIn, sexp1, sexp2]
 
+instance Structure OpenIn where
+  to = toOpenIn
+  from = fromOpenIn
+
 ----------------------------------------
 -- Open
 ----------------------------------------
@@ -764,6 +866,10 @@ toOpen form
 fromOpen :: Open -> Sexp.T
 fromOpen (Open sexp1) =
   Sexp.list [Sexp.atom nameOpen, sexp1]
+
+instance Structure Open where
+  to = toOpen
+  from = fromOpen
 
 ----------------------------------------
 -- Declare
@@ -791,6 +897,10 @@ fromDeclare :: Declare -> Sexp.T
 fromDeclare (Declare sexp1) =
   Sexp.list [Sexp.atom nameDeclare, sexp1]
 
+instance Structure Declare where
+  to = toDeclare
+  from = fromDeclare
+
 ----------------------------------------
 -- Declaim
 ----------------------------------------
@@ -816,6 +926,10 @@ toDeclaim form
 fromDeclaim :: Declaim -> Sexp.T
 fromDeclaim (Declaim sexp1 sexp2) =
   Sexp.list [Sexp.atom nameDeclaim, sexp1, sexp2]
+
+instance Structure Declaim where
+  to = toDeclaim
+  from = fromDeclaim
 
 ----------------------------------------
 -- DefModule
@@ -843,6 +957,40 @@ fromDefModule :: DefModule -> Sexp.T
 fromDefModule (DefModule sexp1 sexp2 sexp3) =
   Sexp.listStar [Sexp.atom nameDefModule, sexp1, sexp2, sexp3]
 
+instance Structure DefModule where
+  to = toDefModule
+  from = fromDefModule
+
+----------------------------------------
+-- Do
+----------------------------------------
+
+nameDo :: NameSymbol.T
+nameDo = ":do"
+
+isDo :: Sexp.T -> Bool
+isDo (Sexp.Cons form _) = Sexp.isAtomNamed form nameDo
+isDo _ = False
+
+toDo :: Sexp.T -> Maybe Do
+toDo form
+  | isDo form =
+    case form of
+      _nameDo Sexp.:> sexp1 ->
+        Do sexp1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromDo :: Do -> Sexp.T
+fromDo (Do sexp1) =
+  Sexp.listStar [Sexp.atom nameDo, sexp1]
+
+instance Structure Do where
+  to = toDo
+  from = fromDo
+
 ----------------------------------------
 -- LetModule
 ----------------------------------------
@@ -868,6 +1016,130 @@ toLetModule form
 fromLetModule :: LetModule -> Sexp.T
 fromLetModule (LetModule sexp1 sexp2 sexp3 sexp4) =
   Sexp.list [Sexp.atom nameLetModule, sexp1, sexp2, sexp3, sexp4]
+
+instance Structure LetModule where
+  to = toLetModule
+  from = fromLetModule
+
+----------------------------------------
+-- Effect
+----------------------------------------
+
+nameEffect :: NameSymbol.T
+nameEffect = ":defeff"
+
+isEffect :: Sexp.T -> Bool
+isEffect (Sexp.Cons form _) = Sexp.isAtomNamed form nameEffect
+isEffect _ = False
+
+toEffect :: Sexp.T -> Maybe Effect
+toEffect form
+  | isEffect form =
+    case form of
+      _nameEffect Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        Effect sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromEffect :: Effect -> Sexp.T
+fromEffect (Effect sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameEffect, sexp1, sexp2]
+
+instance Structure Effect where
+  to = toEffect
+  from = fromEffect
+
+----------------------------------------
+-- DefHandler
+----------------------------------------
+
+nameDefHandler :: NameSymbol.T
+nameDefHandler = ":defhandler"
+
+isDefHandler :: Sexp.T -> Bool
+isDefHandler (Sexp.Cons form _) = Sexp.isAtomNamed form nameDefHandler
+isDefHandler _ = False
+
+toDefHandler :: Sexp.T -> Maybe DefHandler
+toDefHandler form
+  | isDefHandler form =
+    case form of
+      _nameDefHandler Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        DefHandler sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromDefHandler :: DefHandler -> Sexp.T
+fromDefHandler (DefHandler sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameDefHandler, sexp1, sexp2]
+
+instance Structure DefHandler where
+  to = toDefHandler
+  from = fromDefHandler
+
+----------------------------------------
+-- LetRet
+----------------------------------------
+
+nameLetRet :: NameSymbol.T
+nameLetRet = ":defret"
+
+isLetRet :: Sexp.T -> Bool
+isLetRet (Sexp.Cons form _) = Sexp.isAtomNamed form nameLetRet
+isLetRet _ = False
+
+toLetRet :: Sexp.T -> Maybe LetRet
+toLetRet form
+  | isLetRet form =
+    case form of
+      _nameLetRet Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        LetRet sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromLetRet :: LetRet -> Sexp.T
+fromLetRet (LetRet sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameLetRet, sexp1, sexp2]
+
+instance Structure LetRet where
+  to = toLetRet
+  from = fromLetRet
+
+----------------------------------------
+-- LetOp
+----------------------------------------
+
+nameLetOp :: NameSymbol.T
+nameLetOp = ":defop"
+
+isLetOp :: Sexp.T -> Bool
+isLetOp (Sexp.Cons form _) = Sexp.isAtomNamed form nameLetOp
+isLetOp _ = False
+
+toLetOp :: Sexp.T -> Maybe LetOp
+toLetOp form
+  | isLetOp form =
+    case form of
+      _nameLetOp Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil ->
+        LetOp sexp1 sexp2 sexp3 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromLetOp :: LetOp -> Sexp.T
+fromLetOp (LetOp sexp1 sexp2 sexp3) =
+  Sexp.list [Sexp.atom nameLetOp, sexp1, sexp2, sexp3]
+
+instance Structure LetOp where
+  to = toLetOp
+  from = fromLetOp
 
 ----------------------------------------
 -- RecordDec
@@ -896,6 +1168,10 @@ fromRecordDec :: RecordDec -> Sexp.T
 fromRecordDec (RecordDec nameUsage1) =
   Sexp.listStar [Sexp.atom nameRecordDec, fromNameUsage `toStarList` nameUsage1]
 
+instance Structure RecordDec where
+  to = toRecordDec
+  from = fromRecordDec
+
 ----------------------------------------
 -- Primitive
 ----------------------------------------
@@ -922,226 +1198,131 @@ fromPrimitive :: Primitive -> Sexp.T
 fromPrimitive (Primitive sexp1) =
   Sexp.list [Sexp.atom namePrimitive, sexp1]
 
----------------------------------------
--- Effect
+instance Structure Primitive where
+  to = toPrimitive
+  from = fromPrimitive
+
+----------------------------------------
+-- Binder
 ----------------------------------------
 
-nameEffect :: NameSymbol.T
-nameEffect = ":defeff"
+nameBinder :: NameSymbol.T
+nameBinder = ":<-"
 
-isEffect :: Sexp.T -> Bool
-isEffect (Sexp.Cons form _) = Sexp.isAtomNamed form nameEffect
-isEffect _ = False
+isBinder :: Sexp.T -> Bool
+isBinder (Sexp.Cons form _) = Sexp.isAtomNamed form nameBinder
+isBinder _ = False
 
-toEffect :: Sexp.T -> Maybe Effect
-toEffect form
-  | isEffect form =
+toBinder :: Sexp.T -> Maybe Binder
+toBinder form
+  | isBinder form =
     case form of
-      _nameEffect Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
-        Effect sexp1 sexp2 |> Just
+      _nameBinder Sexp.:> nameSymbol1 Sexp.:> sexp2 Sexp.:> Sexp.Nil
+        | Just nameSymbol1 <- toNameSymbol nameSymbol1 ->
+          Binder nameSymbol1 sexp2 |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
-fromEffect :: Effect -> Sexp.T
-fromEffect (Effect sexp1 sexp2) =
-  Sexp.list [Sexp.atom nameEffect, sexp1, sexp2]
+fromBinder :: Binder -> Sexp.T
+fromBinder (Binder nameSymbol1 sexp2) =
+  Sexp.list [Sexp.atom nameBinder, fromNameSymbol nameSymbol1, sexp2]
+
+instance Structure Binder where
+  to = toBinder
+  from = fromBinder
 
 ----------------------------------------
--- DefHandler
+-- DoDeep
 ----------------------------------------
 
-nameDefHandler :: NameSymbol.T
-nameDefHandler = ":defhandler"
+nameDoDeep :: NameSymbol.T
+nameDoDeep = ":do"
 
-isDefHandler :: Sexp.T -> Bool
-isDefHandler (Sexp.Cons form _) = Sexp.isAtomNamed form nameDefHandler
-isDefHandler _ = False
+isDoDeep :: Sexp.T -> Bool
+isDoDeep (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoDeep
+isDoDeep _ = False
 
-toDefHandler :: Sexp.T -> Maybe DefHandler
-toDefHandler form
-  | isDefHandler form =
+toDoDeep :: Sexp.T -> Maybe DoDeep
+toDoDeep form
+  | isDoDeep form =
     case form of
-      _nameDefHandler Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
-        DefHandler sexp1 sexp2 |> Just
+      _nameDoDeep Sexp.:> doBodyFull1
+        | Just doBodyFull1 <- toDoBodyFull `fromStarList` doBodyFull1 ->
+          DoDeep doBodyFull1 |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
-fromDefHandler :: DefHandler -> Sexp.T
-fromDefHandler (DefHandler sexp1 sexp2) =
-  Sexp.list [Sexp.atom nameDefHandler, sexp1, sexp2]
+fromDoDeep :: DoDeep -> Sexp.T
+fromDoDeep (DoDeep doBodyFull1) =
+  Sexp.listStar [Sexp.atom nameDoDeep, fromDoBodyFull `toStarList` doBodyFull1]
+
+instance Structure DoDeep where
+  to = toDoDeep
+  from = fromDoDeep
 
 ----------------------------------------
--- LetRet
+-- DoPure
 ----------------------------------------
-
-nameLetRet :: NameSymbol.T
-nameLetRet = ":defret"
-
-isLetRet :: Sexp.T -> Bool
-isLetRet (Sexp.Cons form _) = Sexp.isAtomNamed form nameLetRet
-isLetRet _ = False
-
-toLetRet :: Sexp.T -> Maybe LetRet
-toLetRet form
-  | isLetRet form =
-    case form of
-      _nameLetRet Sexp.:> sexp Sexp.:> sexp1 Sexp.:> Sexp.Nil ->
-        LetRet sexp sexp1 |> Just
-      _ ->
-        Nothing
-  | otherwise =
-    Nothing
-
-fromLetRet :: LetRet -> Sexp.T
-fromLetRet (LetRet sexp sexp1) =
-  Sexp.list [Sexp.atom nameLetRet, sexp, sexp1]
-
-----------------------------------------
--- LetOp
-----------------------------------------
-
-nameLetOp :: NameSymbol.T
-nameLetOp = ":defop"
-
-isLetOp :: Sexp.T -> Bool
-isLetOp (Sexp.Cons form _) = Sexp.isAtomNamed form nameLetOp
-isLetOp _ = False
-
-toLetOp :: Sexp.T -> Maybe LetOp
-toLetOp form
-  | isLetOp form =
-    case form of
-      _nameLetOp Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> Sexp.Nil ->
-        LetOp sexp1 sexp2 sexp3 |> Just
-      _ ->
-        Nothing
-  | otherwise =
-    Nothing
-
-fromLetOp :: LetOp -> Sexp.T
-fromLetOp (LetOp sexp1 sexp2 sexp3) =
-  Sexp.list [Sexp.atom nameLetOp, sexp1, sexp2, sexp3]
-
-----------------------------------------
--- Do
-----------------------------------------
-
-nameDoBody :: NameSymbol.T
-nameDoBody = ":do-body"
-
-nameDoBodyB :: NameSymbol.T
-nameDoBodyB = ":do-body-bind"
-
-nameDoOp :: NameSymbol.T
-nameDoOp = ":do-op"
 
 nameDoPure :: NameSymbol.T
 nameDoPure = ":do-pure"
-
-nameDo :: NameSymbol.T
-nameDo = ":do"
-
-isDoBody :: Sexp.T -> Bool
-isDoBody (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoBody
-isDoBody _ = False
-
-isDoBodyB :: Sexp.T -> Bool
-isDoBodyB (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoBodyB
-isDoBodyB _ = False
-
-isDoOp :: Sexp.T -> Bool
-isDoOp (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoOp
-isDoOp _ = False
 
 isDoPure :: Sexp.T -> Bool
 isDoPure (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoPure
 isDoPure _ = False
 
-isDo :: Sexp.T -> Bool
-isDo (Sexp.Cons form _) = Sexp.isAtomNamed form nameDo
-isDo _ = False
-
-toDoOp :: Sexp.T -> Maybe DoOp
-toDoOp form
-  | isDoOp form =
-    case form of
-      _nameDo Sexp.:> sexp1 Sexp.:> sexp2 ->
-        DoOp sexp1 sexp2 |> Just
-      _ ->
-        Nothing
-  | otherwise =
-    Nothing
-
 toDoPure :: Sexp.T -> Maybe DoPure
 toDoPure form
   | isDoPure form =
     case form of
-      _nameDo Sexp.:> sexp1 ->
+      _nameDoPure Sexp.:> sexp1 Sexp.:> Sexp.Nil ->
         DoPure sexp1 |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
-toDo :: Sexp.T -> Maybe Do
-toDo form
-  | isDo form =
+fromDoPure :: DoPure -> Sexp.T
+fromDoPure (DoPure sexp1) =
+  Sexp.list [Sexp.atom nameDoPure, sexp1]
+
+instance Structure DoPure where
+  to = toDoPure
+  from = fromDoPure
+
+----------------------------------------
+-- DoOp
+----------------------------------------
+
+nameDoOp :: NameSymbol.T
+nameDoOp = ":do-op"
+
+isDoOp :: Sexp.T -> Bool
+isDoOp (Sexp.Cons form _) = Sexp.isAtomNamed form nameDoOp
+isDoOp _ = False
+
+toDoOp :: Sexp.T -> Maybe DoOp
+toDoOp form
+  | isDoOp form =
     case form of
-      _nameDo Sexp.:> sexp1 ->
-        Do sexp1 |> Just
+      _nameDoOp Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        DoOp sexp1 sexp2 |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
-toDoBodyFull :: Maybe [Sexp.T] -> Maybe [DoBodyFull]
-toDoBodyFull (Just sexps) = traverse toFullBodyFull' sexps
-  where
-    toFullBodyFull' :: Sexp.T -> Maybe DoBodyFull
-    toFullBodyFull' sexp
-      | isDoBodyB sexp =
-        case sexp of
-          _ Sexp.:> name Sexp.:> body Sexp.:> Sexp.Nil ->
-            pure WithBinder <*> Sexp.nameFromT name <*> pure body
-          _ -> Nothing
-      | isDoBody sexp =
-        case sexp of
-          _ Sexp.:> body Sexp.:> Sexp.Nil ->
-            pure $ NoBinder body
-          _ -> Nothing
-      | otherwise = Nothing
-toDoBodyFull Nothing = Nothing
-
 fromDoOp :: DoOp -> Sexp.T
 fromDoOp (DoOp sexp1 sexp2) =
   Sexp.list [Sexp.atom nameDoOp, sexp1, sexp2]
 
-fromDoPure :: DoPure -> Sexp.T
-fromDoPure (DoPure sexp1) =
-  Sexp.list [Sexp.atom nameDoPure, sexp1]
-
-fromDo :: Do -> Sexp.T
-fromDo (Do sexp1) =
-  Sexp.list [Sexp.atom nameDo, sexp1]
-
-fromDoBodyFull :: DoBodyFull -> Sexp.T
-fromDoBodyFull (WithBinder {..}) =
-  Sexp.list
-    [ Sexp.atom nameDoBody,
-      Sexp.list
-        [ Sexp.atom nameDoPure,
-          doBodyFullBBody
-        ]
-    ]
-fromDoBodyFull (NoBinder {..}) =
-  Sexp.list
-    [ Sexp.atom nameDoBody,
-      doBodyFullBody
-    ]
+instance Structure DoOp where
+  to = toDoOp
+  from = fromDoOp
 
 ----------------------------------------
 -- Via
@@ -1158,126 +1339,16 @@ toVia :: Sexp.T -> Maybe Via
 toVia form
   | isVia form =
     case form of
-      _ Sexp.:> hand Sexp.:> prog Sexp.:> Sexp.Nil ->
-        Via hand prog |> Just
-      _ -> Nothing
-  | otherwise = Nothing
+      _nameVia Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        Via sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
 
 fromVia :: Via -> Sexp.T
-fromVia (Via handler prog) =
-  Sexp.list [Sexp.atom nameVia, handler, prog]
-
-----------------------------------------
--- Typeclass Instances
-----------------------------------------
-
-instance Structure Defun where
-  to = toDefun
-  from = fromDefun
-
-instance Structure Type where
-  to = toType
-  from = fromType
-
-instance Structure PredAns where
-  to = toPredAns
-  from = fromPredAns
-
-instance Structure Cond where
-  to = toCond
-  from = fromCond
-
-instance Structure Signature where
-  to = toSignature
-  from = fromSignature
-
-instance Structure LetSignature where
-  to = toLetSignature
-  from = fromLetSignature
-
-instance Structure LetType where
-  to = toLetType
-  from = fromLetType
-
-instance Structure Let where
-  to = toLet
-  from = fromLet
-
-instance Structure Case where
-  to = toCase
-  from = fromCase
-
-instance Structure Arrow where
-  to = toArrow
-  from = fromArrow
-
-instance Structure Lambda where
-  to = toLambda
-  from = fromLambda
-
-instance Structure NameBind where
-  to = toNameBind
-  from = fromNameBind
-
-instance Structure NotPunned where
-  to = toNotPunned
-  from = fromNotPunned
-
-instance Structure Punned where
-  to = toPunned
-  from = fromPunned
-
-instance Structure Record where
-  to = toRecord
-  from = fromRecord
-
-instance Structure Infix where
-  to = toInfix
-  from = fromInfix
-
-instance Structure Open where
-  to = toOpen
-  from = fromOpen
-
-instance Structure OpenIn where
-  to = toOpenIn
-  from = fromOpenIn
-
-instance Structure Declare where
-  to = toDeclare
-  from = fromDeclare
-
-instance Structure Declaim where
-  to = toDeclaim
-  from = fromDeclaim
-
-instance Structure DefModule where
-  to = toDefModule
-  from = fromDefModule
-
-instance Structure LetModule where
-  to = toLetModule
-  from = fromLetModule
-
-instance Structure Effect where
-  to = toEffect
-  from = fromEffect
-
-instance Structure DefHandler where
-  to = toDefHandler
-  from = fromDefHandler
-
-instance Structure LetOp where
-  to = toLetOp
-  from = fromLetOp
-
-instance Structure LetRet where
-  to = toLetRet
-  from = fromLetRet
-
-instance Structure Do where
-  to = toDo
-  from = fromDo
+fromVia (Via sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameVia, sexp1, sexp2]
 
 instance Structure Via where
   to = toVia

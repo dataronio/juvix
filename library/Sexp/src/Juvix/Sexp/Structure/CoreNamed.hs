@@ -135,7 +135,6 @@ data Lookup = Lookup
 --------------------------------------------------------------------------------
 -- Automatically Generated code
 --------------------------------------------------------------------------------
-
 ----------------------------------------
 -- Star
 ----------------------------------------
@@ -163,6 +162,10 @@ fromStar :: Star -> Sexp.T
 fromStar (Star integer1) =
   Sexp.list [Sexp.atom nameStar, fromInteger integer1]
 
+instance Structure Star where
+  to = toStar
+  from = fromStar
+
 ----------------------------------------
 -- PrimTy
 ----------------------------------------
@@ -189,6 +192,10 @@ fromPrimTy :: PrimTy -> Sexp.T
 fromPrimTy (PrimTy sexp1) =
   Sexp.list [Sexp.atom namePrimTy, sexp1]
 
+instance Structure PrimTy where
+  to = toPrimTy
+  from = fromPrimTy
+
 ----------------------------------------
 -- Prim
 ----------------------------------------
@@ -214,6 +221,10 @@ toPrim form
 fromPrim :: Prim -> Sexp.T
 fromPrim (Prim sexp1) =
   Sexp.list [Sexp.atom namePrim, sexp1]
+
+instance Structure Prim where
+  to = toPrim
+  from = fromPrim
 
 ----------------------------------------
 -- Pi
@@ -242,6 +253,10 @@ fromPi :: Pi -> Sexp.T
 fromPi (Pi binder1 sexp2) =
   Sexp.list [Sexp.atom namePi, fromBinder binder1, sexp2]
 
+instance Structure Pi where
+  to = toPi
+  from = fromPi
+
 ----------------------------------------
 -- Binder
 ----------------------------------------
@@ -258,6 +273,10 @@ toBinder form =
 fromBinder :: Binder -> Sexp.T
 fromBinder (Binder nameSymbol1 sexp2 sexp3) =
   Sexp.list [fromNameSymbol nameSymbol1, sexp2, sexp3]
+
+instance Structure Binder where
+  to = toBinder
+  from = fromBinder
 
 ----------------------------------------
 -- Lam
@@ -286,6 +305,10 @@ fromLam :: Lam -> Sexp.T
 fromLam (Lam nameSymbol1 sexp2) =
   Sexp.list [Sexp.atom nameLam, fromNameSymbol nameSymbol1, sexp2]
 
+instance Structure Lam where
+  to = toLam
+  from = fromLam
+
 ----------------------------------------
 -- Sigma
 ----------------------------------------
@@ -313,6 +336,10 @@ fromSigma :: Sigma -> Sexp.T
 fromSigma (Sigma binder1 sexp2) =
   Sexp.list [Sexp.atom nameSigma, fromBinder binder1, sexp2]
 
+instance Structure Sigma where
+  to = toSigma
+  from = fromSigma
+
 ----------------------------------------
 -- Pair
 ----------------------------------------
@@ -338,6 +365,10 @@ toPair form
 fromPair :: Pair -> Sexp.T
 fromPair (Pair sexp1 sexp2) =
   Sexp.list [Sexp.atom namePair, sexp1, sexp2]
+
+instance Structure Pair where
+  to = toPair
+  from = fromPair
 
 ----------------------------------------
 -- Let
@@ -366,6 +397,10 @@ fromLet :: Let -> Sexp.T
 fromLet (Let binder1 sexp2) =
   Sexp.list [Sexp.atom nameLet, fromBinder binder1, sexp2]
 
+instance Structure Let where
+  to = toLet
+  from = fromLet
+
 ----------------------------------------
 -- Var
 ----------------------------------------
@@ -383,6 +418,10 @@ fromVar :: Var -> Sexp.T
 fromVar (Var nameSymbol1) =
   Sexp.list [fromNameSymbol nameSymbol1]
 
+instance Structure Var where
+  to = toVar
+  from = fromVar
+
 ----------------------------------------
 -- App
 ----------------------------------------
@@ -398,6 +437,10 @@ toApp form =
 fromApp :: App -> Sexp.T
 fromApp (App sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
+
+instance Structure App where
+  to = toApp
+  from = fromApp
 
 ----------------------------------------
 -- Ann
@@ -426,6 +469,10 @@ fromAnn :: Ann -> Sexp.T
 fromAnn (Ann sexp1 meta2 sexp3) =
   Sexp.list [Sexp.atom nameAnn, sexp1, fromMeta meta2, sexp3]
 
+instance Structure Ann where
+  to = toAnn
+  from = fromAnn
+
 ----------------------------------------
 -- Meta
 ----------------------------------------
@@ -443,6 +490,10 @@ fromMeta :: Meta -> Sexp.T
 fromMeta (Meta sexp1 integer2) =
   Sexp.list [sexp1, fromInteger integer2]
 
+instance Structure Meta where
+  to = toMeta
+  from = fromMeta
+
 ----------------------------------------
 -- Field
 ----------------------------------------
@@ -459,6 +510,10 @@ toField form =
 fromField :: Field -> Sexp.T
 fromField (Field nameSymbol1 sexp2 sexp3) =
   Sexp.list [fromNameSymbol nameSymbol1, sexp2, sexp3]
+
+instance Structure Field where
+  to = toField
+  from = fromField
 
 ----------------------------------------
 -- RecordTy
@@ -487,6 +542,10 @@ fromRecordTy :: RecordTy -> Sexp.T
 fromRecordTy (RecordTy field1) =
   Sexp.listStar [Sexp.atom nameRecordTy, fromField `toStarList` field1]
 
+instance Structure RecordTy where
+  to = toRecordTy
+  from = fromRecordTy
+
 ----------------------------------------
 -- Lookup
 ----------------------------------------
@@ -514,42 +573,6 @@ fromLookup :: Lookup -> Sexp.T
 fromLookup (Lookup sexp1 symbol2) =
   Sexp.listStar [Sexp.atom nameLookup, sexp1, fromSymbol `toStarList` symbol2]
 
-----------------------------------------
--- Typeclass Instances
-----------------------------------------
-
-instance Structure Pi where
-  to = toPi
-  from = fromPi
-
-instance Structure Binder where
-  to = toBinder
-  from = fromBinder
-
-instance Structure Lam where
-  to = toLam
-  from = fromLam
-
-instance Structure Sigma where
-  to = toSigma
-  from = fromSigma
-
-instance Structure Pair where
-  to = toPair
-  from = fromPair
-
-instance Structure Let where
-  to = toLet
-  from = fromLet
-
-instance Structure App where
-  to = toApp
-  from = fromApp
-
-instance Structure Ann where
-  to = toAnn
-  from = fromAnn
-
-instance Structure Meta where
-  to = toMeta
-  from = fromMeta
+instance Structure Lookup where
+  to = toLookup
+  from = fromLookup

@@ -370,9 +370,9 @@ transDo (Types.Do'' bs) =
 
 transDoBody :: Types.DoBody -> Sexp.T
 transDoBody (Types.DoBody Nothing expr) =
-  Sexp.list [Sexp.atom ":do-body", transComp expr]
+  transComp expr
 transDoBody (Types.DoBody (Just n) expr) =
-  Sexp.list [Sexp.atom ":do-body-binder", Sexp.atom (NameSymbol.fromSymbol n), transComp expr]
+  Sexp.list [Sexp.atom ":<-", Sexp.atom (NameSymbol.fromSymbol n), transComp expr]
 
 transComp :: Types.Computation -> Sexp.T
 transComp (Types.DoOp op) = transDoOp op
