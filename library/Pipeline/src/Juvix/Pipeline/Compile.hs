@@ -188,11 +188,7 @@ baseToReturn t =
   case t of
     IR.Star u -> IR.Star u
     IR.PrimTy p ->
-      IR.PrimTy (CoreApp.Return (Param.PrimType kind) p)
-      where
-        kind =
-          Param.STAR
-            :| replicate (fromIntegral $ Param.primArity p) Param.STAR
+      IR.PrimTy (CoreApp.Return (Param.getPrimTypeKind p) p)
     IR.Prim p -> IR.Prim (CoreApp.Return (Param.PrimType $ notImplemented :| []) p)
     IR.Pi u x y -> IR.Pi u (baseToReturn x) (baseToReturn y)
     IR.Lam t -> IR.Lam (baseToReturn t)

@@ -28,7 +28,6 @@ Ann
                     , "Datatypes" :| [ "FTIC_Right" ]
                     , "Datatypes" :| [ "Q" ]
                     , "Datatypes" :| [ "SPair" ]
-                    , "Datatypes" :| [ "fticTestFunc" ]
                     , "Datatypes" :| [ "patternMatch" ]
                     , "Datatypes" :| [ "ssize" ]
                     ]
@@ -68,7 +67,6 @@ Ann
                                     [ "Datatypes" :| [ "Atom" ]
                                     , "Datatypes" :| [ "FTIC_Right" ]
                                     , "Datatypes" :| [ "SPair" ]
-                                    , "Datatypes" :| [ "fticTestFunc" ]
                                     , "Datatypes" :| [ "ssize" ]
                                     ]
                                 , arguments =
@@ -503,8 +501,23 @@ Ann
                                                                 }
                                                             )
                                                         )
-                                                    , term = Var
-                                                        ( "Datatypes" :| [ "fticTestFunc" ] )
+                                                    , term = LamM
+                                                        { capture = []
+                                                        , arguments =
+                                                            [ "20" :| [] ]
+                                                        , body = Ann
+                                                            { usage = SAny
+                                                            , type' = PrimTy
+                                                                ( Return
+                                                                    { retType = PrimType
+                                                                        { getPrimType = STAR :| [] }
+                                                                    , retTerm = PField
+                                                                    }
+                                                                )
+                                                            , term = Var
+                                                                ( "20" :| [] )
+                                                            }
+                                                        }
                                                     }
                                                 ]
                                             }

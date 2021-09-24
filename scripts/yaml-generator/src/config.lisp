@@ -396,6 +396,7 @@ common ones to include"
    :name "Backends/Plonk"
    :path-to-other "../../"
    :packages (list *standard-library*
+                   *translate*
                    *frontend*
                    *core*
                    *Context*

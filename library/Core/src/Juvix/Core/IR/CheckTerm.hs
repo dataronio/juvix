@@ -8,6 +8,7 @@ where
 
 import qualified Data.IntMap.Strict as IntMap
 import Data.List.NonEmpty ((<|))
+import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.Base.Types as Core
@@ -178,8 +179,11 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
       pure $ Typed.Star i ann
     Core.PrimTy t _ -> do
       requireZero σ
-      void $ requireStar ty
-      let t' = App.Return {retTerm = t, retType = Param.PrimType $ Param.STAR :| []}
+      void $ requirePrimStars (Param.primArity t) ty
+      let t' = App.Return {
+        retTerm = t,
+        retType = Param.getPrimTypeKind t
+      }
       pure $ Typed.PrimTy t' ann
     Core.Prim p _ -> do
       p' <- typePrim p ty
@@ -374,6 +378,19 @@ requireStar ::
   m Core.Universe
 requireStar (IR.VStar j) = pure j
 requireStar ty = Error.throwTC (Error.ShouldBeStar ty)
+
+-- | Given the arity of a type, require all of them to be Star. We expect the
+-- arguments to be written in a right-associative way, e.g: @* -> (* -> *)@.
+requirePrimStars ::
+  Error.HasThrowTC' IR.T ext primTy primVal m =>
+  Natural ->
+  Typed.ValueT IR.T primTy primVal ->
+  m Core.Universe
+requirePrimStars 0 ty = requireStar ty
+requirePrimStars n ty = do
+  (π, l, r) <- requirePi ty
+  void $ requireStar l
+  requirePrimStars (n - 1) r
 
 requireUniverseLT ::
   Error.HasThrowTC' IR.T ext primTy primVal m =>

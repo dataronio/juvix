@@ -129,7 +129,8 @@ defCircuitGeneric =
   def
     { prelude =
         [ "../../stdlib/Prelude.ju",
-          "../../stdlib/Circuit.ju"
+          "../../stdlib/Circuit.ju",
+          "../../stdlib/Circuit/Field.ju"
         ],
       param = Plonk.param,
       typeAgainst = Plonk.PField
