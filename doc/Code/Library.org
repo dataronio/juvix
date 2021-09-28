@@ -1566,6 +1566,39 @@ runtime-relevant way.
 ******* NoQuotes
 This structure allows us to have golden tests that are based around
 show instances instead of normal read instances.
+***** Trace <<Library/Trace>>
+The Trace library represents the ability to properly trace code
+throughout Haskell.
+- The structure requires your code to exist in the =Trace.Eff=
+  effect.
+- The =Eff= Variant of functions are over the =Trace.Eff= effect
+  rather than the =Trace.T= type itself.
+  + It is just as valid to use the non =Eff= version of the
+    functions
+- _Relies on_
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Format]]
+  + [[Trace/Types]]
+  + [[Trace/Types]]
+****** Environment <<Trace/Environment>>
+This module gives a minimal environment to run Traces, best used
+for testing
+- _Relies on_
+  + [[Library]]
+  + [[Trace/Types]]
+****** Format
+- _Relies on_
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Trace/Types]]
+****** Types <<Trace/Types>>
+- _Relies on_
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
 ** test
 *** Golden <<test/Golden>>
 - _Relies on_
@@ -1582,6 +1615,11 @@ show instances instead of normal read instances.
 - _Relies on_
   + [[Library]]
   + [[PrettyPrint]]
+*** Trace <<test/Trace>>
+- _Relies on_
+  + [[Library]]
+  + [[Library/Trace]]
+  + [[Trace/Environment]]
 * Test
 ** DataStructures
 *** Setup <<DataStructures/Setup>>
