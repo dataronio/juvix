@@ -462,6 +462,14 @@ temporary lexical bindings as our code encounters binders.
 ***** Precedence
 - _Relies on_
   + [[Library]]
+***** ShowReferences
+- _Relies on_
+  + [[NameSpace]]
+  + [[Open]]
+  + [[Context/Types]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
 ***** Traversal
 Traversals serves as generic Context Traversal modules.
 - _Relies on_
@@ -1788,6 +1796,7 @@ done with no extra information needed. Thus we export the following passes
 **** Golden <<Translate/test/Test/Golden>>
 - _Relies on_
   + [[Juvix/Context]]
+  + [[ShowReferences]]
   + [[Juvix/Contextify]]
   + [[Contextify/Environment]]
   + [[Contextify/Passes]]

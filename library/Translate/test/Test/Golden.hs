@@ -5,8 +5,8 @@ import qualified Data.ByteString as ByteString (readFile)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Context as Context
-import qualified Juvix.Contextify as Contextify
 import qualified Juvix.Context.ShowReferences as Context.ShowRef
+import qualified Juvix.Contextify as Contextify
 import qualified Juvix.Contextify.Environment as Environment
 import qualified Juvix.Contextify.Passes as Contextify
 import qualified Juvix.Desugar.Passes as Pass
