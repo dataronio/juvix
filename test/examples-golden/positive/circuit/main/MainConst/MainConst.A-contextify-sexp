@@ -1,5 +1,5 @@
-Rec
-    { recordContents = T
+ShowRec
+    { contents = T
         { public = fromList
             [
                 ( "main"
@@ -11,6 +11,164 @@ Rec
                             ( ":lambda-case" ( () 3 ) )
                         , defPrecedence = Pred Left 9 } ) ) ]
         , private = fromList [] }
-    , recordMTy = Nothing
-    , recordOpenList = []
-    , recordQualifiedMap = map }
+    , mTy = Nothing
+    , openList = []
+    , qualifiedMap = fromList
+        [
+            ( "eq"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "sub"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "cat-coproduct-elim"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "mul"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "cat-coproduct"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-coproduct-intro-right"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "Field"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "ty_"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( ":"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "field"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "exp"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "xor"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "ty"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "SAny"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "Circuit"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "LLVM"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "->"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product-elim-left"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "add"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "arr"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "Michelson"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "or"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "id"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product-elim-right"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "const"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "div"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "cat-product-intro"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "int"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "dpair"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "bool"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "and%"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Circuit" ] } )
+        ,
+            ( "cat-coproduct-intro-left"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } ) ] }

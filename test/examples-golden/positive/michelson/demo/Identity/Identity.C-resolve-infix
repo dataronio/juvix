@@ -1,5 +1,5 @@
-Rec
-    { recordContents = T
+ShowRec
+    { contents = T
         { public = fromList
             [
                 ( "make-pair"
@@ -60,6 +60,416 @@ Rec
                                 ( () ( ":primitive" "Michelson.nil" ) ) )
                         , defPrecedence = Pred Left 9 } ) ) ]
         , private = fromList [] }
-    , recordMTy = Nothing
-    , recordOpenList = []
-    , recordQualifiedMap = map }
+    , mTy = Nothing
+    , openList = []
+    , qualifiedMap = fromList
+        [
+            ( "signature"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "sub"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cat-coproduct-elim"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "mul"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "amount"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cat-coproduct"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "address-to-contract"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "unit-t"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cat-coproduct-intro-right"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "ty_"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "set"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "list"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( ":"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "if2"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "operation"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "fail-with"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "size"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "xor"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "ty"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "SAny"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "string"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "set-delegate"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "hash-key"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "abs"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "key-hash"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "sender"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "lsl"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "Circuit"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "LLVM"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "->"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "balance"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "Alias"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cat-product-elim-left"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "address"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "now"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "add"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "arr"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "map-ty"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "sha512"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "Michelson"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "self"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "concat"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "key"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "compare"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "contract"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "pair"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "or"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "source"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "id"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product-elim-right"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "big-map"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "const"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "lsr"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cdr"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "chain-id"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cat-product"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "slice"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "if-none"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "sha256"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "div"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "mutez"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "option"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cat-product-intro"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "nat"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "int"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "transfer-tokens"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "timestamp"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "dpair"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "bool"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "unit"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "and%"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "blake2b"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cons"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "bytes"
+            , SymInfo
+                { used = NotUsed
+                , mod = "TopLevel" :|
+                    [ "Prelude", "Michelson" ] } )
+        ,
+            ( "cat-coproduct-intro-left"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } ) ] }
