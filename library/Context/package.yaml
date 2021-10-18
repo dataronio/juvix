@@ -24,10 +24,15 @@ dependencies:
 - standard-library
 - sexp
 - unordered-containers
-- stm-containers
 - lens
 - text
 - hashable
+#########################
+# Dep from stm-containers
+#########################
+- stm-containers
+- list-t
+- stm
 
 default-extensions:
   - NoImplicitPrelude

@@ -23,7 +23,7 @@ data List b = List
   { publicL :: [(Symbol, b)],
     privateL :: [(Symbol, b)]
   }
-  deriving (Show, Data, Generic)
+  deriving (Show, Data, Generic, Functor)
 
 instance (A.ToJSON b) => A.ToJSON (List b) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
