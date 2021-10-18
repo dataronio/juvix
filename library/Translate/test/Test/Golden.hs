@@ -6,6 +6,7 @@ import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Context as Context
 import qualified Juvix.Contextify as Contextify
+import qualified Juvix.Context.ShowReferences as Context.ShowRef
 import qualified Juvix.Contextify.Environment as Environment
 import qualified Juvix.Contextify.Passes as Contextify
 import qualified Juvix.Desugar.Passes as Pass
@@ -299,10 +300,10 @@ runPass (previousPass, currentPass) errString names = do
 ----------------------------------------------------------------------
 
 handleContextPass ::
-  (Monad m, Show ty, Show term, Show sumRep, MonadFail m) =>
+  (Monad m, Show ty, Show term, Show sumRep, MonadFail m, MonadIO m) =>
   [(NonEmpty Symbol, b)] ->
   (NonEmpty (NonEmpty Symbol, b) -> m (Context.T term ty sumRep)) ->
-  m (Context.Record term ty sumRep)
+  m (Context.ShowRef.ShowRecord term ty sumRep)
 handleContextPass desuagredSexp contextPass =
   case desuagredSexp of
     [] ->
@@ -310,7 +311,8 @@ handleContextPass desuagredSexp contextPass =
     (moduleName, moduleDefns) : xs -> do
       let nonEmptyDesugar = (moduleName, moduleDefns) NonEmpty.:| xs
       context <- contextPass nonEmptyDesugar
-      getModuleName moduleName context
+      record <- getModuleName moduleName context
+      liftIO $ Context.ShowRef.stmRecordToShowRecord record
   where
     getModuleName name context =
       case fmap Context.extractValue $ Context.lookup name context of
