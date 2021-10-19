@@ -1,6 +1,6 @@
 module Main where
 
-import Juvix.HTTP.API
+import Juvix.Playground.HTTP.API
 import Juvix.Library
 
 main :: IO ()

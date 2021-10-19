@@ -6,7 +6,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Juvix.HTTP.API
+module Juvix.Playground.HTTP.API
   ( API,
     apiProxy,
     api,
@@ -15,7 +15,7 @@ module Juvix.HTTP.API
 where
 
 import Data.Aeson.Types ()
-import qualified Juvix.HTTP.Routes as Routes
+import qualified Juvix.Playground.HTTP.Routes as Routes
 import Juvix.Library
 import Network.Wai.Handler.Warp
 import Network.Wai.Middleware.Cors

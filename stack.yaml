@@ -8,7 +8,7 @@ packages:
 - ./library/Pipeline
 - ./library/Translate
 - ./library/Backends/Michelson
-- ./library/Playground/Pipeline
+- ./library/Playground/Easy
 - ./library/Playground/HTTP
 - ./library/Backends/Plonk
 - ./library/Backends/llvm

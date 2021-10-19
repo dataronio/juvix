@@ -29,7 +29,7 @@ dependencies:
   - witch
   - michelson
   - plonk
-  - easy-pipeline
+  - easy
   - llvm
 
 default-extensions:

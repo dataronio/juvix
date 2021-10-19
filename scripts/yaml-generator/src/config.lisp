@@ -405,7 +405,7 @@ common ones to include"
    :extra-deps (big-dep-list :plonk t)
    :extra "allow-newer: true"))
 
-(defparameter *easy-pipeline*
+(defparameter *easy*
   (make-stack-yaml
    :path-to-other "../../"
    :packages (list *standard-library*
@@ -419,7 +419,7 @@ common ones to include"
                    *plonk*
                    *sexp*)
    ;; hack name, for sub dirs
-   :name "Playground/Pipeline"
+   :name "Playground/Easy"
    :extra-deps (append (big-dep-list) (list *llvm-hs-deps*))
    :extra "allow-newer: true"))
 
@@ -471,7 +471,7 @@ common ones to include"
                    *pipeline*
                    *translate*
                    *michelson*
-                   *easy-pipeline*
+                   *easy*
                    *http*
                    *plonk*
                    *llvm*

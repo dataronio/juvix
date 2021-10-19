@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Juvix.HTTP.Routes where
+module Juvix.Playground.HTTP.Routes where
 
 import qualified Control.Monad.State.Lazy as State
 import qualified Data.Aeson as A

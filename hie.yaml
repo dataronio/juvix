@@ -71,16 +71,15 @@ cradle:
     - path: ./library/Pipeline/test
       component: "Pipeline:test:Pipeline-test"
 
-
     - path: ./library/BerlinPipeline/src
       component: "BerlinPipeline"
     - path: ./library/BerlinPipeline/test
       component: "BerlinPipeline:test:BerlinPipeline-test"
 
-    - path: ./library/Playground/Pipeline/src
-      component: "Pipeline"
-    - path: ./library/Pipeline/Pipeline/test
-      component: "Pipeline:test:Pipeline-test"
+    - path: ./library/Playground/Easy/src
+      component: "Easy"
+    - path: ./library/Pipeline/Easy/src/test
+      component: "Easy:test:Easy-test"
 
     - path: ./library/Playground/HTTP/src
       component: "HTTP"
