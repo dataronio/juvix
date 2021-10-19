@@ -90,3 +90,8 @@ cradle:
       component: "Witch"
     - path: ./library/Witch/test
       component: "Witch:test:witch-test"
+
+    - path: ./library/Test/DataStructures/src
+      component: "DataStructures"
+    - path: ./library/Test/DataStructures/test
+      component: "DataStructures:test:DataStructures-test"
