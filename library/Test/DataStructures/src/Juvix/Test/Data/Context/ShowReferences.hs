@@ -1,4 +1,4 @@
-module Juvix.Context.ShowReferences
+module Juvix.Test.Data.Context.ShowReferences
   ( stmRecordToShowRecord,
     defToShowDef,
     ShowRecord (..),

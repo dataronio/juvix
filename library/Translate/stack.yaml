@@ -7,6 +7,7 @@ packages:
 - ../StandardLibrary
 - ../Sexp
 - ../Context
+- ../Test/DataStructures
 
 extra-deps:
 

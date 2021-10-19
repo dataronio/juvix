@@ -15,6 +15,7 @@ packages:
 - ./library/Witch
 - ./library/Context
 - ./library/Sexp
+- ./library/Test/DataStructures
 
 extra-deps:
 

@@ -316,7 +316,15 @@ common ones to include"
 (defparameter *context*
   (make-stack-yaml
    :name     "Context"
-   :packages (list *standard-library* *sexp*)
+   :packages   (list *standard-library* *sexp*)
+   :extra-deps (list (general-dependencies)
+                     *standard-library-extra-deps*)))
+
+(defparameter *DataStructures*
+  (make-stack-yaml
+   :name     "Test/DataStructures"
+   :path-to-other "../../"
+   :packages   (list *standard-library* *sexp* *context*)
    :extra-deps (list (general-dependencies)
                      *standard-library-extra-deps*)))
 
@@ -331,7 +339,12 @@ common ones to include"
 (defparameter *translate*
   (make-stack-yaml
    :name "Translate"
-   :packages   (list *core* *frontend* *standard-library* *sexp* *context*)
+   :packages   (list *core*
+                     *frontend*
+                     *standard-library*
+                     *sexp*
+                     *context*
+                     *datastructures*)
    :extra-deps (list (general-dependencies *extensible*)
                      *standard-library-extra-deps*
                      *eac-solver*)))
@@ -477,7 +490,8 @@ common ones to include"
                    *llvm*
                    *witch*
                    *context*
-                   *sexp*)
+                   *sexp*
+                   *datastructures*)
    :path-to-other "./library/"
    :extra-deps
    (cons *servant-deps* (cons *llvm-hs-deps* (big-dep-list)))
