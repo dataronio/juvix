@@ -407,6 +407,7 @@ common ones to include"
 
 (defparameter *easy-pipeline*
   (make-stack-yaml
+   :path-to-other "../../"
    :packages (list *standard-library*
                    *frontend*
                    *core*
@@ -418,7 +419,7 @@ common ones to include"
                    *plonk*
                    *sexp*)
    ;; hack name, for sub dirs
-   :name "EasyPipeline"
+   :name "Playground/Pipeline"
    :extra-deps (append (big-dep-list) (list *llvm-hs-deps*))
    :extra "allow-newer: true"))
 
@@ -431,6 +432,7 @@ common ones to include"
 
 (defparameter *http*
   (make-stack-yaml
+   :path-to-other "../../"
    :packages (list *standard-library*
                    *frontend*
                    *core*
@@ -441,7 +443,7 @@ common ones to include"
                    *plonk*
                    *sexp*)
    ;; hack name, for sub dirs
-   :name "HTTP"
+   :name "Playground/HTTP"
    :extra-deps (cons *servant-deps* (big-dep-list))
    :extra "allow-newer: true"))
 

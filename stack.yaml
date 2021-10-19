@@ -8,8 +8,8 @@ packages:
 - ./library/Pipeline
 - ./library/Translate
 - ./library/Backends/Michelson
-- ./library/EasyPipeline
-- ./library/HTTP
+- ./library/Playground/Pipeline
+- ./library/Playground/HTTP
 - ./library/Backends/Plonk
 - ./library/Backends/llvm
 - ./library/Witch

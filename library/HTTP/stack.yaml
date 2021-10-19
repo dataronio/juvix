@@ -2,15 +2,15 @@ resolver: lts-17.3
 
 packages:
 - .
-- ../StandardLibrary
-- ../Frontend
-- ../Core
-- ../Translate
-- ../Pipeline
-- ../Backends/Michelson
-- ../Context
-- ../Backends/Plonk
-- ../Sexp
+- ../../StandardLibrary
+- ../../Frontend
+- ../../Core
+- ../../Translate
+- ../../Pipeline
+- ../../Backends/Michelson
+- ../../Context
+- ../../Backends/Plonk
+- ../../Sexp
 
 extra-deps:
 
