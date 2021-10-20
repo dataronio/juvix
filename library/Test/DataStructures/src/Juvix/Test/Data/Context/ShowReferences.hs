@@ -1,3 +1,7 @@
+-- | ShowReferences provides the Context a more readable Record
+-- datastructure. Thus when one tries to show the Record Data structure
+-- inside of =Context.Definition=, we don't get #<stm-map> but instead
+-- the full symbol qualifying map.
 module Juvix.Test.Data.Context.ShowReferences
   ( stmRecordToShowRecord,
     defToShowDef,
