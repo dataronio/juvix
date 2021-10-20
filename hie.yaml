@@ -77,14 +77,14 @@ cradle:
       component: "BerlinPipeline:test:BerlinPipeline-test"
 
     - path: ./library/Playground/Easy/src
-      component: "Easy"
-    - path: ./library/Pipeline/Easy/src/test
-      component: "Easy:test:Easy-test"
+      component: "easy"
+    - path: ./library/Pipeline/easy/src/test
+      component: "easy:test:easy-test"
 
     - path: ./library/Playground/HTTP/src
-      component: "HTTP"
+      component: "http"
     - path: ./library/Playground/HTTP/test
-      component: "HTTP:test:HTTP-test"
+      component: "http:test:http-test"
 
     - path: ./library/Witch/src
       component: "Witch"
@@ -92,6 +92,6 @@ cradle:
       component: "Witch:test:witch-test"
 
     - path: ./library/Test/DataStructures/src
-      component: "DataStructures"
+      component: "datastructures"
     - path: ./library/Test/DataStructures/test
-      component: "DataStructures:test:DataStructures-test"
+      component: "datastructures:test:datastructures-test"

@@ -462,14 +462,6 @@ temporary lexical bindings as our code encounters binders.
 ***** Precedence
 - _Relies on_
   + [[Library]]
-***** ShowReferences
-- _Relies on_
-  + [[NameSpace]]
-  + [[Open]]
-  + [[Context/Types]]
-  + [[Library]]
-  + [[HashMap]]
-  + [[NameSymbol]]
 ***** Traversal
 Traversals serves as generic Context Traversal modules.
 - _Relies on_
@@ -974,71 +966,6 @@ Tests that weak works as expected
   + [[Evaluator]]
   + [[IR/Types]]
   + [[Library]]
-* EasyPipeline
-** Setup <<EasyPipeline/Setup>>
-** src
-*** Easy
-The easy module serves as the stop shop for getting anywhere in the
-code-base fast.
-_The file is laid out where_
- 1. we lay out a phase
-    - We have 2 variants of each phase
-      1) <name>File
-      2) <name>Library
-    - This lasts up until context, as we can see if the prelude we
-      give it matches our expectations
- 2. We then give examples
-We do 1. and 2. having each step rely on the last, and continue the
-process until the compiler is at the full backends.
-We can view this approach as giving us a quick way to play around
-with any stage of the compiler while modifying the source code.
-- _Relies on_
-  + [[LLVM/Parameterization]]
-  + [[LLVM/Pipeline]]
-  + [[Primitive]]
-  + [[Michelson/Parameterisation]]
-  + [[Michelson/Pipeline]]
-  + [[Plonk]]
-  + [[Juvix/Context]]
-  + [[NameSpace]]
-  + [[Juvix/Contextify]]
-  + [[ResolveOpenInfo]]
-  + [[ToContext/Types]]
-  + [[Core/Base]]
-  + [[TransformExt]]
-  + [[OnlyExts]]
-  + [[Traverse]]
-  + [[Ann]]
-  + [[Core/IR]]
-  + [[Core/Parameterisation]]
-  + [[Core/Types]]
-  + [[Desugar]]
-  + [[Juvix/Frontend]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
-  + [[Frontend/Types]]
-  + [[Frontend/Types/Base]]
-  + [[Library]]
-  + [[BLS12381]]
-  + [[Feedback]]
-  + [[HashMap]]
-  + [[NameSymbol]]
-  + [[Library/Usage]]
-  + [[Juvix/Pipeline]]
-  + [[Compile]]
-  + [[ToHR]]
-  + [[Juvix/Pipeline/ToIR]]
-  + [[Juvix/Sexp]]
-  + [[TopLevel]]
-** test
-*** FromFrontend
-- _Relies on_
-  + [[Core/Base/Types]]
-  + [[IR/Types]]
-  + [[Library]]
-*** Spec
-- _Relies on_
-  + [[Library]]
 * Frontend
 ** Setup <<Frontend/Setup>>
 ** src
@@ -1086,38 +1013,6 @@ with any stage of the compiler while modifying the source code.
   + [[NameSymbol]]
   + [[Library/Parser]]
   + [[Library/Parser]]
-* HTTP
-** Setup <<HTTP/Setup>>
-** src
-*** Main <<src/Main>>
-- _Relies on_
-  + [[API]]
-  + [[Library]]
-*** Juvix
-**** HTTP
-***** API
-- _Relies on_
-  + [[Routes]]
-  + [[Library]]
-***** Routes
-- _Relies on_
-  + [[Plonk]]
-  + [[Juvix/Context]]
-  + [[Core/Base]]
-  + [[Ann]]
-  + [[HR]]
-  + [[Core/IR]]
-  + [[Frontend/Types]]
-  + [[Library]]
-  + [[BLS12381]]
-  + [[Feedback]]
-  + [[NameSymbol]]
-  + [[Juvix/Pipeline]]
-  + [[Juvix/Sexp]]
-** test
-*** Main <<HTTP/test/Main>>
-- _Relies on_
-  + [[Library]]
 * Pipeline
 ** Setup <<Pipeline/Setup>>
 ** src
@@ -1332,6 +1227,105 @@ with any stage of the compiler while modifying the source code.
   + [[Library]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
+* Playground
+** Easy
+*** Setup <<Easy/Setup>>
+*** src
+**** Easy
+The easy module serves as the stop shop for getting anywhere in the
+code-base fast.
+_The file is laid out where_
+ 1. we lay out a phase
+    - We have 2 variants of each phase
+      1) <name>File
+      2) <name>Library
+    - This lasts up until context, as we can see if the prelude we
+      give it matches our expectations
+ 2. We then give examples
+We do 1. and 2. having each step rely on the last, and continue the
+process until the compiler is at the full backends.
+We can view this approach as giving us a quick way to play around
+with any stage of the compiler while modifying the source code.
+- _Relies on_
+  + [[LLVM/Parameterization]]
+  + [[LLVM/Pipeline]]
+  + [[Primitive]]
+  + [[Michelson/Parameterisation]]
+  + [[Michelson/Pipeline]]
+  + [[Plonk]]
+  + [[Juvix/Context]]
+  + [[NameSpace]]
+  + [[Juvix/Contextify]]
+  + [[ResolveOpenInfo]]
+  + [[ToContext/Types]]
+  + [[Core/Base]]
+  + [[TransformExt]]
+  + [[OnlyExts]]
+  + [[Traverse]]
+  + [[Ann]]
+  + [[Core/IR]]
+  + [[Core/Parameterisation]]
+  + [[Core/Types]]
+  + [[Desugar]]
+  + [[Juvix/Frontend]]
+  + [[Frontend/Parser]]
+  + [[Frontend/Types]]
+  + [[Frontend/Types]]
+  + [[Frontend/Types/Base]]
+  + [[Library]]
+  + [[BLS12381]]
+  + [[Feedback]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[Juvix/Pipeline]]
+  + [[Compile]]
+  + [[ToHR]]
+  + [[Juvix/Pipeline/ToIR]]
+  + [[Juvix/Sexp]]
+  + [[TopLevel]]
+*** test
+**** FromFrontend
+- _Relies on_
+  + [[Core/Base/Types]]
+  + [[IR/Types]]
+  + [[Library]]
+**** Spec <<Easy/test/Spec>>
+- _Relies on_
+  + [[Library]]
+** HTTP
+*** Setup <<HTTP/Setup>>
+*** src
+**** Main <<src/Main>>
+- _Relies on_
+  + [[Library]]
+  + [[API]]
+**** Juvix
+***** Playground
+****** HTTP
+******* API
+- _Relies on_
+  + [[Library]]
+  + [[Routes]]
+******* Routes
+- _Relies on_
+  + [[Plonk]]
+  + [[Juvix/Context]]
+  + [[Core/Base]]
+  + [[Ann]]
+  + [[HR]]
+  + [[Core/IR]]
+  + [[Frontend/Types]]
+  + [[Library]]
+  + [[BLS12381]]
+  + [[Feedback]]
+  + [[NameSymbol]]
+  + [[Juvix/Pipeline]]
+  + [[Juvix/Sexp]]
+*** test
+**** Main <<HTTP/test/Main>>
+- _Relies on_
+  + [[Library]]
 * Sexp
 ** Setup <<Sexp/Setup>>
 ** src
@@ -1585,6 +1579,30 @@ show instances instead of normal read instances.
 - _Relies on_
   + [[Library]]
   + [[PrettyPrint]]
+* Test
+** DataStructures
+*** Setup <<DataStructures/Setup>>
+*** src
+**** Juvix
+***** Test
+****** Data
+******* Context
+******** ShowReferences
+ShowReferences provides the Context a more readable Record
+datastructure. Thus when one tries to show the Record Data structure
+inside of =Context.Definition=, we don't get #<stm-map> but instead
+the full symbol qualifying map.
+- _Relies on_
+  + [[NameSpace]]
+  + [[Open]]
+  + [[Context/Types]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+*** test
+**** Spec <<DataStructures/test/Spec>>
+- _Relies on_
+  + [[Library]]
 * Translate
 ** Setup <<Translate/Setup>>
 ** src
@@ -1796,7 +1814,6 @@ done with no extra information needed. Thus we export the following passes
 **** Golden <<Translate/test/Test/Golden>>
 - _Relies on_
   + [[Juvix/Context]]
-  + [[ShowReferences]]
   + [[Juvix/Contextify]]
   + [[Contextify/Environment]]
   + [[Contextify/Passes]]
@@ -1812,6 +1829,7 @@ done with no extra information needed. Thus we export the following passes
   + [[Library/Parser]]
   + [[Library/Test/Golden]]
   + [[Juvix/Sexp]]
+  + [[ShowReferences]]
   + [[TopLevel]]
 **** Context
 ***** Environment <<Context/Environment>>

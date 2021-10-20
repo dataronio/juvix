@@ -5,7 +5,6 @@ import qualified Data.ByteString as ByteString (readFile)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Context as Context
-import qualified Juvix.Test.Data.Context.ShowReferences as Context.ShowRef
 import qualified Juvix.Contextify as Contextify
 import qualified Juvix.Contextify.Environment as Environment
 import qualified Juvix.Contextify.Passes as Contextify
@@ -21,6 +20,7 @@ import Juvix.Library.Parser (Parser)
 import qualified Juvix.Library.Parser as J
 import Juvix.Library.Test.Golden
 import qualified Juvix.Sexp as Sexp
+import qualified Juvix.Test.Data.Context.ShowReferences as Context.ShowRef
 import qualified Juvix.Translate.Pipeline.TopLevel as TopLevel
 import qualified System.FilePath as FP
 import Test.Tasty

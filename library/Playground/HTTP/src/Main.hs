@@ -1,7 +1,7 @@
 module Main where
 
-import Juvix.Playground.HTTP.API
 import Juvix.Library
+import Juvix.Playground.HTTP.API
 
 main :: IO ()
 main = runServer
