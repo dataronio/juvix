@@ -33,7 +33,7 @@ module Juvix.Core.Parameterisation
     check2Equal,
     checkFirst2AndLast,
     splitReturn,
-    getPrimTypeKind
+    getPrimTypeKind,
   )
 where
 
@@ -62,7 +62,7 @@ instance (A.FromJSON primTy) => A.FromJSON (PrimType primTy) where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 getPrimTypeKind :: CanPrimApply k primTy => primTy -> PrimType Star
-getPrimTypeKind primTy = 
+getPrimTypeKind primTy =
   PrimType $ STAR NonEmpty.:| (replicate (fromIntegral (primArity primTy)) STAR)
 
 instance Exts.IsList (PrimType primTy) where

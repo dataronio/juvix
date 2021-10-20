@@ -422,6 +422,13 @@ common ones to include"
    :extra-deps (append (big-dep-list) (list *llvm-hs-deps*))
    :extra "allow-newer: true"))
 
+(defparameter *BerlinPipeline*
+  (make-stack-yaml
+   :packages (list *standard-library*)
+   :name "BerlinPipeline"
+   :extra-deps (big-dep-list)
+   :extra "allow-newer: true"))
+
 (defparameter *http*
   (make-stack-yaml
    :packages (list *standard-library*

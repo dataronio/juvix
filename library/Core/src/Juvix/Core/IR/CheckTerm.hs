@@ -180,10 +180,11 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
     Core.PrimTy t _ -> do
       requireZero σ
       void $ requirePrimStars (Param.primArity t) ty
-      let t' = App.Return {
-        retTerm = t,
-        retType = Param.getPrimTypeKind t
-      }
+      let t' =
+            App.Return
+              { retTerm = t,
+                retType = Param.getPrimTypeKind t
+              }
       pure $ Typed.PrimTy t' ann
     Core.Prim p _ -> do
       p' <- typePrim p ty
