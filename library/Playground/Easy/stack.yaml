@@ -12,6 +12,7 @@ packages:
 - ../../Context
 - ../../Backends/Plonk
 - ../../Sexp
+- ../../Test/DataStructures
 
 extra-deps:
 

@@ -430,7 +430,8 @@ common ones to include"
                    *pipeline*
                    *context*
                    *plonk*
-                   *sexp*)
+                   *sexp*
+                   *DataStructures*)
    ;; hack name, for sub dirs
    :name "Playground/Easy"
    :extra-deps (append (big-dep-list) (list *llvm-hs-deps*))

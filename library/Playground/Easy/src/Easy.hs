@@ -99,9 +99,9 @@ defMichelson =
   def
     { prelude =
         -- TODO: Avoid relative paths
-        [ "../../stdlib/Prelude.ju",
-          "../../stdlib/Michelson.ju",
-          "../../stdlib/MichelsonAlias.ju"
+        [ "../../../stdlib/Prelude.ju",
+          "../../../stdlib/Michelson.ju",
+          "../../../stdlib/MichelsonAlias.ju"
         ],
       param = Michelson.Param.michelson,
       typeAgainst = Michelson.Param.Set
@@ -113,8 +113,8 @@ defLLVM =
   def
     { prelude =
         -- TODO: Avoid relative paths
-        [ "../../stdlib/Prelude.ju",
-          "../../stdlib/LLVM.ju"
+        [ "../../../stdlib/Prelude.ju",
+          "../../../stdlib/LLVM.ju"
         ],
       param = LLVM.Param.llvm,
       typeAgainst = LLVM.Prim.Set
@@ -128,9 +128,9 @@ defCircuitGeneric ::
 defCircuitGeneric =
   def
     { prelude =
-        [ "../../stdlib/Prelude.ju",
-          "../../stdlib/Circuit.ju",
-          "../../stdlib/Circuit/Field.ju"
+        [ "../../../stdlib/Prelude.ju",
+          "../../../stdlib/Circuit.ju",
+          "../../../stdlib/Circuit/Field.ju"
         ],
       param = Plonk.param,
       typeAgainst = Plonk.PField
