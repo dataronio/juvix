@@ -4,6 +4,7 @@ packages:
 - .
 - ../Frontend
 - ../StandardLibrary
+- ../Core
 - ../Translate
 - ../Context
 - ../Sexp

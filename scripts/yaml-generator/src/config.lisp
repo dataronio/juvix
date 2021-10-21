@@ -450,6 +450,7 @@ common ones to include"
    :name "Witch"
    :packages   (list *frontend*
                      *standard-library*
+                     *core*
                      *translate*
                      *Context*
                      *sexp*
