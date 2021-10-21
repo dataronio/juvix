@@ -413,6 +413,8 @@ Representation of LLVM primitives in Juvix.
 ** Setup <<BerlinPipeline/Setup>>
 ** src
 *** Lib
+- _Relies on_
+  + [[Library]]
 ** test
 *** Main <<BerlinPipeline/test/Main>>
 - _Relies on_
@@ -526,7 +528,7 @@ relation.
   + [[PrettyPrint]]
   + [[PrettyPrint]]
   + [[Library/Usage]]
-***** Translate
+***** Translate <<Core/Translate>>
 - _Relies on_
   + [[Core/Base/Types]]
   + [[HR/Types]]
@@ -631,7 +633,7 @@ keeps the extensions.
   + [[Core/IR]]
   + [[Typechecker/Types]]
   + [[Core/Parameterisation]]
-  + [[Translate]]
+  + [[Core/Translate]]
   + [[Library]]
   + [[NameSymbol]]
   + [[PrettyPrint]]
@@ -811,7 +813,7 @@ The types as used by the evaluator.
   + [[Typechecker/Types]]
   + [[IR/Types]]
   + [[Core/Parameterisation]]
-  + [[Translate]]
+  + [[Core/Translate]]
   + [[Library]]
   + [[PrettyPrint]]
 ******* Weak <<Evaluator/Weak>>
@@ -860,7 +862,7 @@ Typechecked declarations are added to the signature.
   + [[Typechecker/Types]]
   + [[IR/Types]]
   + [[Core/Parameterisation]]
-  + [[Translate]]
+  + [[Core/Translate]]
   + [[Library]]
   + [[PrettyPrint]]
   + [[Library/Usage]]
@@ -903,8 +905,8 @@ Typechecked declarations are added to the signature.
   + [[Core/Base/Types]]
   + [[HR]]
   + [[Core/IR]]
-  + [[Translate]]
-  + [[Translate]]
+  + [[Core/Translate]]
+  + [[Core/Translate]]
   + [[Library]]
 ** test
 *** Conv
@@ -912,7 +914,7 @@ Typechecked declarations are added to the signature.
   + [[Core/Base]]
   + [[HR]]
   + [[Core/IR]]
-  + [[Translate]]
+  + [[Core/Translate]]
   + [[Library]]
 *** Erasure <<test/Erasure>>
 - _Relies on_
@@ -1030,7 +1032,7 @@ Tests that weak works as expected
   + [[Typechecker/Types]]
   + [[Core/Parameterisation]]
   + [[Core/Parameterisation]]
-  + [[Translate]]
+  + [[Core/Translate]]
   + [[Core/Types]]
   + [[Juvix/Frontend]]
   + [[Frontend/Types]]
@@ -1063,7 +1065,7 @@ Tests that weak works as expected
   + [[Juvix/Contextify]]
   + [[Algorithm]]
   + [[Core/HR/Pretty]]
-  + [[Translate]]
+  + [[Core/Translate]]
   + [[Core/Types]]
   + [[Desugar]]
   + [[Frontend/Types]]
@@ -1788,7 +1790,10 @@ done with no extra information needed. Thus we export the following passes
   + [[Structure/Frontend]]
   + [[Lens]]
   + [[Transition]]
-**** Translate
+**** Translate <<Juvix/Translate>>
+- _Relies on_
+  + [[Juvix/Contextify]]
+  + [[Desugar]]
 ***** Pipeline <<Translate/Pipeline>>
 - _Relies on_
   + [[TopLevel]]

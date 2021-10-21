@@ -3,6 +3,8 @@ resolver: lts-17.3
 packages:
 - .
 - ../StandardLibrary
+- ../Context
+- ../Sexp
 
 extra-deps:
 

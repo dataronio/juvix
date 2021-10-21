@@ -370,7 +370,7 @@ common ones to include"
    :name "Backends/llvm"
    :resolver 17.3
    :path-to-other "../../"
-   :packages (list *standard-library* *core* *context* *pipeline* *frontend* *sexp*)
+   :packages (list *standard-library* *core* *context* *pipeline* *frontend* *sexp* *translate*)
    :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *llvm-hs-deps*
 
@@ -439,8 +439,8 @@ common ones to include"
 
 (defparameter *berlin-pipeline*
   (make-stack-yaml
-   :packages (list *standard-library*)
-   :name "berlin-pipeline"
+   :packages (list *standard-library* *context* *sexp*)
+   :name "BerlinPipeline"
    :extra-deps (big-dep-list)
    :extra "allow-newer: true"))
 

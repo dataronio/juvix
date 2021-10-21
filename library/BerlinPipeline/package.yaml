@@ -1,6 +1,6 @@
 name:                berlin-pipeline
 version:             0.1.0.0
-github:              "anoma/Juvix/library/BerlinPipeline"
+github:              "anoma/Juvix/BerlinPipeline"
 license:             BSD3
 author:              "Author name here"
 maintainer:          "example@example.com"
@@ -27,9 +27,6 @@ dependencies:
   ###########################
   - standard-library
   - sexp
-  - frontend
-  - core
-  - translate
   - context
   ###########################
   # Debugging

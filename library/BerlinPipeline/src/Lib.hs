@@ -3,5 +3,7 @@ module Lib
   )
 where
 
+import Juvix.Library
+
 someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+someFunc = print "someFunc"

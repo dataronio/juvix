@@ -32,14 +32,14 @@ cradle:
       component: "plonk:test:plonk-test"
 
     - path: ./library/Context/src
-      component: "Context"
+      component: "context"
     - path: ./library/Context/test
-      component: "Context:test:Context-test"
+      component: "context:test:context-test"
 
     - path: ./library/Sexp/src
-      component: "Sexp"
+      component: "sexp"
     - path: ./library/Sexp/test
-      component: "Sexp:test:Sexp-test"
+      component: "sexp:test:sexp-test"
 
     - path: ./library/Translate/src
       component: "translate"
@@ -56,25 +56,15 @@ cradle:
     - path: ./library/StandardLibrary/test
       component: "standard-library:test:standard-library-test"
 
-    - path: ./library/InteractionNet/src
-      component: "interaction-net"
-    - path: ./library/InteractionNet/test
-      component: "llvm:test:interaction-net-test"
-
-    - path: ./library/InteractionNetIR/src
-      component: "InteractionNetIR"
-    - path: ./library/InteractionNetIR/test
-      component: "InteractionNetIR:test:InteractionNetIR-test"
-
     - path: ./library/Pipeline/src
-      component: "Pipeline"
+      component: "pipeline"
     - path: ./library/Pipeline/test
-      component: "Pipeline:test:Pipeline-test"
+      component: "pipeline:test:pipeline-test"
 
     - path: ./library/BerlinPipeline/src
-      component: "BerlinPipeline"
+      component: "berlin-pipeline"
     - path: ./library/BerlinPipeline/test
-      component: "BerlinPipeline:test:BerlinPipeline-test"
+      component: "berlin-pipeline:test:berlin-pipeline-test"
 
     - path: ./library/Playground/Easy/src
       component: "easy"
@@ -87,9 +77,9 @@ cradle:
       component: "http:test:http-test"
 
     - path: ./library/Witch/src
-      component: "Witch"
+      component: "witch"
     - path: ./library/Witch/test
-      component: "Witch:test:witch-test"
+      component: "witch:test:witch-test"
 
     - path: ./library/Test/DataStructures/src
       component: "datastructures"
