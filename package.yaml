@@ -20,16 +20,16 @@ dependencies:
   ###########################
   # Juvix Libraries
   ###########################
-  - Pipeline
+  - pipeline
   - standard-library
-  - Sexp
+  - sexp
   - frontend
   - core
   - translate
-  - Witch
+  - witch
   - michelson
   - plonk
-  - EasyPipeline
+  - easy-pipeline
   - llvm
 
 default-extensions:

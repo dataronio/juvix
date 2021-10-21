@@ -1,4 +1,4 @@
-name:                Context
+name:                context
 version:             0.1.0.0
 github:              "heliaxdev/Juvix"
 license:             GPL-3
@@ -22,7 +22,7 @@ dependencies:
 - aeson
 - base >= 4.7 && < 5
 - standard-library
-- Sexp
+- sexp
 - unordered-containers
 - stm-containers
 - lens
@@ -73,7 +73,7 @@ library:
   source-dirs: src
 
 tests:
-  Context-test:
+  context-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
@@ -81,6 +81,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - Context
+    - context
     - tasty
     - tasty-hunit

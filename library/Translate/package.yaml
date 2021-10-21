@@ -11,9 +11,9 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.11 && < 5
 - standard-library
-- Sexp
+- sexp
 - frontend
-- Context
+- context
 - unordered-containers
 - stm-containers
 - lens
@@ -77,8 +77,8 @@ tests:
     - filepath
     - megaparsec
     - pretty-simple
-    - Sexp
+    - sexp
     - translate
     - tasty
     - tasty-hunit
-    - Context
+    - context

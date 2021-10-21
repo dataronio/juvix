@@ -313,7 +313,7 @@ common ones to include"
    :packages   (list *standard-library*)
    :extra-deps (list (general-dependencies) *standard-library-extra-deps*)))
 
-(defparameter *Context*
+(defparameter *context*
   (make-stack-yaml
    :name     "Context"
    :packages (list *standard-library* *sexp*)
@@ -331,7 +331,7 @@ common ones to include"
 (defparameter *translate*
   (make-stack-yaml
    :name "Translate"
-   :packages   (list *core* *frontend* *standard-library* *sexp* *Context*)
+   :packages   (list *core* *frontend* *standard-library* *sexp* *context*)
    :extra-deps (list (general-dependencies *extensible*)
                      *standard-library-extra-deps*
                      *eac-solver*)))
@@ -339,14 +339,14 @@ common ones to include"
 
 
 ;; Define these before pipeline due to mutual recursion
-(defparameter *Pipeline*
+(defparameter *pipeline*
   (make-stack-yaml
    :packages (list *standard-library*
                    *sexp*
                    *frontend*
                    *core*
                    *translate*
-                   *Context*)
+                   *context*)
    ;; hack name, for sub dirs
    :name "Pipeline"
    :extra-deps (big-dep-list)
@@ -357,7 +357,7 @@ common ones to include"
    :name "Backends/llvm"
    :resolver 17.3
    :path-to-other "../../"
-   :packages (list *standard-library* *core* *Context* *pipeline* *frontend* *sexp*)
+   :packages (list *standard-library* *core* *context* *pipeline* *frontend* *sexp*)
    :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *llvm-hs-deps*
 
@@ -371,12 +371,12 @@ common ones to include"
                      *standard-library-extra-deps*)
    :extra "allow-newer: true"))
 
-(defparameter *Michelson*
+(defparameter *michelson*
   (make-stack-yaml
    ;; hack name, for sub dirs
    :name "Backends/Michelson"
    :path-to-other "../../"
-   :packages      (list *standard-library* *core* *pipeline* *Context*
+   :packages      (list *standard-library* *core* *pipeline* *context*
                         ;; this is needed due to pipeline additions
                         ;; have left it unable to build. I think due to cyclic dependencies
                         *frontend*
@@ -399,13 +399,13 @@ common ones to include"
                    *translate*
                    *frontend*
                    *core*
-                   *Context*
+                   *context*
                    *pipeline*
                    *sexp*)
    :extra-deps (big-dep-list :plonk t)
    :extra "allow-newer: true"))
 
-(defparameter *Easy-Pipeline*
+(defparameter *easy-pipeline*
   (make-stack-yaml
    :packages (list *standard-library*
                    *frontend*
@@ -414,7 +414,7 @@ common ones to include"
                    *michelson*
                    *llvm*
                    *pipeline*
-                   *Context*
+                   *context*
                    *plonk*
                    *sexp*)
    ;; hack name, for sub dirs
@@ -422,10 +422,10 @@ common ones to include"
    :extra-deps (append (big-dep-list) (list *llvm-hs-deps*))
    :extra "allow-newer: true"))
 
-(defparameter *BerlinPipeline*
+(defparameter *berlin-pipeline*
   (make-stack-yaml
    :packages (list *standard-library*)
-   :name "BerlinPipeline"
+   :name "berlin-pipeline"
    :extra-deps (big-dep-list)
    :extra "allow-newer: true"))
 
@@ -437,7 +437,7 @@ common ones to include"
                    *translate*
                    *pipeline*
                    *michelson*
-                   *Context*
+                   *context*
                    *plonk*
                    *sexp*)
    ;; hack name, for sub dirs
@@ -445,18 +445,18 @@ common ones to include"
    :extra-deps (cons *servant-deps* (big-dep-list))
    :extra "allow-newer: true"))
 
-(defparameter *Witch*
+(defparameter *witch*
   (make-stack-yaml
    :name "Witch"
    :packages   (list *frontend*
                      *standard-library*
                      *core*
                      *translate*
-                     *Context*
+                     *context*
                      *sexp*
                      *pipeline*
                      *plonk*
-                     *Michelson*)
+                     *michelson*)
    :extra-deps (big-dep-list)
    :extra "allow-newer: true"))
 
@@ -473,8 +473,8 @@ common ones to include"
                    *http*
                    *plonk*
                    *llvm*
-                   *Witch*
-                   *Context*
+                   *witch*
+                   *context*
                    *sexp*)
    :path-to-other "./library/"
    :extra-deps

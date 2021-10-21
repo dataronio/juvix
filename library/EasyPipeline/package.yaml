@@ -1,4 +1,4 @@
-name:                EasyPipeline
+name:                easy-pipeline
 version:             0.1.0.0
 github:              "heliaxdev/juvix"
 license:             GPL-3
@@ -25,13 +25,13 @@ dependencies:
   # Libraries
   ###########################
   - standard-library
-  - Sexp
+  - sexp
   - frontend
   - core
   - translate
   - michelson
-  - Pipeline
-  - Context
+  - pipeline
+  - context
   - plonk
   - llvm
   ###########################
@@ -91,7 +91,7 @@ library:
   source-dirs: src
 
 tests:
-  EasyPipeline-test:
+  easy-pipeline-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -99,7 +99,7 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - EasyPipeline
+    - easy-pipeline
     - tasty
     - tasty-golden
     - tasty-hunit

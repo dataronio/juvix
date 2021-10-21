@@ -1,4 +1,4 @@
-name:                Witch
+name:                witch
 version:             0.1.0.0
 github:              "githubuser/Witch"
 license:             BSD3
@@ -12,8 +12,8 @@ dependencies:
 - base >= 4.11 && < 5
 - standard-library
 - frontend
-- Sexp
-- Context
+- sexp
+- context
 - translate
 - tasty
 - tasty-hunit
@@ -72,7 +72,7 @@ tests:
     - translate
     - tasty
     - tasty-hunit
-    - Witch
-    - Pipeline
-    - Sexp
-    - Context
+    - witch
+    - pipeline
+    - sexp
+    - context

@@ -1,4 +1,4 @@
-name:                Sexp
+name:                sexp
 version:             0.1.0.0
 github:              "heliaxdev/Juvix"
 license:             GPL-3
@@ -72,7 +72,7 @@ library:
   source-dirs: src
 
 tests:
-  Sexp-test:
+  sexp-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
@@ -80,6 +80,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - Sexp
+    - sexp
     - tasty
     - tasty-hunit

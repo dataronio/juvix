@@ -1,6 +1,6 @@
-name:                BerlinPipeline
+name:                berlin-pipeline
 version:             0.1.0.0
-github:              "githubuser/BerlinPipeline"
+github:              "anoma/Juvix/library/BerlinPipeline"
 license:             BSD3
 author:              "Author name here"
 maintainer:          "example@example.com"
@@ -26,11 +26,11 @@ dependencies:
   # Libraries
   ###########################
   - standard-library
-  - Sexp
+  - sexp
   - frontend
   - core
   - translate
-  - Context
+  - context
   ###########################
   # Debugging
   ###########################
@@ -93,7 +93,7 @@ library:
   source-dirs: src
 
 tests:
-  BerlinPipeline-test:
+  berlin-pipeline-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
@@ -101,6 +101,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - BerlinPipeline
+    - berlin-pipeline
     - tasty
     - tasty-hunit
