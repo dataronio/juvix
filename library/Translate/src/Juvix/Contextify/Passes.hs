@@ -188,7 +188,7 @@ figureRecord = Env.PassChange rec
       | Just type' <- Structure.toType (Sexp.Atom a Sexp.:> cdr),
         -- make sure it's a record only declaration
         -- how do we handle sum types?
-        length (Sexp.toList (type' ^. body)) == 1,
+        maybe 0 length (Sexp.toList (type' ^. body)) == 1,
         Just record <- Structure.toRecordDec (Sexp.car (type' ^. body)) =
         recordToFields record
           >>| CoreNamed.RecordTy

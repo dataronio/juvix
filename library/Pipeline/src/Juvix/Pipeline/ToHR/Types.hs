@@ -311,8 +311,8 @@ instance
     WrongNumberBuiltinArgs s n args ->
       "Builtin " <> show s <> " should have " <> show n <> " args\n"
         <> "but has been applied to "
-        <> show (length $ Sexp.toList args)
-        <> "\n"
+        <> maybe "invalid" (show . length) (Sexp.toList args)
+        <> " args\n"
         <> show args
     UnexpectedSAny ->
       "%Builtin.SAny cannot be used as an arbitrary term, only as\n"
