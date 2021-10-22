@@ -39,7 +39,7 @@ leftoverOk :: Usage.T -> Bool
 leftoverOk ρ = ρ == Usage.SAny || ρ == mempty
 
 star0Ann :: Usage.T -> Typed.AnnotationT IR.T primTy primVal
-star0Ann σ = Typed.Annotation σ (IR.VStar 0)
+star0Ann σ = Typed.Annotation σ (IR.VStar $ Core.U 0)
 
 -- | Checks a 'Term against an annotation and returns a decorated term if
 -- successful.

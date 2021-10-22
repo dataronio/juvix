@@ -139,8 +139,10 @@ universe :: Doc
 universe = annotate' ATyCon "*"
 
 -- TODO: Use subindices whenever it's possible, e.g. υ₁ or υ₂.
-levelUniverse :: Show a => a -> Doc
-levelUniverse i = annotate' ATyCon $ PP.show i
+levelUniverse :: Core.Universe -> Doc
+levelUniverse i = annotate' ATyCon $ case i of
+  Core.U i -> PP.show i
+  Core.UAny -> "_"
 
 piCon :: Doc
 piCon = annotate' ATyCon "Π"

@@ -33,10 +33,10 @@ transformTypeSig q _name (_name2 Sexp.:> typeCon Sexp.:> args Sexp.:> typeForm)
     pure $ dataSig : conSigs
   where
     transformIndices _ _ =
-      pure (HR.Star 0, Just $ HR.Star 0) -- TODO metavar for universe
+      pure (HR.Star $ Core.U 0, Just $ HR.Star $ Core.U 0) -- TODO metavar for universe
     makeTPi name res =
       -- TODO metavars for the named args instead of defaulting to types
-      HR.Pi mempty (NameSymbol.fromSymbol name) (HR.Star 0) res
+      HR.Pi mempty (NameSymbol.fromSymbol name) (HR.Star $ Core.U 0) res
 transformTypeSig _ _ _ = error "malformed type"
 
 transformConSigs ::

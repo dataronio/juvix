@@ -328,7 +328,7 @@ takeToElimTy ::
   Core.Elim (OnlyExts.T ext) (Param.KindedType primTy) val
 takeToElimTy (App.Take {type', term}) =
   let term' = IR.PrimTy (App.Return {retType = type', retTerm = term})
-   in IR.Ann Usage.SAny term' (IR.Star 0) 0
+   in IR.Ann Usage.SAny term' (IR.Star $ Core.U 0) $ Core.U 0
 
 -- | Transform a `App.Arg` into a `IR.Term`.
 -- TODO: move this function somewhere else?
@@ -348,7 +348,7 @@ takeToElim ::
 takeToElim (App.Take {type', term}) =
   let term' = IR.Prim (App.Return {retType = type', retTerm = term})
       ty' = typeToTerm type'
-   in IR.Ann Usage.SAny term' ty' 0
+   in IR.Ann Usage.SAny term' ty' $ Core.U 0
 
 -- | Transform a `App.Arg` into a `IR.Term`.
 -- TODO: move this function somewhere else?

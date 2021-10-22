@@ -114,7 +114,7 @@ lookupGlobal x = do
     Nothing -> Error.throwTC (Error.UnboundGlobal x)
   where
     makeGAnn (Core.GDatatype (Core.Datatype {dataArgs, dataLevel})) =
-      (foldr makePi (Core.VStar dataLevel mempty) dataArgs, Core.GZero)
+      (foldr makePi (Core.VStar (Core.U dataLevel) mempty) dataArgs, Core.GZero)
     makeGAnn (Core.GDataCon (Core.DataCon {dataConType})) =
       (dataConType, Core.GSAny)
     makeGAnn (Core.GFunction (Core.Function {funType, funUsage})) =

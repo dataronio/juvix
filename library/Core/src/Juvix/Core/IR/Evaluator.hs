@@ -281,7 +281,7 @@ toLambda' π' ty' pats rhs = do
   let ty = OnlyExts.injectT ty'
   case patSubst patMap $ weakBy len $ toOnlyExtsT rhs of
     Left _ -> Nothing
-    Right x -> pure $ IR.Ann π (applyN len lam x) ty 0 -- FIXME universe
+    Right x -> pure $ IR.Ann π (applyN len lam x) ty $ Core.U 0 -- FIXME universe
   where
     applyN 0 _ x = x
     applyN n f x = applyN (n - 1) f (f $! x)

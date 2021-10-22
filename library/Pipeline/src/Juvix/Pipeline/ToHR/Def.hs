@@ -152,7 +152,7 @@ splitDataType ::
   (Show primTy, Show primVal, HasThrowFF ext primTy primVal m) =>
   NameSymbol.T ->
   HR.Term primTy primVal ->
-  m ([Core.RawDataArg HR.T primTy primVal], Core.Universe)
+  m ([Core.RawDataArg HR.T primTy primVal], Core.ConcUniverse)
 splitDataType x ty0 = go ty0
   where
     go (HR.Pi π x s t) = first (arg :) <$> splitDataType x t
@@ -163,5 +163,5 @@ splitDataType x ty0 = go ty0
               rawArgUsage = π,
               rawArgType = s
             }
-    go (HR.Star ℓ) = pure ([], ℓ)
+    go (HR.Star (Core.U ℓ)) = pure ([], ℓ)
     go _ = throwFF $ InvalidDatatypeType x ty0

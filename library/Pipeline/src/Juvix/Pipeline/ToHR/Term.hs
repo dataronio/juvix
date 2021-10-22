@@ -2,6 +2,7 @@ module Juvix.Pipeline.ToHR.Term (transformTermHR) where
 
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.HR as HR
 import qualified Juvix.Core.Parameterisation as P
 import Juvix.Library
@@ -197,7 +198,7 @@ transformApplication q a@(f Sexp.:> args)
         a <- transformTermHR q a
         b <- transformTermHR q b
         -- FIXME metavars for usage & universe
-        pure $ HR.Elim $ HR.Ann (Usage.SNat 1) a b 0
+        pure $ HR.Elim $ HR.Ann (Usage.SNat 1) a b $ Core.U 0
       TypeS -> do
         ~[i] <- nargs s 1 xs
         HR.Star <$> transformUniverse i
@@ -211,7 +212,9 @@ transformApplication q a@(f Sexp.:> args)
       transformTermHR q e >>= \case
         NamedArgTerm x ty -> pure (NameSymbol.fromSymbol x, ty)
         ty -> pure ("" :| [], ty)
-    transformUniverse (Sexp.Atom Sexp.N {atomNum = i}) | i >= 0 = pure $ fromIntegral i
+    transformUniverse (Sexp.Atom Sexp.N {atomNum = i})
+      | i >= 0 =
+        pure $ Core.U $ fromIntegral i
     transformUniverse e = throwFF $ NotAUniverse e
 transformApplication _ _ = error "malformed application"
 

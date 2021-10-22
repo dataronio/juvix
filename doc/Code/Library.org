@@ -921,6 +921,7 @@ Typechecked declarations are added to the signature.
   + [[Application]]
   + [[Erased]]
   + [[Algorithm]]
+  + [[Core/Base]]
   + [[Core/IR]]
   + [[IR/Typechecker]]
   + [[Core/Parameterisation]]
@@ -1135,6 +1136,7 @@ Tests that weak works as expected
   + [[Juvix/Sexp]]
 ****** Term
 - _Relies on_
+  + [[Core/Base]]
   + [[HR]]
   + [[Core/Parameterisation]]
   + [[Library]]

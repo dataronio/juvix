@@ -14,7 +14,23 @@ import Juvix.Library.Usage
 
 ------------------------------------------------------------------------------
 
-type Universe = Natural
+-- | a concrete universe level is just a natural number.
+type ConcUniverse = Natural
+
+-- | a general universe is either a concrete universe, or a marker saying
+-- that we don't care about the universe a type lives in. 'UAny' never shows up
+-- in source programs, but is needed in e.g. the typechecker when ensuring that
+-- the type in an annotation expression is /a/ type, of any universe.
+data Universe
+  = U ConcUniverse
+  | UAny
+  deriving (Show, Read, Eq, Ord, Generic, Data, NFData)
+
+instance A.ToJSON Universe where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON Universe where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 type GlobalName = NameSymbol.T
 

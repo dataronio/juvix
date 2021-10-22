@@ -3,6 +3,7 @@
 module Erasure (erasureTests) where
 
 import qualified Juvix.Core.Application as App
+import Juvix.Core.Base (Universe (..))
 import qualified Juvix.Core.Erased as Erased
 import qualified Juvix.Core.Erased.Algorithm as Erasure
 import qualified Juvix.Core.IR as IR

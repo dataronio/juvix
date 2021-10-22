@@ -42,7 +42,7 @@ data RawDatatype ext primTy primVal = RawDatatype
     -- | the type constructor's arguments
     rawDataArgs :: [RawDataArg ext primTy primVal],
     -- | the type constructor's target universe level
-    rawDataLevel :: Natural,
+    rawDataLevel :: ConcUniverse,
     rawDataCons :: [RawDataCon ext primTy primVal]
   }
   deriving (Generic)
@@ -76,7 +76,7 @@ data Datatype extV extT primTy primVal = Datatype
     -- | type checked arguments
     dataArgs :: [DataArg extV primTy primVal],
     -- | the type constructor's target universe level
-    dataLevel :: Natural,
+    dataLevel :: ConcUniverse,
     dataCons :: [DataCon extV extT primTy primVal]
   }
   deriving (Generic)
