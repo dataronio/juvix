@@ -8,7 +8,7 @@
 
 module Juvix.Sexp.Types where
 
-import Control.Lens hiding (List, (:>), (|>))
+import Control.Lens hiding (List, from, (:>), (|>))
 import qualified Data.Aeson as A
 import Data.Hashable ()
 import Juvix.Library hiding (foldr, show, toList)
@@ -33,6 +33,8 @@ instance A.FromJSON T where
 data Atom
   = A {atomName :: NameSymbol.T, atomLineNum :: Maybe LineNum.T}
   | N {atomNum :: Integer, atomLineNum :: Maybe LineNum.T}
+  | D {atomDouble :: Double, atomLineNum :: Maybe LineNum.T}
+  | S {atomText :: Text, atomLineNum :: Maybe LineNum.T}
   deriving (Show, Data, Generic)
 
 instance A.ToJSON Atom where
@@ -41,20 +43,20 @@ instance A.ToJSON Atom where
 instance A.FromJSON Atom where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
+noLoc :: Atom -> Atom
+noLoc a = a {atomLineNum = Nothing}
+
 instance Eq Atom where
-  A n1 _ == A n2 _ = n1 == n2
-  N i1 _ == N i2 _ = i1 == i2
-  _ == _ = False
+  (==) = (==) `on` from . noLoc
 
 instance Ord Atom where
-  compare (A n1 _) (A n2 _) = compare n1 n2
-  compare (N i1 _) (N i2 _) = compare i1 i2
-  compare (N _ _) (A _ _) = GT
-  compare (A _ _) (N _ _) = LT
+  compare = compare `on` from . noLoc
 
 instance Hashable Atom where
-  hash (A {atomName, atomLineNum}) = hash (hash atomName, hash atomLineNum)
-  hash (N {atomNum, atomLineNum}) = hash (hash atomNum, hash atomLineNum)
+  hash (D {atomDouble}) = hash ('D', atomDouble)
+  hash (S {atomText}) = hash ('S', atomText)
+  hash (A {atomName}) = hash ('A', atomName)
+  hash (N {atomNum}) = hash ('N', atomNum)
 
 instance Hashable T where
   hash (Atom atom) = hash atom
@@ -95,6 +97,10 @@ instance Show T where
   show (Atom (A x _)) =
     show (NameSymbol.toSymbol x)
   show (Atom (N x _)) =
+    show x
+  show (Atom (D x _)) =
+    show x
+  show (Atom (S x _)) =
     show x
   show Nil = "()"
 

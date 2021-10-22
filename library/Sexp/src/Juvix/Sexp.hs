@@ -24,9 +24,13 @@ module Juvix.Sexp
     actualAtom,
     suffixAtom,
     number,
+    double,
+    string,
     isAtomNamed,
     nameFromT,
     atomFromT,
+    doubleFromT,
+    stringFromT,
     groupBy2,
     assoc,
     cadr,
@@ -41,7 +45,7 @@ import Juvix.Library hiding (foldr, init, list, show, toList)
 import qualified Juvix.Library as Std
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Sexp.Parser
-import Juvix.Sexp.Types
+import Juvix.Sexp.Types hiding (double)
 import Prelude (error)
 
 --------------------------------------------------------------------------------
@@ -247,6 +251,14 @@ suffixAtom _ sexp = sexp
 number :: Integer -> T
 number n = Atom $ N n Nothing
 
+-- | @double@ creates a @Sexp@ @Double@ from a @Double@
+double :: Double -> T
+double d = Atom $ D d Nothing
+
+-- | @string@ creates a @Sexp@ @String@ from a @Text@
+string :: Text -> T
+string t = Atom $ S t Nothing
+
 -- | @isAtomNamed@ asks if an atom is named a particular name. Cons and
 -- Nil both return False
 isAtomNamed :: T -> NameSymbol.T -> Bool
@@ -264,6 +276,18 @@ atomFromT _ = Nothing
 nameFromT :: T -> Maybe NameSymbol.T
 nameFromT (Atom (A name _)) = Just name
 nameFromT _ = Nothing
+
+-- | @doubleFromT@ is similar to @atomFromT@ but it grabs the
+-- @dobule@ out of the @Atom@
+doubleFromT :: T -> Maybe Double
+doubleFromT (Atom (D d _)) = Just d
+doubleFromT _ = Nothing
+
+-- | @stringFromT@ is similar to @atomFromT@ but it grabs the
+-- @string@ out of the @Atom@
+stringFromT :: T -> Maybe Text
+stringFromT (Atom (S s _)) = Just s
+stringFromT _ = Nothing
 
 -- | @assoc@ takes two sexps. First being a sexp that is to be found in
 -- the second argument. The other is a sexp list that is grouped into
