@@ -310,8 +310,8 @@ transSig (Types.Sig name usage arrow constraints) =
 
 transConstant :: Types.Constant -> Sexp.T
 transConstant (Types.Number (Types.Integer' i)) = Sexp.number i
-transConstant (Types.Number (Types.Double' _d)) = undefined
-transConstant (Types.String (Types.Sho _t)) = undefined
+transConstant (Types.Number (Types.Double' d)) = Sexp.double d
+transConstant (Types.String (Types.Sho t)) = Sexp.string t
 
 transTuple :: Types.Tuple -> Sexp.T
 transTuple (Types.TupleLit t) =
