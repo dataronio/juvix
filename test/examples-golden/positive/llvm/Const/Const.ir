@@ -277,11 +277,13 @@
             ( RawFunction
                 { rawFunName = "Prelude" :| [ "ty" ]
                 , rawFunUsage = GSAny
-                , rawFunType = Star 1 ()
+                , rawFunType = Star
+                    ( U 1 ) ()
                 , rawFunClauses = RawFunClause
                     { rawClauseTel = []
                     , rawClausePats = []
-                    , rawClauseBody = Star 0 ()
+                    , rawClauseBody = Star
+                        ( U 0 ) ()
                     , rawClauseCatchall = False
                     } :| []
                 }

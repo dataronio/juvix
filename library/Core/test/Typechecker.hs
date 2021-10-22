@@ -5,6 +5,7 @@ module Typechecker (coreCheckerEval) where
 
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base as Core
+import Juvix.Core.Base (Universe (..))
 import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.IR.CheckTerm as TC
@@ -398,7 +399,7 @@ natComp :: T.TestTree
 natComp =
   T.testGroup
     "Nat Computational typing"
-    [ shouldCheck "nat" Nat.t natT' (mempty `ann` IR.VStar 0),
+    [ shouldCheck "nat" Nat.t natT' (mempty `ann` IR.VStar (U 0)),
       shouldCheck "1" Nat.t (nat 1) (Usage.SAny `ann` natT),
       shouldCheck "add" Nat.t (IR.Prim Nat.Add) (Usage.SAny `ann` addTy),
       shouldFail "add : nat" Nat.t (IR.Prim Nat.Add) (Usage.SAny `ann` natT)
@@ -416,12 +417,12 @@ dependentFunctionComp =
         "(0 A : ⋆₀) → 1 A → A"
         All.t
         depIdentityCompTyT
-        (mempty `ann` IR.VStar 1),
+        (mempty `ann` IR.VStar (U 1)),
       shouldCheck
         "(0 A B : ⋆₀) → 1 A → 0 B → A"
         All.t
         depKCompTyT
-        (mempty `ann` IR.VStar 1)
+        (mempty `ann` IR.VStar (U 1))
     ]
 
 letComp :: T.TestTree
@@ -446,7 +447,7 @@ letComp =
         (natToNatTy' one)
     ]
   where
-    nzero = IR.Ann Usage.SAny (nat 0) natT' 0
+    nzero = IR.Ann Usage.SAny (nat 0) natT' (U 0)
 
 evaluations :: T.TestTree
 evaluations =
@@ -458,7 +459,7 @@ evaluations =
       shouldEval "I I 1" (IR.Elim identityAppINat1T) (natVT 1),
       shouldEval "I I" (IR.Elim identityAppIT) videntity,
       shouldEval "K 1 2" (IR.Elim kApp1_2T) (natVT 1),
-      shouldEval' "ty" typGlobals (IR.Elim (IR.Free (Core.Global "ty"))) (IR.VStar 0),
+      shouldEval' "ty" typGlobals (IR.Elim (IR.Free (Core.Global "ty"))) (IR.VStar (U 0)),
       shouldEval' "tz" typGlobals (name "tz") (vname "tz"),
       shouldEval' "B" typGlobals (name "B") (vname "A"),
       shouldEval' "C" typGlobals (name "C") (vname "A")
@@ -467,8 +468,8 @@ evaluations =
     add12 = IR.Elim $ add `IR.App` nat' 1 `IR.App` nat' 2
     sub52 = IR.Elim $ sub `IR.App` nat' 5 `IR.App` nat' 2
     binPrim op = App.Return {retTerm = op, retType = [Nat.Ty, Nat.Ty, Nat.Ty]}
-    sub = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Sub) addTyT' 0
-    add = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Add) addTyT' 0
+    sub = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Sub) addTyT' (U 0)
+    add = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Add) addTyT' (U 0)
     videntity = IR.VLam $ Core.VBound 0
     name = IR.Elim . IR.Free . Core.Global
     vname = Core.VFree . Core.Global
@@ -484,7 +485,7 @@ inlinings =
         "F B"
         (name "F" `IR.App` tname "B")
         (name "F" `IR.App` tname "A"),
-      shouldInlineT "*₀" (IR.Star 0) (IR.Star 0)
+      shouldInlineT "*₀" (IR.Star $ U 0) (IR.Star $ U 0)
     ]
   where
     name = IR.Free . Core.Global
@@ -511,8 +512,10 @@ subtype :: T.TestTree
 subtype =
   T.testGroup
     "Subtyping"
-    [ shouldCheckWith "A : ⋆₀" Unit.t typGlobals [] aTerm $ mempty `ann` IR.VStar 0,
-      shouldCheckWith "A : ⋆₁" Unit.t typGlobals [] aTerm $ mempty `ann` IR.VStar 1,
+    [ shouldCheckWith "A : ⋆₀" Unit.t typGlobals [] aTerm $
+        mempty `ann` IR.VStar (U 0),
+      shouldCheckWith "A : ⋆₁" Unit.t typGlobals [] aTerm $
+        mempty `ann` IR.VStar (U 1),
       shouldCheckWith
         "F : ⋆₁ → ⋆₁"
         Unit.t
@@ -540,10 +543,10 @@ subtype =
         typGlobals
         []
         faElim
-        $ mempty `ann` IR.VStar 1
+        $ mempty `ann` IR.VStar (U 1)
     ]
   where
-    typ2typ i j = IR.VPi mempty (IR.VStar i) (IR.VStar j)
+    typ2typ i j = IR.VPi mempty (IR.VStar $ U i) (IR.VStar $ U j)
 
 -- \x. x
 identity :: forall primTy primVal. Core.Term IR.T primTy primVal
@@ -572,7 +575,7 @@ depIdentity =
                 (IR.Elim (IR.Bound 0))
                 -- x is the output, which has annotation (1, t)
                 (IR.Elim (IR.Bound 1)) -- of type t
-                0
+                (U 0)
             )
         )
     )
@@ -584,7 +587,7 @@ depIdentity' = IR.Lam $ IR.Lam $ IR.Elim $ IR.Bound 0
 -- computation dependent identity annotation (1, 0 * -> 1 t -> t)
 depIdentityCompTyT :: AllTerm
 depIdentityCompTyT =
-  IR.Pi mempty (IR.Star 0) $
+  IR.Pi mempty (IR.Star $ U 0) $
     IR.Pi one (IR.Elim $ IR.Bound 0) $
       IR.Elim $ IR.Bound 1
 
@@ -594,7 +597,7 @@ depIdentityCompTy =
   one
     `ann` IR.VPi
       mempty
-      (IR.VStar 0)
+      (IR.VStar $ U 0)
       (IR.VPi one (Core.VBound 0) (Core.VBound 1))
 
 -- computation dependent identity annotation (1, 0 * -> w t -> t)
@@ -603,20 +606,20 @@ depIdentityCompTySAny =
   one
     `ann` IR.VPi
       mempty
-      (IR.VStar 0)
+      (IR.VStar $ U 0)
       (IR.VPi Usage.SAny (Core.VBound 0) (Core.VBound 1))
 
 -- (\x.x) 1
 identityApplication :: NatTerm
 identityApplication =
   IR.Elim $
-    IR.Ann one identity (IR.Pi one natT' natT') 0 `IR.App` nat 1
+    IR.Ann one identity (IR.Pi one natT' natT') (U 0) `IR.App` nat 1
 
 -- (\x.x) 1
 identityApplicationT :: NatTermT
 identityApplicationT =
   IR.Elim $
-    IR.Ann one identity (IR.Pi one natTK natTK) 0 `IR.App` nat' 1
+    IR.Ann one identity (IR.Pi one natTK natTK) (U 0) `IR.App` nat' 1
 
 -- computation annotation (1, Nat)
 natTy :: NatAnnotation
@@ -627,7 +630,7 @@ natTy = one `ann` natT
 identityAppI :: NatElim
 identityAppI =
   let natToNat = (IR.Pi one natT' natT')
-      idAt ty = IR.Ann one identity (IR.Pi one ty ty) 0
+      idAt ty = IR.Ann one identity (IR.Pi one ty ty) $ U 0
    in idAt natToNat `IR.App` IR.Elim (idAt natT')
 
 -- I:(Nat->Nat)->(Nat->Nat) I:(Nat->Nat) type checked to (Nat->Nat)
@@ -635,7 +638,7 @@ identityAppI =
 identityAppIT :: NatElimT
 identityAppIT =
   let natToNat = (IR.Pi one natTK natTK)
-      idAt ty = IR.Ann one identity (IR.Pi one ty ty) 0
+      idAt ty = IR.Ann one identity (IR.Pi one ty ty) $ U 0
    in idAt natToNat `IR.App` IR.Elim (idAt natTK)
 
 -- (I:1 (1 Nat->Nat) -> (1 Nat->Nat) I:(1 Nat->Nat) ) 1 type checked to Nat.Ty
@@ -691,7 +694,7 @@ identityAppK =
                 (IR.Pi mempty natT' natT') -- 0 Nat -> Nat)
             )
         )
-        0
+        (U 0)
     ) -- K
     ( IR.Elim
         ( IR.Ann
@@ -702,7 +705,7 @@ identityAppK =
                 natT' -- (1 Nat ->
                 (IR.Pi mempty natT' natT') -- 0 Nat -> Nat)
             )
-            0
+            (U 0)
         )
     )
 
@@ -717,7 +720,7 @@ kApp1 =
         natT' -- (1 Nat ->
         (IR.Pi mempty natT' natT') -- 0 Nat -> Nat)
     )
-    0
+    (U 0)
     `IR.App` nat 1
 
 -- (K: Nat -> Nat -> Nat 1) should type check to Nat -> Nat
@@ -731,7 +734,7 @@ kApp1T =
         natTK -- (1 Nat ->
         (IR.Pi mempty natTK natTK) -- 0 Nat -> Nat)
     )
-    0
+    (U 0)
     `IR.App` nat' 1
 
 kApp1_2T :: NatElimT
@@ -764,7 +767,7 @@ kFunApp1 =
                 natT' -- Nat
             )
         )
-        0
+        (U 0)
     )
     (nat 1) -- 1
     -- computation annotation (1, 0 (1 Nat -> Nat) -> Nat)
@@ -791,14 +794,14 @@ kAppI =
                 -- (1 Nat -> Nat)
             )
         )
-        0
+        (U 0)
     )
     ( IR.Elim
         ( IR.Ann -- I
             one -- usage of identity
             identity
             (IR.Pi one natT' natT') -- 1 Nat -> Nat
-            0
+            (U 0)
         )
     )
 
@@ -821,7 +824,7 @@ kAppINotAnnotated =
                 -- (1 Nat -> Nat)
             )
         )
-        0
+        (U 0)
     )
     identity
 
@@ -850,10 +853,10 @@ depKCompTy =
   one
     `ann` IR.VPi
       mempty
-      (IR.VStar 0)
+      (IR.VStar $ U 0)
       ( IR.VPi
           mempty
-          (IR.VStar 0)
+          (IR.VStar $ U 0)
           ( IR.VPi
               one
               (Core.VBound 1)
@@ -867,8 +870,8 @@ depKCompTy =
 
 depKCompTyT :: AllTerm
 depKCompTyT =
-  IR.Pi mempty (IR.Star 0) $
-    IR.Pi mempty (IR.Star 0) $
+  IR.Pi mempty (IR.Star $ U 0) $
+    IR.Pi mempty (IR.Star $ U 0) $
       IR.Pi one (IR.Elim $ IR.Bound 1) $
         IR.Pi mempty (IR.Elim $ IR.Bound 1) $
           IR.Elim $ IR.Bound 3
@@ -902,13 +905,13 @@ dependentPairComp =
     ]
 
 boxNatAnn :: NatAnnotation
-boxNatAnn = one `ann` IR.VSig mempty (IR.VStar 0) (Core.VBound 0)
+boxNatAnn = one `ann` IR.VSig mempty (IR.VStar $ U 0) (Core.VBound 0)
 
 boxNat :: NatTerm
 boxNat = IR.Pair natT' (nat 1)
 
 allAnn :: AllAnnotation
-allAnn = one `ann` IR.VSig mempty (IR.VStar 0) (Core.VBound 0)
+allAnn = one `ann` IR.VSig mempty (IR.VStar $ U 0) (Core.VBound 0)
 
 allNatTy :: AllTerm
 allNatTy = IR.PrimTy (All.NatTy Nat.Ty)
@@ -928,11 +931,11 @@ natTypeUnitValuePair = IR.Pair allNatTy IR.Unit
 natTypeNatValuePair :: AllTerm
 natTypeNatValuePair = IR.Pair allNatTy (allNat 0)
 
-starAnn :: Natural -> AllAnnotation
-starAnn n = zero `ann` IR.VStar n
+starAnn :: Core.ConcUniverse -> AllAnnotation
+starAnn n = zero `ann` IR.VStar (U n)
 
-allSig :: Natural -> AllTerm
-allSig n = IR.Sig (Usage.SNat 0) (IR.Star n) (IR.Elim (IR.Bound 0))
+allSig :: Core.ConcUniverse -> AllTerm
+allSig n = IR.Sig (Usage.SNat 0) (IR.Star $ U n) (IR.Elim (IR.Bound 0))
 
 addTyT' :: NatTermT
 addTyT' = IR.Pi Usage.SAny natTK $ IR.Pi Usage.SAny natTK $ natTK
@@ -943,25 +946,25 @@ addTy = IR.VPi Usage.SAny natT $ IR.VPi Usage.SAny natT $ natT
 typGlobals :: Typed.GlobalsT IR.T IR.T Unit.Ty Unit.Val
 typGlobals =
   Map.fromList
-    [ ("A", Core.GAbstract (Core.Abstract "A" Core.GZero (IR.VStar 0))),
+    [ ("A", Core.GAbstract (Core.Abstract "A" Core.GZero (IR.VStar $ U 0))),
       ( "F",
         Core.GAbstract
           ( Core.Abstract
               "F"
               Core.GZero
-              (IR.VPi mempty (IR.VStar 1) (IR.VStar 1))
+              (IR.VPi mempty (IR.VStar $ U 1) (IR.VStar $ U 1))
           )
       ),
-      def "ty" Core.GZero (IR.VStar 1) (IR.Star 0),
+      def "ty" Core.GZero (IR.VStar $ U 1) (IR.Star $ U 0),
       def
         "B"
         Core.GZero
-        (IR.VStar 0)
+        (IR.VStar $ U 0)
         (IR.Elim (IR.Free (Core.Global "A"))),
       def
         "C"
         Core.GZero
-        (IR.VStar 0)
+        (IR.VStar $ U 0)
         (IR.Elim (IR.Free (Core.Global "B")))
     ]
   where

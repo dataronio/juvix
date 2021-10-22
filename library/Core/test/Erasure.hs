@@ -70,7 +70,7 @@ unitTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
 unitTy = IR.VPrimTy unitTy'
 
 unitTyT :: Typed.Term Unit.Ty Unit.Val
-unitTyT = Typed.PrimTy unitTy' (zeroAnn $ IR.VStar 0)
+unitTyT = Typed.PrimTy unitTy' (zeroAnn $ IR.VStar $ U 0)
 
 erasureTests :: T.TestTree
 erasureTests =
@@ -143,7 +143,7 @@ appUnusedArg =
                 one
                 constTerm
                 constTyT
-                0
+                (U 0)
                 (anyAnn constTy)
             )
             unitTerm
@@ -165,7 +165,7 @@ unusedFunction =
                 one
                 constTerm
                 constTy2T
-                0
+                (U 0)
                 (anyAnn constTy2)
             )
             identityTerm
@@ -186,7 +186,7 @@ identityTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
 identityTy = IR.VPi one unitTy unitTy
 
 identityTyT :: Typed.Term Unit.Ty Unit.Val
-identityTyT = Typed.Pi one unitTyT unitTyT (zeroAnn $ IR.VStar 0)
+identityTyT = Typed.Pi one unitTyT unitTyT (zeroAnn $ IR.VStar $ U 0)
 
 identityAnn :: Typed.AnnotationT IR.T Unit.Ty Unit.Val
 identityAnn = anyAnn identityTy
@@ -235,13 +235,13 @@ constTy :: Typed.ValueT IR.T Unit.Ty Unit.Val
 constTy = IR.VPi mempty unitTy identityTy
 
 constTyT :: Typed.Term Unit.Ty Unit.Val
-constTyT = Typed.Pi mempty unitTyT identityTyT (zeroAnn $ IR.VStar 0)
+constTyT = Typed.Pi mempty unitTyT identityTyT (zeroAnn $ IR.VStar $ U 0)
 
 constTy2 :: Typed.ValueT IR.T Unit.Ty Unit.Val
 constTy2 = IR.VPi mempty identityTy identityTy
 
 constTy2T :: Typed.Term Unit.Ty Unit.Val
-constTy2T = Typed.Pi mempty identityTyT identityTyT (zeroAnn $ IR.VStar 0)
+constTy2T = Typed.Pi mempty identityTyT identityTyT (zeroAnn $ IR.VStar $ U 0)
 
 unitTerm :: Typed.Term Unit.Ty Unit.Val
 unitTerm = Typed.Prim unitVal' unitAnn

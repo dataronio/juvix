@@ -6,6 +6,7 @@ module HR.Pretty
 where
 
 import Data.String (IsString (..), String)
+import Juvix.Core.Base (Universe (..))
 import Juvix.Core.HR as HR
 import qualified Juvix.Core.Parameterisations.Naturals as Nat
 import Juvix.Library
@@ -36,7 +37,7 @@ atomTests =
   T.testGroup
     "Atomic terms"
     [ T.testCase "*" $
-        prettyAt 1000 (Star 0) @?= "* 0",
+        prettyAt 1000 (Star $ U 0) @?= "* 0",
       T.testCase "UnitTy" $
         prettyAt 10 UnitTy @?= "Unit",
       T.testCase "Unit" $
@@ -272,7 +273,7 @@ annTests =
               \   : * 0)"
     ]
 
-ann = Ann SAny fxy cxy 0
+ann = Ann SAny fxy cxy $ U 0
 
 pattern AppE f e = App f (Elim e)
 

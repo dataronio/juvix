@@ -211,14 +211,14 @@ addTyT :: RawMichelsonTerm
 addTyT = IR.Pi one intTy $ IR.Pi one intTy intTy
 
 addElim :: RawMichelsonElim
-addElim = IR.Ann Usage.SAny (IR.Prim Michelson.AddI) addTyT 0
+addElim = IR.Ann Usage.SAny (IR.Prim Michelson.AddI) addTyT $ Core.U 0
 
 lamTerm :: RawMichelsonTerm
 lamTerm =
   IR.Lam $ IR.Lam $ IR.Elim $ addElim `IR.App` varT 1 `IR.App` varT 0
 
 lamElim :: RawMichelsonElim
-lamElim = IR.Ann one lamTerm lamTy 0
+lamElim = IR.Ann one lamTerm lamTy $ Core.U 0
 
 appLam2 :: RawMichelsonTerm
 appLam2 = IR.Elim $ lamElim2 `IR.App` int 2 `IR.App` int 3
@@ -237,7 +237,7 @@ lamTy2 :: RawMichelsonTerm
 lamTy2 = intTy ~~> intTy ~@> intTy
 
 lamElim2 :: RawMichelsonElim
-lamElim2 = IR.Ann one lamTerm2 lamTy2 0
+lamElim2 = IR.Ann one lamTerm2 lamTy2 $ Core.U 0
 
 michelsonTy :: M.T -> RawMichelsonTerm
 michelsonTy t = IR.PrimTy $ Michelson.PrimTy $ M.Ty t M.noAnn
