@@ -10,6 +10,7 @@ import Juvix.Library hiding (list)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Parser as J
 import Juvix.Library.Parser.Internal (Parser, ParserError)
+import qualified Juvix.Library.Parser.Token as Token
 import qualified Juvix.Sexp.Types as Sexp
 import qualified Text.Megaparsec as P
 
@@ -31,7 +32,7 @@ list = do
     _ -> pure (foldr Sexp.Cons Sexp.Nil d)
 
 atom :: Parser Sexp.Atom
-atom = number <|> name
+atom = P.try double <|> number <|> name <|> string
 
 name :: Parser Sexp.Atom
 name = do
@@ -42,6 +43,20 @@ number :: Parser Sexp.Atom
 number = do
   int <- J.integer
   pure (Sexp.N int Nothing)
+
+double :: Parser Sexp.Atom
+double = do
+  double <- J.double
+  pure (Sexp.D double Nothing)
+
+string :: Parser Sexp.Atom
+string = do
+  text <-
+    J.between
+      Token.doubleQuote
+      (P.takeWhile1P (Just "Not quote") (/= J.doubleQuote))
+      Token.doubleQuote
+  pure (Sexp.S (Encoding.decodeUtf8 text) Nothing)
 
 symbol :: Parser NameSymbol.T
 symbol = do

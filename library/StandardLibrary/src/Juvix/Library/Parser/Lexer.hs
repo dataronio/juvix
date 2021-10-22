@@ -13,11 +13,14 @@ module Juvix.Library.Parser.Lexer
     emptyCheck,
     eatSpaces,
     integer,
+    double,
   )
 where
 
 import qualified Data.ByteString.Char8 as Char8
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Data.Text.Encoding as Encoding
+import qualified Data.Text.Read as Read
 import Data.Word8 (isDigit, isSpace)
 import Juvix.Library
 import Juvix.Library.Parser.Internal (Parser)
@@ -76,3 +79,13 @@ integer = do
   case Char8.readInteger digits of
     Just (x, _) -> pure x
     Nothing -> fail $ "didn't parse an int"
+
+double :: Parser Double
+double = do
+  digits <- P.takeWhileP (Just "digits") isDigit
+  ______ <- P.char Tok.dot
+  moreDi <- P.takeWhileP (Just "digits") isDigit
+  let text = Encoding.decodeUtf8 (digits <> "." <> moreDi)
+  case Read.rational text of
+    Right (x, _) -> pure x
+    Left _ -> fail "didn't parse a double"
