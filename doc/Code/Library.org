@@ -1347,6 +1347,7 @@ sexp type and all the various helper functionality one can need
   + [[NameSymbol]]
   + [[Library/Parser]]
   + [[Internal]]
+  + [[Token]]
   + [[Sexp/Types]]
 ***** Types <<Sexp/Types>>
 - _Relies on_

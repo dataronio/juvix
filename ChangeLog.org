@@ -1,7 +1,9 @@
 * Changelog for Juvix
+** 0.1.1.22
+- Doubles and Strings now available to the S-expression parser and
+  Toplevel Transformation
 ** 0.1.1.21
 - Changed Golden tests so that the record import is now visible
-
 ** 0.1.1.20
 - Merged changes that implemented primTy in terms of return. (see PR #979)
 ** 0.1.1.19
