@@ -14,7 +14,9 @@ top =
     [ staringParenSpaceDoesntEffectParser,
       endingParenSpaceDoesntEffectParser,
       uncidoeParserCorrectly,
-      numbersParseCorrectly
+      numbersParseCorrectly,
+      doublesParseCorrectly,
+      stringParseCorrectly
     ]
 
 staringParenSpaceDoesntEffectParser :: T.TestTree
@@ -42,3 +44,15 @@ numbersParseCorrectly =
   T.testCase
     "Numbers parse correctly"
     (Right (Sexp.Atom (Sexp.N 3 Nothing)) T.@=? Sexp.parse "3")
+
+doublesParseCorrectly :: T.TestTree
+doublesParseCorrectly =
+  T.testCase
+    "doubles parse correctly"
+    (Right (Sexp.Atom (Sexp.D 3.4 Nothing)) T.@=? Sexp.parse "3.4")
+
+stringParseCorrectly :: T.TestTree
+stringParseCorrectly =
+  T.testCase
+    "String parse correctly"
+    (Right (Sexp.Atom (Sexp.S "hi" Nothing)) T.@=? Sexp.parse "\"hi\"")
