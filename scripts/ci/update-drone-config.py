@@ -15,7 +15,7 @@ DRONE_FILE: str = ".drone"
 DRONE_FILE_SUFFIX: str = ".yml"
 REPOSITORY: str = "anoma/juvix"
 
-STEP_NAME = 'script-integrity-check'
+STEP_NAME = 'check-scripts-integrity'
 
 files_to_check = [
     'Makefile',
@@ -23,7 +23,8 @@ files_to_check = [
     'scripts/format-and-org-gen.sh',
     'scripts/check-formatting.sh',
     'scripts/check-org-gen.sh',
-    'scripts/pre-run.sh'
+    'scripts/pre-run.sh',
+    'scripts/build-and-publish-docs.sh',
 ]
 
 scripts_to_run = [
