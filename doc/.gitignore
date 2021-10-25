@@ -1,2 +1,5 @@
 temp/
 *.log
+
+juvixdocs_venv
+build
