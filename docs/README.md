@@ -19,10 +19,12 @@ The ReadTheDocs theme can be installed in virtual environment using pip as follo
 python3 -m venv juvixdocs_venv
 source juvixdocs_venv/bin/activate
 pip install --upgrade pip
+pip install sphinx-autobuild
 pip install sphinx_rtd_theme
 pip install myst_parser
 pip install sphinx_proof
 pip install sphinxcontrib-tikz
+pip install sphinxcontrib-bibtex
 ```
 
 ### LaTeX

@@ -47,7 +47,8 @@ extensions = [
     "sphinx_rtd_theme",
     "myst_parser",
     "sphinx_proof",
-    "sphinxcontrib.tikz"
+    "sphinxcontrib.tikz",
+    "sphinxcontrib.bibtex"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -191,6 +192,7 @@ latex_logo = '../../Juvix_logo.png'
 # If false, no module index is generated.
 #latex_domain_indices = True
 
+bibtex_bibfiles = ['refs.bib']
 
 # -- Options for manual page output ---------------------------------------
 

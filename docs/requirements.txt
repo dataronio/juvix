@@ -2,3 +2,5 @@ sphinx_rtd_theme
 myst-parser
 sphinx_proof
 sphinxcontrib-tikz
+sphinxcontrib-bibtex
+sphinx-autobuild
