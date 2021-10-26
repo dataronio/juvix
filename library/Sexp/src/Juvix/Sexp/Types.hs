@@ -11,7 +11,7 @@ module Juvix.Sexp.Types where
 import Control.Lens hiding (List, from, (:>), (|>))
 import qualified Data.Aeson as A
 import Data.Hashable ()
-import Juvix.Library hiding (foldr, show, toList)
+import Juvix.Library hiding (show, toList)
 import qualified Juvix.Library.LineNum as LineNum
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Prelude (Show (..), String)
@@ -65,10 +65,13 @@ instance Hashable T where
 
 makeLensesWith camelCaseFields ''Atom
 
-toList :: T -> Maybe [T]
-toList (Cons x xs) = (x :) <$> toList xs
-toList Nil = pure []
-toList (Atom _a) = Nothing
+toList' :: T -> ([T], Maybe Atom)
+toList' (Cons x xs) = first (x :) $ toList' xs
+toList' Nil = ([], Nothing)
+toList' (Atom a) = ([], Just a)
+
+toList :: Alternative f => T -> f [T]
+toList s = case toList' s of (xs, Nothing) -> pure xs; _ -> empty
 
 infixr 5 :>
 
@@ -78,9 +81,18 @@ pattern x :> xs = Cons x xs
 {-# COMPLETE (:>), Atom, Nil #-}
 
 pattern List :: [T] -> T
-pattern List xs <- (toList -> Just xs)
+pattern List xs <-
+  (toList' -> (xs, Nothing))
+  where
+    List xs = foldr Cons Nil xs
 
-{-# COMPLETE List, Atom #-}
+pattern IList :: [T] -> Atom -> T
+pattern IList xs a <-
+  (toList' -> (xs, Just a))
+  where
+    IList xs a = foldr Cons (Atom a) xs
+
+{-# COMPLETE List, IList, Atom #-}
 
 -- TODO ∷ make reader instance
 
