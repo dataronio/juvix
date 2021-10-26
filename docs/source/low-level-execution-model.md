@@ -37,20 +37,20 @@ The EAL term is first erased to a simply-typed term, with EAL types and levels o
 
 **Abstraction** is applied to terms of the form $λx.t$ and type $A ⊸ B$.
 
-\begin{tikzpicture}
+<!-- \begin{tikzpicture}
   \inetbigcell[right = 30pt]{g}{$\phi (t)$}[4]
   \inetbigcell[below = 30pt]{l}{$λ$}[3]
 
   \axWire{g/1}{l/1}{$(arg)$}{}
   \cutWire{g.out}{l/2}{}{}
   \outwire[]{l.out}{$A ⊸ B$}
-\end{tikzpicture}
+\end{tikzpicture} -->
 
 Wiring of the argument $x$ varies depending on variable usage linearity:
 
 **Weakening**: If $x$ does not appear in the body $t$, the $λ$ argument port is connected to an eraser.
 
-\begin{tikzpicture}
+<!-- \begin{tikzpicture}
   \inetbigcell[right = 30pt]{g}{$\phi (t)$}[4]
   \inode[]{e}{$⊗$}
   \inetbigcell[below = 30pt]{l}{$λ$}[3]
@@ -58,22 +58,22 @@ Wiring of the argument $x$ varies depending on variable usage linearity:
   \cutWire{e}{l/1}{$$}{}
   \cutWire{g.out}{l/2}{$$}{}
   \outwire[]{l.out}{$A ⊸ B$}
-\end{tikzpicture}
+\end{tikzpicture} -->
 
 **Linear / contraction**: If *x* appears once or more in the body $t$, the $λ$ argument port is connected to the occurrence(s). If there is more than one occurrence, usages will be shared by a set of fan nodes constructed by the application encoding.
 
-\begin{tikzpicture}
+<!-- \begin{tikzpicture}
   \inetbigcell[right = 30pt]{g}{$\phi (t)$}[4]
   \inetbigcell[below = 30pt]{l}{$λ$}[3]
 
   \axWire{g/1}{l/1}{}{}
   \cutWire{g.out}{l/2}{}{}
   \outwire[]{l.out}{$A ⊸ B$}
-\end{tikzpicture}
+\end{tikzpicture} -->
 
 **Application** is applied to terms of the form $(t_1 t_2)$ and type $C$.
 
-\begin{tikzpicture}
+<!-- \begin{tikzpicture}
 
   \inetbigcell[right = -25 pt]{g}{$\phi(t_1)$}[3]
   \inetbigcell[right = 25 pt]{h}{$\phi(t_2)$}[3]
@@ -83,11 +83,11 @@ Wiring of the argument $x$ varies depending on variable usage linearity:
   \cutWire{h.out}{a/2}{}{}
   \outwire[]{a.out}{$C$}
 
-\end{tikzpicture}
+\end{tikzpicture} -->
 
 For each free variable $x$ in $(t_1 t_2)$ occurring more than once, all occurrences of $x$ must be connected by a tree of fan-in nodes, each with a globally unique label (only one fan-in node is shown in the diagram).
 
-\begin{tikzpicture}
+<!-- \begin{tikzpicture}
 
   \inetbigcell[rotate = 180, above = 40 pt]{f}{\rotatebox[origin=c]{180}{$f_i$}}[3]
   \inetbigcell[right = -25 pt]{g}{$\phi(t_1)$}[3]
@@ -101,14 +101,14 @@ For each free variable $x$ in $(t_1 t_2)$ occurring more than once, all occurren
 
   \axWire{g/1}{f/1}{}{}
   \axWire{h/1}{f/2}{}{}
-\end{tikzpicture}
+\end{tikzpicture} -->
 
 That ends the encoding rules for basic lambda terms.
 
 #### Rewrite rules
 
 The oracle-free abstract algorithm for optimal reduction operates on four node types: $λ$ (lambda), $@$ (application), $f_i$ (fan, with index $i$), and $⊗$ (eraser). Rewrite rules always operate only on primary port pairs and consist of two categories: **annihilation** rules, which remove nodes, and **commutation** rules, which create nodes.
-
+<!-- 
 \floatstyle{plain}
 \restylefloat{figure}
 
@@ -364,7 +364,7 @@ The oracle-free abstract algorithm for optimal reduction operates on four node t
   ~
   \begin{subfigure}[c]{0.1\textwidth}
   \end{subfigure}
-\end{figure}
+\end{figure} -->
 
 ### Linear connectives
 
@@ -426,19 +426,19 @@ Note that this means reduction within $a$ and $b$, insofar as it depends on the 
 ### Primitive constants
 
 #### Constructors
-
+<!-- 
 \begin{figure}[H]
   \begin{tikzpicture}
     \inode[]{c}{$c$}
     \outwire[]{c}{$$}
   \end{tikzpicture}
-\end{figure}
+\end{figure} -->
 
 Primitive constants are encoded as simple custom nodes.
 
 #### Rewrite rules
 
-\begin{figure}[H]
+<!-- \begin{figure}[H]
   \caption{Constant-fan commutation}
   \begin{subfigure}[c]{0.1\textwidth}
     \begin{tikzpicture}
@@ -481,27 +481,27 @@ Primitive constants are encoded as simple custom nodes.
   \begin{subfigure}[c]{0.1\textwidth}
   \end{subfigure}
 \end{figure}
-
+ -->
 ### Primitive functions
 
 To-do: we need curried functions for this case too. Should we just combine this with bespoke encoding?
 
 #### Constructors
 
-\begin{figure}[H]
+<!-- \begin{figure}[H]
   \begin{tikzpicture}
     \inetbigcell[below = 20pt]{f}{$f$}[5]
     \outwire[]{f.out}{$$}
     \outwire[]{f/1}{$$}
     \outwire[]{f/4}{$$}
   \end{tikzpicture}
-\end{figure}
+\end{figure} -->
 
 Functions $f$ of arity $n$ are encoded as custom nodes with $n - 1$ auxiliary ports.
 
 #### Rewrite rules
 
-\begin{figure}[H]
+<!-- \begin{figure}[H]
   \caption{Function-fan commutation}
   \begin{subfigure}[c]{0.1\textwidth}
     \begin{tikzpicture}
@@ -525,9 +525,9 @@ Functions $f$ of arity $n$ are encoded as custom nodes with $n - 1$ auxiliary po
       \inwire[]{b}{d}
     \end{tikzpicture}
   \end{subfigure}
-\end{figure}
+\end{figure} -->
 
-To-do: this is wrong, deal with $n$ ports.
+<!-- To-do: this is wrong, deal with $n$ ports.
 
 \begin{figure}[H]
   \caption{Function-eraser commutation}
@@ -580,7 +580,7 @@ Generalises to $n$ auxiliary ports - a new eraser node is attached to each.
   \end{subfigure}
 \end{figure}
 
-Where $r$ is the result of reducing $f c$ according to the defined rule $→_f$.
+Where $r$ is the result of reducing $f c$ according to the defined rule $→_f$. -->
 
 ### Bespoke encoding
 
@@ -588,18 +588,18 @@ Where $r$ is the result of reducing $f c$ according to the defined rule $→_f$.
 
 Consider a Core term $f$ of type $A ⊸ B$.
 
-In the interaction net encoding compiler path, assuming EAL-typeability, we would encode this (if of form $λx.t$, for example) as:
+<!-- In the interaction net encoding compiler path, assuming EAL-typeability, we would encode this (if of form $λx.t$, for example) as: -->
 
-\begin{tikzpicture}
+<!-- \begin{tikzpicture}
 \inetbigcell[right = 30pt]{g}{$\phi (t)$}[4]
 \inetbigcell[below = 30pt]{l}{$λ$}[3]
 
 \axWire{g/1}{l/1}{}{}
 \cutWire{g.out}{l/2}{}{}
 \outwire[]{l.out}{$A ⊸ B$}
-\end{tikzpicture}
+\end{tikzpicture} -->
 
-where $φ$ is the recursive interaction net translation function.
+<!-- where $φ$ is the recursive interaction net translation function. -->
 
 In the bespoke encoding path, we instead create a new node type $T$ and rewrite rule $R$ such that when the primary port of $T$ is connected to an application node to an argument $A$, we erase $T$, connect an eraser to $A$, and connect whatever the application node's primary port was connected to to a new subgraph which is equal to the encoding of $eval (f A)$.
 
@@ -637,8 +637,8 @@ In general, we have no idea of the size (and corresponding read-back cost) of $A
 
 - Primitive types (integer, string, bytes) ~> node types w/data (same as constants)
 
-\floatstyle{boxed}
-\restylefloat{figure}
+<!-- \floatstyle{boxed}
+\restylefloat{figure} -->
 
 ## Argument for correctness of the abstract algorithm
 
@@ -677,7 +677,7 @@ Before we can prove this result, we must first prove a few lemmas and theorems f
 
 The first lemma we wish to prove is the following
 
-\begin{Lemma}{AST→Net has one free port}{AST->Net}
+```{prf:lemma} AST→Net has one free port
   Let $A$ be a valid BOHM term.
   \\ \\
   Now Consider the net encoding of $A$, let $N_a$ be this net.
@@ -687,9 +687,9 @@ The first lemma we wish to prove is the following
   The node corresponding to $L$ looks.
   \\ \\
   TODO :: put ports on this images
-  \begin{tikzpicture}
+  <!-- \begin{tikzpicture}
     \draw (0,0) circle (.8cm);
-  \end{tikzpicture}
+  \end{tikzpicture} -->
   \\ \\
   Where the labels in $N_a$ are the same as in $L$, with $n_{k+1}$ being an extra port which connects to the ADT above it.
   \\ \\
@@ -699,10 +699,10 @@ The first lemma we wish to prove is the following
   For free variables which have no $\lambda$ to connect to, a symbol node is created, maintaining the invariant.
   \\ \\
   $\therefore$ AST→Net has one free port
-\end{Lemma}
+```
 
 Now we need to prove that evaluating this net does not change this fact
-
+<!-- 
 \begin{Theorem}{AST→Net→Eval has one free port}{AST->Net->Eval}
   Let $A = Net(AST)$.
   \\ \\
@@ -880,15 +880,17 @@ Now we need to prove that evaluating this net does not change this fact
   \end{tcolorbox}
   $\therefore$ since all cases are covered, $Eval(A)$ has only one free port.
 \end{Theorem}
-
+ -->
 We now shall define one more definition before getting to our main theorem.
 
 
-\begin{Definition}{Valid EAL-Net}{Valid EAL-Net}
-  A \textcolor{definitions}{\textbf{Valid EAL-Net}} is a net translated from the EAL subset of BOHM that has undergone zero or more reduction steps.
-\end{Definition}
 
-\begin{Theorem}{Read back from a Valid EAL-Net gives is $α$ equivalent to the normal evaluation of the original EAL-term}{readback}
+```{prf:definition} Valid EAL-Net
+  A <span style="color:red">**Valid EAL-Net** </span> is a net translated from the EAL subset of BOHM that has undergone zero or more reduction steps.
+  ```
+
+<!-- ```{prf:theorem} Read back from a Valid EAL-Net gives is $α$ equivalent to the normal evaluation of the original EAL-term
+
   Let $A$ be the Valid EAL-Net.
   \\ \\
   By Definition \ref{De:Valid EAL-Net} this net originated from a valid EAL-AST which is a subset of BOHM.
@@ -997,7 +999,7 @@ We now shall define one more definition before getting to our main theorem.
   This node is trivially readback as is, being $α$ equivalent to the evaluated term.
   \\ \\
   $\therefore$ by induction read-back from a valid EAL-Net will give us the same expression up to $α$ equivalence as evaluating the node via a more traditional evaluation methods
-\end{Theorem}
+``` -->
 
 ## Evaluation strategies
 

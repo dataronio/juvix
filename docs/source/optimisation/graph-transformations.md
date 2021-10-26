@@ -1,6 +1,6 @@
 # Graph Transformations
 
-Primarily inspired by the GRIN [@graph-reduction-intermediate-notation] paper & implementation.
+Primarily inspired by the GRIN {footcite}`graph-reduction-intermediate-notation` paper & implementation.
 
 (todo: determine which of these are rendered unnecessary by interaction net evaluation; keep it as simple as possible)
 
@@ -31,3 +31,6 @@ Possible transformations:
 - dead function elimination
 - dead variable elimination
 - dead parameter elimination
+
+```{footbibliography}
+```

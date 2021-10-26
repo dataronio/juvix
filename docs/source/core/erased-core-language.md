@@ -8,10 +8,8 @@ Analogously to core, the erased core language is parameterised over a set $C$ of
 
 Let $u, v, w$ be terms.
 
+## Erased core syntax
 $$
-\begin{figure}[H]
-\caption{Erased core syntax}
-\begin{subfigure}[t]{0.7\textwidth}
 \begin{align*}
 u, v, w &::= x & \text{variable} \\
 &\ \ \ \ \ \ |\ c \in C & \text{primitive constant} \\
@@ -26,8 +24,6 @@ u, v, w &::= x & \text{variable} \\
 &\ \ \ \ \ \ |\ ⊙ e & \text{multiplicative disjunction destructor} \\
 &\ \ \ \ \ \ |\ let\ (x, y) = u\ in\ v\ & \text{multiplicative conjunction pattern match}
 \end{align*}
-\end{subfigure}
-\end{figure}
 $$
 
 ## Erasure from core
@@ -38,7 +34,9 @@ Erasure judgements take the form $Γ ⊢ t \overset{σ}{:} S \ ▶\  u$ with $t 
 
 Computationally relevant terms are preserved, while terms which are only contemplated are erased.
 
-Note that $σ /= 0$ must hold, as the erasure of a computationally irrelevant term is nothing.
+```{note} 
+$σ /= 0$ must hold, as the erasure of a computationally irrelevant term is nothing.
+```
 
 ### Primitives & lambda terms
 

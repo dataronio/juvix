@@ -73,9 +73,9 @@ let pred_alg = \rec. \n.
 
 We can see that this definition of `pred_alg` is O(1), as the call to `rec` is optional and not forced unlike other encodings. However if we were to type this using the normal Hindley-Milner type system, this does not work out. [The Cedille Cast](https://youtu.be/HqvBBf_cjDo?t=1020) talks about this fact and deals with this issue by having a O(1) cast arising from dependent intersections.
 
-Instead we have to define a function `out` which turns a `FixM f` into a `f (FixM f)` with the additional constraint that `f` must be a functor. This is a hard constraint that type systems without dependent intersection types and O(1) heterogeneous equality must have [@cedille]. The force of using `out` in `pred_alg` makes getting the predecessor of a ℕ O(n).
+Instead we have to define a function `out` which turns a `FixM f` into a `f (FixM f)` with the additional constraint that `f` must be a functor. This is a hard constraint that type systems without dependent intersection types and O(1) heterogeneous equality must have {footcite}`cedille`. The force of using `out` in `pred_alg` makes getting the predecessor of a ℕ O(n).
 
-Another property of this algebra is that this encoding is able to achieve linear space unlike previous encodings that took quadratic if not exponential space to achieve proof of termination and O(1) predecessor [@cedille].
+Another property of this algebra is that this encoding is able to achieve linear space unlike previous encodings that took quadratic if not exponential space to achieve proof of termination and O(1) predecessor {footcite}`cedille`.
 
 Now that we have some understanding of the inductive nature of the Mendler encoding, we must also strip the ADT tags of `Z` and `S` into base lambda. We will first only consider sum types which contains at most one field, and then investigate how we can modify our representation to include product types with more fields.
 
@@ -97,7 +97,7 @@ let succ = in succ-c : Nat
 let dup  = in dup-c  : Nat
 ```
 
-There are many valid ways to encode sum types, however for simplicity we have chosen to create a list of cases with our use of `inl` and `inr`. So, we can view inl as `head` and `inr` as tail, thus our encoding is simply the dotted list `(zero succ . dup)` [@dotted-pair-notation]. On the term level, `inl` just applies the first abstraction `k` over the value, and inr simply applies the second abstraction `l` over the inputted value.
+There are many valid ways to encode sum types, however for simplicity we have chosen to create a list of cases with our use of `inl` and `inr`. So, we can view inl as `head` and `inr` as tail, thus our encoding is simply the dotted list `(zero succ . dup)` {footcite}`dotted-pair-notation`. On the term level, `inl` just applies the first abstraction `k` over the value, and inr simply applies the second abstraction `l` over the inputted value.
 
 One obvious optimisation one can make, is simply turning this dotted list encoding into a balanced tree.
 
@@ -148,8 +148,11 @@ let rec pred =
             (\n. n)
             (\x. \y. D (pred x) (pred y))
 ```
-Another important aspect to Scott encodings is that they can not be typed in `System-F` alone, but instead `System-F` extended with covariant recursive types[@scott]. Due to this, Scott encodings can be typed safely in Juvix Core.
+Another important aspect to Scott encodings is that they can not be typed in `System-F` alone, but instead `System-F` extended with covariant recursive types{footcite}`scott`. Due to this, Scott encodings can be typed safely in Juvix Core.
 
 ## Desugaring
 
 For recursive functions that are not too restricted, transforming Mendler algebras into arbitrary recursive function takes some work. As such, the Scott encoding is currently the default encoding at the EAL* level. However, at a future date Mendler encodings will be added.
+
+```{footbibliography}
+```

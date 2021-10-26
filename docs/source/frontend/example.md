@@ -2,7 +2,7 @@
 
 Full example token contract:
 
-```
+```haskell
 let Map = Data.Map
 
 -- common module interfaces for data structures in Common?
