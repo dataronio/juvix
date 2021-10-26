@@ -164,7 +164,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-   ('tutorial/index',  'juvix-tutorial.tex',  u'The Juvix Tutorial',    u'The Juvix Community', 'howto'),
+#    ('tutorial/index',  'juvix-tutorial.tex',  u'The Juvix Tutorial',    u'The Juvix Community', 'howto'),
 ]
 
 
@@ -173,7 +173,7 @@ latex_show_url = 'footnote'
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = '../../icons/juvix-512x512.png'
+latex_logo = '../../Juvix_logo.png'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.

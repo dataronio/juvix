@@ -4,7 +4,8 @@
 # You can set these variables from the command line, and also
 # from the environment for the first two.
 SPHINXOPTS    ?=
-SPHINXBUILD   ?= sphinx-autobuild
+SPHINXBUILD   ?= sphinx-build
+SPHINXAUTOBUILD   ?= sphinx-autobuild
 SOURCEDIR     = source
 BUILDDIR      = build
 
@@ -14,9 +15,11 @@ help:
 
 .PHONY: help Makefile
 
+html:
+	@$(SPHINXAUTOBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  (O)ismeantasashortcutfor(SPHINXOPTS).
 %: Makefile
-
-# @$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
