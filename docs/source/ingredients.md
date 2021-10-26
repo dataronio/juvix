@@ -13,7 +13,7 @@ to allow terms written in Juvix to express properties about the computation beha
 
 For example, the fairness of Tendermint proposer election has been [partially verified in Idris](https://github.com/cwgoes/tm-proposer-idris), which has the same kind of dependent typesystem:
 
-```
+```idris
 fairlyProportional :
   (idA : ProposerId) -> (idB : ProposerId) ->
   (wA : ProposerWeight) -> (wB : ProposerWeight) ->
