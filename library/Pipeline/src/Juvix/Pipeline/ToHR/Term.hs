@@ -24,6 +24,10 @@ transformTermHR ::
   m (HR.Term primTy primVal)
 transformTermHR _ (Sexp.Atom a@Sexp.N {}) =
   HR.Prim <$> Sig.getParamConstant a
+transformTermHR _ (Sexp.Atom a@Sexp.D {}) =
+  HR.Prim <$> Sig.getParamConstant a
+transformTermHR _ (Sexp.Atom a@Sexp.S {}) =
+  HR.Prim <$> Sig.getParamConstant a
 transformTermHR q (Sexp.Atom Sexp.A {atomName}) = do
   term <- Sig.lookupSigWithSymbol (Just q) atomName
   pure $ toName term

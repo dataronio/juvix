@@ -163,4 +163,6 @@ getParamConstant atom = do
   where
     -- TODO: Maybe implement it for stringVal as well?
     paramConstant' p Sexp.N {atomNum} = P.intVal p atomNum
+    paramConstant' p Sexp.D {atomDouble} = P.floatVal p atomDouble
+    paramConstant' p Sexp.S {atomText} = P.stringVal p atomText
     paramConstant' _p Sexp.A {} = Nothing
