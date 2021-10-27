@@ -18,7 +18,11 @@ Readers previously acquainted with the lambda calculus, sequent calculus, simply
 linear logic, interaction nets, elementary affine logic, and Lamping's optimal reduction algorithm may skip the associated subsections in chapter five.
 
 ```{toctree}
-motivation
+---
+maxdepth: 1
+---
+
+getting-started/index
 typographical-conventions
 prior-work
 desiderata
