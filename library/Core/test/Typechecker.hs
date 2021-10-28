@@ -87,23 +87,17 @@ assertCheckResultWith ::
       primTy
   ) =>
   Bool ->
+  T.TestName ->
   Parameterisation primTy primVal ->
   Typed.GlobalsT IR.T IR.T primTy primVal ->
   Typed.Context primTy primVal ->
   Core.Term IR.T primTy primVal ->
   Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
-assertCheckResultWith expectSuccess param globals ctx term ann =
+assertCheckResultWith expectSuccess name param globals ctx term ann =
   -- TODO: take out the logs and put them in an IO monad.
   let (res, _) = Typed.exec globals $ TC.typeTermWith param mempty ctx term ann
-   in T.testCase
-        ( show term
-            <> " should "
-            <> (if expectSuccess then "check" else "fail")
-            <> " as type "
-            <> show ann
-        )
-        $ assertEitherIsAsExpected expectSuccess res
+   in T.testCase name $ assertEitherIsAsExpected expectSuccess res
 
 -- unit test generator for typeTerm
 shouldCheckWith ::
@@ -127,6 +121,7 @@ shouldCheckWith ::
       (TypedPrim primTy primVal)
       primTy
   ) =>
+  T.TestName ->
   Parameterisation primTy primVal ->
   Typed.GlobalsT IR.T IR.T primTy primVal ->
   Typed.Context primTy primVal ->
@@ -157,6 +152,7 @@ shouldFailWith ::
       (TypedPrim primTy primVal)
       primTy
   ) =>
+  T.TestName ->
   Parameterisation primTy primVal ->
   Typed.GlobalsT IR.T IR.T primTy primVal ->
   Typed.Context primTy primVal ->
@@ -187,12 +183,13 @@ assertCheckResult ::
       primTy
   ) =>
   Bool ->
+  T.TestName ->
   Parameterisation primTy primVal ->
   Core.Term IR.T primTy primVal ->
   Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
-assertCheckResult expectSuccess param =
-  assertCheckResultWith expectSuccess param mempty []
+assertCheckResult expectSuccess name param =
+  assertCheckResultWith expectSuccess name param mempty []
 
 shouldCheck ::
   ( HasCallStack,
@@ -215,6 +212,7 @@ shouldCheck ::
       (TypedPrim primTy primVal)
       primTy
   ) =>
+  T.TestName ->
   Parameterisation primTy primVal ->
   Core.Term IR.T primTy primVal ->
   Typed.AnnotationT IR.T primTy primVal ->
@@ -242,6 +240,7 @@ shouldFail ::
       (TypedPrim primTy primVal)
       primTy
   ) =>
+  T.TestName ->
   Parameterisation primTy primVal ->
   Core.Term IR.T primTy primVal ->
   Typed.AnnotationT IR.T primTy primVal ->
@@ -270,17 +269,17 @@ shouldInferWith ::
       (TypedPrim primTy primVal)
       primTy
   ) =>
+  T.TestName ->
   Parameterisation primTy primVal ->
   Typed.GlobalsT IR.T IR.T primTy primVal ->
   Typed.Context primTy primVal ->
   IR.Elim primTy primVal ->
   Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
-shouldInferWith param globals ctx elim ann@(Typed.Annotation {annUsage = σ}) =
+shouldInferWith name param globals ctx elim ann@(Typed.Annotation {annUsage = σ}) =
   let (res, _) = Typed.exec globals $ TC.typeElimWith param mempty ctx elim σ
       resTy = Typed.getElimAnn . TC.loValue <$> res
-   in T.testCase (show term <> " should infer to type " <> show ann) $
-        resTy T.@?= Right ann
+   in T.testCase name $ resTy T.@?= Right ann
 
 shouldInfer ::
   ( HasCallStack,
@@ -303,11 +302,12 @@ shouldInfer ::
       (TypedPrim primTy primVal)
       primTy
   ) =>
+  T.TestName ->
   Parameterisation primTy primVal ->
   IR.Elim primTy primVal ->
   Typed.AnnotationT IR.T primTy primVal ->
   T.TestTree
-shouldInfer param = shouldInferWith param mempty []
+shouldInfer name param = shouldInferWith name param mempty []
 
 -- unit test generator for evalTerm
 shouldEval' ::
@@ -326,13 +326,13 @@ shouldEval' ::
     Eval.HasSubstValue IR.T primTy primVal primVal,
     Eval.HasWeak primVal
   ) =>
+  T.TestName ->
   Core.Globals IR.T IR.T primTy primVal ->
   Core.Term IR.T primTy primVal ->
   Core.Value IR.T primTy primVal ->
   T.TestTree
-shouldEval' g term res =
-  T.testCase (show term <> " should evaluate to " <> show res) $
-    (IR.evalTerm (IR.lookupFun' g) term) T.@=? Right res
+shouldEval' name g term res =
+  T.testCase name $ (IR.evalTerm (IR.lookupFun' g) term) T.@=? Right res
 
 shouldEval ::
   ( HasCallStack,
@@ -350,10 +350,11 @@ shouldEval ::
     Eval.HasSubstValue IR.T primTy primVal primVal,
     Eval.HasWeak primVal
   ) =>
+  T.TestName ->
   Core.Term IR.T primTy primVal ->
   Core.Value IR.T primTy primVal ->
   T.TestTree
-shouldEval = shouldEval' mempty
+shouldEval name = shouldEval' name mempty
 
 infix 1 `ann`
 
@@ -379,58 +380,45 @@ skiComp :: T.TestTree
 skiComp =
   T.testGroup
     "SKI combinators Computational typing"
-    [ shouldCheck Nat.t identity identityNatCompTy,
-      shouldCheck Unit.t identity identityUnitCompTy,
-      shouldCheck Nat.t identityApplication natTy,
-      shouldInfer Nat.t identityAppINat1 natTy,
-      shouldInfer Nat.t identityAppI identityNatCompTy,
-      shouldCheck Nat.t kcombinator kCompTy,
-      shouldCheck All.t kcombinator kCompTyWithUnit,
-      shouldInfer Nat.t identityAppK kCompTy,
-      shouldCheck Nat.t (IR.Elim kAppI) kAppICompTy,
-      shouldCheck Nat.t (IR.Elim kAppINotAnnotated) kAppICompTy,
-      shouldInfer Nat.t kApp1 natToNatTy,
-      shouldInfer
-        Nat.t
-        kFunApp1
-        kFunApp1CompTy
+    [ shouldCheck "I [nat]" Nat.t identity identityNatCompTy,
+      shouldCheck "I [unit]" Unit.t identity identityUnitCompTy,
+      shouldCheck "I 1" Nat.t identityApplication natTy,
+      shouldInfer "I (I 1)" Nat.t identityAppINat1 natTy,
+      shouldInfer "I I" Nat.t identityAppI identityNatCompTy,
+      shouldCheck "K [nat]" Nat.t kcombinator kCompTy,
+      shouldCheck "K [unit]" All.t kcombinator kCompTyWithUnit,
+      shouldInfer "I K" Nat.t identityAppK kCompTy,
+      shouldCheck "K (I : _)" Nat.t (IR.Elim kAppI) kAppICompTy,
+      shouldCheck "K I" Nat.t (IR.Elim kAppINotAnnotated) kAppICompTy,
+      shouldInfer "K 1 : nat" Nat.t kApp1 natToNatTy,
+      shouldInfer "K 1 : nat -> nat" Nat.t kFunApp1 kFunApp1CompTy
     ]
 
 natComp :: T.TestTree
 natComp =
   T.testGroup
     "Nat Computational typing"
-    [ shouldCheck Nat.t natT' (mempty `ann` IR.VStar 0),
-      shouldCheck Nat.t (nat 1) (Usage.SAny `ann` natT),
-      shouldCheck Nat.t (IR.Prim Nat.Add) (Usage.SAny `ann` addTy),
-      shouldFail Nat.t (IR.Prim Nat.Add) (Usage.SAny `ann` natT)
+    [ shouldCheck "nat" Nat.t natT' (mempty `ann` IR.VStar 0),
+      shouldCheck "1" Nat.t (nat 1) (Usage.SAny `ann` natT),
+      shouldCheck "add" Nat.t (IR.Prim Nat.Add) (Usage.SAny `ann` addTy),
+      shouldFail "add : nat" Nat.t (IR.Prim Nat.Add) (Usage.SAny `ann` natT)
     ]
 
 dependentFunctionComp :: T.TestTree
 dependentFunctionComp =
   T.testGroup
     "Dependent Functions Computational typing"
-    [ shouldCheck
-        All.t
-        depIdentity
-        depIdentityCompTy,
+    [ shouldCheck "λA x. (1 x: A)" All.t depIdentity depIdentityCompTy,
+      shouldCheck "λA x. x" All.t depIdentity' depIdentityCompTy,
+      shouldCheck "λA x. (ω x: A)" All.t depIdentity depIdentityCompTySAny,
+      shouldCheck "λA B x y. (1 x: A)" All.t depK depKCompTy,
       shouldCheck
-        All.t
-        depIdentity'
-        depIdentityCompTy,
-      shouldCheck
-        All.t
-        depIdentity
-        depIdentityCompTySAny,
-      shouldCheck
-        All.t
-        depK
-        depKCompTy,
-      shouldCheck
+        "(0 A : ⋆₀) → 1 A → A"
         All.t
         depIdentityCompTyT
         (mempty `ann` IR.VStar 1),
       shouldCheck
+        "(0 A B : ⋆₀) → 1 A → 0 B → A"
         All.t
         depKCompTyT
         (mempty `ann` IR.VStar 1)
@@ -440,18 +428,19 @@ letComp :: T.TestTree
 letComp =
   T.testGroup
     "'let' Computational typing"
-    [ -- let 0 x = 0 in 0
-      shouldCheck
+    [ shouldCheck
+        "let 0 x = 0 in 0"
         Nat.t
         (IR.Let mempty nzero (IR.Elim nzero))
         (Usage.SAny `ann` natT),
-      -- let ω x = 0 in x
       shouldCheck
+        "let ω x = 0 in x"
         Nat.t
         (IR.Let Usage.SAny nzero (IR.Elim (IR.Bound 0)))
         (Usage.SAny `ann` natT),
       -- λx. let 0 y = 0 in x
       shouldCheck
+        "λx. let 0 y = 0 in x"
         Nat.t
         (IR.Lam (IR.Let mempty nzero (IR.Elim (IR.Bound 1))))
         (natToNatTy' one)
@@ -463,16 +452,16 @@ evaluations :: T.TestTree
 evaluations =
   T.testGroup
     "Evaluations"
-    [ shouldEval add12 (natVT 3),
-      shouldEval sub52 (natVT 3),
-      shouldEval identityApplicationT (natVT 1),
-      shouldEval (IR.Elim identityAppINat1T) (natVT 1),
-      shouldEval (IR.Elim identityAppIT) videntity,
-      shouldEval (IR.Elim kApp1_2T) (natVT 1),
-      shouldEval' typGlobals (IR.Elim (IR.Free (Core.Global "ty"))) (IR.VStar 0),
-      shouldEval' typGlobals (name "tz") (vname "tz"),
-      shouldEval' typGlobals (name "B") (vname "A"),
-      shouldEval' typGlobals (name "C") (vname "A")
+    [ shouldEval "add 1 2" add12 (natVT 3),
+      shouldEval "sub 5 2" sub52 (natVT 3),
+      shouldEval "I 1" identityApplicationT (natVT 1),
+      shouldEval "I I 1" (IR.Elim identityAppINat1T) (natVT 1),
+      shouldEval "I I" (IR.Elim identityAppIT) videntity,
+      shouldEval "K 1 2" (IR.Elim kApp1_2T) (natVT 1),
+      shouldEval' "ty" typGlobals (IR.Elim (IR.Free (Core.Global "ty"))) (IR.VStar 0),
+      shouldEval' "tz" typGlobals (name "tz") (vname "tz"),
+      shouldEval' "B" typGlobals (name "B") (vname "A"),
+      shouldEval' "C" typGlobals (name "C") (vname "A")
     ]
   where
     add12 = IR.Elim $ add `IR.App` nat' 1 `IR.App` nat' 2
@@ -515,20 +504,43 @@ skiCont :: T.TestTree
 skiCont =
   T.testGroup
     "SKI combinators contemplational typing"
-    [ shouldCheck Nat.t identity identityNatContTy
+    [ shouldCheck "0 · I" Nat.t identity identityNatContTy
     ]
 
 subtype :: T.TestTree
 subtype =
   T.testGroup
     "Subtyping"
-    [ shouldCheckWith Unit.t typGlobals [] aTerm $ mempty `ann` IR.VStar 0,
-      shouldCheckWith Unit.t typGlobals [] aTerm $ mempty `ann` IR.VStar 1,
-      shouldCheckWith Unit.t typGlobals [] fTerm $ mempty `ann` typ2typ 1 1,
-      shouldCheckWith Unit.t typGlobals [] fTerm $ mempty `ann` typ2typ 0 1,
-      shouldCheckWith Unit.t typGlobals [] fTerm $ mempty `ann` typ2typ 1 2,
-      shouldFailWith Unit.t typGlobals [] aTerm $ mempty `ann` typ2typ 1 2,
-      shouldInferWith Unit.t typGlobals [] faElim $ mempty `ann` IR.VStar 1
+    [ shouldCheckWith "A : ⋆₀" Unit.t typGlobals [] aTerm $ mempty `ann` IR.VStar 0,
+      shouldCheckWith "A : ⋆₁" Unit.t typGlobals [] aTerm $ mempty `ann` IR.VStar 1,
+      shouldCheckWith
+        "F : ⋆₁ → ⋆₁"
+        Unit.t
+        typGlobals
+        []
+        fTerm
+        $ mempty `ann` typ2typ 1 1,
+      shouldCheckWith
+        "F : ⋆₀ → ⋆₁"
+        Unit.t
+        typGlobals
+        []
+        fTerm
+        $ mempty `ann` typ2typ 0 1,
+      shouldCheckWith
+        "F : ⋆₁ → ⋆₂"
+        Unit.t
+        typGlobals
+        []
+        fTerm
+        $ mempty `ann` typ2typ 1 2,
+      shouldInferWith
+        "F A : ⋆₁"
+        Unit.t
+        typGlobals
+        []
+        faElim
+        $ mempty `ann` IR.VStar 1
     ]
   where
     typ2typ i j = IR.VPi mempty (IR.VStar i) (IR.VStar j)
@@ -594,13 +606,13 @@ depIdentityCompTySAny =
       (IR.VStar 0)
       (IR.VPi Usage.SAny (Core.VBound 0) (Core.VBound 1))
 
--- \x.x 1
+-- (\x.x) 1
 identityApplication :: NatTerm
 identityApplication =
   IR.Elim $
     IR.Ann one identity (IR.Pi one natT' natT') 0 `IR.App` nat 1
 
--- \x.x 1
+-- (\x.x) 1
 identityApplicationT :: NatTermT
 identityApplicationT =
   IR.Elim $
@@ -865,12 +877,28 @@ dependentPairComp :: T.TestTree
 dependentPairComp =
   T.testGroup
     "Dependent pair typing"
-    [ shouldCheck Nat.t boxNat boxNatAnn,
-      shouldCheck All.t unitTypeUnitValuePair allAnn,
-      shouldFail All.t unitTypeNatValuePair allAnn,
-      shouldFail All.t natTypeUnitValuePair allAnn,
-      shouldCheck All.t natTypeNatValuePair allAnn,
-      shouldCheck All.t (allSig 0) (starAnn 1)
+    [ shouldCheck "(nat, 1) : Σ(A: ⋆₀). A" Nat.t boxNat boxNatAnn,
+      shouldCheck
+        "(unit, Unit) : Σ(A: ⋆₀). A"
+        All.t
+        unitTypeUnitValuePair
+        allAnn,
+      shouldFail
+        "¬ (unit, 1) :  Σ(A: ⋆₀). A"
+        All.t
+        unitTypeNatValuePair
+        allAnn,
+      shouldFail
+        "¬ (nat, Unit) :  Σ(A: ⋆₀). A"
+        All.t
+        natTypeUnitValuePair
+        allAnn,
+      shouldCheck
+        "(nat, 1) : Σ(A: ⋆₀). A [all]"
+        All.t
+        natTypeNatValuePair
+        allAnn,
+      shouldCheck "(Σ(A: ⋆₀). A) : ⋆₁" All.t (allSig 0) (starAnn 1)
     ]
 
 boxNatAnn :: NatAnnotation

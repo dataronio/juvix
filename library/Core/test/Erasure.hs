@@ -32,7 +32,7 @@ shouldEraseTo ::
   T.TestTree
 shouldEraseTo name _ (term, usage) erased =
   T.testCase
-    (name <> ": " <> show (term, usage) <> " should erase to " <> show erased)
+    name
     ( Right erased
         T.@=? (Erasure.eraseAnn |<< erase term usage)
     )
