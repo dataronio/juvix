@@ -83,11 +83,11 @@ headerCase = do
   reserved "mod"
   name <- prefixSymbolDotSN
   reserved "where"
-  Types.Header name <$> P.some topLevelSN
+  Types.Header name <$> P.many topLevelSN
 
 noHeaderCase :: Parser (Types.Header Types.TopLevel)
 noHeaderCase = do
-  Types.NoHeader <$> P.some topLevelSN
+  Types.NoHeader <$> P.many topLevelSN
 
 --------------------------------------------------------------------------------
 -- Top Level
