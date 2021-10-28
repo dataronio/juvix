@@ -1,6 +1,6 @@
-# Syntax
+# Usage Syntax
 
-Juvix's frontend syntax is primarily inspired by Haskell & Idris, with alterations for explicit usage accounting & (in the future) for resource accounting.
+Juvix's frontend syntax is primarily inspired by Haskell {footcite}`haskell` & Idris, with alterations for explicit usage accounting & (in the future) for resource accounting. For example, the following code:
 
 ```haskell
 sig zipWith : n (a -> b -> c) -> Vect n a -> Vect n b -> Vect n c
@@ -30,8 +30,11 @@ Usage annotations are optional. Implicit usage arguments or constraints are infe
 ```haskell
 sig f : 2 (x : 3 Int) -> Double
 
-sig f : w (x : 2 Int -> y : () -> IO ())
+sig f : ω (x : 2 Int -> y : () -> IO ())
 ```
 
 By default, no usage annotation is equivalent to an implicit usage argument. The unification algorithm will attempt to infer constraints
 involving multiple usage arguments where possible.
+
+```{footbibliography}
+```

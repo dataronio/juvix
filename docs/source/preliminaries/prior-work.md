@@ -2,7 +2,7 @@
 
 ## Dependently-typed languages
 
-Three dependently-typed languages have seen substantial contemporary usage: Agda, Coq, and Idris {cite}`idris-systems-programming-meets-full-dependent-types`. The first two are focused on theorem proving rather than executable code output, and have been primarily used to verify mathematical formulae or proofs of algorithmic correctness, where the algorithms which have been verified are then implemented in or extracted to another language for execution.
+Three dependently-typed languages have seen substantial contemporary usage: Agda, Coq, and Idris {footcite}`idris-systems-programming-meets-full-dependent-types`. The first two are focused on theorem proving rather than executable code output, and have been primarily used to verify mathematical formulae or proofs of algorithmic correctness, where the algorithms which have been verified are then implemented in or extracted to another language for execution.
 
 Idris does intend to simultaneously support dependently-typed program verification and produce executable code output, but falls short of the requirements of wide deployment: the compilation output is not efficient enough, too much effort is required to write proofs of properties of terms, and insufficient engineering effort has been dedicated to the inclusion of optimising transformations which take advantage of the expressive typesystem (understandably so, since Idris is primarily & impressively developed by a university lecturer in his free time!). Furthermore, the economics of most standard programs running on the desktop or web favour development & execution speed over safety and correctness.
 

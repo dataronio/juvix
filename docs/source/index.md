@@ -23,11 +23,7 @@ maxdepth: 1
 ---
 
 getting-started/index
-typographical-conventions
-prior-work
-desiderata
-ingredients
-background/index
+preliminaries/index
 frontend/index
 core/index
 low-level-execution-model

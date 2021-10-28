@@ -1,4 +1,4 @@
-# Background
+# Theoretical Background
 
 This section provides a comprehensive theoretical background which should be sufficient prerequisite for comprehension of the remainder of this language reference. Readers with prior domain experience may skip the appropriate sections.
 
