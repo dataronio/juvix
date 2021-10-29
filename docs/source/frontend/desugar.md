@@ -209,10 +209,7 @@ Here are some choice snippets that cover every case of the generator
    happens in not the last argument, but rather in a list in some
    other position!
 
-**** Improvements Upon the Generator
-:PROPERTIES:
-:CUSTOM_ID: Improvements
-:END:
+### Improvements Upon the Generator
 
 The generator can be improved a lot, as the previous section mentions
 it was hacked together using string interpolation which is not a good
@@ -237,36 +234,27 @@ However there are two worthwhile hacks that we should undergo.
    `argBodys` example given in the last section.
 
 
-*** Desugaring Passes
-:PROPERTIES:
-:CUSTOM_ID: Desugaring Pass
-:END:
+## Desugaring Passes
+
 Now that we understand the structural underpinnings of the pass, we
 can now talk about the transformation itself.
 
-We can observe the passes [[https://github.com/heliaxdev/juvix/blob/develop/library/Translate/src/Juvix/Desugar/Passes.hs#L32][here]].
-
-There are two ways to proceed, if you don't want to go through the
-entire creation process of a pass you can skip the next section and go
-directly to [[#Reviewing][reviewing a pass]]
+We can observe the passes [here](https://github.com/heliaxdev/juvix/blob/develop/library/Translate/src/Juvix/Desugar/Passes.hs#L32).
 
 The most important detail to note is that if you have a clear view of
 the input and output of pass, a pass should be easy to write and
 review. If creating this is hard, then I suggest reading through the
 next section to see the full life cycle of this process.
 
-**** Creating a Pass
-:PROPERTIES:
-:CUSTOM_ID: Creating Pass
-:END:
+### Creating a Pass
 
 Instead of just showing an example, let us show writing one. Let us
-define the `cond` transformation. We can find the form [[../../design/s-syntax#Cond][here]].
+define the `cond` transformation. We can find the form [here](./s-expression-syntax).
 
-It seems the Cond form is filled with a bunch of `((:infix ≡≡ x 3) 1)`
+It seems the `Cond` form is filled with a bunch of `((:infix ≡≡ x 3) 1)`
 forms which we can abstractly view as `(<pred> <ans>)`. So let us
-define these forms as a type. We do this in [[https://github.com/anomanetwork/juvix/tree/develop/library/Sexp/src/Juvix/Sexp/Structure][the `Structure` folder]]. In
-particular we want to put this in [[https://github.com/anomanetwork/juvix/blob/develop/library/Sexp/src/Juvix/Sexp/Structure/Frontend.hs#L66][Frontend.hs]] since this shows up in
+define these forms as a type. We do this in [the `Structure` folder](https://github.com/anomanetwork/juvix/tree/develop/library/Sexp/src/Juvix/Sexp/Structure). In
+particular we want to put this in [Structure/Frontend.hs](https://github.com/anomanetwork/juvix/blob/develop/library/Sexp/src/Juvix/Sexp/Structure/Frontend.hs#L66) since this shows up in
 the frontend syntax.
 
 ```haskell
@@ -278,8 +266,9 @@ the frontend syntax.
   newtype Cond = Cond {condEntailments :: [PredAns]} deriving (Show)
 ```
 
-To reflect the structure we include the raw forms in the [[https://github.com/anomanetwork/juvix/blob/develop/library/Sexp/src/Juvix/Sexp/Structure/generator.lisp#L281][generator
-file]] and take the output of these calls into the Structure file.
+To reflect the structure we include the raw forms in the [generator
+file](https://github.com/anomanetwork/juvix/blob/develop/library/Sexp/src/Juvix/Sexp/Structure/generator.lisp#L281) and take the output of these calls into the Structure file.
+
 ```lisp
   (generate-haskell "PredAns" (repeat 2 "sexp") nil)
 
@@ -364,7 +353,7 @@ operation from `cond` to `if` as folding `if` over the list of
 ```
 
 With our current understanding we'd write something like this, and in
-fact we can test it as is! Just go to the [[https://github.com/heliaxdev/juvix/blob/24fab959c8e505355c29d5a3eb065ed92fb04733/library/EasyPipeline/src/Easy.hs#L139][Easy Pipeline file]] and
+fact we can test it as is! Just go to the [Easy Pipeline file](https://github.com/heliaxdev/juvix/blob/develop/library/Playground/Easy/Pipeline/src/Easy.hs#L139) and
 include these dependencies and the function above.
 
 ```haskell
@@ -382,17 +371,9 @@ Along with the definition and now we can see
   ("if" (":infix" "==" "x" 2) (":infix" "+" 3 (":infix" "+" 4 "x")) ("if" "else" (":infix" "+" "x" 2)))
 ```
 
+### Reviewing a Pass
 
-We just created the bulk of our first pass! There is a few more
-details that one has to care about in a real pass, but we'll cover
-those in the [[#Reviewing][reviewing section coming up]]
-
-**** Reviewing a Pass
-:PROPERTIES:
-:CUSTOM_ID: Reviewing
-:END:
-
-The following code can be found [[https://github.com/heliaxdev/juvix/blob/develop/library/Translate/src/Juvix/Desugar/Passes.hs#L32][here]].
+The following code can be found [here](https://github.com/heliaxdev/juvix/blob/develop/library/Translate/src/Juvix/Desugar/Passes.hs#L32].
 
 ```haskell
   -- | @condTransform@ - CondTransform turns the cond form of the fronted
@@ -473,22 +454,3 @@ Although we used the `cond` pass to talk about how these passes work,
 we only do so to have a simple example of how these work. All the
 other passes follow the same format and can be dissected by the same
 thought process.
-
-** Context
-:PROPERTIES:
-:CUSTOM_ID: Context
-:END:
-
-The context phase is an important phase, this is where we start to
-introduce the [[../core/context][context]] and our operations start to revolve around
-it. This is also where our pipeline starts to show some inadequacies
-with how we ingest data. But first we must talk about how we transform
-our list of S-expressions into a context
-
-*** Contextify
-:PROPERTIES:
-:CUSTOM_ID: Contextify
-:END:
-We call this phase `Contextify`, or `Contextualization`. The files we
-will first be investigating is split among many files, so we will link
-them before we write code rather than at the start.

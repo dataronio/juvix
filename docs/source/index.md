@@ -26,12 +26,9 @@ getting-started/index
 preliminaries/index
 frontend/index
 core/index
-low-level-execution-model
-cost-accounting
 backends/index
 distributed-ledger-integration
-future-directions
 examples/index
-optimisation/index
+future-work/index
 ```
 

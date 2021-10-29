@@ -7,7 +7,7 @@
 The objective of this section is to provide a glimpse of Agda with some examples. The first one is a demonstration of dependently typed programming, and the second shows how to use Agda as a proof assistant. Finally, we build a complete program and compile it to an executable program with the GHC and Javascript backends.
 
 
-### Full example token contract:
+## Full example token contract:
 
 ```haskell
 mod TokenContract where

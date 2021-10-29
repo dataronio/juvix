@@ -12,5 +12,4 @@ parser-combinators
 s-expression-syntax
 desugar
 usages
-future-plans
 ```

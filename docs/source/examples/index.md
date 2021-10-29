@@ -1,4 +1,4 @@
-# Examples
+# More Examples
 
 Examples of Juvix high level language, core translation, interaction net evaluation (full pipeline).
 
