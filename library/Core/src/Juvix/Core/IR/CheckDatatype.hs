@@ -98,7 +98,7 @@ typeCheckConstructor param tel _lpos rtel globals con = do
       conTy = Core.rawConType con
       (name, t) = teleToType rtel conTy
   -- FIXME replace 'lift' with whatever capability does
-  typechecked <- lift $ typeTerm param t (Typed.Annotation mempty (IR.VStar $ Core.U 0))
+  typechecked <- lift $ typeTerm param t (Typed.Annotation mempty (IR.VStar Core.UAny))
   evaled <- lift $ liftEval $ Eval.evalTerm (Eval.lookupFun @IR.T globals) typechecked
   checkConType tel param evaled
   let (_, target) = typeToTele (name, t)
@@ -206,7 +206,7 @@ checkDataTypeArg ::
   Core.Term extT primTy primVal ->
   m ()
 checkDataTypeArg tel dtName param (Typed.Pi _ t1 t2 _) = do
-  _ <- typeTerm param t1 (Typed.Annotation mempty (IR.VStar $ Core.U 0))
+  _ <- typeTerm param t1 (Typed.Annotation mempty (IR.VStar Core.UAny))
   checkDataTypeArg tel dtName param t2
 checkDataTypeArg _ _ _ (Core.Star _ _) = return ()
 -- the arg can only be of star type of function type
