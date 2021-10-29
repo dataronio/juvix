@@ -144,8 +144,8 @@ inlineAllGlobalsElim t lookupFun patternMap =
     Core.Free (Core.Pattern i) _ -> fromMaybe t $ PM.lookup i patternMap >>= lookupFun
     Core.App elim term ann ->
       Core.App (inlineAllGlobalsElim elim lookupFun patternMap) (inlineAllGlobals term lookupFun patternMap) ann
-    Core.Ann u t1 t2 uni ann ->
-      Core.Ann u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) uni ann
+    Core.Ann u t1 t2 ann ->
+      Core.Ann u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
     Core.ElimX {} -> t
 
 -- | Evaluate a term with extensions, discards annotations but keeps the
@@ -225,7 +225,7 @@ evalElimWith g exts (Core.App s t _) =
     (\s t -> first ErrorValue (vapp s t ()))
       <$> evalElimWith g exts s
       <*> evalTermWith g exts t
-evalElimWith g exts (Core.Ann _ s _ _ _) =
+evalElimWith g exts (Core.Ann _ s _ _) =
   evalTermWith g exts s
 evalElimWith g exts (Core.ElimX a) =
   eExtFun exts g a
@@ -281,7 +281,7 @@ toLambda' π' ty' pats rhs = do
   let ty = OnlyExts.injectT ty'
   case patSubst patMap $ weakBy len $ toOnlyExtsT rhs of
     Left _ -> Nothing
-    Right x -> pure $ IR.Ann π (applyN len lam x) ty $ Core.U 0 -- FIXME universe
+    Right x -> pure $ IR.Ann π (applyN len lam x) ty
   where
     applyN 0 _ x = x
     applyN n f x = applyN (n - 1) f (f $! x)

@@ -326,12 +326,12 @@ typeElim' elim σ =
       t' <- typeTerm' t tAnn
       ty <- substApp b t'
       pure $ Typed.App s' t' $ Typed.Annotation σ ty
-    Core.Ann π s a ℓ _ -> do
-      a' <- typeTerm' a $ Typed.Annotation mempty (IR.VStar ℓ)
+    Core.Ann π s a _ -> do
+      a' <- typeTerm' a $ Typed.Annotation mempty (IR.VStar Core.UAny)
       ty <- evalTC a'
       let ann = Typed.Annotation σ ty
       s' <- typeTerm' s ann
-      pure $ Typed.Ann π s' a' ℓ ann
+      pure $ Typed.Ann π s' a' ann
     Core.ElimX x ->
       Error.throwTC $ Error.UnsupportedElimExt x
 

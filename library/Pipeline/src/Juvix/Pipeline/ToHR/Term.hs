@@ -115,7 +115,7 @@ transformTermHR _ Sexp.Nil = error "malformed term HR"
 pattern NamedArgTerm ::
   Symbol -> HR.Term primTy primVal -> HR.Term primTy primVal
 pattern NamedArgTerm x ty <-
-  HR.Elim (HR.Ann _ (HR.Elim (HR.Var (x :| []))) ty _)
+  HR.Elim (HR.Ann _ (HR.Elim (HR.Var (x :| []))) ty)
 
 -- TODO
 transformApplication ::
@@ -198,7 +198,7 @@ transformApplication q a@(f Sexp.:> args)
         a <- transformTermHR q a
         b <- transformTermHR q b
         -- FIXME metavars for usage & universe
-        pure $ HR.Elim $ HR.Ann (Usage.SNat 1) a b $ Core.U 0
+        pure $ HR.Elim $ HR.Ann (Usage.SNat 1) a b
       TypeS -> do
         ~[i] <- nargs s 1 xs
         HR.Star <$> transformUniverse i

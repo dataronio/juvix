@@ -438,7 +438,7 @@ inline input options = do
         main : _ -> main
 
       toLambda main = case TransformExt.extForgetE <$> IR.toLambdaR @IR.T main of
-        Just (IR.Ann usage term ty _) -> (usage, term, ty)
+        Just (IR.Ann usage term ty) -> (usage, term, ty)
         _ -> error $ "Unable to convert main to lambda" <> toS (Pretty.pShowNoColor main)
 
   return (inlinedTerm, usage, mainTy, globalDefs)
@@ -468,7 +468,7 @@ inlineFile fp options = do
         main : _ -> main
 
       toLambda main = case TransformExt.extForgetE <$> IR.toLambdaR @IR.T main of
-        Just (IR.Ann usage term ty _) -> (usage, term, ty)
+        Just (IR.Ann usage term ty) -> (usage, term, ty)
         _ -> error $ "Unable to convert main to lambda" <> toS (Pretty.pShowNoColor main)
 
   return (inlinedTerm, usage, mainTy, globalDefs)

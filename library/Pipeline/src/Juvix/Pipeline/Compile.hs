@@ -229,7 +229,7 @@ elimToReturn e =
     IR.Bound b -> IR.Bound b
     IR.Free n -> IR.Free n
     IR.App e t -> IR.App (elimToReturn e) (baseToReturn t)
-    IR.Ann u a b c -> IR.Ann u (baseToReturn a) (baseToReturn b) c
+    IR.Ann u a b -> IR.Ann u (baseToReturn a) (baseToReturn b)
 
 unsafeEval ::
   ( IR.CanEval IR.T IR.T primTy primVal,

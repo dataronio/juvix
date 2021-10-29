@@ -462,7 +462,7 @@ letComp =
         (natToNatTy' one)
     ]
   where
-    nzero = IR.Ann Usage.SAny (nat 0) natT' (U 0)
+    nzero = IR.Ann Usage.SAny (nat 0) natT'
 
 evaluations :: T.TestTree
 evaluations =
@@ -483,8 +483,8 @@ evaluations =
     add12 = IR.Elim $ add `IR.App` nat' 1 `IR.App` nat' 2
     sub52 = IR.Elim $ sub `IR.App` nat' 5 `IR.App` nat' 2
     binPrim op = App.Return {retTerm = op, retType = [Nat.Ty, Nat.Ty, Nat.Ty]}
-    sub = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Sub) addTyT' (U 0)
-    add = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Add) addTyT' (U 0)
+    sub = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Sub) addTyT'
+    add = IR.Ann Usage.SAny (IR.Prim $ binPrim Nat.Add) addTyT'
     videntity = IR.VLam $ Core.VBound 0
     name = IR.Elim . IR.Free . Core.Global
     vname = Core.VFree . Core.Global
@@ -604,7 +604,6 @@ depIdentity =
                 (IR.Elim (IR.Bound 0))
                 -- x is the output, which has annotation (1, t)
                 (IR.Elim (IR.Bound 1)) -- of type t
-                (U 0)
             )
         )
     )
@@ -642,13 +641,13 @@ depIdentityCompTySAny =
 identityApplication :: NatTerm
 identityApplication =
   IR.Elim $
-    IR.Ann one identity (IR.Pi one natT' natT') (U 0) `IR.App` nat 1
+    IR.Ann one identity (IR.Pi one natT' natT') `IR.App` nat 1
 
 -- (\x.x) 1
 identityApplicationT :: NatTermT
 identityApplicationT =
   IR.Elim $
-    IR.Ann one identity (IR.Pi one natTK natTK) (U 0) `IR.App` nat' 1
+    IR.Ann one identity (IR.Pi one natTK natTK) `IR.App` nat' 1
 
 -- computation annotation (1, Nat)
 natTy :: NatAnnotation
@@ -659,7 +658,7 @@ natTy = one `ann` natT
 identityAppI :: NatElim
 identityAppI =
   let natToNat = (IR.Pi one natT' natT')
-      idAt ty = IR.Ann one identity (IR.Pi one ty ty) $ U 0
+      idAt ty = IR.Ann one identity (IR.Pi one ty ty)
    in idAt natToNat `IR.App` IR.Elim (idAt natT')
 
 -- I:(Nat->Nat)->(Nat->Nat) I:(Nat->Nat) type checked to (Nat->Nat)
@@ -667,7 +666,7 @@ identityAppI =
 identityAppIT :: NatElimT
 identityAppIT =
   let natToNat = (IR.Pi one natTK natTK)
-      idAt ty = IR.Ann one identity (IR.Pi one ty ty) $ U 0
+      idAt ty = IR.Ann one identity (IR.Pi one ty ty)
    in idAt natToNat `IR.App` IR.Elim (idAt natTK)
 
 -- (I:1 (1 Nat->Nat) -> (1 Nat->Nat) I:(1 Nat->Nat) ) 1 type checked to Nat.Ty
@@ -723,7 +722,6 @@ identityAppK =
                 (IR.Pi mempty natT' natT') -- 0 Nat -> Nat)
             )
         )
-        (U 0)
     ) -- K
     ( IR.Elim
         ( IR.Ann
@@ -734,7 +732,6 @@ identityAppK =
                 natT' -- (1 Nat ->
                 (IR.Pi mempty natT' natT') -- 0 Nat -> Nat)
             )
-            (U 0)
         )
     )
 
@@ -749,7 +746,6 @@ kApp1 =
         natT' -- (1 Nat ->
         (IR.Pi mempty natT' natT') -- 0 Nat -> Nat)
     )
-    (U 0)
     `IR.App` nat 1
 
 -- (K: Nat -> Nat -> Nat 1) should type check to Nat -> Nat
@@ -763,7 +759,6 @@ kApp1T =
         natTK -- (1 Nat ->
         (IR.Pi mempty natTK natTK) -- 0 Nat -> Nat)
     )
-    (U 0)
     `IR.App` nat' 1
 
 kApp1_2T :: NatElimT
@@ -796,7 +791,6 @@ kFunApp1 =
                 natT' -- Nat
             )
         )
-        (U 0)
     )
     (nat 1) -- 1
     -- computation annotation (1, 0 (1 Nat -> Nat) -> Nat)
@@ -823,14 +817,12 @@ kAppI =
                 -- (1 Nat -> Nat)
             )
         )
-        (U 0)
     )
     ( IR.Elim
         ( IR.Ann -- I
             one -- usage of identity
             identity
             (IR.Pi one natT' natT') -- 1 Nat -> Nat
-            (U 0)
         )
     )
 
@@ -853,7 +845,6 @@ kAppINotAnnotated =
                 -- (1 Nat -> Nat)
             )
         )
-        (U 0)
     )
     identity
 

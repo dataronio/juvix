@@ -143,7 +143,6 @@ appUnusedArg =
                 one
                 constTerm
                 constTyT
-                (U 0)
                 (anyAnn constTy)
             )
             unitTerm
@@ -165,7 +164,6 @@ unusedFunction =
                 one
                 constTerm
                 constTy2T
-                (U 0)
                 (anyAnn constTy2)
             )
             identityTerm
