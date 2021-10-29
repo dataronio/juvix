@@ -4,8 +4,8 @@
 module Typechecker (coreCheckerEval) where
 
 import qualified Juvix.Core.Application as App
-import qualified Juvix.Core.Base as Core
 import Juvix.Core.Base (Universe (..))
+import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.IR.CheckTerm as TC
@@ -366,7 +366,8 @@ coreCheckerEval :: T.TestTree
 coreCheckerEval =
   T.testGroup
     "Core type checker and evaluator tests"
-    [ skiComp,
+    [ universes,
+      skiComp,
       natComp,
       dependentFunctionComp,
       dependentPairComp,
@@ -376,6 +377,20 @@ coreCheckerEval =
       subtype,
       inlinings
     ]
+
+universes :: T.TestTree
+universes =
+  T.testGroup
+    "Universe typing"
+    [ shouldCheck "⋆₀ : ⋆₁" Unit.t (IR.Star (U 0)) (starAnn 1),
+      shouldCheck "⋆₀ : ⋆₂" Unit.t (IR.Star (U 0)) (starAnn 2),
+      shouldCheck "⋆₀ : ⋆₋" Unit.t (IR.Star (U 0)) starAnnAny,
+      shouldFail "¬ ⋆₀ : ⋆₀" Unit.t (IR.Star (U 0)) (starAnn 0),
+      shouldFail "¬ ⋆₁ : ⋆₀" Unit.t (IR.Star (U 1)) (starAnn 0)
+    ]
+  where
+    starAnn ℓ = mempty `ann` IR.VStar (U ℓ)
+    starAnnAny = mempty `ann` IR.VStar UAny
 
 skiComp :: T.TestTree
 skiComp =
@@ -537,6 +552,20 @@ subtype =
         []
         fTerm
         $ mempty `ann` typ2typ 1 2,
+      shouldFailWith
+        "F : ⋆₂ → ⋆₁"
+        Unit.t
+        typGlobals
+        []
+        fTerm
+        $ mempty `ann` typ2typ 2 1,
+      shouldFailWith
+        "F : ⋆₁ → ⋆₀"
+        Unit.t
+        typGlobals
+        []
+        fTerm
+        $ mempty `ann` typ2typ 1 0,
       shouldInferWith
         "F A : ⋆₁"
         Unit.t

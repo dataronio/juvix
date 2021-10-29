@@ -937,6 +937,7 @@ Tests for the type checker and evaluator in Core/IR/Typechecker.hs
 - _Relies on_
   + [[Application]]
   + [[Core/Base]]
+  + [[Core/Base]]
   + [[OnlyExts]]
   + [[Core/IR]]
   + [[CheckTerm]]
@@ -956,6 +957,7 @@ Tests for the type checker and evaluator in Core/IR/Typechecker.hs
 *** HR
 **** Pretty <<test/HR/Pretty>>
 - _Relies on_
+  + [[Core/Base]]
   + [[HR]]
   + [[Naturals]]
   + [[Library]]
