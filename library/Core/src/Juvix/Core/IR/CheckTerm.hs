@@ -8,7 +8,6 @@ where
 
 import qualified Data.IntMap.Strict as IntMap
 import Data.List.NonEmpty ((<|))
-import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Core.Application as App
 import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.Base.Types as Core
@@ -174,8 +173,8 @@ typeTerm' term ann@(Typed.Annotation σ ty) =
   case term of
     Core.Star i _ -> do
       requireZero σ
-      _j <- requireStar ty
-      -- requireUniverseLT i j
+      j <- requireStar ty
+      requireUniverseLT i j
       pure $ Typed.Star i ann
     Core.PrimTy t _ -> do
       requireZero σ
@@ -389,7 +388,7 @@ requirePrimStars ::
   m Core.Universe
 requirePrimStars 0 ty = requireStar ty
 requirePrimStars n ty = do
-  (π, l, r) <- requirePi ty
+  (_, l, r) <- requirePi ty
   void $ requireStar l
   requirePrimStars (n - 1) r
 
@@ -599,7 +598,7 @@ evalTC t = do
   Core.Value ext primTy primVal ->
   Core.Value ext primTy primVal ->
   Bool
-Core.VStar _i _ <: Core.VStar _j _ = True -- i <= j
+Core.VStar i _ <: Core.VStar j _ = i <= j
 Core.VPi π1 s1 t1 _ <: Core.VPi π2 s2 t2 _ =
   π2 `Usage.allows` π1 && s2 <: s1 && t1 <: t2
 Core.VSig π1 s1 t1 _ <: Core.VSig π2 s2 t2 _ =
