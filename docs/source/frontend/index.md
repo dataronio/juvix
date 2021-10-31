@@ -8,7 +8,6 @@ maxdepth: 1
 ---
 
 features/index
-parser-combinators
 s-expression-syntax
 desugar
 usages
