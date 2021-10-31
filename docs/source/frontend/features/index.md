@@ -17,5 +17,6 @@ modules
 record-types
 type-inference
 typeclasses
+usage
 usage-inference
 ```

@@ -1,4 +1,4 @@
-# Usage Syntax
+# Usage
 
 Juvix's frontend syntax is primarily inspired by Haskell {footcite}`haskell` & Idris, with alterations for explicit usage accounting & (in the future) for resource accounting. For example, the following code:
 

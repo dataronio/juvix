@@ -10,5 +10,4 @@ maxdepth: 1
 features/index
 s-expression-syntax
 desugar
-usages
 ```
