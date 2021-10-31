@@ -131,11 +131,11 @@ $$
 
 Sorts $∗_i$ are explicitly levelled. Dependent function types, dependent conjunction types, and type annotations include a usage annotation $π$.
 
-Judgements have the following form:
+<!-- Judgements have the following form:
 
 $$ x_1 \overset{ρ_1}{:} S_1, ..., x_n \overset{ρ_n}{:} S_n \vdash\ M \overset{σ}{:} T $$
 
-where $ρ_1 ... ρ_n$ are elements of the semiring and $σ$ is either the $0$ or $1$ of the semiring.
+where $ρ_1 ... ρ_n$ are elements of the semiring and $σ$ is either the $0$ or $1$ of the semiring. -->
 
 Further define the syntactic categories of usages $ρ, π$ and precontexts $Γ$:
 

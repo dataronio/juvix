@@ -6,12 +6,12 @@ This page is subject to change with the syntax redesign.
 ```
 
 ## Syntax Guide
-This document is heavily inspired by the [[http://docs.idris-lang.org/en/latest/reference/syntax-guide.html][Idris syntax guide]].
+This document is heavily inspired by the [Idris syntax guide](http://docs.idris-lang.org/en/latest/reference/syntax-guide.html).
 
 ## File Organization
-A file contains zero or more [[Top Level Declarations]]
+A file contains zero or more [top level declarations](#top-level-declarations). 
 
-For example
+For example:
 ```haskell
   -- this is a function with a signature!
   sig foo : Natural
@@ -340,7 +340,7 @@ Example:
       True
     | else = False
 ```
-##### Dependent matching
+#### Dependent matching
 
 ### Definitions
 Definitions within an expression are like their top level

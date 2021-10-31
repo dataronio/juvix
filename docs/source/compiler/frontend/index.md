@@ -8,6 +8,7 @@ maxdepth: 1
 ---
 
 features/index
+syntax-guide
 s-expression-syntax
 desugar
 ```

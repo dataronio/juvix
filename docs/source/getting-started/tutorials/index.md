@@ -6,5 +6,4 @@ maxdepth: 1
 ---
 
 intro-to-witch
-syntax-guide
 ```

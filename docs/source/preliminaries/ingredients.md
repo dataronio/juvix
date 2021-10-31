@@ -66,7 +66,7 @@ the [Quantitative Type Theory paper](https://bentnib.org/quantitative-type-theor
 
 Typing judgements in Juvix are annotated with precise usages:
 
-$x_1 \overset{ρ_1}{:} S_1, \dots , x_n \overset{ρ_n}{:} S_n \vdash\ M \overset{σ}{:} T$
+$$ x_1 \overset{ρ_1}{:} S_1, \dots , x_n \overset{ρ_n}{:} S_n \vdash\ M \overset{σ}{:} T $$
 
 These usage annotations indicate how many times the subject of the judgement can be "computed with",
 or used. This is a form of linear types, but much more expressive: usage annotations are numerical and

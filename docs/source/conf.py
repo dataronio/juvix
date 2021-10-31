@@ -91,7 +91,6 @@ latex_title_page = r'''
 \begin{titlepage}
     \vspace*{\fill}
     \begin{center}
-        \includegraphics[width=0.25\textwidth]{../../Juvix_logo.png}\par
         \vspace{1cm}
         {\huge\sffamily\bfseries \makeatletter\@title\makeatother\par}
         \vspace{1cm}
@@ -120,6 +119,22 @@ latex_elements = {
 \usepackage[utf8x]{inputenc}
 \usepackage{titlesec}
 \usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{bussproofs}
+\usepackage{amsmath}
+\usepackage{cmll}
+\usepackage{microtype}
+\usepackage{float}
+\floatstyle{boxed}
+\restylefloat{figure}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata}
+\newtheorem{theorem}{Theorem}
+\usepackage[many]{tcolorbox}
+\tcbuselibrary{theorems}
+
 %
 \usepackage{fancyhdr}
 \fancypagestyle{plain}{%
@@ -154,6 +169,47 @@ latex_elements = {
 %
 \hypersetup{colorlinks = false}
 \definecolor{VerbatimBorderColor}{rgb}{1,1,1}
+\DeclareUnicodeCharacter{"2237}{}
+
+
+% general color defintions *****************************************************
+\definecolor{ceruleanblue}{rgb}{0.16, 0.32, 0.75}
+\definecolor{mediumpersianblue}{rgb}{0.0, 0.4, 0.65}
+\definecolor{palered-violet}{rgb}{0.86, 0.44, 0.58}
+\definecolor{bondiblue}{rgb}{0.0, 0.58, 0.71}
+\definecolor{antiquefuchsia}{rgb}{0.57, 0.36, 0.51}
+\definecolor{mypink3}{cmyk}{0, 0.7808, 0.4429, 0.1412}
+\definecolor{blush}{rgb}{0.87, 0.36, 0.51}
+\definecolor{candypink}{rgb}{0.89, 0.44, 0.48}
+
+\definecolor{lavenderpurple}{rgb}{0.59, 0.48, 0.71}
+\definecolor{cerise}{rgb}{0.87, 0.19, 0.39}
+\definecolor{brickred}{rgb}{0.8, 0.25, 0.33}
+\definecolor{cadetblue}{rgb}{0.37, 0.62, 0.63}
+\definecolor{brilliantrose}{rgb}{1.0, 0.33, 0.64}
+
+% Theorem Boxes and other special colors ***************************************
+
+% currently defined to mediumpersianblue
+% used for all definitions
+\definecolor{theorems}{rgb}{0.0, 0.4, 0.65}
+
+% currently defined to be antiquefuchsia
+% used for all boxes that are the first subox inside a proof
+\definecolor{inner-box-1}{rgb}{0.57, 0.36, 0.51}
+
+% currently defined to be blush
+% used for all boxes that are the second subox inside a proof
+\definecolor{inner-box-2}{rgb}{0.87, 0.36, 0.51}
+
+% currenlty defined to be brickred
+% used for all defined words
+\definecolor{definitions}{rgb}{0.8, 0.25, 0.33}
+
+
+\newtcbtheorem[number within=section]{Lemma}{Lemma}{colframe=theorems, breakable}{Lm}
+\newtcbtheorem[number within=section]{Theorem}{Theorem}{colframe=theorems, breakable}{Th}
+\newtcbtheorem[number within=section]{Definition}{Definition}{colframe=theorems, breakable}{De}
 ''',
 
 'maketitle': latex_title_page,
@@ -166,7 +222,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-#    ('tutorial/index',  'juvix-tutorial.tex',  u'The Juvix Tutorial',    u'The Juvix Community', 'howto'),
+   ('getting-started/index',  'juvix-tutorial.tex',  u'The Juvix Tutorial',    u'The Juvix Community', 'howto'),
 ]
 
 
@@ -175,7 +231,7 @@ latex_show_url = 'footnote'
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = '../../Juvix_logo.png'
+# latex_logo = 'img/juvix-logo.png'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
