@@ -221,8 +221,9 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
+# TODO: Include other folders too
 latex_documents = [
-   ('getting-started/index',  'juvix-tutorial.tex',  u'The Juvix Tutorial',    u'The Juvix Community', 'howto'),
+   ('getting-started/index',  'juvix-documentation.tex',  u'The Juvix Documentation',    u'The Juvix Community', 'howto'),
 ]
 
 
