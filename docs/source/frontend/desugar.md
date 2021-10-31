@@ -1,5 +1,7 @@
 # Desugar
 
+Desugaring consists of stripping away high-level constructs from the source.
+
 This phase is the direct manipulation of the S-expression construct we left off of in the [previous section](./s-expression-syntax).
 
 This function ([Desugar.op](https://github.com/anoma/juvix/blob/develop/library/Translate/src/Juvix/Desugar.hs))  desugars the frontend syntax from the original frontend s-exp representation to a form without modules, conditions, guards, etc. This pass thus does all transformations that do not requires a context.
@@ -39,15 +41,14 @@ We'll use the example of the pass `let -> defun` to illustrate this transformati
 This code can be found in the [Structure](https://github.com/heliaxdev/juvix/blob/develop/library/Sexp/src/Juvix/Sexp/Structure) module. 
 
 ```lisp
-  ;; From Design/S-expression Syntax
+  ;; From S-expression Syntax
   (:defun foo (x)
     (:cond
       ((:infix == x 2) (:infix + 3 (:infix + 4 x)))
       (else            (:infix + x 2))))
 ```
 
-`defun` is broken into the name `foo`, the arguments `x`
-(note this can pattern match), and the body `cond`.
+`defun` is broken into the name `foo`, the arguments `x` and the body `cond`.
 
 In [Structure/Frontend.hs](https://github.com/heliaxdev/juvix/blob/develop/library/Sexp/src/Juvix/Sexp/Structure/Frontend.hs) we find a Haskell encoding of this form:
 
@@ -67,10 +68,6 @@ Notice how we say nothing about the head being the `cadr` of the structure, and 
 ```
 
 We provide an API to deal with the actual representation. 
-
-```{warning}
-It would need to change with a lisp-form redesign.
-```
 
 ```haskell
   ----------------------------------------
@@ -220,10 +217,8 @@ However there are two worthwhile hacks that we should undergo.
 
 1. Change the `Maybe` of the `to<Name>` to an `Either`.
 
-   This change at the current moment does not matter! Namely because
-   `Nothing` should never be triggered. This is due to the parser in
-   [[../frontend][frontend]] excludes this possibility. However when [[https://github.com/heliaxdev/juvix/issues/751][syntax redesign]]
-   comes in, this will no longer be the case. It would be great if the
+   This change at the current moment does not matter. Namely because
+   `Nothing` should never be triggered. It would be great, thought, if the
    generated code could instead generate an `Either` where the left
    counts the number of arguments given and states precisely why it
    can't translate the given S-expression form into the type we want.
@@ -373,7 +368,7 @@ Along with the definition and now we can see
 
 ### Reviewing a Pass
 
-The following code can be found [here](https://github.com/heliaxdev/juvix/blob/develop/library/Translate/src/Juvix/Desugar/Passes.hs#L32].
+The following code can be found [here](https://github.com/heliaxdev/juvix/blob/develop/library/Translate/src/Juvix/Desugar/Passes.hs#L32).
 
 ```haskell
   -- | @condTransform@ - CondTransform turns the cond form of the fronted
@@ -400,7 +395,7 @@ The following code can be found [here](https://github.com/heliaxdev/juvix/blob/d
           |> Structure.fromIf
 ```
 
-We saw most of this form in the [[#Creating Pass][creation of a pass section]]
+We saw most of this form in the creation of a pass section
 above. However we will go over the rough strategy briefly. In order to
 turn the input of `cond` to an `if`, we can view it as a fold, where
 we fold the `if` form over the predicate and answers of the `cond`
@@ -412,7 +407,7 @@ representation that is present in core.
 We can see the implementation of this strategy shine through in the
 body of `condToIf` and the folded function `generation`.
 
-The main difference from our [[#Creating Pass][creation of a pass section]] is that we
+The main difference from our creation of a pass section is that we
 have this `Sexp.foldPred` call, and that `condToIf` has two
 arguments. The impotence of this is that `Sexp.foldPred` searches the
 entire S-expression structure for the name `Structure.nameCond`, which
@@ -432,7 +427,7 @@ is getting closer to the Core representation of matters, we have a
 successful pass.
 
 To verify this pass, we can easily run it for ourselves and see if the
-`BNF` Comment is being truthful.
+`BNF` comment is being truthful.
 
 ```haskell
   λ> Pass.condTransform cond
