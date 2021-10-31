@@ -24,9 +24,8 @@ maxdepth: 1
 
 getting-started/index
 preliminaries/index
-frontend/index
-core/index
-backends/index
+overview
+compiler/index
 distributed-ledger-integration
 examples/index
 future-work/index

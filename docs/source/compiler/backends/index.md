@@ -22,18 +22,3 @@ circuit
 llvm
 michelson
 ```
-
-## Non-Supported Backends
-```{toctree}
----
-maxdepth: 1
----
-
-berkeley-packet-filter
-cuda
-evm
-fpga
-fusion
-wasm
-```
-

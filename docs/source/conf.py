@@ -119,6 +119,7 @@ latex_elements = {
 \usepackage[T1]{fontenc}
 \usepackage[utf8x]{inputenc}
 \usepackage{titlesec}
+\usepackage{tikz}
 %
 \usepackage{fancyhdr}
 \fancypagestyle{plain}{%
