@@ -22,8 +22,9 @@ currentStackChain chain indentationIncrement =
   where
     f current (formattedString, indentation) =
       ( formattedString
-          <> [spacing indentation <>
-              functionCall (current ^. name) (current ^. start)],
+          <> [ spacing indentation
+                 <> functionCall (current ^. name) (current ^. start)
+             ],
         indentationIncrement indentation
       )
 
@@ -62,14 +63,14 @@ traceStack t currentLevel indentationIncrement stack =
       -- ·· (Prelude.add2 12.0) ↦ 14.0
       -- if we filter our between list
       let inc = indentationIncrement
-          traceBetween = traceLog t (inc currentLevel) inc (stack ^. between) in
-        case traceBetween of
-          [] ->
-            [spacing currentLevel <> returnResult stack]
-          _ : _ ->
-            [ spacing currentLevel <> functionCall (stack ^. name) (stack ^. start)]
-            <> traceBetween
-            <> [ spacing currentLevel <> returnResult stack]
+          traceBetween = traceLog t (inc currentLevel) inc (stack ^. between)
+       in case traceBetween of
+            [] ->
+              [spacing currentLevel <> returnResult stack]
+            _ : _ ->
+              [spacing currentLevel <> functionCall (stack ^. name) (stack ^. start)]
+                <> traceBetween
+                <> [spacing currentLevel <> returnResult stack]
     callIgnoreCurrent =
       traceLog t currentLevel indentationIncrement (stack ^. between)
 
