@@ -24,11 +24,11 @@
 - [Core](./core/index.md)
   - **Elaboration** 
       - **Contextify** 
-        - *Resolve Open*"
+        - *Resolve Open*:
       Construct a map of terms to the modules where they were defined
         - *Resolve Open In*
       
-        - *Qualify Names*"
+        - *Qualify Names*:
       Replace term names with their qualified names
       
         - *Resolve Infix*:
