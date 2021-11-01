@@ -66,15 +66,21 @@ emptyCodegen =
       Types.count = 0,
       Types.names = Map.empty,
       Types.blockCount = 1,
-      Types.moduleAST = emptyModule "EAC",
+      Types.moduleAST = emptyModule "juvix-module",
       Types.debug = 0
     }
 
 execEnvState :: Codegen a -> SymbolTable -> CodegenState
-execEnvState (Types.CodeGen m) a = execState (runExceptT m) (emptyCodegen {Types.symTab = a})
+execEnvState (Types.CodeGen m) a =
+  execState (runExceptT m) (emptyCodegen {Types.symTab = a})
 
 evalEnvState :: Codegen a -> SymbolTable -> Either Errors a
-evalEnvState (Types.CodeGen m) a = evalState (runExceptT m) (emptyCodegen {Types.symTab = a})
+evalEnvState (Types.CodeGen m) a =
+  evalState (runExceptT m) (emptyCodegen {Types.symTab = a})
+
+runEnvState :: Codegen a -> SymbolTable -> (Either Errors a, CodegenState)
+runEnvState (Types.CodeGen m) a =
+  runState (runExceptT m) (emptyCodegen {Types.symTab = a})
 
 --------------------------------------------------------------------------------
 -- Module Level
@@ -82,6 +88,10 @@ evalEnvState (Types.CodeGen m) a = evalState (runExceptT m) (emptyCodegen {Types
 
 emptyModule :: ShortByteString -> Module
 emptyModule label = AST.defaultModule {moduleName = label}
+
+-- TODO :: Figure out the semantics of a function like this.
+inModule :: HasState "moduleAST" Module m => Module -> m ()
+inModule = undefined
 
 addDefn :: HasState "moduleDefinitions" [Definition] m => Definition -> m ()
 addDefn d = modify @"moduleDefinitions" (<> [d])
@@ -156,22 +166,21 @@ makeFunction name args = do
     (\(typ, nam) -> assign (nameToSymbol nam) (local typ nam))
     args
 
+-- TODO ∷ Current can't call this recursively, as how the clearing of
+-- just have the environment that needs to change change locally,
+-- should be easy to add
+-- symTab works... please instead just pop the arguments off the
+-- stack, and when we locally let name, have a with name primitive.
 defineFunctionGen ::
   Types.Define m => Bool -> Type -> Symbol -> [(Type, Name)] -> m a -> m Operand
 defineFunctionGen bool retty name args body = do
-  oldSymTab <- get @"symTab"
-  -- flush the blocks so we can have clean block for functions
-  put @"blocks" Map.empty
-  resetCount
   functionOperand <-
-    (makeFunction name args >> registerFunction retty args (internName name) >> body >> createBlocks)
-      >>= defineGen bool retty name args
-  -- TODO ∷ figure out if LLVM functions can leak out of their local scope
-  put @"symTab" oldSymTab
-  -- flush out blocks after functions
-  -- comment for debugging!
-  put @"blocks" Map.empty
-  resetCount
+    withLocalArgumentBlocks $ do
+      makeFunction name args
+      registerFunction retty args (internName name)
+      body
+      blockName <- createBlocks
+      defineGen bool retty name args blockName
   assign name functionOperand
   pure functionOperand
 
@@ -180,6 +189,54 @@ defineFunction,
     Define m => Type -> Symbol -> [(Type, Name)] -> m a -> m Operand
 defineFunction = defineFunctionGen False
 defineFunctionVarArgs = defineFunctionGen True
+
+withLocalArgumentBlocks ::
+  ( HasState "blocks" (Map.HashMap k v) m,
+    HasState "count" s1 m,
+    HasState "currentBlock" Name m,
+    HasState "symTab" s2 m,
+    Num s1
+  ) =>
+  m b ->
+  m b
+withLocalArgumentBlocks op = do
+  -- Reserve old Environment
+  ----------------------------------------
+  oldSymTab <- get @"symTab"
+  oldBlocks <- get @"blocks"
+  oldCount' <- get @"count"
+  oldBlockName <- get @"currentBlock"
+  -- Prepare Environment
+  ----------------------------------------
+  resetCount
+  put @"blocks" Map.empty
+  -- Do op
+  ----------------------------------------
+  ret <- op
+  -- restore order
+  ----------------------------------------
+  --we should do smart symtab accounting
+  put @"symTab" oldSymTab
+  put @"blocks" oldBlocks
+  put @"count" oldCount'
+  setBlock oldBlockName
+  -- return
+  ----------------------------------------
+  return ret
+
+--------------------------------------------------------------------------------
+-- Unique Name gen
+--------------------------------------------------------------------------------
+
+generateUniqueName :: NewBlock m => Symbol -> m Name
+generateUniqueName = fmap internName . generateUniqueSymbol
+
+generateUniqueSymbol :: NewBlock m => Symbol -> m Symbol
+generateUniqueSymbol bname = do
+  nms <- get @"names"
+  let (qname, supply) = uniqueName bname nms
+  put @"names" supply
+  return qname
 
 --------------------------------------------------------------------------------
 -- Block Stack
@@ -195,25 +252,19 @@ getBlock = entry
 addBlockNumber :: NewBlock m => Symbol -> Int -> m Name
 addBlockNumber bname number = do
   bls <- get @"blocks"
-  nms <- get @"names"
+  name <- generateUniqueName bname
   let new = emptyBlock number
-      (qname, supply) = uniqueName bname nms
-      name = internName qname
   put @"blocks" (Map.insert name new bls)
-  put @"names" supply
   return name
 
 addBlock :: NewBlock m => Symbol -> m Name
 addBlock bname = do
   bls <- get @"blocks"
   ix <- get @"blockCount"
-  nms <- get @"names"
+  name <- generateUniqueName bname
   let new = emptyBlock ix
-      (qname, supply) = uniqueName bname nms
-      name = internName qname
   put @"blocks" (Map.insert name new bls)
   put @"blockCount" (succ ix)
-  put @"names" supply
   return name
 
 setBlock :: HasState "currentBlock" Name m => Name -> m ()
