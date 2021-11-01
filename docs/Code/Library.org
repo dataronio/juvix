@@ -366,6 +366,8 @@ Surface language
   + [[Primitive]]
 ******* Compilation <<LLVM/Compilation>>
 - _Relies on_
+  + [[Block]]
+  + [[Codegen/Types]]
   + [[Primitive]]
   + [[Ann]]
   + [[Library]]
@@ -396,6 +398,13 @@ Representation of LLVM primitives in Juvix.
   + [[Core/Parameterisation]]
   + [[Library]]
 ******* Codegen
+******** Block
+- Has the code necessary to generate LLVM Code
+- _Relies on_
+  + [[Codegen/Types]]
+  + [[Shared]]
+  + [[Library]]
+  + [[HashMap]]
 ******** Constants
 Module for predefined constants
 - _Relies on_
