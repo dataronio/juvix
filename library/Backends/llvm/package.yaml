@@ -29,6 +29,7 @@ dependencies:
   - unordered-containers >= 0.2.13
   - Cabal
   - bytestring
+  - data-structures
 
 default-extensions:
   - TypeSynonymInstances

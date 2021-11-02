@@ -370,7 +370,7 @@ common ones to include"
    :name "Backends/llvm"
    :resolver 17.3
    :path-to-other "../../"
-   :packages (list *standard-library* *core* *context* *pipeline* *frontend* *sexp* *translate*)
+   :packages (list *standard-library* *core* *context* *pipeline* *frontend* *sexp* *translate* *data-structures*)
    :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *llvm-hs-deps*
 
