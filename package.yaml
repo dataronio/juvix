@@ -110,7 +110,10 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - ansi-wl-pprint
+      - bytestring
+      - base64-bytestring
+      - github
       - gitrev
       - juvix
-      - optparse-applicative
       - pretty-simple
+      - optparse-applicative

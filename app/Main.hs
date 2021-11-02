@@ -14,7 +14,14 @@ import System.Directory (getCurrentDirectory, getHomeDirectory)
 import Text.Pretty.Simple (pPrint)
 import Text.PrettyPrint.ANSI.Leijen (putDoc)
 import Version (infoVersionRepo, progNameVersionTag)
-
+import GitHub (github)
+import qualified GitHub
+import qualified GitHub.Auth as GitHub
+import qualified GitHub.Endpoints.Repos.Contents as GitHub
+import System.Directory
+import qualified Data.ByteString.Base64 as BS
+import qualified Data.ByteString as BS
+import Text.Pretty.Simple
 ------------------------------------------------------------------------------
 -- Run commands
 ------------------------------------------------------------------------------
@@ -86,6 +93,32 @@ runCmd' ::
   Pipeline.Pipeline ()
 runCmd' fin b f = liftIO (readFile fin) >>= f b >>= liftIO . pPrint
 
+
+installStdLibs :: IO ()
+installStdLibs = do
+    getContents "stdlib"
+    where
+      getJuvixHome = (<> "/.juvix/") <$> getHomeDirectory
+      createDir p = do
+        d <- getJuvixHome 
+        createDirectoryIfMissing True (d <> p) 
+
+
+      getContents :: Text -> IO ()
+      getContents path = do
+        stdlibsR <- github (GitHub.OAuth "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") $ GitHub.contentsForR "anoma" "juvix" path Nothing
+
+        case stdlibsR of
+          Left err -> pPrint err
+          Right (GitHub.ContentDirectory stdlibs) -> do
+            createDir (toS path)
+            traverse_ (\stdlib -> getContents (GitHub.contentPath $ GitHub.contentItemInfo stdlib)) stdlibs
+          Right (GitHub.ContentFile file) -> do
+            let content = GitHub.contentFileContent file
+            let path = GitHub.contentPath $ GitHub.contentFileInfo file
+            localJuvix <- getJuvixHome
+            BS.writeFile (localJuvix <> (toS path)) (BS.decodeLenient $ encodeUtf8 content)
+
 ------------------------------------------------------------------------------
 -- Main
 ------------------------------------------------------------------------------
@@ -96,5 +129,6 @@ main = do
   home <- getHomeDirectory
   let ctx = Context pwd home
   progVersion <- progNameVersionTag
+  installStdLibs
   let opts = info (options ctx <**> helper) (fullDesc <> headerDoc (Just progVersion))
   run ctx =<< execParser opts
