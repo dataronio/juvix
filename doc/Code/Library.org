@@ -919,6 +919,7 @@ Typechecked declarations are added to the signature.
 *** Erasure <<test/Erasure>>
 - _Relies on_
   + [[Application]]
+  + [[Core/Base]]
   + [[Erased]]
   + [[Algorithm]]
   + [[Core/Base]]

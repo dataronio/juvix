@@ -6,7 +6,7 @@ fromList
                 { rawDataName = "Datatypes" :| [ "verySimpleType" ]
                 , rawDataPos = []
                 , rawDataArgs = []
-                , rawDataLevel = 0
+                , rawDataLevel = CU 0
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "One" ]
@@ -114,7 +114,7 @@ fromList
                 { rawDataName = "Datatypes" :| [ "functionTypeInConstructor" ]
                 , rawDataPos = []
                 , rawDataArgs = []
-                , rawDataLevel = 0
+                , rawDataLevel = CU 0
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "FTIC_Left" ]
@@ -571,7 +571,7 @@ fromList
                 { rawDataName = "Datatypes" :| [ "bar" ]
                 , rawDataPos = []
                 , rawDataArgs = []
-                , rawDataLevel = 0
+                , rawDataLevel = CU 0
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "P" ]
@@ -790,7 +790,7 @@ fromList
                 { rawDataName = "Datatypes" :| [ "sExpField" ]
                 , rawDataPos = []
                 , rawDataArgs = []
-                , rawDataLevel = 0
+                , rawDataLevel = CU 0
                 , rawDataCons =
                     [ RawDataCon
                         { rawConName = "Datatypes" :| [ "Atom" ]

@@ -335,12 +335,16 @@ fromList
                 { rawFunName = "Prelude" :| [ "ty" ]
                 , rawFunUsage = GSAny
                 , rawFunType = Star
-                    ( U 1 ) ()
+                    ( U'
+                        ( CU 1 )
+                    ) ()
                 , rawFunClauses = RawFunClause
                     { rawClauseTel = []
                     , rawClausePats = []
                     , rawClauseBody = Star
-                        ( U 0 ) ()
+                        ( U'
+                            ( CU 0 )
+                        ) ()
                     , rawClauseCatchall = False
                     } :| []
                 }

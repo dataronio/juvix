@@ -4,7 +4,8 @@
 module Juvix.Core.Base.Types.Base
   ( module Juvix.Core.Base.Types.Base,
     Universe (.., U),
-  ) where
+  )
+where
 
 ------------------------------------------------------------------------------
 
@@ -20,7 +21,7 @@ import Juvix.Library.Usage
 -- | a concrete universe level is just a natural number.
 newtype ConcUniverse = CU Natural
   deriving (Show, Read, Eq, Ord, Generic, Data)
-  deriving newtype NFData
+  deriving newtype (NFData)
 
 instance A.ToJSON ConcUniverse where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
