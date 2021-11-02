@@ -127,7 +127,6 @@ typecheckErase' ::
   IR.Term primTy primVal ->
   m (Erasure.TermT primTy primVal, Typed.ValueT IR.T primTy primVal)
 typecheckErase' term usage ty = do
-  -- FIXME: allow any universe!
   ty <- typecheckEval ty (Usage.SNat 0) (IR.VStar Core.UAny)
   term <- typecheckErase term usage ty
   pure (term, ty)
