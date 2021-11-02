@@ -85,7 +85,7 @@ polynomial1 = T.testCase "\\x y -> x^3 - 2x^2 + 4 = y" (testOutput Example.circu
 compile :: FilePath -> Pipeline.Pipeline (AnnTerm Fr)
 compile fin = do
   t <- liftIO $ readFile fin
-  parsed <- Pipeline.parseWithLibs ["../../../stdlib/Prelude.ju", "../../../stdlib/Circuit.ju", "../../../stdlib/Circuit/Field.ju"] (P.BPlonk :: P.BPlonk Fr) t
+  parsed <- Pipeline.parse (P.BPlonk :: P.BPlonk Fr) t
   s <- Pipeline.typecheck @(P.BPlonk Fr) parsed
   pure $ ErasedAnn.toRaw s
 

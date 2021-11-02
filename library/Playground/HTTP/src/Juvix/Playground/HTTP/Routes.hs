@@ -114,9 +114,6 @@ type Steps =
 juvixRootPath :: FilePath
 juvixRootPath = "../../"
 
-libs :: IsString a => [a]
-libs = ["stdlib/Prelude.ju", "stdlib/Circuit.ju"]
-
 withJuvixRootPath :: FilePath -> FilePath
 withJuvixRootPath p = juvixRootPath <> p
 
@@ -169,7 +166,7 @@ parseSt ::
 parseSt (Req script) = do
   mlF <-
     liftIO . Feedback.runFeedbackT $
-      Pipeline.toML' (withJuvixRootPath <$> libs) (Plonk.BPlonk @Fr) script
+      Pipeline.toML (Plonk.BPlonk @Fr) script
   sexpF <- continueSuccess modifyML (Pipeline.toSexp (Plonk.BPlonk @Fr)) filterML mlF
   case sexpF of
     Feedback.Success _ m -> do
@@ -253,7 +250,7 @@ steps =
     :<|> toCircuit
   where
     toML :: Server ToML
-    toML = liftIO . Feedback.runFeedbackT . Pipeline.toML' (withJuvixRootPath <$> libs) (Plonk.BPlonk @Fr) . reqBody
+    toML = liftIO . Feedback.runFeedbackT . Pipeline.toML (Plonk.BPlonk @Fr) . reqBody
     toSexp = liftIO . Feedback.runFeedbackT . Pipeline.toSexp (Plonk.BPlonk @Fr)
     toHR = liftIO . Feedback.runFeedbackT . Pipeline.toHR (Plonk.param @Fr)
     toIR = liftIO . Feedback.runFeedbackT . Pipeline.toIR

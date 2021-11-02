@@ -96,16 +96,20 @@ runCmd' fin b f = liftIO (readFile fin) >>= f b >>= liftIO . pPrint
 
 installStdLibs :: IO ()
 installStdLibs = do
-  getContents "stdlib"
-  where
-    getJuvixHome = (<> "/.juvix/") <$> getHomeDirectory
-    createDir p = do
-      d <- getJuvixHome
-      createDirectoryIfMissing True (d <> p)
+    -- TODO: If found locally, do not fetch (unless flag is set to force fetch)
+    getContents "stdlib"
+    where
+      getJuvixHome = (<> "/.juvix/") <$> getHomeDirectory
+      createDir p = do
+        d <- getJuvixHome 
+        createDirectoryIfMissing True (d <> p) 
 
-    getContents :: Text -> IO ()
-    getContents path = do
-      stdlibsR <- github (GitHub.OAuth "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") $ GitHub.contentsForR "anoma" "juvix" path Nothing
+
+      getContents :: Text -> IO ()
+      getContents path = do
+        stdlibsR <- github (GitHub.OAuth "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") 
+          -- This key just has public repo read access
+          $ GitHub.contentsForR "anoma" "juvix" path Nothing
 
       case stdlibsR of
         Left err -> pPrint err

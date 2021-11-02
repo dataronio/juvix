@@ -13,9 +13,6 @@ import Test.Tasty
 juvixRootPath :: FilePath
 juvixRootPath = "../../../"
 
-libs :: [[Char]]
-libs = ["stdlib/Prelude.ju", "stdlib/Michelson.ju", "stdlib/MichelsonAlias.ju"]
-
 withJuvixRootPath :: FilePath -> FilePath
 withJuvixRootPath p = juvixRootPath <> p
 
@@ -68,7 +65,7 @@ typecheck ::
     )
 typecheck file = do
   contract <- liftIO $ readFile file
-  context <- Pipeline.parseWithLibs (withJuvixRootPath <$> libs) Michelson.BMichelson contract
+  context <- Pipeline.parse Michelson.BMichelson contract
   Pipeline.typecheck @Michelson.BMichelson context
 
 -- | Discover golden tests for input files with extension @.ju@ and output
