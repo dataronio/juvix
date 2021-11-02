@@ -163,5 +163,5 @@ splitDataType x ty0 = go ty0
               rawArgUsage = π,
               rawArgType = s
             }
-    go (HR.Star (Core.U ℓ)) = pure ([], ℓ)
+    go (HR.Star (Core.U' ℓ)) = pure ([], ℓ)
     go _ = throwFF $ InvalidDatatypeType x ty0

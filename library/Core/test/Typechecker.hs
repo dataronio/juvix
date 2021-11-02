@@ -921,7 +921,7 @@ dependentPairComp =
         All.t
         natTypeNatValuePair
         allAnn,
-      shouldCheck "(Σ(A: ⋆₀). A) : ⋆₁" All.t (allSig 0) (starAnn 1)
+      shouldCheck "(Σ(A: ⋆₀). A) : ⋆₁" All.t allSig (starAnn 1)
     ]
 
 boxNatAnn :: NatAnnotation
@@ -951,11 +951,11 @@ natTypeUnitValuePair = IR.Pair allNatTy IR.Unit
 natTypeNatValuePair :: AllTerm
 natTypeNatValuePair = IR.Pair allNatTy (allNat 0)
 
-starAnn :: Core.ConcUniverse -> AllAnnotation
+starAnn :: Natural -> AllAnnotation
 starAnn n = zero `ann` IR.VStar (U n)
 
-allSig :: Core.ConcUniverse -> AllTerm
-allSig n = IR.Sig (Usage.SNat 0) (IR.Star $ U n) (IR.Elim (IR.Bound 0))
+allSig :: AllTerm
+allSig = IR.Sig (Usage.SNat 0) (IR.Star $ U 0) (IR.Elim (IR.Bound 0))
 
 addTyT' :: NatTermT
 addTyT' = IR.Pi Usage.SAny natTK $ IR.Pi Usage.SAny natTK $ natTK

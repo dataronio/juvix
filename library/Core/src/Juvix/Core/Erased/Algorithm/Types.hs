@@ -190,7 +190,7 @@ type PrimTy primTy = Param.KindedType' HR.T primTy
 data Datatype primTy primVal = Datatype
   { dataName :: GlobalName,
     dataArgs :: [DataArg primTy],
-    dataLevel :: Natural,
+    dataLevel :: Core.ConcUniverse,
     dataCons :: [DataCon primTy primVal]
   }
 

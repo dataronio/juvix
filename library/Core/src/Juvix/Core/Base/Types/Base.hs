@@ -1,7 +1,10 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Juvix.Core.Base.Types.Base where
+module Juvix.Core.Base.Types.Base
+  ( module Juvix.Core.Base.Types.Base,
+    Universe (.., U),
+  ) where
 
 ------------------------------------------------------------------------------
 
@@ -15,16 +18,29 @@ import Juvix.Library.Usage
 ------------------------------------------------------------------------------
 
 -- | a concrete universe level is just a natural number.
-type ConcUniverse = Natural
+newtype ConcUniverse = CU Natural
+  deriving (Show, Read, Eq, Ord, Generic, Data)
+  deriving newtype NFData
+
+instance A.ToJSON ConcUniverse where
+  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
+
+instance A.FromJSON ConcUniverse where
+  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 -- | a general universe is either a concrete universe, or a marker saying
 -- that we don't care about the universe a type lives in. 'UAny' never shows up
 -- in source programs, but is needed in e.g. the typechecker when ensuring that
 -- the type in an annotation expression is /a/ type, of any universe.
 data Universe
-  = U ConcUniverse
+  = U' ConcUniverse
   | UAny
   deriving (Show, Read, Eq, Ord, Generic, Data, NFData)
+
+pattern U :: Natural -> Universe
+pattern U i = U' (CU i)
+
+{-# COMPLETE U, UAny #-}
 
 instance A.ToJSON Universe where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
