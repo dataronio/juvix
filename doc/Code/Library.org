@@ -922,7 +922,6 @@ Typechecked declarations are added to the signature.
   + [[Core/Base]]
   + [[Erased]]
   + [[Algorithm]]
-  + [[Core/Base]]
   + [[Core/IR]]
   + [[IR/Typechecker]]
   + [[Core/Parameterisation]]
