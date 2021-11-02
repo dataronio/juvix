@@ -23,5 +23,6 @@
   (generate-yaml-file *witch*            "library/Witch/stack.yaml")
   (generate-yaml-file *easy*             "library/Playground/Easy/stack.yaml")
   (generate-yaml-file *http*             "library/Playground/HTTP/stack.yaml")
-  (generate-yaml-file *datastructures*   "library/Test/DataStructures/stack.yaml")
+  (generate-yaml-file *data-structures*   "library/Test/DataStructures/stack.yaml")
+  (generate-yaml-file *package-manager*   "library/Test/PackageManager/stack.yaml")
   (generate-yaml-file *juvix*            "stack.yaml"))

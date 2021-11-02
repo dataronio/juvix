@@ -111,9 +111,8 @@ executables:
     dependencies:
       - ansi-wl-pprint
       - bytestring
-      - base64-bytestring
-      - github
       - gitrev
       - juvix
       - pretty-simple
       - optparse-applicative
+      - package-manager

@@ -17,6 +17,7 @@ packages:
 - ./library/Context
 - ./library/Sexp
 - ./library/Test/DataStructures
+- ./library/Test/PackageManager
 
 extra-deps:
 
