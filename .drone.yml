@@ -55,8 +55,15 @@ steps:
   image: 965844283396.dkr.ecr.eu-west-1.amazonaws.com/juvix:latest
   name: org-generation-and-code-formatting
   pull: never
+- commands: [python3 scripts/generate_checksums.py]
+  depends_on: [test-typecheck, test-compile, test-parser]
+  environment:
+    GITHUB_TOKEN: {from_secret: github_token}
+  image: 965844283396.dkr.ecr.eu-west-1.amazonaws.com/git:latest
+  name: build-checksums
+  pull: never
 - commands: [sh ./scripts/push-changes.sh]
-  depends_on: [org-generation-and-code-formatting]
+  depends_on: [org-generation-and-code-formatting, build-checksums]
   environment:
     GITHUB_TOKEN: {from_secret: github_token}
   image: openanalytics/alpine-git-lfs-client
@@ -164,7 +171,7 @@ workspace: {path: /drone/workspace}
 ---
 environment: {GIT_LFS_SKIP_SMUDGE: '1', STACK_ROOT: /drone/workspace/.stack}
 kind: pipeline
-name: juvix-ci-docs-pr-push
+name: juvix-ci-docs-pr-push-develop
 node: {project: juvix}
 steps:
 - commands: [echo "e3420e6c66604c53d26292db4a2ba4130d017db1b2e9652d796410e4a9305a04  Makefile"
@@ -754,7 +761,38 @@ trigger:
 type: docker
 workspace: {path: /drone/workspace}
 ---
+environment: {GIT_LFS_SKIP_SMUDGE: '1', STACK_ROOT: /drone/workspace/.stack}
+kind: pipeline
+name: juvix-ci-update-artifacts-push-develop
+node: {project: juvix}
+steps:
+- commands: [echo "e3420e6c66604c53d26292db4a2ba4130d017db1b2e9652d796410e4a9305a04  Makefile"
+      | sha256sum -c -, echo "5a98fa83fad2edecfd48d18aed2adbd5ceccf6afee1594a3ed3f2e26932dbdbb  scripts/push-changes.sh"
+      | sha256sum -c -, echo "d04e32c725b9316805e85d2e8d26d9aaa7010f00e98cd933e4a16c64c0533a6f  scripts/format-and-org-gen.sh"
+      | sha256sum -c -, echo "b6ad65e92d1f6f47516586281d55b27794f3bc368d06473781925397f27e7932  scripts/check-formatting.sh"
+      | sha256sum -c -, echo "4b2678ee3159c1ee1d4879384163af17d388f0ce1f716bbc6f891e2b32483d3e  scripts/check-org-gen.sh"
+      | sha256sum -c -, echo "59e7ec32dc65c1668ca90cb0b825f4d86215cd2b1382babeabaedde8d6d61347  scripts/pre-run.sh"
+      | sha256sum -c -, echo "a21061245694da5b3b7e2a6d01c000dd6a4273901ffbf523233e103d005023c3  scripts/build-and-publish-docs.sh"
+      | sha256sum -c -, sh scripts/pre-run.sh]
+  image: alpine/git:v2.30.1
+  name: check-scripts-integrity
+  pull: never
+- commands: ['aws s3 sync stdlib s3://heliax-juvix-artifacts-v1 --exclude "*" --include
+      "*.json" --include "*/*.ju" --include "*.ju"']
+  depends_on: [check-scripts-integrity]
+  environment:
+    AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
+    AWS_SECRET_ACCESS_KEY: {from_secret: aws_secret_access_key}
+  image: 965844283396.dkr.ecr.eu-west-1.amazonaws.com/git:latest
+  name: upload-artifacts
+  pull: never
+trigger:
+  branch: [develop]
+  event: [push]
+type: docker
+workspace: {path: /drone/workspace}
+---
 kind: signature
-hmac: 9177eb80871676556e961e9be15a9b8f8f71e9d524a24dfa8ffe1cc12a6e21a8
+hmac: 95ad1e9a86fdd1689fc1df45849bdd88b356081766c55298546599b17abb9179
 
 ...
