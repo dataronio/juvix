@@ -6,6 +6,7 @@ import qualified Juvix.Library.Test.Golden as TG
 import qualified NameSymb
 import qualified Pretty
 import qualified Test.Tasty as T
+import Juvix.Library.StdLib (loadStdLibs)
 
 allCheckedTests :: T.TestTree
 allCheckedTests =
@@ -17,6 +18,7 @@ allCheckedTests =
 
 main :: IO ()
 main = do
+  loadStdLibs
   TG.runAll
     [ T.defaultMain allCheckedTests,
       TG.defaultMainFail Golden.absurdTestAll,

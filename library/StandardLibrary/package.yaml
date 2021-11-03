@@ -21,22 +21,25 @@ dependencies:
 - bytestring
 - capability
 - containers
+- directory
 - elliptic-curve >= 0.3.0
+- filepath
 - galois-field >= 1.0.2
+- generic-lens
 - lens
+- lens-aeson
 - megaparsec
 - mtl
+- pretty-simple
+- pretty-compact
 - protolude
 - scientific
 - text
 - time
 - unordered-containers
 - word8
+- wreq
 # Testing
-- directory
-- filepath
-- pretty-simple
-- pretty-compact
 - tasty
 - tasty-silver
 

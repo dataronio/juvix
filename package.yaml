@@ -115,4 +115,3 @@ executables:
       - juvix
       - pretty-simple
       - optparse-applicative
-      - package-manager

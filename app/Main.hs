@@ -17,7 +17,7 @@ import Text.Pretty.Simple
 import Text.Pretty.Simple (pPrint)
 import Text.PrettyPrint.ANSI.Leijen (putDoc)
 import Version (infoVersionRepo, progNameVersionTag)
-import Juvix.PackageManager.StdLib
+import Juvix.Library.StdLib
 
 ------------------------------------------------------------------------------
 -- Run commands

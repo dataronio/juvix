@@ -1,13 +1,13 @@
 {-# LANGUAGE ViewPatterns #-}
-module Juvix.PackageManager.StdLib where
+module Juvix.Library.StdLib where
 
-import Juvix.Library
+import Protolude
 import System.Directory
 import Text.Pretty.Simple
 import qualified Data.ByteString.Lazy as BL
 import Control.Lens
 import qualified Network.Wreq as Wreq
-import Data.Aeson.Lens (key)
+import Data.Aeson.Lens (key, _Object)
 import qualified Data.HashMap.Strict as Map
 import System.FilePath.Posix
 
@@ -51,6 +51,6 @@ localStdLibs = do
 loadStdLibs :: IO ()
 loadStdLibs = do
   -- TODO: How long do we want to cache this?
-  success <- localStdLibs
   -- TODO: Checksum
+  -- success <- localStdLibs
   unless success downloadStdLibs

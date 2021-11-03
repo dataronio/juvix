@@ -328,14 +328,6 @@ common ones to include"
    :extra-deps (list (general-dependencies)
                      *standard-library-extra-deps*)))
 
-(defparameter *package-manager*
-  (make-stack-yaml
-   :name     "Test/PackageManager"
-   :path-to-other "../../"
-   :packages   (list *standard-library*)
-   :extra-deps (list (general-dependencies)
-                     *standard-library-extra-deps*)))
-
 (defparameter *core*
   (make-stack-yaml
    :name       "Core"
@@ -501,8 +493,7 @@ common ones to include"
                    *witch*
                    *context*
                    *sexp*
-                   *data-structures*
-                   *package-manager*)
+                   *data-structures*)
    :path-to-other "./library/"
    :extra-deps
    (cons *servant-deps* (cons *llvm-hs-deps* (big-dep-list)))

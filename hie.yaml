@@ -85,8 +85,3 @@ cradle:
       component: "data-structures"
     - path: ./library/Test/DataStructures/test
       component: "data-structures:test:data-structures-test"
-
-    - path: ./library/Test/PackageManager/src
-      component: "package-manager"
-    - path: ./library/Test/PackageManager/test
-      component: "package-manager:test:package-manager-test"

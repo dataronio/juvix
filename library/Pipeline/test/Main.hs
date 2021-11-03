@@ -4,6 +4,7 @@ import Juvix.Library (IO)
 import qualified Test.RecGroups as RecGroups
 import qualified Test.Tasty as T
 import qualified Test.ToSexp as ToSexp
+import Juvix.Library.StdLib (loadStdLibs)
 
 allCheckedTests :: T.TestTree
 allCheckedTests =
@@ -12,4 +13,6 @@ allCheckedTests =
     [RecGroups.top, ToSexp.top]
 
 main :: IO ()
-main = T.defaultMain allCheckedTests
+main = do
+  loadStdLibs
+  T.defaultMain allCheckedTests
