@@ -53,4 +53,4 @@ loadStdLibs = do
   -- TODO: How long do we want to cache this?
   -- TODO: Checksum
   -- success <- localStdLibs
-  unless success downloadStdLibs
+  downloadStdLibs
