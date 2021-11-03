@@ -1,49 +1,56 @@
+{-# LANGUAGE ViewPatterns #-}
 module Juvix.PackageManager.StdLib where
 
 import Juvix.Library
 import System.Directory
 import Text.Pretty.Simple
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Base64 as BS
-import GitHub (github)
-import qualified GitHub
+import qualified Data.ByteString.Lazy as BL
+import Control.Lens
+import qualified Network.Wreq as Wreq
+import Data.Aeson.Lens (key)
+import qualified Data.HashMap.Strict as Map
+import System.FilePath.Posix
 
-getJuvixHome :: IO FilePath
-getJuvixHome = (<> "/.juvix/") <$> getHomeDirectory
+juvixAWS, juvixBucket, checksumsFile :: IsString p => p
+juvixAWS = "https://heliax-juvix-artifacts-v1.s3.eu-west-1.amazonaws.com"
+juvixBucket = "heliax-juvix-artifacts-v1"
+checksumsFile = "checksums.json"
 
-remoteStrategy :: IO ()
-remoteStrategy = do  
-  getContents "stdlib"
+createStdLibDir :: FilePath -> IO ()
+createStdLibDir p = do
+  d <- getJuvixHome "stdlib/"
+  createDirectoryIfMissing True (d <> p) 
+
+getJuvixHome :: FilePath -> IO FilePath
+getJuvixHome p =  do
+  d <- (<> ("/.juvix/" <> p)) <$> getHomeDirectory
+  createDirectoryIfMissing True (d <> p) 
+  return d
+
+downloadStdLibs :: IO ()
+downloadStdLibs = do
+  r <- Wreq.asValue =<< (Wreq.get $ juvixAWS ++ "/" ++ checksumsFile)
+  let files = r ^.  Wreq.responseBody . _Object
+  localJuvix <- getJuvixHome "stdlib/"
+  putStrLn $ "args: " ++ show files
+  sequence_ $ Map.mapWithKey (\filename checksum -> do
+    retrieveFile localJuvix (toS filename)
+    ) files
   where
-    createDir p = do
-      d <- getJuvixHome 
-      createDirectoryIfMissing True (d <> p) 
+    retrieveFile localJuvix filename = do
+      r <- (Wreq.get $ juvixAWS ++ "/" ++ filename)
+      let content = r ^.  Wreq.responseBody
+      createStdLibDir (takeDirectory filename)
+      BL.writeFile (localJuvix <> filename) content
 
-    getContents :: Text -> IO ()
-    getContents path = do
-      stdlibsR <- github (GitHub.OAuth "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") 
-                    -- This key just has public repo read access
-                    $ GitHub.contentsForR "anoma" "juvix" path Nothing
-
-      case stdlibsR of
-        Left err -> pPrint err
-        Right (GitHub.ContentDirectory stdlibs) -> do
-          createDir (toS path)
-          traverse_ (\stdlib -> getContents (GitHub.contentPath $ GitHub.contentItemInfo stdlib)) stdlibs
-        Right (GitHub.ContentFile file) -> do
-          let content = GitHub.contentFileContent file
-          let path = GitHub.contentPath $ GitHub.contentFileInfo file
-          localJuvix <- getJuvixHome
-          BS.writeFile (localJuvix <> (toS path)) (BS.decodeLenient $ encodeUtf8 content)
-
-localHomeStrategy :: IO Bool
-localHomeStrategy = do
-  d <- getJuvixHome
+localStdLibs :: IO Bool
+localStdLibs = do
+  d <- getJuvixHome "stdlib/"
   doesDirectoryExist d
 
 loadStdLibs :: IO ()
 loadStdLibs = do
   -- TODO: How long do we want to cache this?
-  success <- localHomeStrategy
-  unless success remoteStrategy
-
+  success <- localStdLibs
+  -- TODO: Checksum
+  unless success downloadStdLibs

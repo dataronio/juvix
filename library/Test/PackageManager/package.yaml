@@ -7,13 +7,20 @@ maintainer:          "Heliax AG <hello@heliax.dev>"
 copyright:           "2020 Heliax AG"
 
 dependencies:
+- aeson
 - base >= 4.7 && < 5
-- directory
-- standard-library
-- pretty-simple
 - bytestring
-- base64-bytestring
-- github
+- directory
+- filepath
+- generic-lens
+- lens
+- lens-aeson
+- pretty-simple
+- standard-library
+- text
+- unordered-containers
+- wreq
+
 
 default-extensions:
   - NoImplicitPrelude
