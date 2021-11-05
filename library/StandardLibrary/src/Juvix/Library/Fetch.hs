@@ -1,16 +1,16 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
 module Juvix.Library.Fetch where
 
 import Control.Lens
-import Data.Aeson.Lens (key, _Object)
+import Data.Aeson.Lens (_Object)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.HashMap.Strict as Map
 import qualified Network.Wreq as Wreq
 import Protolude
 import System.Directory
 import System.FilePath.Posix
-import Text.Pretty.Simple
 
 juvixAWS, juvixBucket, checksumsFile :: IsString p => p
 juvixAWS = "https://heliax-juvix-artifacts-v1.s3.eu-west-1.amazonaws.com"
@@ -55,8 +55,12 @@ loadStdLibs :: IO ()
 loadStdLibs = do
   success <- localStdLibs
   unless success $ do
-    print "Standard Library not found; do you want \
-          \ Juvix to download and install the Standard library to ~/.juvix? [yes/no]"
-    continue <- getLine
-    when (continue == "yes" || continue == "y")
+    print
+      ( "Standard Library not found; do you want \
+        \ Juvix to download and install the Standard library to ~/.juvix? [yes/no]" ::
+          Text
+      )
+    continue <- catch getLine (\(_ :: IOException) -> pure "")
+    when
+      (continue == "yes" || continue == "y")
       downloadStdLibs
