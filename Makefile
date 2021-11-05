@@ -12,6 +12,10 @@ endif
 
 all: setup build
 
+install:
+	stack install
+	juvix install
+	
 setup:
 	stack build --only-dependencies --jobs $(THREADS)
 

@@ -61,6 +61,7 @@ run' _ (Options cmd _) = do
     Version -> do
       infoVersion <- liftIO infoVersionRepo
       liftIO $ putDoc infoVersion
+    StdLib -> liftIO downloadStdLibs
     _ -> Feedback.fail "Not implemented yet."
 
 run :: Context -> Options -> IO ()
@@ -96,10 +97,10 @@ runCmd' fin b f = liftIO (readFile fin) >>= f b >>= liftIO . pPrint
 
 main :: IO ()
 main = do
+  loadStdLibs
   pwd <- getCurrentDirectory
   home <- getHomeDirectory
   let ctx = Context pwd home
   progVersion <- progNameVersionTag
-  loadStdLibs
   let opts = info (options ctx <**> helper) (fullDesc <> headerDoc (Just progVersion))
   run ctx =<< execParser opts

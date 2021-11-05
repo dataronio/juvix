@@ -44,6 +44,7 @@ data Command
   | Init
   | Plan
   | Apply
+  | StdLib
 
 options :: Context -> Parser Options
 options ctx = Options <$> commandOptions <*> configOptions ctx
@@ -72,6 +73,7 @@ commandOptions =
         <> command "parse" (info parseOptions (progDesc "Parse a Juvix source file"))
         <> command "typecheck" (info typecheckOptions (progDesc "Typecheck a Juvix source file"))
         <> command "compile" (info compileOptions (progDesc "Compile a Juvix source file"))
+        <> command "install" (info stdLibOptions (progDesc "Install standard libraries"))
     )
 
 versionOptions :: Parser Command
@@ -79,6 +81,10 @@ versionOptions = pure Version
 
 configurationOptions :: Parser Command
 configurationOptions = pure Config
+
+stdLibOptions :: Parser Command
+stdLibOptions = pure StdLib
+
 
 parseOptions :: Parser Command
 parseOptions = Parse <$> inputFileOptions <*> backendOptions
