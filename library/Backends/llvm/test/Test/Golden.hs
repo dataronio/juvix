@@ -47,8 +47,8 @@ compileTests =
         compileTestNeg "test/examples/negative/llvm/compile"
       ]
   where
-    compileTestPos = compileTest (expectSuccess . compile)
-    compileTestNeg = compileTest (expectFailure . compile)
+    compileTestPos = compileTest (expectSuccess . toNoQuotes compile)
+    compileTestNeg = compileTest (expectFailure . toNoQuotes compile)
     compile file = LLVM.compileProgram . ErasedAnn.toRaw =<< typecheck file
 
 typecheckTests :: IO TestTree
@@ -149,3 +149,14 @@ llvmGoldenTests ::
   FilePath ->
   IO TestTree
 llvmGoldenTests ext f (withJuvixRootPath -> p) = discoverGoldenTests [".ju"] ext getGolden f p
+
+compile :: FilePath -> Feedback.FeedbackT [] String IO Text
+compile file = LLVM.compileProgram . ErasedAnn.toRaw =<< typecheck file
+
+toEither :: Feedback.Feedback app msg b -> Either (app msg) (app msg, b)
+toEither (Feedback.Success app a) = Right (app, a)
+toEither (Feedback.Fail failure) = Left failure
+
+-- Running by hand example
+-- x <- Feedback.runFeedbackT (compile "../../../test/examples/positive/llvm/MainApply.ju")
+-- toEither x
