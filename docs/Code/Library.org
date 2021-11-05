@@ -366,8 +366,6 @@ Surface language
   + [[Primitive]]
 ******* Compilation <<LLVM/Compilation>>
 - _Relies on_
-  + [[Block]]
-  + [[Codegen/Types]]
   + [[Primitive]]
   + [[Ann]]
   + [[Library]]
@@ -399,34 +397,81 @@ Representation of LLVM primitives in Juvix.
   + [[Library]]
 ******* Codegen
 ******** Block
-- Has the code necessary to generate LLVM Code
+- Has the code necessary to generate LLVM Code, and gives a small
+  DSL in order to effectively do so.
+An example of using the library to define an llvm function from
+haskell may look like
+@
+  defineLink :: (Define m, Debug m) => m Operand.Operand
+  defineLink = Block.defineFunction Type.void "link" args $
+    do
+      aux1 <- auxiliary1
+      aux2 <- auxiliary2
+      node1 <- Block.externf "node_1"
+      node2 <- Block.externf "node_1"
+      Types.debugLevelOne $ do
+        _ <- Block.printCString "Executing Link rule \n" []
+        _ <- Block.printCString "Calling Link on \n" []
+        Debug.printNodePort node1 aux1
+        Debug.printNodePort node2 aux2
+      Ops.setPort ("node_1", "port_1") ("node_2", "port_2")
+      Types.debugLevelOne $ do
+        _ <- Block.printCString "Calling Link on \n" []
+        Debug.printNodePort node1 aux2
+        Debug.printNodePort node2 aux1
+      Ops.setPort ("node_2", "port_2") ("node_1", "port_1")
+      Block.retNull
+    where
+      args =
+        [ (nodePointer, "node_1"),
+          (numPortsPointer, "port_1"),
+          (nodePointer, "node_2"),
+          (numPortsPointer, "port_2")
+        ]
+@
+Here we define a function called "link" that takes 4 arguments, and
+generates code that will link two nodes together. Since we are
+writing an llvm function, we have to `Block.externf` the given
+arguments to be able to refer to them in the LLVM code.
+Using the code to compile IR terms coming from some abstract
+machine looks a bit different, we can see it in this example here
+@
+  compileLam ty captures arguments body
+   | length captures == 0 = do
+      let (llvmArgty, llvmRetty) =
+            functionTypeLLVM ty
+          llvmArgNames =
+            fmap (Block.internName . NameSymbol.toSymbol) arguments
+          llvmArguments =
+            zip llvmArgty llvmArgNames
+      -- time to generate unique names
+      lamName <- Block.generateUniqueSymbol "lambda"
+      Block.defineFunction llvmRetty lamName llvmArguments $
+        do
+          bod <- compileTerm body
+          Block.ret bod
+   | otherwise =
+      throw @"err" (Types.UnsupportedOperation "closures are not supported")
+@
+In this example instead of having to `Block.externf` the given
+arguments, we can rely on resolution to properly handle
+that. However, we can see effective use of the library with the
+`Block.generateUniqueSymbol` function and the
+`Block.defineFunction` function. The first gives us an unique to
+compile again, while the latter setups up the environment to
+compile a new top level declaration.
 - _Relies on_
   + [[Codegen/Types]]
-  + [[Shared]]
   + [[Library]]
   + [[HashMap]]
-******** Constants
-Module for predefined constants
-- _Relies on_
-  + [[Library]]
 ******** Types <<Codegen/Types>>
 - _Relies on_
   + [[Shared]]
-  + [[Sum]]
   + [[Library]]
   + [[HashMap]]
 ********* Shared
 Shared between Types and Sum
 - _Relies on_
-  + [[Library]]
-  + [[HashMap]]
-********* Sum
-Provides a mechanism for defining Sum types
-- Has the code to encode a sum type via what is defined by the user or
-  what is defined to create the interaction net system.
-- _Relies on_
-  + [[Constants]]
-  + [[Shared]]
   + [[Library]]
   + [[HashMap]]
 *** test
