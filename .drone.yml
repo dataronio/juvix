@@ -781,8 +781,8 @@ steps:
   image: alpine/git:v2.30.1
   name: check-scripts-integrity
   pull: never
-- commands: ['aws s3 sync stdlib s3://heliax-juvix-artifacts-v1 --exclude "*" --include
-      "*.json" --include "*/*.ju" --include "*.ju"']
+- commands: ['aws s3 sync stdlib s3://heliax-juvix-artifacts-v1 --acl public-read
+      --exclude "*" --include "*.json" --include "*/*.ju" --include "*.ju"']
   depends_on: [check-scripts-integrity]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -797,6 +797,6 @@ type: docker
 workspace: {path: /drone/workspace}
 ---
 kind: signature
-hmac: 4122ac9392ee7ea0721c23bfd2f0d2b0c9e4ac090b7bf0a5b5f7ae1eb620df11
+hmac: f262972eb6ee19d1f86711c5a62cce0f247500c3ba6d40abece1ba8f02c7a49f
 
 ...
