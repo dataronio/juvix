@@ -19,6 +19,9 @@ install:
 fetch-stdlibs: build
 	stack exec juvix -- fetch-stdlibs
 
+update-local-stdlibs:
+	cp -r stdlib $(HOME)/.juvix/stdlib
+
 setup:
 	stack build --only-dependencies --jobs $(THREADS)
 
