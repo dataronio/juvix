@@ -4,46 +4,53 @@
  
 
 
-define external ccc  i8 @lam_0(i8  %arg_0)    {
-  ret i8 99 
+define external fastcc  i8 @"\22lambda\226"(i8  %"5")    {
+"\22lambda\226":
+    ret i8 99 
 }
 
 
-define external ccc  i8 @lam_0(i8  %arg_0)    {
-  %1 = mul   i8 50, 51 
-  %2 =  call ccc  i8  @lam_0(i8  %1)  
-  ret i8 %2 
-}
-
-
-define external ccc  i8 @lam_0(i8  %arg_0)    {
-  %1 = sub   i8 46, 47 
-  %2 =  call ccc  i8  @lam_0(i8  %1)  
-  ret i8 %2 
-}
-
-
-define external ccc  i8 @lam_0(i8  %arg_0)    {
-  %1 = add   i8 44, 45 
-  %2 =  call ccc  i8  @lam_0(i8  %1)  
-  ret i8 %2 
-}
-
-
-define external ccc  i8 @lam_0(i16  %arg_0)    {
-  %1 = add   i8 0, 43 
-  %2 =  call ccc  i8  @lam_0(i8  %1)  
-  ret i8 %2 
-}
-
-
-define external ccc  i8 @lam_0(i8  %arg_0)    {
-  %1 =  call ccc  i8  @lam_0(i16  48)  
+define external fastcc  i8 @"\22lambda\225"(i8  %"4")    {
+"\22lambda\225":
+  %0 = mul nuw nsw i8 50, 51 
+  %1 =  call fastcc  i8  @"\22lambda\226"(i8  %0)  
   ret i8 %1 
 }
 
 
-define external ccc  i8 @main()    {
-  %1 =  call ccc  i8  @lam_0(i8  42)  
+define external fastcc  i8 @"\22lambda\224"(i8  %"3")    {
+"\22lambda\224":
+  %0 = sub nuw nsw i8 46, 47 
+  %1 =  call fastcc  i8  @"\22lambda\225"(i8  %0)  
   ret i8 %1 
+}
+
+
+define external fastcc  i8 @"\22lambda\223"(i8  %"2")    {
+"\22lambda\223":
+  %0 = add nuw nsw i8 44, 45 
+  %1 =  call fastcc  i8  @"\22lambda\224"(i8  %0)  
+  ret i8 %1 
+}
+
+
+define external fastcc  i8 @"\22lambda\222"(i16  %"1")    {
+"\22lambda\222":
+  %0 = add nuw nsw i8 0, 43 
+  %1 =  call fastcc  i8  @"\22lambda\223"(i8  %0)  
+  ret i8 %1 
+}
+
+
+define external fastcc  i8 @lambda(i8  %"0")    {
+"\22lambda\221":
+  %0 =  call fastcc  i8  @"\22lambda\222"(i16  48)  
+  ret i8 %0 
+}
+
+
+define external fastcc  i8 @main()    {
+main:
+  %0 =  call fastcc  i8  @lambda(i8  42)  
+  ret i8 %0 
 }"

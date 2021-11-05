@@ -4,7 +4,8 @@
  
 
 
-define external ccc  i8 @main()    {
-  %1 = add   i8 4, 6 
-  ret i8 %1 
+define external fastcc  i8 @main()    {
+main:
+  %0 = add nuw nsw i8 4, 6 
+  ret i8 %0 
 }"

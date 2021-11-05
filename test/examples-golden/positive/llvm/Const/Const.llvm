@@ -4,6 +4,7 @@
  
 
 
-define external ccc  i8 @main()    {
+define external fastcc  i8 @main()    {
+main:
   ret i8 10 
 }"

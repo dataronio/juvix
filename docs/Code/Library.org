@@ -366,11 +366,12 @@ Surface language
   + [[Primitive]]
 ******* Compilation <<LLVM/Compilation>>
 - _Relies on_
+  + [[Block]]
+  + [[Codegen/Types]]
   + [[Primitive]]
   + [[Ann]]
   + [[Library]]
   + [[Feedback]]
-  + [[HashMap]]
   + [[NameSymbol]]
 ******* Parameterization <<LLVM/Parameterization>>
 Parameterization and application of the LLVM backend primitives.
