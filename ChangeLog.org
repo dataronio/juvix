@@ -1,4 +1,6 @@
 * Changelog for Juvix
+** 0.1.1.23
+- Fixed duplicate lambda name generation from the LLVM backend
 ** 0.1.1.22
 - Doubles and Strings now available to the S-expression parser and
   Toplevel Transformation
