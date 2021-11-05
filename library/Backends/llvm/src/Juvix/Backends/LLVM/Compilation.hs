@@ -1,5 +1,6 @@
 module Juvix.Backends.LLVM.Compilation
   ( compileProgram,
+    compileProgram',
   )
 where
 
@@ -43,34 +44,49 @@ compileProgram' ::
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   Feedback.FeedbackT [] P.String m Text
 compileProgram' t =
-  Block.execEnvState (mkMain' t) mempty
-    |> Types.moduleAST
-    |> LLVM.ppllvm
-    |> toStrict
-    |> return
+  case Block.runEnvState (mkMain' t) mempty of
+    (Right _, state) ->
+      state
+        |> Types.moduleAST
+        |> LLVM.ppllvm
+        |> toStrict
+        |> return
+    (Left err, _) ->
+      show err
+        |> Feedback.fail
 
 --------------------------------------------------------------------------------
 -- Function Declaration
 --------------------------------------------------------------------------------
 
-mkMain' t@(ErasedAnn.Ann usage ty t') = do
-  let (paramTys, returnTy) = functionType ty
-      returnTy' = typeToLLVM returnTy
-      paramTys' = map typeToLLVM paramTys
+mkMain' ::
+  Types.Define m => ErasedAnn.AnnTerm PrimTy RawPrimVal -> m LLVM.Operand
+mkMain' t@(ErasedAnn.Ann _usage ty _t') = do
+  let (paramTys, returnTy) = functionTypeLLVM ty
       paramNames =
         zipWith
           (\l r -> Block.internName (l <> r))
-          (replicate (length paramTys') "arg")
+          (replicate (length paramTys) "arg")
           (fmap (intern . show) [1 ..])
-      params = zip paramTys' paramNames
-  Block.defineFunction returnTy' "main" params $
+      params = zip paramTys paramNames
+  Block.defineFunction returnTy "main" params $
     do
-      undefined
+      case params of
+        _ : _ -> do
+          lamBody <- compileTerm' t
+          arguments <- traverse Block.externf paramNames
+          called <- Block.call returnTy lamBody (zip arguments (repeat []))
+          Block.ret called
+        [] -> do
+          res <- compileTerm' t
+          Block.ret res
 
 --------------------------------------------------------------------------------
 -- Term Handling
 --------------------------------------------------------------------------------
 
+compileTerm' ::
+  Types.Define m => ErasedAnn.AnnTerm PrimTy RawPrimVal -> m LLVM.Operand
 compileTerm' (ErasedAnn.Ann _usage ty t) =
   case t of
     ErasedAnn.LamM caps as body -> compileLam ty caps as body
@@ -86,6 +102,13 @@ compileVar sym = do
   Block.externf (Block.internName (NameSymbol.toSymbol sym))
 
 -- TODO :: compile as closures, with captures
+compileLam ::
+  (Foldable t, Types.Define m) =>
+  ErasedAnn.Type PrimTy ->
+  t a ->
+  [NameSymbol.T] ->
+  ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  m LLVM.Operand
 compileLam ty captures arguments body
   | length captures == 0 = do
     let (llvmArgty, llvmRetty) =
@@ -98,15 +121,22 @@ compileLam ty captures arguments body
     lamName <- Block.generateUniqueSymbol "lam"
     Block.defineFunction llvmRetty lamName llvmArguments $
       do
-        undefined
+        bod <- compileTerm' body
+        Block.ret bod
   | otherwise =
     throw @"err" (Types.UnsupportedOperation "closures are not supported")
 
-compileApp returnTy f@ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'} xs =
+compileApp ::
+  Types.Define m =>
+  ErasedAnn.Type PrimTy ->
+  ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
+  m LLVM.Operand
+compileApp returnTy f@ErasedAnn.Ann {ErasedAnn.term} xs =
   case term of
     -- we only treat prims specially
     ErasedAnn.Prim prim ->
-      undefined
+      compilePrimApp returnTy prim xs
     _ -> do
       arguments <- traverse compileTerm' xs
       function <- compileTerm' f
@@ -118,6 +148,25 @@ compileApp returnTy f@ErasedAnn.Ann {ErasedAnn.term, ErasedAnn.type'} xs =
           argsAtrributes = zip arguments (repeat [])
       --
       Block.call functionType function argsAtrributes
+
+compilePrimApp ::
+  Types.Define m =>
+  ErasedAnn.Type PrimTy ->
+  RawPrimVal ->
+  [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
+  m LLVM.Operand
+compilePrimApp ty f xs
+  | arityRaw f == lengthN xs =
+    case f of
+      Add -> do
+        x <- compileTerm' (xs P.!! 0)
+        y <- compileTerm' (xs P.!! 1)
+        Block.add (typeToLLVM ty) x y
+  | otherwise =
+    throw @"err"
+      ( Types.WrongNumberOfArguments
+          ("Was expecting " <> show (arityRaw f) <> "but got " <> show (lengthN xs))
+      )
 
 -- | Write the main function of the module. Here two distinct cases can be
 -- observed:
@@ -289,6 +338,7 @@ mkParameterName s = S.fromString $ unintern $ NameSymbol.toSymbol s
 globalRef :: LLVM.Type -> LLVM.Name -> LLVM.Operand
 globalRef ty name = LLVM.ConstantOperand $ LLVM.GlobalReference ty name
 
+functionTypeLLVM :: ErasedAnn.Type PrimTy -> ([LLVM.Type], LLVM.Type)
 functionTypeLLVM prim =
   functionType prim
     |> bimap (fmap typeToLLVM) typeToLLVM
