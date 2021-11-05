@@ -1,0 +1,54 @@
+[
+    ( "open" "Prelude" )
+,
+    ( "open" "LLVM" )
+,
+    ( ":defsig-match" "llvm-add"
+        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) )
+        ( () ( ":primitive" "LLVM.add" ) ) )
+,
+    ( ":defsig-match" "llvm-sub"
+        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) )
+        ( () ( ":primitive" "LLVM.sub" ) ) )
+,
+    ( ":defsig-match" "llvm-mul"
+        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) )
+        ( () ( ":primitive" "LLVM.mul" ) ) )
+,
+    ( ":defsig-match" "llvm-litint" "int8"
+        ( () ( ":primitive" "LLVM.litint" ) ) )
+,
+    ( ":defsig-match" "test-int8" "int8" ( () 42 ) )
+,
+    ( ":defsig-match" "test-int16" "int16" ( () 48 ) )
+,
+    ( ":defsig-match" "test-litint-add" "int8"
+        ( () ( "llvm-add" "llvm-litint" 43 ) ) )
+,
+    ( ":defsig-match" "test-add"
+        ( ":infix" "->" "int8" "int8" )
+        ( () ( "llvm-add" 44 ) ) )
+,
+    ( ":defsig-match" "test-sub"
+        ( ":infix" "->" "int8" "int8" )
+        ( () ( "llvm-sub" 46 ) ) )
+,
+    ( ":defsig-match" "test-mul"
+        ( ":infix" "->" "int8" "int8" )
+        ( () ( "llvm-mul" 50 ) ) )
+,
+    ( ":defsig-match" "main" "int"
+        ( ()
+            ( ":let-match" "ti8"
+                ( () "test-int8" )
+                ( ":let-match" "ti16"
+                    ( () "test-int16" )
+                    ( ":let-match" "tli"
+                        ( () "test-litint-add" )
+                        ( ":let-match" "ta"
+                            ( () ( "test-add" 45 ) )
+                            ( ":let-match" "ts"
+                                ( () ( "test-sub" 47 ) )
+                                ( ":let-match" "tm"
+                                    ( ()
+                                        ( "test-mul" 51 ) ) 99 ) ) ) ) ) ) ) ) ]

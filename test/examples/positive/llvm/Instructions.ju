@@ -1,0 +1,51 @@
+mod Instructions where
+
+open Prelude
+open LLVM
+
+-- Aliases for LLVM builtins.
+sig llvm-add : int8 -> int8 -> int8
+let llvm-add = %LLVM.add
+
+sig llvm-sub : int8 -> int8 -> int8
+let llvm-sub = %LLVM.sub
+
+sig llvm-mul : int8 -> int8 -> int8
+let llvm-mul = %LLVM.mul
+
+sig llvm-litint : int8
+let llvm-litint = %LLVM.litint
+
+-- Typecheck something of "int8" type.
+sig test-int8 : int8
+let test-int8 = 42
+
+-- Typecheck something of "int16" type.
+sig test-int16 : int16
+let test-int16 = 48
+
+-- Typecheck the "litint" value.
+sig test-litint-add : int8
+let test-litint-add = llvm-add llvm-litint 43
+
+-- Typecheck the "add" function.
+sig test-add : int8 -> int8
+let test-add = llvm-add 44
+
+-- Typecheck the "sub" function.
+sig test-sub : int8 -> int8
+let test-sub = llvm-sub 46
+
+-- Typecheck the "mul" function.
+sig test-mul : int8 -> int8
+let test-mul = llvm-mul 50
+
+sig main : int
+let main =
+  let ti8 = test-int8 in
+  let ti16 = test-int16 in
+  let tli = test-litint-add in
+  let ta = test-add 45 in
+  let ts = test-sub 47 in
+  let tm = test-mul 51 in
+  99

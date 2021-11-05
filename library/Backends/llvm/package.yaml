@@ -51,5 +51,7 @@ tests:
     - bytestring
     - llvm
     - tasty
+    - tasty-hunit
     - unordered-containers
+    - data-structures
 

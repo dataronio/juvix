@@ -1,0 +1,63 @@
+[
+    ( "open" "Prelude" )
+,
+    ( "open" "LLVM" )
+,
+    ( ":defsig" "llvm-add"
+        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) ) )
+,
+    ( ":defun" "llvm-add" () ( ":primitive" "LLVM.add" ) )
+,
+    ( ":defsig" "llvm-sub"
+        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) ) )
+,
+    ( ":defun" "llvm-sub" () ( ":primitive" "LLVM.sub" ) )
+,
+    ( ":defsig" "llvm-mul"
+        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) ) )
+,
+    ( ":defun" "llvm-mul" () ( ":primitive" "LLVM.mul" ) )
+,
+    ( ":defsig" "llvm-litint" "int8" )
+,
+    ( ":defun" "llvm-litint" () ( ":primitive" "LLVM.litint" ) )
+,
+    ( ":defsig" "test-int8" "int8" )
+,
+    ( ":defun" "test-int8" () 42 )
+,
+    ( ":defsig" "test-int16" "int16" )
+,
+    ( ":defun" "test-int16" () 48 )
+,
+    ( ":defsig" "test-litint-add" "int8" )
+,
+    ( ":defun" "test-litint-add" () ( "llvm-add" "llvm-litint" 43 ) )
+,
+    ( ":defsig" "test-add" ( ":infix" "->" "int8" "int8" ) )
+,
+    ( ":defun" "test-add" () ( "llvm-add" 44 ) )
+,
+    ( ":defsig" "test-sub" ( ":infix" "->" "int8" "int8" ) )
+,
+    ( ":defun" "test-sub" () ( "llvm-sub" 46 ) )
+,
+    ( ":defsig" "test-mul" ( ":infix" "->" "int8" "int8" ) )
+,
+    ( ":defun" "test-mul" () ( "llvm-mul" 50 ) )
+,
+    ( ":defsig" "main" "int" )
+,
+    ( ":defun" "main" ()
+        ( ":let-match" "ti8"
+            ( () "test-int8" )
+            ( ":let-match" "ti16"
+                ( () "test-int16" )
+                ( ":let-match" "tli"
+                    ( () "test-litint-add" )
+                    ( ":let-match" "ta"
+                        ( () ( "test-add" 45 ) )
+                        ( ":let-match" "ts"
+                            ( () ( "test-sub" 47 ) )
+                            ( ":let-match" "tm"
+                                ( () ( "test-mul" 51 ) ) 99 ) ) ) ) ) ) ) ]

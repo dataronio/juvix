@@ -1,0 +1,238 @@
+ShowRec
+    { contents = T
+        { public = fromList
+            [
+                ( "llvm-litint"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "TopLevel.Prelude.LLVM.int8"
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( () ( ":primitive" "LLVM.litint" ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "test-mul"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" )
+                        , defTerm =
+                            ( ":lambda-case" ( () ( "llvm-mul" 50 ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "test-int16"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "TopLevel.Prelude.LLVM.int16"
+                        , defTerm =
+                            ( ":lambda-case" ( () 48 ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "test-sub"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" )
+                        , defTerm =
+                            ( ":lambda-case" ( () ( "llvm-sub" 46 ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "test-add"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" )
+                        , defTerm =
+                            ( ":lambda-case" ( () ( "llvm-add" 44 ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "test-int8"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "TopLevel.Prelude.LLVM.int8"
+                        , defTerm =
+                            ( ":lambda-case" ( () 42 ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "main"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "TopLevel.Prelude.LLVM.int"
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( ()
+                                    ( ":let-match" "ti8"
+                                        ( () "test-int8" )
+                                        ( ":let-match" "ti16"
+                                            ( () "test-int16" )
+                                            ( ":let-match" "tli"
+                                                ( () "test-litint-add" )
+                                                ( ":let-match" "ta"
+                                                    ( () ( "test-add" 45 ) )
+                                                    ( ":let-match" "ts"
+                                                        ( () ( "test-sub" 47 ) )
+                                                        ( ":let-match" "tm"
+                                                            ( ()
+                                                                ( "test-mul" 51 ) ) 99 ) ) ) ) ) ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "llvm-add"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8"
+                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" ) )
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( () ( ":primitive" "LLVM.add" ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "llvm-sub"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8"
+                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" ) )
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( () ( ":primitive" "LLVM.sub" ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "llvm-mul"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just
+                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8"
+                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" ) )
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( () ( ":primitive" "LLVM.mul" ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "test-litint-add"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "TopLevel.Prelude.LLVM.int8"
+                        , defTerm =
+                            ( ":lambda-case"
+                                ( () ( "llvm-add" "llvm-litint" 43 ) ) )
+                        , defPrecedence = Pred Left 9 } ) ) ]
+        , private = fromList [] }
+    , mTy = Nothing
+    , openList = []
+    , qualifiedMap = fromList
+        [
+            ( "sub"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "cat-coproduct-elim"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "mul"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "int16"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "cat-coproduct"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-coproduct-intro-right"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "ty_"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( ":"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "ty"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "SAny"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "Circuit"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "LLVM"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "->"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product-elim-left"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "add"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "arr"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "Michelson"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "id"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product-elim-right"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "const"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product-intro"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "int8"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "int"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "dpair"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-coproduct-intro-left"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } ) ] }

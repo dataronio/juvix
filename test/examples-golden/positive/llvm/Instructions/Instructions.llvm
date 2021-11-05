@@ -1,0 +1,49 @@
+"; ModuleID = 'juvix-module'
+
+
+ 
+
+
+define external ccc  i8 @lam_0(i8  %arg_0)    {
+  ret i8 99 
+}
+
+
+define external ccc  i8 @lam_0(i8  %arg_0)    {
+  %1 = mul   i8 50, 51 
+  %2 =  call ccc  i8  @lam_0(i8  %1)  
+  ret i8 %2 
+}
+
+
+define external ccc  i8 @lam_0(i8  %arg_0)    {
+  %1 = sub   i8 46, 47 
+  %2 =  call ccc  i8  @lam_0(i8  %1)  
+  ret i8 %2 
+}
+
+
+define external ccc  i8 @lam_0(i8  %arg_0)    {
+  %1 = add   i8 44, 45 
+  %2 =  call ccc  i8  @lam_0(i8  %1)  
+  ret i8 %2 
+}
+
+
+define external ccc  i8 @lam_0(i16  %arg_0)    {
+  %1 = add   i8 0, 43 
+  %2 =  call ccc  i8  @lam_0(i8  %1)  
+  ret i8 %2 
+}
+
+
+define external ccc  i8 @lam_0(i8  %arg_0)    {
+  %1 =  call ccc  i8  @lam_0(i16  48)  
+  ret i8 %1 
+}
+
+
+define external ccc  i8 @main()    {
+  %1 =  call ccc  i8  @lam_0(i8  42)  
+  ret i8 %1 
+}"

@@ -5,6 +5,9 @@ open Prelude
 sig int8 : ty
 let int8 = %LLVM.int8
 
+sig int16 : ty
+let int16 = %LLVM.int16
+
 -- Alias for int8 to be more compitable with the Michelson backend.
 sig int : ty
 let int = int8
@@ -14,3 +17,6 @@ let add _ = %LLVM.add
 
 sig sub : (x : ty) -> x -> x -> x
 let sub _ = %LLVM.sub
+
+sig mul : (x : ty) -> x -> x -> x
+let mul _ = %LLVM.mul

@@ -1,0 +1,452 @@
+Right
+    ( Header
+        ( "Instructions" :| [] )
+        [ ModuleOpen
+            ( Open
+                ( "Prelude" :| [] )
+            )
+        , ModuleOpen
+            ( Open
+                ( "LLVM" :| [] )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "llvm-add"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "int8" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Infix
+                            ( Inf
+                                { infixLeft = Name
+                                    ( "int8" :| [] )
+                                , infixOp = "->" :| []
+                                , infixRight = Name
+                                    ( "int8" :| [] )
+                                }
+                            )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "llvm-add"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Primitive
+                            ( Prim
+                                ( "LLVM" :| [ "add" ] )
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "llvm-sub"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "int8" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Infix
+                            ( Inf
+                                { infixLeft = Name
+                                    ( "int8" :| [] )
+                                , infixOp = "->" :| []
+                                , infixRight = Name
+                                    ( "int8" :| [] )
+                                }
+                            )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "llvm-sub"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Primitive
+                            ( Prim
+                                ( "LLVM" :| [ "sub" ] )
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "llvm-mul"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "int8" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Infix
+                            ( Inf
+                                { infixLeft = Name
+                                    ( "int8" :| [] )
+                                , infixOp = "->" :| []
+                                , infixRight = Name
+                                    ( "int8" :| [] )
+                                }
+                            )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "llvm-mul"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Primitive
+                            ( Prim
+                                ( "LLVM" :| [ "mul" ] )
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "llvm-litint"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "int8" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "llvm-litint"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Primitive
+                            ( Prim
+                                ( "LLVM" :| [ "litint" ] )
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "test-int8"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "int8" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "test-int8"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Constant
+                            ( Number
+                                ( Integer' 42 )
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "test-int16"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "int16" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "test-int16"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Constant
+                            ( Number
+                                ( Integer' 48 )
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "test-litint-add"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "int8" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "test-litint-add"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Application
+                            ( App
+                                { applicationName = Name
+                                    ( "llvm-add" :| [] )
+                                , applicationArgs = Name
+                                    ( "llvm-litint" :| [] ) :|
+                                    [ Constant
+                                        ( Number
+                                            ( Integer' 43 )
+                                        )
+                                    ]
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "test-add"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "int8" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Name
+                            ( "int8" :| [] )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "test-add"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Application
+                            ( App
+                                { applicationName = Name
+                                    ( "llvm-add" :| [] )
+                                , applicationArgs = Constant
+                                    ( Number
+                                        ( Integer' 44 )
+                                    ) :| []
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "test-sub"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "int8" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Name
+                            ( "int8" :| [] )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "test-sub"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Application
+                            ( App
+                                { applicationName = Name
+                                    ( "llvm-sub" :| [] )
+                                , applicationArgs = Constant
+                                    ( Number
+                                        ( Integer' 46 )
+                                    ) :| []
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "test-mul"
+                , signatureUsage = Nothing
+                , signatureArrowType = Infix
+                    ( Inf
+                        { infixLeft = Name
+                            ( "int8" :| [] )
+                        , infixOp = "->" :| []
+                        , infixRight = Name
+                            ( "int8" :| [] )
+                        }
+                    )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "test-mul"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Application
+                            ( App
+                                { applicationName = Name
+                                    ( "llvm-mul" :| [] )
+                                , applicationArgs = Constant
+                                    ( Number
+                                        ( Integer' 50 )
+                                    ) :| []
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "main"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "int" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "main"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Let
+                            ( Let'
+                                { letBindings = Like
+                                    { functionLikedName = "ti8"
+                                    , functionLikeArgs = []
+                                    , functionLikeBody = Body
+                                        ( Name
+                                            ( "test-int8" :| [] )
+                                        )
+                                    }
+                                , letBody = Let
+                                    ( Let'
+                                        { letBindings = Like
+                                            { functionLikedName = "ti16"
+                                            , functionLikeArgs = []
+                                            , functionLikeBody = Body
+                                                ( Name
+                                                    ( "test-int16" :| [] )
+                                                )
+                                            }
+                                        , letBody = Let
+                                            ( Let'
+                                                { letBindings = Like
+                                                    { functionLikedName = "tli"
+                                                    , functionLikeArgs = []
+                                                    , functionLikeBody = Body
+                                                        ( Name
+                                                            ( "test-litint-add" :| [] )
+                                                        )
+                                                    }
+                                                , letBody = Let
+                                                    ( Let'
+                                                        { letBindings = Like
+                                                            { functionLikedName = "ta"
+                                                            , functionLikeArgs = []
+                                                            , functionLikeBody = Body
+                                                                ( Application
+                                                                    ( App
+                                                                        { applicationName = Name
+                                                                            ( "test-add" :| [] )
+                                                                        , applicationArgs = Constant
+                                                                            ( Number
+                                                                                ( Integer' 45 )
+                                                                            ) :| []
+                                                                        }
+                                                                    )
+                                                                )
+                                                            }
+                                                        , letBody = Let
+                                                            ( Let'
+                                                                { letBindings = Like
+                                                                    { functionLikedName = "ts"
+                                                                    , functionLikeArgs = []
+                                                                    , functionLikeBody = Body
+                                                                        ( Application
+                                                                            ( App
+                                                                                { applicationName = Name
+                                                                                    ( "test-sub" :| [] )
+                                                                                , applicationArgs = Constant
+                                                                                    ( Number
+                                                                                        ( Integer' 47 )
+                                                                                    ) :| []
+                                                                                }
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                , letBody = Let
+                                                                    ( Let'
+                                                                        { letBindings = Like
+                                                                            { functionLikedName = "tm"
+                                                                            , functionLikeArgs = []
+                                                                            , functionLikeBody = Body
+                                                                                ( Application
+                                                                                    ( App
+                                                                                        { applicationName = Name
+                                                                                            ( "test-mul" :| [] )
+                                                                                        , applicationArgs = Constant
+                                                                                            ( Number
+                                                                                                ( Integer' 51 )
+                                                                                            ) :| []
+                                                                                        }
+                                                                                    )
+                                                                                )
+                                                                            }
+                                                                        , letBody = Constant
+                                                                            ( Number
+                                                                                ( Integer' 99 )
+                                                                            )
+                                                                        }
+                                                                    )
+                                                                }
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        ]
+    )

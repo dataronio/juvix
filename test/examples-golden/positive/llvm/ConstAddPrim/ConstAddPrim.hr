@@ -213,6 +213,88 @@ fromList
             )
         )
     ,
+        ( "Prelude" :|
+            [ "LLVM"
+            , "int16"
+            ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Prelude" :|
+                    [ "LLVM"
+                    , "int16"
+                    ]
+                , rawFunUsage = GSAny
+                , rawFunType = Elim
+                    ( ElimX
+                        ( "Prelude" :| [ "ty" ] )
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = PrimTy
+                        ( PrimTy
+                            ( IntegerType
+                                { typeBits = 16 }
+                            )
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Prelude" :|
+            [ "LLVM"
+            , "mul"
+            ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Prelude" :|
+                    [ "LLVM"
+                    , "mul"
+                    ]
+                , rawFunUsage = GSAny
+                , rawFunType = Pi SAny
+                    ( Elim
+                        ( ElimX
+                            ( "Prelude" :| [ "ty" ] )
+                        ) ()
+                    )
+                    ( Pi SAny
+                        ( Elim
+                            ( ElimX
+                                ( "x" :| [] )
+                            ) ()
+                        )
+                        ( Pi SAny
+                            ( Elim
+                                ( ElimX
+                                    ( "x" :| [] )
+                                ) ()
+                            )
+                            ( Elim
+                                ( ElimX
+                                    ( "x" :| [] )
+                                ) ()
+                            )
+                            ( "" :| [] )
+                        )
+                        ( "" :| [] )
+                    )
+                    ( "x" :| [] )
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats =
+                        [ PatternX
+                            ( "_" :| [] )
+                        ]
+                    , rawClauseBody = Prim Mul ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
         ( "Prelude" :| [ "id" ]
         , RawGFunction
             ( RawFunction

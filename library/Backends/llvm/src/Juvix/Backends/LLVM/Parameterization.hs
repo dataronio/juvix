@@ -45,18 +45,22 @@ llvm =
     hasType t (Param.PrimType ty) = case t of
       Add -> Param.check3Equal ty
       Sub -> Param.check3Equal ty
+      Mul -> Param.check3Equal ty
       LitInt _ -> length ty == 1
 
     -- The primitive LLVM types available to Juvix users.
     builtinTypes :: Param.Builtins PrimTy
     builtinTypes =
-      [("LLVM.int8", PrimTy LLVM.i8)]
+      [ ("LLVM.int8", PrimTy LLVM.i8),
+        ("LLVM.int16", PrimTy LLVM.i16)
+      ]
 
     -- The primitive LLVM values available to Juvix users.
     builtinValues :: Param.Builtins RawPrimVal
     builtinValues =
       [ ("LLVM.add", Add),
         ("LLVM.sub", Sub),
+        ("LLVM.mul", Mul),
         ("LLVM.litint", LitInt 0) -- TODO: what to do with the 0?
       ]
 

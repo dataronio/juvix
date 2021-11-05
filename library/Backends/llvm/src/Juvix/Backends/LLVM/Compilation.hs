@@ -187,6 +187,14 @@ applyPrim env f xs
         x <- compileTerm env (xs P.!! 0)
         y <- compileTerm env (xs P.!! 1)
         LLVM.add x y
+      Sub -> do
+        x <- compileTerm env (xs P.!! 0)
+        y <- compileTerm env (xs P.!! 1)
+        LLVM.sub x y
+      Mul -> do
+        x <- compileTerm env (xs P.!! 0)
+        y <- compileTerm env (xs P.!! 1)
+        LLVM.mul x y
 
 -- | Counterpart of `mkName`: make a `ParameterName` given a name.
 mkParameterName :: NameSymbol.T -> LLVM.ParameterName

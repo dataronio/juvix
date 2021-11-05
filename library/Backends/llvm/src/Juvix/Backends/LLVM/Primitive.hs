@@ -29,6 +29,7 @@ arityTy _ = 0
 data RawPrimVal
   = Add
   | Sub
+  | Mul
   | LitInt Integer
   deriving (Eq, Show, Read)
 
@@ -46,3 +47,4 @@ data CompilationError
 arityRaw :: RawPrimVal -> Natural
 arityRaw Add = 2
 arityRaw Sub = 2
+arityRaw Mul = 2

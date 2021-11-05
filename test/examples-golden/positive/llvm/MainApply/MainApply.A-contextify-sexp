@@ -34,6 +34,14 @@ ShowRec
             , SymInfo
                 { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
         ,
+            ( "mul"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "int16"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
             ( "cat-coproduct"
             , SymInfo
                 { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )

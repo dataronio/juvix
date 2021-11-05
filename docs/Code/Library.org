@@ -409,6 +409,13 @@ Representation of LLVM primitives in Juvix.
   + [[Library/Test/Golden]]
   + [[Juvix/Pipeline]]
   + [[Juvix/Pipeline]]
+***** Parameterization <<Test/Parameterization>>
+- _Relies on_
+  + [[LLVM/Compilation]]
+  + [[LLVM/Parameterization]]
+  + [[LLVM/Pipeline]]
+  + [[Primitive]]
+  + [[Core/Parameterisation]]
 * BerlinPipeline
 ** Setup <<BerlinPipeline/Setup>>
 ** src
