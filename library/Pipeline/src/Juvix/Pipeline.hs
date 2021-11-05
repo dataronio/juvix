@@ -14,6 +14,7 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.IntMap.Strict as PM
 import qualified Data.Text as Text
 import qualified Data.Text.IO as T
+import Debug.Pretty.Simple
 import Debug.Pretty.Simple (pTraceShowM)
 import qualified Juvix.Context as Context
 import qualified Juvix.Core.Application as CoreApp
@@ -43,12 +44,11 @@ import qualified Juvix.Pipeline.ToIR as ToIR
 import qualified Juvix.Pipeline.ToSexp as ToSexp
 import Juvix.Pipeline.Types
 import qualified Juvix.Sexp as Sexp
+import System.Directory (getHomeDirectory)
 import qualified System.IO.Temp as Temp
 import qualified Text.Megaparsec as P
 import Text.Pretty.Simple (pShowNoColor)
-import Debug.Pretty.Simple
 import qualified Text.PrettyPrint.Leijen.Text as Pretty
-import System.Directory (getHomeDirectory)
 
 ------------------------------------------------------------------------------
 

@@ -85,7 +85,6 @@ configurationOptions = pure Config
 stdLibOptions :: Parser Command
 stdLibOptions = pure StdLib
 
-
 parseOptions :: Parser Command
 parseOptions = Parse <$> inputFileOptions <*> backendOptions
 

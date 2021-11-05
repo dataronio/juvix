@@ -5,5 +5,5 @@ import Juvix.Library.Fetch (loadStdLibs)
 
 main :: IO ()
 main = do
-    loadStdLibs
-    pure ()
+  loadStdLibs
+  pure ()

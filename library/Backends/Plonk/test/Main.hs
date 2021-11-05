@@ -1,10 +1,10 @@
 module Main where
 
 import Juvix.Library
+import Juvix.Library.Fetch (loadStdLibs)
 import qualified Test.Compiler as Compiler
 import qualified Test.Golden as Golden
 import qualified Test.Tasty as T
-import Juvix.Library.Fetch (loadStdLibs)
 
 main :: IO ()
 main = do

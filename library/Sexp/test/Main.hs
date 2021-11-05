@@ -1,11 +1,12 @@
 module Main where
 
 import Juvix.Library
+import Juvix.Library.Fetch (loadStdLibs)
 import qualified Sexp
 import qualified Sexp.Parser
 import qualified Sexp.SimplifiedPasses
 import qualified Test.Tasty as T
-import Juvix.Library.Fetch (loadStdLibs)
+
 allCheckedTests :: T.TestTree
 allCheckedTests =
   T.testGroup

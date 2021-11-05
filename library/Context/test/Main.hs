@@ -1,8 +1,8 @@
 module Main where
 
 import qualified Context
-import qualified Test.Tasty as T
 import Juvix.Library.Fetch (loadStdLibs)
+import qualified Test.Tasty as T
 
 allCheckeddTests :: T.TestTree
 allCheckeddTests =
