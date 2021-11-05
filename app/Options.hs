@@ -73,7 +73,7 @@ commandOptions =
         <> command "parse" (info parseOptions (progDesc "Parse a Juvix source file"))
         <> command "typecheck" (info typecheckOptions (progDesc "Typecheck a Juvix source file"))
         <> command "compile" (info compileOptions (progDesc "Compile a Juvix source file"))
-        <> command "install" (info stdLibOptions (progDesc "Install standard libraries"))
+        <> command "fetch-stdlibs" (info stdLibOptions (progDesc "Install standard libraries"))
     )
 
 versionOptions :: Parser Command

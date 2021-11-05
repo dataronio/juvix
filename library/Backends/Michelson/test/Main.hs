@@ -7,7 +7,7 @@ import qualified Test.Parameterisation as Parameterisation
 import qualified Test.Pipeline as Pipeline
 import qualified Test.Tasty as T
 import qualified Test.VStack as VStack
-import Juvix.Library.StdLib (loadStdLibs)
+import Juvix.Library.Fetch (loadStdLibs)
 
 allCheckedTests :: IO T.TestTree
 allCheckedTests = do

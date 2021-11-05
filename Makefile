@@ -14,8 +14,12 @@ all: setup build
 
 install:
 	stack install
-	juvix install
-	
+	juvix fetch-stdlibs
+
+fetch-stdlibs:
+	make build
+	stack exec juvix -- fetch-stdlibs
+
 setup:
 	stack build --only-dependencies --jobs $(THREADS)
 

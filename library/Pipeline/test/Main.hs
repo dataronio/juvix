@@ -4,7 +4,7 @@ import Juvix.Library (IO)
 import qualified Test.RecGroups as RecGroups
 import qualified Test.Tasty as T
 import qualified Test.ToSexp as ToSexp
-import Juvix.Library.StdLib (loadStdLibs)
+import Juvix.Library.Fetch (loadStdLibs)
 
 allCheckedTests :: T.TestTree
 allCheckedTests =

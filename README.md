@@ -61,7 +61,7 @@ Installation
    ````bash
    $ git clone https://github.com/anoma/juvix.git
    $ cd juvix
-   $ stack install
+   $ make install
    ````
    
    If the installation succeeds, you must be able to run the juvix command
