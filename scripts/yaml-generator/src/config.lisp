@@ -483,6 +483,7 @@ common ones to include"
                    *frontend*
                    *core*
                    *pipeline*
+                   *berlin-pipeline*
                    *translate*
                    *michelson*
                    *easy*

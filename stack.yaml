@@ -6,6 +6,7 @@ packages:
 - ./library/Frontend
 - ./library/Core
 - ./library/Pipeline
+- ./library/BerlinPipeline
 - ./library/Translate
 - ./library/Backends/Michelson
 - ./library/Playground/Easy
