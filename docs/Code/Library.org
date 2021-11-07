@@ -168,6 +168,7 @@ Module that implements the backend parameters for the Michelson backend.
 **** Main <<Michelson/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 **** Test
 ***** Golden <<Michelson/test/Test/Golden>>
 - _Relies on_
@@ -311,6 +312,7 @@ Surface language
 **** Main <<Plonk/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 **** Test
 ***** AnnTerm
 - _Relies on_
@@ -397,6 +399,7 @@ Representation of LLVM primitives in Juvix.
 **** Main <<llvm/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 **** Test
 ***** Golden <<llvm/test/Test/Golden>>
 - _Relies on_
@@ -426,6 +429,7 @@ Representation of LLVM primitives in Juvix.
 *** Main <<BerlinPipeline/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 * Context
 ** Setup <<Context/Setup>>
 ** src
@@ -497,6 +501,8 @@ Traversals serves as generic Context Traversal modules.
   + [[HashMap]]
   + [[NameSymbol]]
 *** Main <<Context/test/Main>>
+- _Relies on_
+  + [[Fetch]]
 * Core
 ** Setup <<Core/Setup>>
 ** src
@@ -939,6 +945,7 @@ Typechecked declarations are added to the signature.
 *** Main <<Core/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 *** Typechecker <<test/Typechecker>>
 Tests for the type checker and evaluator in Core/IR/Typechecker.hs
 - _Relies on_
@@ -1086,6 +1093,7 @@ would be a shame if the `a` was applied to `List a`!
 *** Main <<Frontend/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 *** Parser <<test/Parser>>
 - _Relies on_
   + [[Frontend/Parser]]
@@ -1292,6 +1300,7 @@ would be a shame if the `a` was applied to `List a`!
 *** Main <<Pipeline/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 *** Test
 **** RecGroups
 - _Relies on_
@@ -1376,6 +1385,7 @@ with any stage of the compiler while modifying the source code.
 **** Spec <<Easy/test/Spec>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 ** HTTP
 *** Setup <<HTTP/Setup>>
 *** src
@@ -1409,6 +1419,7 @@ with any stage of the compiler while modifying the source code.
 **** Main <<HTTP/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 * Sexp
 ** Setup <<Sexp/Setup>>
 ** src
@@ -1557,6 +1568,7 @@ _TODO_
 *** Main <<Sexp/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
 *** Sexp <<test/Sexp>>
 - _Relies on_
   + [[Library]]
@@ -1591,6 +1603,7 @@ _TODO_
 ***** Feedback
 - _Relies on_
   + [[Library]]
+***** Fetch
 ***** HashMap
 - The HashMap for the codebase.
 - Basically just imports Data.HashMap.Strict
@@ -1687,6 +1700,7 @@ for testing
 *** Main <<StandardLibrary/test/Main>>
 - _Relies on_
   + [[Library]]
+  + [[Fetch]]
   + [[Library/Test/Golden]]
 *** NameSymb
 - _Relies on_
