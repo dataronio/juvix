@@ -21,9 +21,9 @@ cradle:
     - path: ./library/Backends/Michelson/test
       component: "michelson:test:michelson-test"
 
-    - path: ./library/Backends/LLVM/src
+    - path: ./library/Backends/llvm/src
       component: "llvm"
-    - path: ./library/Backends/LLVM/test
+    - path: ./library/Backends/llvm/test
       component: "llvm:test:llvm-test"
 
     - path: ./library/Backends/Plonk/src
