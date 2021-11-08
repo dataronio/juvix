@@ -1583,6 +1583,11 @@ _TODO_
   + [[Juvix/Sexp]]
 * StandardLibrary
 ** Setup <<StandardLibrary/Setup>>
+** app
+*** Main <<app/Main>>
+- _Relies on_
+  + [[Library]]
+  + [[Fetch]]
 ** src
 *** Juvix
 **** Library

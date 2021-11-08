@@ -109,3 +109,14 @@ tests:
     - tasty-silver
     - tasty-quickcheck
     - pretty-simple
+
+executables:
+  fetch-libs:
+    source-dirs:      app
+    main:             Main.hs
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - standard-library

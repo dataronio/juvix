@@ -16,8 +16,8 @@ install:
 	stack install
 	juvix fetch-stdlibs
 
-fetch-stdlibs: build
-	stack exec juvix -- fetch-stdlibs
+fetch-stdlibs: 
+	cd library/StandardLibrary && stack build && stack exec -- fetch-libs
 
 update-local-stdlibs:
 	cp -r stdlib $(HOME)/.juvix/stdlib
