@@ -126,7 +126,7 @@ steps:
     mount: [./.stack-work, ./.stack]
     region: eu-west-1
     restore: true
-- commands: [make stack-yaml, make test]
+- commands: [make stack-yaml, make fetch-stdlibs, make test]
   depends_on: [restore-cache]
   image: 965844283396.dkr.ecr.eu-west-1.amazonaws.com/juvix:latest
   name: test-suite
@@ -797,6 +797,6 @@ type: docker
 workspace: {path: /drone/workspace}
 ---
 kind: signature
-hmac: 5e9743016b2b1c34fca150b4dfe6659b2bcaeadecced0f994620e5c3bad99858
+hmac: e4fac2f93e8375f9d675791ad1cc3d222460327e937934e211e0d071565667be
 
 ...
