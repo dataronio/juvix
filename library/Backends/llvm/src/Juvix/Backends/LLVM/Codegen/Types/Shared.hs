@@ -1,12 +1,17 @@
 -- | Shared between Types and Sum
-module Juvix.Backends.LLVM.Codegen.Types.Shared where
+module Juvix.Backends.LLVM.Codegen.Types.Shared
+  ( SymbolTable,
+    TypeTable,
+    SumInfo(..),
+    VariantToType,
+    Names,
+    uniqueName
+  )
+  where
 
 import Juvix.Library hiding (Type)
 import qualified Juvix.Library.HashMap as Map
 import LLVM.AST
-import qualified LLVM.AST as AST ()
-import qualified LLVM.AST.Constant as C ()
-import LLVM.AST.Global as Global ()
 
 type SymbolTable = Map.T Symbol Operand
 
@@ -23,8 +28,12 @@ data SumInfo = S
 -- the tag associated with it
 type VariantToType = Map.T Symbol SumInfo
 
+-- | Mapping from Symbols to Ints that allow us to pick an unique
+-- numbering to go along with a given name.
 type Names = Map.T Symbol Int
 
+-- | @uniqueName@ given a symbol and a name table, generate a new
+-- unique name and give back the updated nametable.
 uniqueName :: Symbol -> Names -> (Symbol, Names)
 uniqueName nm ns =
   case Map.lookup nm ns of
