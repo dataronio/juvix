@@ -20,3 +20,12 @@ let sub _ = %LLVM.sub
 
 sig mul : (x : ty) -> x -> x -> x
 let mul _ = %LLVM.mul
+
+sig list : ty -> ty
+let list = %LLVM.list
+
+sig set : ty -> ty
+let set = %LLVM.set
+
+sig string : ty
+let string = %LLVM.string

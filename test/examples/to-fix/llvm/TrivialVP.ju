@@ -1,0 +1,11 @@
+mod TrivialVP where
+
+open Prelude
+open Prelude.LLVM
+
+type key = int
+type address = string
+
+sig validateTx : list int -> list key -> set address -> bool
+let validateTx txData keysChanged verifiers =
+    true

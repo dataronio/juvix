@@ -11,7 +11,7 @@ Description
 <img align="right" width="300" height="300" src="Juvix_logo.png">
 
 Juvix is a dependently functional programming language for writing
-efficient formally-verified smart contracts, which can be
+efficient formally-verified [validity predicates](https://anoma.network/blog/validity-predicates/), which can be
 deployed to various distributed ledgers. Juvix addresses many issues that we have
 experienced while trying to write and deploy decentralised
 applications present in the ecosystem of smart-contracts: 
@@ -92,71 +92,41 @@ Examples
 To write Juvix programs, you can use any text editor. However, we
 recommend to use VSCode with the [Juvix syntax highlighting
 package](https://marketplace.visualstudio.com/items?itemName=metastate.language-juvix).
-In the following example, we will code a smart contract using the backend for
-[Michelson](https://www.michelson.org/), the language of [Tezos](https://tezos.com/).
+In the following example, we will code a [validity predicate](https://anoma.network/blog/validity-predicates/) using the [LLVM](https://llvm.org/) backend.
 
-1. Located at the Juvix folder, e.g.,
 
-```bash
-$ pwd
-/tmp/juvix
-```
-
-2. create the file `identity.ju`. The file content should be as follows.
+1. Create the file `trivial-vp.ju`. The file content should be as follows.
 
 ```haskell
-mod identity where
+mod TrivialVP where
 
 open Prelude
-open Prelude.Michelson
+open Prelude.LLVM
 
-sig cons-pair : list operation -> int -> pair (list operation) int
-let cons-pair = %Michelson.pair
+type key = int
+type address = string
 
-sig nil : list operation
-let nil = %Michelson.nil
-
-sig car : pair int int -> int
-let car = %Michelson.car
-
-sig main : pair int int -> pair (list operation) int
-let main = \params ->
-  cons-pair nil (car params)
+sig validateTx : list int -> list key -> set address -> bool
+let validateTx txData keysChanged verifiers =
+    true
 ```
 
-3. Then, you can run the following commands using the Michelson backend.
+3. Then, you can run the following commands using the LLVM backend.
 
 - To simply type-check your code:
 
   ```bash
-  $ juvix typecheck identity.ju -b michelson
+  $ juvix typecheck trivial-vp.ju -b llvm
   ```
 
-- To compile your code to a Michelson `.tz` file, please run the following command:
+- To compile your code to a LLVM `.ll` file, please run the following command:
 
   ```bash
-  $ juvix compile identity.ju identity.tz -b michelson
+  $ juvix compile trivial-vp.ju trivial-vp.ll -b llvm
   ()
   ```
   
-  As a result, you obtain a contract that can be deployed using
-  standard procedures outlined [in the Tezos documentation](https://tezos.gitlab.io/alpha/cli-commands.html?highlight=originate).
-  Direct integration with the Juvix toolchain is still work in progress.
-  
-  ```c++
-  $ cat identity.tz
-  parameter int;
-  storage int;
-  code { { DIG 0;
-         DUP;
-         DUG 1;
-         CAR;
-         NIL operation;
-         PAIR;
-         DIP { DROP } } };
-  ```
-
-More examples of Juvix programs can be found in [`examples`](./examples) and [`test`](./test) folders.
+More examples of Juvix programs can be found in the [`examples`](./test/examples) folder.
 
 
 Testing
