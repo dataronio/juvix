@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Juvix.Backends.Plonk.Pipeline
@@ -30,7 +32,7 @@ import Juvix.Pipeline as Pipeline
 import qualified Text.PrettyPrint.Leijen.Text as Pretty
 
 data BPlonk f = BPlonk
-  deriving (Eq, Show, Read)
+  deriving (Eq, Show, Read, Generic, A.ToJSON, A.FromJSON)
 
 instance
   ( GaloisField f,
@@ -46,7 +48,14 @@ instance
   type Val (BPlonk f) = Types.PrimVal f
   type Err (BPlonk f) = Types.CompilationError f
   stdlibs _ = ["stdlib/Circuit.ju", "stdlib/Circuit/Field.ju"]
+
+  param _ = Parameterization.param @f
   typecheck ctx = Pipeline.typecheck' ctx (Parameterization.param @f)
+
+  compile' term = do
+    let circuit = compileCircuit term
+    pure $ show $ A.encode circuit
+
   compile out term = do
     let circuit = compileCircuit term
     liftIO $ Dot.dotWriteSVG out (Dot.arithCircuitToDot circuit)

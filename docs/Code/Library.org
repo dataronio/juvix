@@ -1481,12 +1481,18 @@ with any stage of the compiler while modifying the source code.
   + [[Routes]]
 ******* Routes
 - _Relies on_
+  + [[LLVM]]
+  + [[Backends/Michelson]]
   + [[Plonk]]
   + [[Juvix/Context]]
   + [[Core/Base]]
+  + [[Core/Base]]
+  + [[OnlyExts]]
   + [[Ann]]
   + [[HR]]
   + [[Core/IR]]
+  + [[Typechecker/Types]]
+  + [[Core/Parameterisation]]
   + [[Frontend/Types]]
   + [[Library]]
   + [[BLS12381]]

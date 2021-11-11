@@ -455,10 +455,11 @@ common ones to include"
                    *michelson*
                    *context*
                    *plonk*
+                   *llvm*
                    *sexp*)
    ;; hack name, for sub dirs
    :name "Playground/HTTP"
-   :extra-deps (cons *servant-deps* (big-dep-list))
+   :extra-deps (append (list *servant-deps* *llvm-hs-deps*) (big-dep-list))
    :extra "allow-newer: true"))
 
 (defparameter *witch*

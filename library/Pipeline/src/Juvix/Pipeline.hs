@@ -94,7 +94,7 @@ createTmpPath code = Temp.writeSystemTempFile "juvix-tmp.ju" (Text.unpack code)
 prelude :: FilePath
 prelude = "stdlib/Prelude.ju"
 
--- getJuvixHome :: IO FilePath
+getJuvixHome :: IO FilePath
 getJuvixHome = (<> "/.juvix/") <$> getHomeDirectory
 
 -- ! This should be given as a default for the command-line.
@@ -108,6 +108,8 @@ class HasBackend b where
 
   stdlibs :: b -> [FilePath]
   stdlibs _ = []
+
+  param :: b -> Param.Parameterisation (Ty b) (Val b)
 
   -- | Parse juvix source code passing a set of libraries explicitly to have them in scope
   toML' :: [FilePath] -> b -> Text -> Pipeline [(NameSymbol.T, [Types.TopLevel])]
@@ -223,6 +225,9 @@ class HasBackend b where
     FilePath ->
     ErasedAnn.AnnTermT (Ty b) (Val b) ->
     Pipeline ()
+  compile f term = compile' term >>= writeout f
+
+  compile' :: ErasedAnn.AnnTermT (Ty b) (Val b) -> Pipeline Text
 
 -- | Write the output code to a given file.
 writeout :: FilePath -> Text -> Pipeline ()

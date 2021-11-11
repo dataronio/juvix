@@ -10,6 +10,7 @@ packages:
 - ../../Backends/Michelson
 - ../../Context
 - ../../Backends/Plonk
+- ../../Backends/llvm
 - ../../Sexp
 
 extra-deps:
@@ -18,6 +19,12 @@ extra-deps:
 # For HTTP server #
 ###################
 - servant-static-th-1.0.0.0
+
+################################
+# LLVM-HS Library dependencies #
+################################
+- llvm-hs-pure-9.0.0
+- llvm-hs-pretty-0.9.0.0
 
 ########################
 # General Dependencies #

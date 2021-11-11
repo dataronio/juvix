@@ -19,13 +19,14 @@ class Editor extends React.Component {
       code: `mod MainMultArgs where
 
 open Prelude
-open Circuit
+open LLVM
 
-sig main : field
+sig main : int
 let main = 5
 `,
         currentView: "allToML",
-        response: initialResponse
+        response: initialResponse,
+        backend: "LLVM"
     }
   }
   editorDidMount(editor, monaco) {
@@ -39,7 +40,7 @@ let main = 5
   parse() {
     console.log(this.state.code)
     axios.post('http://localhost:3001/pipeline/parse',
-        JSON.stringify({ reqBody: this.state.code }),
+        JSON.stringify({ code: this.state.code, backend: this.state.backend }),
         { headers: {
             'Content-Type': 'application/json',
         },
@@ -55,7 +56,7 @@ let main = 5
   typecheck() {
     console.log(this.state.code)
     axios.post('http://localhost:3001/pipeline/typecheck',
-        JSON.stringify({ reqBody: this.state.code }),
+        JSON.stringify({ code: this.state.code, backend: this.state.backend }),
         { headers: {
             'Content-Type': 'application/json',
         },
@@ -71,7 +72,7 @@ let main = 5
   compile() {
     console.log(this.state.code)
     axios.post('http://localhost:3001/pipeline/compile',
-        JSON.stringify({ reqBody: this.state.code }),
+        JSON.stringify({ code: this.state.code, backend: this.state.backend }),
         { headers: {
             'Content-Type': 'application/json',
         },
@@ -84,6 +85,9 @@ let main = 5
         console.log(error);
         this.setState({response: [["Invalid script: Fatal error"], initialResponse]})
       });
+  }
+  handleBackendChange = (e) => {
+      this.setState({backend: e.target.value})
   }
   render() {
     const code = this.state.code;
@@ -103,9 +107,25 @@ let main = 5
     return (
         <div style={{display: "flex", justifyContent: "space-around"}}>
             <div style={{flex: 1}}>
-                <button onClick={(e) => this.parse()}> Parse</button>
-                <button onClick={(e) => this.typecheck()}> Typecheck</button>
-                <button onClick={(e) => this.compile()}> Compile</button>
+                <div style={{display: "flex", justifyContent:"space-between"}}>
+                  <div>
+
+                  <button onClick={(e) => this.parse()}> Parse</button>
+                  <button onClick={(e) => this.typecheck()}> Typecheck</button>
+                  <button onClick={(e) => this.compile()}> Compile</button>
+                  </div>
+                  <div>
+                  <select 
+                      name="backend" 
+                      id="backends" 
+                      onChange={this.handleBackendChange}
+                      value={this.state.backend}>
+                     <option value="LLVM">LLVM</option>
+                     <option value="Plonk">Circuit</option>
+                     <option value="Michelson">Michelson</option>
+                  </select>
+                  </div>
+                </div>
                 <MonacoEditor
                     width="100%"
                     height="100%"
@@ -129,7 +149,7 @@ let main = 5
                 readOnly
                 style={{height:"100vh", width:"100%"}}
                 value={this.state.response[1][this.state.currentView] ? 
-                            JSON.stringify(this.state.response[1][this.state.currentView], null, 2) : "" }
+                  this.state.response[1][this.state.currentView] : "" }
             />
             </div>
         </div>

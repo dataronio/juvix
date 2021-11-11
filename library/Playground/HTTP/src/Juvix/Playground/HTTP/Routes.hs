@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -13,12 +14,18 @@ import qualified Control.Monad.State.Lazy as State
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Juvix.Backends.LLVM as LLVM
+import qualified Juvix.Backends.Michelson as Michelson
 import qualified Juvix.Backends.Plonk as Plonk
 import qualified Juvix.Context as Context
+import qualified Juvix.Core.Base as Base
 import qualified Juvix.Core.Base as Core
+import qualified Juvix.Core.Base.TransformExt.OnlyExts as OnlyExts
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import qualified Juvix.Core.HR as HR
 import qualified Juvix.Core.IR as IR
+import qualified Juvix.Core.IR.Typechecker.Types as Typechecker
+import qualified Juvix.Core.Parameterisation as Parameterisation
 import qualified Juvix.Frontend.Types as Frontend
 import Juvix.Library hiding (All)
 import Juvix.Library.BLS12381 (Fr)
@@ -27,56 +34,23 @@ import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Sexp as Sexp
 import Servant
+import Text.Pretty.Simple (pShowNoColor)
 
 type Result a = Feedback.Feedback [] [Char] a
 
--- TODO: Include backend details
-data Req = Req {reqBody :: Text}
+data Backend
+  = Plonk (Plonk.BPlonk Fr)
+  | LLVM LLVM.BLLVM
+  | Michelson Michelson.BMichelson
+  deriving (Eq, Show, Generic, A.ToJSON)
+
+instance A.FromJSON Backend where
+  parseJSON (A.String "LLVM") = pure (LLVM LLVM.BLLVM)
+  parseJSON (A.String "Plonk") = pure (Plonk Plonk.BPlonk)
+  parseJSON (A.String "Michelson") = pure (Michelson Michelson.BMichelson)
+
+data Req = Req {code :: Text, backend :: Backend}
   deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON)
-
-type ToML =
-  Description "Convert Juvix source code to AST"
-    :> ReqBody '[JSON] Req
-    :> Post '[JSON] (Result [(NameSymbol.T, [Frontend.TopLevel])])
-
-type ToSexp =
-  Description "Convert AST to S-expression"
-    :> ReqBody '[JSON] [(NameSymbol.T, [Frontend.TopLevel])]
-    :> Post '[JSON] (Result (Context.T Sexp.T Sexp.T Sexp.T))
-
-type ToHR =
-  Description "Convert S-expression to HR"
-    :> ReqBody '[JSON] (Context.T Sexp.T Sexp.T Sexp.T)
-    :> Post '[JSON] (Result (Core.RawGlobals HR.T (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)))
-
-type ToIR =
-  Description "Convert HR to IR"
-    :> ReqBody '[JSON] (Core.RawGlobals HR.T (Plonk.PrimTy Fr) (Plonk.PrimVal Fr))
-    :> Post '[JSON] (Result (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)))
-
-type ToErased =
-  Description "Convert IR to Erased"
-    :> ReqBody '[JSON] (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Plonk.PrimTy Fr) (Plonk.PrimVal Fr))
-    :> Post '[JSON] (Result (ErasedAnn.AnnTermT (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)))
-
--- TODO: Abstract to any backend
-type ToBackend =
-  Description "Convert Erased to Backend"
-    :> ReqBody '[JSON] (ErasedAnn.AnnTermT (Plonk.PrimTy Fr) (Plonk.PrimVal Fr))
-    :> Post '[JSON] (Result (Circuit Fr))
-
-data Circuit f = Circuit
-  { circ :: Plonk.ArithCircuit Fr,
-    circDot :: Text,
-    circPretty :: Text
-  }
-  deriving (Show, Eq, Generic)
-
-instance A.ToJSON f => A.ToJSON (Circuit f) where
-  toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
-
-instance A.FromJSON f => A.FromJSON (Circuit f) where
-  parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 type Parse =
   Description "Parse Juvix source code"
@@ -95,50 +69,31 @@ type Compile =
 
 type Pipeline =
   "pipeline"
-    :> ( ("step" :> Steps)
-           :<|> ("parse" :> Parse)
+    :> ( ("parse" :> Parse)
            :<|> ("typecheck" :> Typecheck)
            :<|> ("compile" :> Compile)
        )
 
-type Steps =
-  "step"
-    :> ( ("to-ml" :> ToML)
-           :<|> ("to-sexp" :> ToSexp)
-           :<|> ("to-hr" :> ToHR)
-           :<|> ("to-ir" :> ToIR)
-           :<|> ("to-erased" :> ToErased)
-           :<|> ("to-circuit" :> ToBackend)
-       )
-
-juvixRootPath :: FilePath
-juvixRootPath = "../../"
-
-withJuvixRootPath :: FilePath -> FilePath
-withJuvixRootPath p = juvixRootPath <> p
-
 pipeline :: Server Pipeline
 pipeline =
-  steps
-    :<|> parse
+  parse
     :<|> typecheck
     :<|> compile
 
--- TODO: Make it backend agnostic
 data AllSteps = AllSteps
-  { allToML :: Maybe [(NameSymbol.T, [Frontend.TopLevel])],
-    allToSexp :: Maybe (Context.T Sexp.T Sexp.T Sexp.T),
-    allToHR :: Maybe (Core.RawGlobals HR.T (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)),
-    allToIR :: Maybe (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)),
-    allToErased :: Maybe (ErasedAnn.AnnTermT (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)),
-    allToBackend :: Maybe (Circuit Fr)
+  { allToML :: Maybe Text,
+    allToSexp :: Maybe Text,
+    allToHR :: Maybe Text,
+    allToIR :: Maybe Text,
+    allToErased :: Maybe Text,
+    allToBackend :: Maybe Text
   }
   deriving (Show, Eq, Generic)
 
-instance A.ToJSON AllSteps where
+instance A.ToJSON (AllSteps) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
-instance A.FromJSON AllSteps where
+instance A.FromJSON (AllSteps) where
   parseJSON = A.genericParseJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
 
 emptyAllSteps :: AllSteps
@@ -160,14 +115,15 @@ continueSuccess update next filterPrelude f = case f of
     pure $ Feedback.Fail err
 
 parseSt ::
-  MonadIO m =>
-  Req ->
+  (MonadIO m, Pipeline.HasBackend b) =>
+  Text ->
+  b ->
   StateT ([[Char]], AllSteps) m (Result (Context.T Sexp.T Sexp.T Sexp.T))
-parseSt (Req script) = do
+parseSt script backend = do
   mlF <-
     liftIO . Feedback.runFeedbackT $
-      Pipeline.toML (Plonk.BPlonk @Fr) script
-  sexpF <- continueSuccess modifyML (Pipeline.toSexp (Plonk.BPlonk @Fr)) filterML mlF
+      Pipeline.toML backend script
+  sexpF <- continueSuccess modifyML (Pipeline.toSexp backend) filterML mlF
   case sexpF of
     Feedback.Success _ m -> do
       modifySexp $ filterSexp m
@@ -175,22 +131,18 @@ parseSt (Req script) = do
       State.modify (\(_, s) -> (err, s))
   pure sexpF
   where
-    modifyML r = State.modify (\(e, s) -> (e, s {allToML = Just r}))
-    modifySexp r = State.modify (\(e, s) -> (e, s {allToSexp = Just r}))
+    modifyML r = State.modify (\(e, s) -> (e, s {allToML = Just $ toS $ pShowNoColor r}))
+    modifySexp r = State.modify (\(e, s) -> (e, s {allToSexp = Just $ toS $ pShowNoColor r}))
 
     filterML = filter (\(name, _) -> "Prelude" `elem` name)
     filterSexp = identity
 
-typecheckSt ::
-  MonadIO m =>
-  Req ->
-  StateT ([[Char]], AllSteps) m (Result (ErasedAnn.AnnTermT (Plonk.PrimTy Fr) (Plonk.PrimVal Fr)))
-typecheckSt req = do
+typecheckSt script b = do
   erasedF <-
-    parseSt req
-      >>= continueSuccess modifySexp (Pipeline.toHR (Plonk.param @Fr)) filterSexp
+    parseSt script b
+      >>= continueSuccess modifySexp (Pipeline.toHR (Pipeline.param b)) filterSexp
       >>= continueSuccess modifyHR Pipeline.toIR filterHR
-      >>= continueSuccess modifyIR (Pipeline.toErased (Plonk.param @Fr)) filterIR
+      >>= continueSuccess modifyIR (Pipeline.toErased (Pipeline.param b)) filterIR
   case erasedF of
     Feedback.Success _ m -> do
       modifyErased $ filterErased m
@@ -198,10 +150,10 @@ typecheckSt req = do
       State.modify (\(_, s) -> (err, s))
   pure erasedF
   where
-    modifySexp r = State.modify (\(e, s) -> (e, s {allToSexp = Just r}))
-    modifyHR r = State.modify (\(e, s) -> (e, s {allToHR = Just r}))
-    modifyIR r = State.modify (\(e, s) -> (e, s {allToIR = Just r}))
-    modifyErased r = State.modify (\(e, s) -> (e, s {allToErased = Just r}))
+    modifySexp r = State.modify (\(e, s) -> (e, s {allToSexp = Just $ toS $ pShowNoColor r}))
+    modifyHR r = State.modify (\(e, s) -> (e, s {allToHR = Just $ toS $ pShowNoColor r}))
+    modifyIR r = State.modify (\(e, s) -> (e, s {allToIR = Just $ toS $ pShowNoColor r}))
+    modifyErased r = State.modify (\(e, s) -> (e, s {allToErased = Just $ toS $ pShowNoColor r}))
 
     filterSexp = identity
     filterHR = HM.filterWithKey isNotPrelude
@@ -209,14 +161,10 @@ typecheckSt req = do
     filterIR = second (HM.filterWithKey isNotPrelude)
     filterErased = identity
 
-compileSt ::
-  MonadIO m =>
-  Req ->
-  StateT ([[Char]], AllSteps) m (Result (Circuit Fr))
-compileSt req = do
+compileSt script backend = do
   circF <-
-    typecheckSt req
-      >>= continueSuccess modifyErased toCircuit filterErased
+    typecheckSt script backend
+      >>= continueSuccess modifyErased toBackend filterErased
   case circF of
     Feedback.Success _ m -> do
       modifyBackend m
@@ -224,40 +172,25 @@ compileSt req = do
       State.modify (\(_, s) -> (err, s))
   pure circF
   where
-    toCircuit erasedAnn =
-      let circ = Plonk.compileCircuit erasedAnn
-       in pure $ Circuit {circ, circPretty = Plonk.prettifyCircuit circ, circDot = Plonk.arithCircuitToDot circ}
-    modifyErased r = State.modify (\(e, s) -> (e, s {allToErased = Just r}))
-    modifyBackend r = State.modify (\(e, s) -> (e, s {allToBackend = Just r}))
+    toBackend erasedAnn = Pipeline.compile' erasedAnn
+    modifyErased r = State.modify (\(e, s) -> (e, s {allToErased = Just $ toS $ pShowNoColor r}))
+    modifyBackend r = State.modify (\(e, s) -> (e, s {allToBackend = Just $ toS $ pShowNoColor r}))
     filterErased = identity
 
 parse :: Server Parse
-parse = flip execStateT ([], emptyAllSteps) . parseSt
+parse (Req script (LLVM b)) = flip execStateT ([], emptyAllSteps) $ parseSt script b
+parse (Req script (Plonk b)) = flip execStateT ([], emptyAllSteps) $ parseSt script b
+parse (Req script (Michelson b)) = flip execStateT ([], emptyAllSteps) $ parseSt script b
 
 typecheck :: Server Parse
-typecheck = flip execStateT ([], emptyAllSteps) . typecheckSt
+typecheck (Req script (LLVM b)) = flip execStateT ([], emptyAllSteps) $ typecheckSt script b
+typecheck (Req script (Plonk b)) = flip execStateT ([], emptyAllSteps) $ typecheckSt script b
+typecheck (Req script (Michelson b)) = flip execStateT ([], emptyAllSteps) $ typecheckSt script b
 
 compile :: Server Compile
-compile = flip execStateT ([], emptyAllSteps) . compileSt
-
-steps :: Server Steps
-steps =
-  toML
-    :<|> toSexp
-    :<|> toHR
-    :<|> toIR
-    :<|> toErased
-    :<|> toCircuit
-  where
-    toML :: Server ToML
-    toML = liftIO . Feedback.runFeedbackT . Pipeline.toML (Plonk.BPlonk @Fr) . reqBody
-    toSexp = liftIO . Feedback.runFeedbackT . Pipeline.toSexp (Plonk.BPlonk @Fr)
-    toHR = liftIO . Feedback.runFeedbackT . Pipeline.toHR (Plonk.param @Fr)
-    toIR = liftIO . Feedback.runFeedbackT . Pipeline.toIR
-    toErased = liftIO . Feedback.runFeedbackT . Pipeline.toErased (Plonk.param @Fr)
-    toCircuit erasedAnn =
-      let circ = Plonk.compileCircuit erasedAnn
-       in pure . Feedback.Success [] $ Circuit {circ, circPretty = Plonk.prettifyCircuit circ, circDot = Plonk.arithCircuitToDot circ}
+compile (Req script (LLVM b)) = flip execStateT ([], emptyAllSteps) $ compileSt script b
+compile (Req script (Plonk b)) = flip execStateT ([], emptyAllSteps) $ compileSt script b
+compile (Req script (Michelson b)) = flip execStateT ([], emptyAllSteps) $ compileSt script b
 
 proxy :: Proxy Pipeline
 proxy = Proxy

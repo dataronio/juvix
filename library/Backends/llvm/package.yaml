@@ -20,6 +20,7 @@ extra-source-files:
 description:         LLVM backend for the Juvix programming language.
 
 dependencies:
+  - aeson
   - base >= 4.7 && < 5
   - core
   - pipeline
