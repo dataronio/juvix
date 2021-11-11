@@ -95,20 +95,33 @@ package](https://marketplace.visualstudio.com/items?itemName=metastate.language-
 In the following example, we will code a [validity predicate](https://anoma.network/blog/validity-predicates/) using the [LLVM](https://llvm.org/) backend.
 
 
-1. Create the file `trivial-vp.ju`. The file content should be as follows.
+1. Create the file `vp.ju`. The file content should be as follows.
 
 ```haskell
-mod TrivialVP where
+mod VP where
 
 open Prelude
 open Prelude.LLVM
 
-type key = int
-type address = string
+type account = {
+  balance : nat
+}
 
-sig validateTx : list int -> list key -> set address -> bool
-let validateTx txData keysChanged verifiers =
-    true
+type transaction-type = {
+  account-from : account,
+  account-to   : account
+}
+
+type storage = {
+  transaction : transaction-type,
+}
+
+sig accept-withdraws-from : key -> storage -> storage -> bool
+let accept-withdraws-from key {transaction = initial} {transaction = final}
+  | key == final.account-to =
+    let difference = initial.account-from.balance - final.account-from.balance 
+    in difference < 10
+  | else = false
 ```
 
 3. Then, you can run the following commands using the LLVM backend.
@@ -116,13 +129,13 @@ let validateTx txData keysChanged verifiers =
 - To simply type-check your code:
 
   ```bash
-  $ juvix typecheck trivial-vp.ju -b llvm
+  $ juvix typecheck vp.ju -b llvm
   ```
 
 - To compile your code to a LLVM `.ll` file, please run the following command:
 
   ```bash
-  $ juvix compile trivial-vp.ju trivial-vp.ll -b llvm
+  $ juvix compile vp.ju vp.ll -b llvm
   ()
   ```
   

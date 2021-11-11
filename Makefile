@@ -20,7 +20,8 @@ fetch-stdlibs:
 	cd library/StandardLibrary && stack build && stack exec -- fetch-libs
 
 update-local-stdlibs:
-	cp -r stdlib $(HOME)/.juvix/stdlib
+	mkdir -p $(HOME)/.juvix/stdlib
+	cp -rp stdlib/* $(HOME)/.juvix/stdlib
 
 setup:
 	stack build --only-dependencies --jobs $(THREADS)
