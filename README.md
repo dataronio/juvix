@@ -26,8 +26,7 @@ particular backends.
 The Juvix compiler synthesises a high-level frontend syntax with
 support for dependent-linearly types and several other cutting-edge
 research ideas from programming language design and type theory. For
-more details, see [the Juvix language
-reference WIP](./doc/reference/language-reference.pdf).
+more details, see [Juvix's documentation](https://juvix.readthedocs.io/en/latest/index.html).
 
 Prerequisites
 --------------
