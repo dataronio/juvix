@@ -10,7 +10,7 @@
 
 (defun main ()
   (generate-yaml-file *standard-library* "library/StandardLibrary/stack.yaml")
-  (generate-yaml-file *frontend*         "library/Frontend/stack.yaml")
+  (generate-yaml-file *parsing*         "library/Parsing/stack.yaml")
   (generate-yaml-file *sexp*             "library/Sexp/stack.yaml")
   (generate-yaml-file *context*          "library/Context/stack.yaml")
   (generate-yaml-file *core*             "library/Core/stack.yaml")

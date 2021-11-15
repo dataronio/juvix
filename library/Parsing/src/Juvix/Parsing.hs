@@ -1,4 +1,4 @@
-module Juvix.Frontend
+module Juvix.Parsing
   ( Error (..),
     parseFiles,
     parseSingleFile,
@@ -8,11 +8,11 @@ where
 ------------------------------------------------------------------------------
 
 import qualified Data.ByteString as ByteString
-import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Types as Types
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Parser (ParserError)
+import qualified Juvix.Parsing.Parser as Parser
+import qualified Juvix.Parsing.Types as Types
 import qualified System.FilePath as FilePath
 
 ------------------------------------------------------------------------------

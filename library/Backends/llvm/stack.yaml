@@ -6,7 +6,7 @@ packages:
 - ../../Core
 - ../../Context
 - ../../Pipeline
-- ../../Frontend
+- ../../Parsing
 - ../../Sexp
 - ../../Translate
 - ../../Test/DataStructures

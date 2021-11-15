@@ -28,7 +28,7 @@ dependencies:
   ###########################
   - standard-library
   - sexp
-  - frontend
+  - parsing
   - core
   - translate
   - context

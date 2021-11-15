@@ -1,4 +1,4 @@
-module Juvix.Frontend.Types.Located where
+module Juvix.Parsing.Types.Located where
 
 import Juvix.Library
 import Juvix.Library.Parser (Parser)

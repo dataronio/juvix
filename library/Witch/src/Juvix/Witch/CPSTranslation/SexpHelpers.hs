@@ -5,7 +5,7 @@ import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import Juvix.Sexp.Structure
 import qualified Juvix.Sexp.Structure.CoreNamed as Core
-import qualified Juvix.Sexp.Structure.Frontend as Str
+import qualified Juvix.Sexp.Structure.Parsing as Str
 import qualified Juvix.Sexp.Structure.Transition as Str
 
 spair :: Sexp.T

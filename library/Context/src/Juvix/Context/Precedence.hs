@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Juvix.Context.Precedence
@@ -15,16 +16,16 @@ where
 import qualified Data.Aeson as A
 import Data.Data
 import Data.Hashable (Hashable (..), hash)
-import Juvix.Library (Eq, Generic, Int, Read, Show, Symbol)
+import Juvix.Library (Eq, Generic, Int, NFData, Read, Show, Symbol)
 
 data Associativity
   = Left
   | Right
   | NonAssoc
-  deriving (Eq, Show, Data, Read, Generic)
+  deriving (Eq, Show, Data, Read, Generic, NFData)
 
 data Precedence = Pred Associativity Int
-  deriving (Eq, Show, Data, Read, Generic)
+  deriving (Eq, Show, Data, Read, Generic, NFData)
 
 instance Hashable Associativity where
   hash Left = 1

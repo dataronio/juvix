@@ -45,7 +45,7 @@ import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Sexp.Structure.CoreNamed as Core
-import qualified Juvix.Sexp.Structure.Frontend as Str
+import qualified Juvix.Sexp.Structure.Parsing as Str
 import qualified Juvix.Sexp.Structure.Transition as Str
 import qualified Juvix.Witch.CPSTranslation.SexpHelpers as Sexp
 

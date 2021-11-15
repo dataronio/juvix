@@ -6,7 +6,7 @@ packages:
 - ../../Core
 - ../../Pipeline
 - ../../Context
-- ../../Frontend
+- ../../Parsing
 - ../../Sexp
 
 extra-deps:

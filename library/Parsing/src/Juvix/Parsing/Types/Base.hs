@@ -3,14 +3,14 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 -- The main ADT is laid out
--- [[https://github.com/heliaxdev/juvix/blob/develop/doc/Frontend/syntax.org][here]].
+-- [[https://juvix.readthedocs.io/en/latest/compiler/frontend/s-expression-syntax.html#bnf-syntax][here]].
 -- - Later a trees that grow version of this will be implemented, so
 --   infix functions can better transition across syntax
 -- - Note :: The names for the types in =ArrowData= are stored in the
 --           =ArrowGen= and not in =NamedType=
 
 -- | The main ADT for the Juvix frontend language.
-module Juvix.Frontend.Types.Base where
+module Juvix.Parsing.Types.Base where
 
 --------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ data TopLevel
   | Declaration Declaration
   | TypeClass
   | TypeClassInstance
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Declarations
@@ -45,13 +45,13 @@ data TopLevel
 
 newtype Declaration
   = Infixivity InfixDeclar
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data InfixDeclar
   = NonAssoc Symbol Natural
   | AssocL Symbol Natural
   | AssocR Symbol Natural
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Types
@@ -65,7 +65,7 @@ data Type = Typ
     typeForm :: Data
     -- TODO: To support Empty type this should be 'Maybe Data'
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- | 'Data' is the data declaration in the Juvix language
 data Data
@@ -76,7 +76,7 @@ data Data
   | NonArrowed
       { dataAdt :: Adt
       }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Arrows
@@ -86,14 +86,14 @@ data NamedType = NamedType'
   { nameRefineName :: !Name,
     namedRefineRefine :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- TODO ∷ change TypeName to TypeNameModule
 data TypeRefine = TypeRefine
   { typeRefineName :: Expression,
     typeRefineRefinement :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Types Misc
@@ -102,18 +102,18 @@ data TypeRefine = TypeRefine
 data Name
   = Implicit !Symbol
   | Concrete !Symbol
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data ArrowSymbol
   = ArrowUse Usage.T
   | -- Was a usage but can't alias for now
     ArrowExp Expression
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- TODO ∷ finish this type!
 newtype UniverseExpression
   = UniverseExpression Symbol
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- ADTs
@@ -130,13 +130,13 @@ newtype UniverseExpression
 data Adt
   = Sum (NonEmpty Sum)
   | Product Product
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Sum = S
   { sumConstructor :: !Symbol,
     sumValue :: !(Maybe Product)
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- For when a product is without a sum only a record can apply a sum
 -- of only one is a named product
@@ -144,20 +144,20 @@ data Product
   = Record !Record
   | Arrow Expression
   | ADTLike [Expression]
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Record = Record''
   { recordFields :: NonEmpty NameType,
     recordFamilySignature :: Maybe Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data NameType = NameType'
   { nameTypeSignature :: Expression,
     nameTypeName :: !Name,
     nameTypeUsage :: Maybe Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Effect Handlers
@@ -167,10 +167,10 @@ data Effect = Eff
   { effName :: Symbol,
     effOps :: [Signature]
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Operation = Op (FunctionLike Expression)
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --  A 'Handler', as implemented here, is a set of functions that implement
 -- (at least) one `Effect` interface.
@@ -179,7 +179,7 @@ data Operation = Op (FunctionLike Expression)
 -- us to make some choices, it's wise to have Witch up and running first.
 data Handler
   = Hand Symbol [Operation]
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Functions and Modules
@@ -189,18 +189,18 @@ data Handler
 -- that may or may not have a guard before it
 newtype Function
   = Func (FunctionLike Expression)
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- 'Module' is like function, however it allows multiple top levels
 newtype Module
   = Mod (FunctionLike (NonEmpty TopLevel))
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data ModuleE = ModE
   { moduleEBindings :: FunctionLike (NonEmpty TopLevel),
     moduleEBody :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- 'FunctionLike' is the generic version for both modules and functions
 data FunctionLike a = Like
@@ -208,39 +208,39 @@ data FunctionLike a = Like
     functionLikeArgs :: [Arg],
     functionLikeBody :: GuardBody a
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- 'GuardBody' determines if a form is a guard or a body
 data GuardBody a
   = Body a
   | Guard (Cond a)
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 newtype ModuleOpen
   = Open ModuleName
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data ModuleOpenExpr = OpenExpress
   { moduleOpenExprModuleN :: ModuleName,
     moduleOpenExprExpr :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- Very similar to name, but match instead of symbol
 data Arg
   = ImplicitA MatchLogic
   | ConcreteA MatchLogic
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 newtype Cond a
   = C (NonEmpty (CondLogic a))
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data CondLogic a = CondExpression
   { condLogicPred :: Expression,
     condLogicBody :: a
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Signatures
@@ -253,7 +253,7 @@ data Signature = Sig
     signatureArrowType :: Expression,
     signatureConstraints :: [Expression]
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Expression
@@ -288,23 +288,23 @@ data Expression
   | UniverseName UniverseExpression
   | Parened Expression
   | DeclarationE DeclarationExpression
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data DeclarationExpression
   = DeclareExpression Declaration Expression
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Primitive
   = Prim NameSymb
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data List
   = ListLit [Expression]
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Tuple
   = TupleLit [Expression]
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data ArrowExp = Arr'
   { arrowExpLeft :: Expression,
@@ -312,78 +312,78 @@ data ArrowExp = Arr'
     arrowExpUsage :: Expression,
     arrowExpRight :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Constant
   = Number Numb
   | String String'
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Numb
   = Integer' Integer
   | Double' Double
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 newtype String'
   = Sho Text
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 newtype Block = Bloc
   {blockExpr :: Expression}
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Lambda = Lamb
   { lambdaArgs :: NonEmpty MatchLogic,
     lambdaBody :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Application = App
   { applicationName :: Expression,
     applicationArgs :: NonEmpty Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data EffApp = Via
   { effappHand :: Expression,
     effappArg :: Expression
   }
-  deriving (Show, Read, Generic, Eq)
+  deriving (Show, Read, Generic, Eq, NFData)
 
 -- Was a newtype but extensible adds fields
 newtype Do
   = Do'' (NonEmpty DoBody)
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- promote this to a match!!!
 data DoBody = DoBody
   { doBodyName :: Maybe Symbol,
     doBodyExpr :: Computation -- computation as in effect
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Computation
   = DoOp DoOp
   | DoPure DoPure
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data DoOp = DoOp'
   { opName :: Expression,
     opArgs :: NonEmpty Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data DoPure = DoPure'
   { pureArg :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- TODO ∷ we need includes in here as well!
 -- Was a newtype but extensible adds fields
 newtype ExpRecord = ExpressionRecord
   { expRecordFields :: NonEmpty (NameSet Expression)
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Symbol Binding
@@ -393,20 +393,20 @@ data Let = Let'
   { letBindings :: FunctionLike Expression,
     letBody :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data LetType = LetType''
   { letTypeBindings :: Type,
     letTypeBody :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Infix = Inf
   { infixLeft :: Expression,
     infixOp :: NameSymb,
     infixRight :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- Matching
@@ -416,37 +416,37 @@ data Match = Match''
   { matchOn :: Expression,
     matchBindigns :: NonEmpty MatchL
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data MatchL = MatchL
   { matchLPattern :: MatchLogic,
     matchLBody :: Expression
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 -- TODO ∷ add literals to the match
 data MatchLogic = MatchLogic
   { matchLogicContents :: MatchLogicStart,
     matchLogicNamed :: Maybe Symbol
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data MatchLogicStart
   = MatchCon ConstructorName [MatchLogic]
   | MatchName Symbol
   | MatchConst Constant
   | MatchRecord (NonEmpty (NameSet MatchLogic))
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data NameSet t
   = Punned NameSymb
   | NonPunned NameSymb t
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 data Header topLevel
   = Header NameSymb [topLevel]
   | NoHeader [topLevel]
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 --------------------------------------------------------------------------------
 -- JSON Instances

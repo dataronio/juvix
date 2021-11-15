@@ -21,7 +21,7 @@ import Juvix.Library
 data Feedback (app :: Type -> Type) msg a
   = Success (app msg) a -- Indicate success.
   | Fail (app msg) -- Indicate a failure.
-  deriving (Generic)
+  deriving (Generic, NFData)
 
 instance (A.ToJSON a, A.ToJSON msg, A.ToJSON (app msg)) => A.ToJSON (Feedback app msg a) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})

@@ -4,8 +4,8 @@ module Test.RecGroups where
 
 import qualified Juvix.Context as Context
 import qualified Juvix.Core.Common.Context.Traverse as Traverse
-import qualified Juvix.Frontend as Frontend
 import Juvix.Library
+import qualified Juvix.Parsing as Parsing
 import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Pipeline.ToSexp as ToSexp
 import qualified Juvix.Sexp as Sexp
@@ -29,13 +29,13 @@ top =
 
 toSexp :: [FilePath] -> IO (Either Pipeline.Error (Context.T Sexp.T Sexp.T Sexp.T))
 toSexp paths = do
-  x <- Frontend.parseFiles paths
+  x <- Parsing.parseFiles paths
   case x of
     Left er -> pure $ Left (Pipeline.ParseErr er)
     Right x -> do
-      from <- ToSexp.frontendToSexp x
+      from <- ToSexp.contextify x
       case from of
-        Left err -> pure $ Left (Pipeline.FrontendErr err)
+        Left err -> pure $ Left (Pipeline.ContextErr err)
         Right con -> pure $ Right con
 
 pipeline :: T.TestTree

@@ -26,11 +26,11 @@ import qualified Juvix.Core.HR as HR
 import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.IR.Typechecker.Types as Typechecker
 import qualified Juvix.Core.Parameterisation as Parameterisation
-import qualified Juvix.Frontend.Types as Frontend
 import Juvix.Library hiding (All)
 import Juvix.Library.BLS12381 (Fr)
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.NameSymbol as NameSymbol
+import qualified Juvix.Parsing.Types as Parsing
 import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Sexp as Sexp
 import Servant

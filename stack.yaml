@@ -3,7 +3,7 @@ resolver: lts-17.3
 packages:
 - .
 - ./library/StandardLibrary
-- ./library/Frontend
+- ./library/Parsing
 - ./library/Core
 - ./library/Pipeline
 - ./library/BerlinPipeline

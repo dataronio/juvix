@@ -3,7 +3,7 @@ resolver: lts-17.3
 packages:
 - .
 - ../../StandardLibrary
-- ../../Frontend
+- ../../Parsing
 - ../../Core
 - ../../Translate
 - ../../Backends/Michelson

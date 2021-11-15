@@ -15,7 +15,7 @@ dependencies:
   # Juvix
   - standard-library
   - sexp
-  - frontend
+  - parsing
   - core
   - michelson
   - pipeline

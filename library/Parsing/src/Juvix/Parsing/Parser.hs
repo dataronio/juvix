@@ -96,11 +96,12 @@
 -- generators behave together. In other cases like in adt declarations,
 -- we want to disable application `type List a = Cons a (List a)`. It
 -- would be a shame if the `a` was applied to `List a`!
-module Juvix.Frontend.Parser
+module Juvix.Parsing.Parser
   ( parse,
     prettyParse,
     expressionSN,
     removeComments,
+    topLevel,
     topLevelSN,
     expression,
     matchLogic,
@@ -108,6 +109,7 @@ module Juvix.Frontend.Parser
     prefixSymbol,
     moduleOpen,
     moduleName,
+    let',
   )
 where
 
@@ -120,10 +122,10 @@ import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Set as Set
 import qualified Data.Text.Encoding as Encoding
 import Data.Word8 (isDigit)
-import qualified Juvix.Frontend.Types as Types
 import Juvix.Library hiding (guard, list, mod, product, sum)
 import Juvix.Library.Parser (Parser, ParserError, skipLiner, spaceLiner)
 import qualified Juvix.Library.Parser as J
+import qualified Juvix.Parsing.Types as Types
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Byte as P
 import Prelude (fail)

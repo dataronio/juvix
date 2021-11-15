@@ -34,7 +34,7 @@
 --     3. have to<Form> fill this
 --     4. Have extra smart consturctors that are =<form>=, so that we
 --        can automatically fill in this meta data
-module Juvix.Sexp.Structure.Frontend where
+module Juvix.Sexp.Structure.Parsing where
 
 import Juvix.Library hiding (Type)
 import qualified Juvix.Library.NameSymbol as NameSymbol

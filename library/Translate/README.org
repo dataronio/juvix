@@ -1,5 +1,5 @@
 * Translate
-This library core responsibility is from translating the [[../Frontend][Frontend]]
+This library core responsibility is from translating the [[../Parsing][ADT]] that comes after parsing Juvix's source code.
 S-expression format into a format that [[../Core][Core]] can understand
 
 This library undergoes regular refactors to be simpler

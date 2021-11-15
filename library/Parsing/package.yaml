@@ -1,4 +1,4 @@
-name:                frontend
+name:                parsing
 version:             0.1.0.0
 github:              "heliaxdev/juvix"
 license:             GPL-3
@@ -69,7 +69,7 @@ flags:
     default: false
 
 tests:
-  frontend-test:
+  parsing-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
@@ -77,6 +77,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - frontend
+    - parsing
     - tasty
     - tasty-hunit

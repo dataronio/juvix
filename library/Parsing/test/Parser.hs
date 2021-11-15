@@ -1,12 +1,12 @@
 module Parser where
 
-import qualified Juvix.Frontend.Parser as Parser
-import Juvix.Frontend.Types (Expression, TopLevel)
-import qualified Juvix.Frontend.Types as AST
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSym ()
 import Juvix.Library.Parser (ParserError)
 import qualified Juvix.Library.Parser as J
+import qualified Juvix.Parsing.Parser as Parser
+import Juvix.Parsing.Types (Expression, TopLevel)
+import qualified Juvix.Parsing.Types as AST
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 import qualified Text.Megaparsec as P

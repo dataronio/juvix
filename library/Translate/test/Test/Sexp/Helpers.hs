@@ -3,10 +3,10 @@ module Test.Sexp.Helpers where
 import qualified Juvix.Context as Context
 import qualified Juvix.Contextify as Contextify
 import qualified Juvix.Desugar as Desugar
-import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Types.Base as Frontend
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
+import qualified Juvix.Parsing.Parser as Parser
+import qualified Juvix.Parsing.Types.Base as Parsing
 import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Translate.Pipeline.TopLevel as TopLevel
 import Prelude (error)
@@ -60,6 +60,6 @@ parseDesugarSexp = Desugar.op . parsedSexp
 parsedSexp :: ByteString -> [Sexp.T]
 parsedSexp xs = ignoreHeader (Parser.parse xs) >>| TopLevel.transTopLevel
 
-ignoreHeader :: Either a (Frontend.Header topLevel) -> [topLevel]
-ignoreHeader (Right (Frontend.NoHeader xs)) = xs
+ignoreHeader :: Either a (Parsing.Header topLevel) -> [topLevel]
+ignoreHeader (Right (Parsing.NoHeader xs)) = xs
 ignoreHeader _ = error "not no header"

@@ -19,11 +19,11 @@ import qualified Juvix.Core.HR as HR
 import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.IR.Types as IR
 import qualified Juvix.Core.Parameterisation as P
-import qualified Juvix.Frontend as Frontend
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Parser (ParserError)
 import qualified Juvix.Library.Usage as Usage
+import qualified Juvix.Parsing as Parsing
 import qualified Juvix.Pipeline.ToHR.Def as Def
 import qualified Juvix.Pipeline.ToHR.Env as Env
 import qualified Juvix.Pipeline.ToHR.Sig as Sig
@@ -90,7 +90,7 @@ addSig ::
   ( Show primTy,
     Show primVal,
     HasState "closure" Closure.T m,
-    HasThrow "fromFrontendError" (Types.Error HR.T primTy primVal) m,
+    HasThrow "fromToHRError" (Types.Error HR.T primTy primVal) m,
     HasReader "param" (P.Parameterisation primTy primVal) m,
     HasState "coreSigs" (Types.CoreSigs HR.T primTy primVal) m,
     HasState "patVars" (HM.HashMap Core.GlobalName Core.PatternVar) m
@@ -105,7 +105,7 @@ addDef ::
   ( Show primTy,
     Show primVal,
     HasState "closure" Closure.T m,
-    HasThrow "fromFrontendError" (Types.Error HR.T primTy primVal) m,
+    HasThrow "fromToHRError" (Types.Error HR.T primTy primVal) m,
     HasReader "param" (P.Parameterisation primTy primVal) m,
     HasState "coreDefs" (Types.CoreDefs HR.T primTy primVal) m,
     HasState "coreSigs" (Types.CoreSigs HR.T primTy primVal) m,

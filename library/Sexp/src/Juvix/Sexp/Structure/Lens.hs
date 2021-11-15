@@ -6,41 +6,41 @@ module Juvix.Sexp.Structure.Lens where
 
 import qualified Control.Lens as Lens hiding ((|>))
 import qualified Juvix.Sexp.Structure.CoreNamed as Named
-import qualified Juvix.Sexp.Structure.Frontend as Frontend
+import qualified Juvix.Sexp.Structure.Parsing as Parsing
 import qualified Juvix.Sexp.Structure.Transition as Transition
 
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.DefunMatch
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.ArgBody
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.LambdaCase
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Signature
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Signature
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.DefunSigMatch
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.RecordNoPunned
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Defun
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Let
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Defun
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Let
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.LetMatch
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Cond
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.PredAns
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Cond
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.PredAns
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.If
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.IfNoElse
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Case
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DeconBody
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Arrow
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Lambda
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Record
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.RecordDec
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.NameUsage
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Punned
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.NotPunned
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Infix
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.OpenIn
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Open
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Declare
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Declaim
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Type
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetType
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetSignature
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DefModule
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetModule
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Case
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.DeconBody
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Arrow
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Lambda
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Record
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.RecordDec
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.NameUsage
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Punned
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.NotPunned
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Infix
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.OpenIn
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Open
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Declare
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Declaim
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Type
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.LetType
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.LetSignature
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.DefModule
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.LetModule
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Star
 Lens.makeLensesWith Lens.camelCaseFields ''Named.PrimTy
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Prim
@@ -57,12 +57,12 @@ Lens.makeLensesWith Lens.camelCaseFields ''Named.Meta
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Dot
 Lens.makeLensesWith Lens.camelCaseFields ''Named.Field
 Lens.makeLensesWith Lens.camelCaseFields ''Named.RecordTy
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DefHandler
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.DefHandler
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.LetHandler
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Effect
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetRet
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.LetOp
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Do
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DoOp
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.DoPure
-Lens.makeLensesWith Lens.camelCaseFields ''Frontend.Primitive
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Effect
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.LetRet
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.LetOp
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Do
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.DoOp
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.DoPure
+Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Primitive

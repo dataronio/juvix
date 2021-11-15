@@ -1,0 +1,8 @@
+* Parsing
+This library is responsible for a few things
+
+1. Parsing the Juvix source code
+
+   - [[file:src/Juvix/Parsing/Parser.hs][The Parser can be found here]]
+
+   - [[file:src/Juvix/Parsing/Types/Base.hs][The Base datatype can be found here]]

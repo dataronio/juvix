@@ -5,10 +5,10 @@ module Test.Contextualise.Contextify where
 import qualified Juvix.Context as Context
 import qualified Juvix.Contextify as Contextify
 import qualified Juvix.Desugar as DesugarS
-import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Types as AST
 import Juvix.Library
 import qualified Juvix.Library.Parser.Internal as Internal
+import qualified Juvix.Parsing.Parser as Parser
+import qualified Juvix.Parsing.Types as AST
 import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Translate.Pipeline.TopLevel as TopLevel
 import qualified Test.Tasty as T

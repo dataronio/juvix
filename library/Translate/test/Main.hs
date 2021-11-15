@@ -12,7 +12,7 @@ import qualified Test.Tasty as T
 translationPasses :: T.TestTree
 translationPasses =
   T.testGroup
-    "translation passes from Frontend to Core"
+    "translation passes from Parsing to Core"
     [Sexp.top, Environment.top, Contextify.top]
 
 allCheckedTests :: T.TestTree

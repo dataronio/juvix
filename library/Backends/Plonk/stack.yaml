@@ -4,7 +4,7 @@ packages:
 - .
 - ../../StandardLibrary
 - ../../Translate
-- ../../Frontend
+- ../../Parsing
 - ../../Core
 - ../../Context
 - ../../Pipeline

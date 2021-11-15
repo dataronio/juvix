@@ -22,7 +22,7 @@ data T
   = Atom Atom
   | Cons {tCar :: T, tCdr :: T}
   | Nil
-  deriving (Eq, Data, Generic)
+  deriving (Eq, Data, Generic, NFData)
 
 instance A.ToJSON T where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
@@ -35,7 +35,7 @@ data Atom
   | N {atomNum :: Integer, atomLineNum :: Maybe LineNum.T}
   | D {atomDouble :: Double, atomLineNum :: Maybe LineNum.T}
   | S {atomText :: Text, atomLineNum :: Maybe LineNum.T}
-  deriving (Show, Data, Generic)
+  deriving (Show, Data, Generic, NFData)
 
 instance A.ToJSON Atom where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})

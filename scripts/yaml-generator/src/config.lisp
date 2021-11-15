@@ -305,11 +305,11 @@ common ones to include"
    :extra-deps (list (general-dependencies)
                      *standard-library-extra-deps*)))
 
-(defparameter *frontend*
+(defparameter *parsing*
   (make-stack-yaml
    ;; why is this one ahead again!?
    :resolver   17.9
-   :name       "Frontend"
+   :name       "Parsing"
    :packages   (list *standard-library*)
    :extra-deps (list (general-dependencies) *standard-library-extra-deps*)))
 
@@ -340,7 +340,7 @@ common ones to include"
   (make-stack-yaml
    :name "Translate"
    :packages   (list *core*
-                     *frontend*
+                     *parsing*
                      *standard-library*
                      *sexp*
                      *context*
@@ -356,7 +356,7 @@ common ones to include"
   (make-stack-yaml
    :packages (list *standard-library*
                    *sexp*
-                   *frontend*
+                   *parsing*
                    *core*
                    *translate*
                    *context*)
@@ -370,7 +370,7 @@ common ones to include"
    :name "Backends/llvm"
    :resolver 17.3
    :path-to-other "../../"
-   :packages (list *standard-library* *core* *context* *pipeline* *frontend* *sexp* *translate* *data-structures*)
+   :packages (list *standard-library* *core* *context* *pipeline* *parsing* *sexp* *translate* *data-structures*)
    :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
                      *llvm-hs-deps*
 
@@ -392,7 +392,7 @@ common ones to include"
    :packages      (list *standard-library* *core* *pipeline* *context*
                         ;; this is needed due to pipeline additions
                         ;; have left it unable to build. I think due to cyclic dependencies
-                        *frontend*
+                        *parsing*
                         *sexp*)
    :extra-deps    (list (make-general-dependencies *capability* *extensible* *prettiest*)
                         *fmt-withdraw*
@@ -410,7 +410,7 @@ common ones to include"
    :path-to-other "../../"
    :packages (list *standard-library*
                    *translate*
-                   *frontend*
+                   *parsing*
                    *core*
                    *context*
                    *pipeline*
@@ -422,7 +422,7 @@ common ones to include"
   (make-stack-yaml
    :path-to-other "../../"
    :packages (list *standard-library*
-                   *frontend*
+                   *parsing*
                    *core*
                    *translate*
                    *michelson*
@@ -448,7 +448,7 @@ common ones to include"
   (make-stack-yaml
    :path-to-other "../../"
    :packages (list *standard-library*
-                   *frontend*
+                   *parsing*
                    *core*
                    *translate*
                    *pipeline*
@@ -465,7 +465,7 @@ common ones to include"
 (defparameter *witch*
   (make-stack-yaml
    :name "Witch"
-   :packages   (list *frontend*
+   :packages   (list *parsing*
                      *standard-library*
                      *core*
                      *translate*
@@ -481,7 +481,7 @@ common ones to include"
   (make-stack-yaml
    :name "Juvix"
    :packages (list *standard-library*
-                   *frontend*
+                   *parsing*
                    *core*
                    *pipeline*
                    *berlin-pipeline*

@@ -1,7 +1,11 @@
-* FrontendDesugar
+* Context
 - _Relies on_
   + [[Parser]]
-  + [[FrontendDesugar]]
+  + [[Desugar]]
+  + [[ToSexp]]
+  + [[Pipeline]]
+  + [[LLVM]]
+  + [[Feedback]]
   + [[Library]]
 * Main
 - _Relies on_
@@ -9,6 +13,7 @@
 * Frontend
 ** Parser
 - _Relies on_
+  + [[Lexer]]
   + [[Parser]]
   + [[Types]]
   + [[Library]]

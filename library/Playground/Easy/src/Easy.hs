@@ -43,17 +43,17 @@ import qualified Juvix.Core.IR as IR
 import qualified Juvix.Core.Parameterisation as Param
 import qualified Juvix.Core.Types as Types
 import qualified Juvix.Desugar as Desugar
-import qualified Juvix.Frontend as Frontend
-import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Types as FrontendT
-import qualified Juvix.Frontend.Types as Initial
-import qualified Juvix.Frontend.Types.Base as Frontend
 import Juvix.Library
 import Juvix.Library.BLS12381 (Fr)
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymb
 import qualified Juvix.Library.Usage as Usage
+import qualified Juvix.Parsing as Parsing
+import qualified Juvix.Parsing.Parser as Parser
+import qualified Juvix.Parsing.Types as Initial
+import qualified Juvix.Parsing.Types as ParsingT
+import qualified Juvix.Parsing.Types.Base as Parsing
 import qualified Juvix.Pipeline as Pipeline
 import qualified Juvix.Pipeline.Compile as Compile
 import qualified Juvix.Pipeline.ToHR as ToHR
@@ -164,7 +164,7 @@ sexp xs = ignoreHeader (Parser.parse xs) >>| SexpTrans.transTopLevel
 -- File ⟶ ML AST ⟶ LISP AST
 sexpFile :: FilePath -> IO [Sexp.T]
 sexpFile file = do
-  f <- Frontend.parseSingleFile file
+  f <- Parsing.parseSingleFile file
   case f of
     Right (_name, ast) ->
       fmap SexpTrans.transTopLevel ast
@@ -176,7 +176,7 @@ sexpFile file = do
 -- Prelude ⟶ ML AST ⟶ LISP AST
 sexpLibrary :: Options primTy primVal -> IO [(NameSymb.T, [Sexp.T])]
 sexpLibrary def = do
-  files <- Frontend.parseFiles (prelude def)
+  files <- Parsing.parseFiles (prelude def)
   case files of
     Right f ->
       pure (second (fmap SexpTrans.transTopLevel) <$> f)
@@ -334,7 +334,7 @@ contextifyFile = contextifyFileGen Contextify.fullyContextify
 --------------------------------------------------------------------------------
 
 -- | Here is where we want to stop when we want to see what the context
--- passes have done, and the final form before we run CotnexttoFrontend
+-- passes have done, and the final form before we run CotnexttoParsing
 -- Text ⟶ ML AST ⟶ LISP AST ⟶ De-sugared LISP ⟶ Contextified LISP ⟶ Resolved Contextified ⟶ Context Desugar
 contextifyDesugar ::
   ByteString ->
@@ -629,8 +629,8 @@ printDefModule ::
   m ()
 printDefModule = printModule . currentContextName
 
-ignoreHeader :: Either a (Frontend.Header topLevel) -> [topLevel]
-ignoreHeader (Right (Frontend.NoHeader xs)) = xs
+ignoreHeader :: Either a (Parsing.Header topLevel) -> [topLevel]
+ignoreHeader (Right (Parsing.NoHeader xs)) = xs
 ignoreHeader _ = error "not no header"
 
 definedFunctionsInModule ::

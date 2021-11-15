@@ -12,7 +12,7 @@ dependencies:
 - base >= 4.11 && < 5
 - standard-library
 - sexp
-- frontend
+- parsing
 - context
 - unordered-containers
 - stm-containers

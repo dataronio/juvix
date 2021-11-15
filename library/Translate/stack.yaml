@@ -3,7 +3,7 @@ resolver: lts-17.3
 packages:
 - .
 - ../Core
-- ../Frontend
+- ../Parsing
 - ../StandardLibrary
 - ../Sexp
 - ../Context

@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveTraversable #-}
 
 module Juvix.Context.NameSpace where
@@ -11,7 +12,7 @@ data T b = T
   { public :: HashMap.T Symbol b,
     private :: HashMap.T Symbol b
   }
-  deriving (Show, Read, Eq, Data, Functor, Foldable, Traversable, Generic)
+  deriving (Show, Read, Eq, Data, Functor, Foldable, Traversable, Generic, NFData)
 
 instance (A.ToJSON b) => A.ToJSON (T b) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})

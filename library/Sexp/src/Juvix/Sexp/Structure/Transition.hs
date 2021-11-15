@@ -40,12 +40,12 @@ import Juvix.Library hiding (Handler, Type)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import Juvix.Sexp.Structure
-import Juvix.Sexp.Structure.Frontend (fromLetOp, fromLetRet, fromNotPunnedGroup, toLetOp, toLetRet, toNotPunnedGroup)
-import qualified Juvix.Sexp.Structure.Frontend as Frontend
 import Juvix.Sexp.Structure.Helpers
+import Juvix.Sexp.Structure.Parsing (fromLetOp, fromLetRet, fromNotPunnedGroup, toLetOp, toLetRet, toNotPunnedGroup)
+import qualified Juvix.Sexp.Structure.Parsing as Parsing
 
 newtype RecordNoPunned = RecordNoPunned
-  { recordNoPunnedValue :: [Frontend.NotPunned]
+  { recordNoPunnedValue :: [Parsing.NotPunned]
   }
   deriving (Show)
 
@@ -115,8 +115,8 @@ data LetHandler = LetHandler
 
 data Handler = Handler
   { handlerName :: Sexp.T,
-    handlerRet :: Frontend.LetRet,
-    handlerOps :: [Frontend.LetOp]
+    handlerRet :: Parsing.LetRet,
+    handlerOps :: [Parsing.LetOp]
   }
   deriving (Show)
 

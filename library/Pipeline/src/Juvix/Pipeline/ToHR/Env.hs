@@ -13,7 +13,7 @@ import Juvix.Pipeline.ToHR.Types
 import qualified Juvix.Sexp as Sexp
 
 data FFState ext primTy primVal = FFState
-  { frontend :: Ctx.T Sexp.T Sexp.T Sexp.T,
+  { context :: Ctx.T Sexp.T Sexp.T Sexp.T,
     param :: P.Parameterisation primTy primVal,
     coreSigs :: CoreSigs ext primTy primVal,
     coreDefs :: CoreDefs ext primTy primVal,
@@ -32,13 +32,13 @@ type EnvAlias ext primTy primVal =
 newtype Env ext primTy primVal a = Env {unEnv :: EnvAlias ext primTy primVal a}
   deriving newtype (Functor, Applicative, Monad)
   deriving
-    (HasThrow "fromFrontendError" (Error ext primTy primVal))
+    (HasThrow "fromToHRError" (Error ext primTy primVal))
     via MonadError (EnvAlias ext primTy primVal)
   deriving
-    ( HasSource "frontend" (Ctx.T Sexp.T Sexp.T Sexp.T),
-      HasReader "frontend" (Ctx.T Sexp.T Sexp.T Sexp.T)
+    ( HasSource "context" (Ctx.T Sexp.T Sexp.T Sexp.T),
+      HasReader "context" (Ctx.T Sexp.T Sexp.T Sexp.T)
     )
-    via ReaderField "frontend" (EnvAlias ext primTy primVal)
+    via ReaderField "context" (EnvAlias ext primTy primVal)
   deriving
     ( HasSource "param" (P.Parameterisation primTy primVal),
       HasReader "param" (P.Parameterisation primTy primVal)
@@ -83,10 +83,10 @@ newtype Env ext primTy primVal a = Env {unEnv :: EnvAlias ext primTy primVal a}
     via StateField "closure" (EnvAlias ext primTy primVal)
 
 type HasThrowFF ext primTy primVal =
-  HasThrow "fromFrontendError" (Error ext primTy primVal)
+  HasThrow "fromToHRError" (Error ext primTy primVal)
 
-type HasFrontend =
-  HasReader "frontend" (Ctx.T Sexp.T Sexp.T Sexp.T)
+type HasContext =
+  HasReader "context" (Ctx.T Sexp.T Sexp.T Sexp.T)
 
 type HasParam primTy primVal =
   HasReader "param" (P.Parameterisation primTy primVal)
@@ -151,7 +151,7 @@ runEnv ctx param (Env env) =
   where
     initState =
       FFState
-        { frontend = ctx,
+        { context = ctx,
           param,
           coreSigs = mempty,
           coreDefs = mempty,
@@ -162,4 +162,4 @@ runEnv ctx param (Env env) =
         }
 
 throwFF :: HasThrowFF ext primTy primVal m => Error ext primTy primVal -> m a
-throwFF = throw @"fromFrontendError"
+throwFF = throw @"fromToHRError"

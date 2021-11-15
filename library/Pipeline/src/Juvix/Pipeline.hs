@@ -32,12 +32,12 @@ import Juvix.Core.Parameterisation
 import qualified Juvix.Core.Parameterisation as Param
 import qualified Juvix.Core.Translate as Translate
 import qualified Juvix.Core.Types as Core
-import qualified Juvix.Frontend as Frontend
-import qualified Juvix.Frontend.Types as Types
 import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Parser (ParserError)
+import qualified Juvix.Parsing as Parsing
+import qualified Juvix.Parsing.Types as Types
 import Juvix.Pipeline.Compile
 import qualified Juvix.Pipeline.ToHR as ToHR
 import qualified Juvix.Pipeline.ToIR as ToIR
@@ -81,8 +81,8 @@ type Constraints b =
   )
 
 data Error
-  = FrontendErr ToSexp.Error
-  | ParseErr Frontend.Error
+  = ContextErr ToSexp.Error
+  | ParseErr Parsing.Error
   -- TODO: CoreError
   deriving (Show)
 
@@ -115,16 +115,16 @@ class HasBackend b where
   toML' :: [FilePath] -> b -> Text -> Pipeline [(NameSymbol.T, [Types.TopLevel])]
   toML' libs b code = liftIO $ do
     fp <- createTmpPath code
-    e <- Frontend.parseFiles (libs ++ [fp])
+    e <- Parsing.parseFiles (libs ++ [fp])
     case e of
-      Left (Frontend.NoHeaderErr file) ->
+      Left (Parsing.NoHeaderErr file) ->
         Feedback.fail
           ( "File "
               <> file
               <> " does not contain a module header"
               <> ", please specify module name in the file"
           )
-      Left (Frontend.ParseError err) ->
+      Left (Parsing.ParseError err) ->
         Feedback.fail $ toS $ pShowNoColor $ P.errorBundlePretty err
       Right x -> pure x
 
@@ -136,7 +136,7 @@ class HasBackend b where
 
   toSexp :: b -> [(NameSymbol.T, [Types.TopLevel])] -> Pipeline (Context.T Sexp.T Sexp.T Sexp.T)
   toSexp _b x = liftIO $ do
-    e <- ToSexp.frontendToSexp x
+    e <- ToSexp.contextify x
     case e of
       Left err -> Feedback.fail . toS . pShowNoColor $ err
       Right x -> pure x

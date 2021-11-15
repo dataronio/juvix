@@ -1,7 +1,7 @@
 {-# LANGUAGE LiberalTypeSynonyms #-}
 
 module Juvix.Pipeline.ToSexp
-  ( frontendToSexp,
+  ( contextify,
     Error (..),
     module ToSexp,
   )
@@ -14,10 +14,10 @@ import qualified Juvix.Core.HR.Pretty as HR
 import Juvix.Core.Translate
 import Juvix.Core.Types
 import qualified Juvix.Desugar as Desugar
-import qualified Juvix.Frontend.Types as Initial
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.PrettyPrint as PP
+import qualified Juvix.Parsing.Types as Initial
 import qualified Juvix.Sexp as Sexp
 import Juvix.Translate.Pipeline as ToSexp
 
@@ -36,11 +36,11 @@ instance PP.PrettyText Error where
 
 -- TODO ∷ update the target when the last pass is finished,
 -- that way we can get the T out
-frontendToSexp ::
+contextify ::
   -- | List of module names and top level definitions
   [(NameSymbol.T, [Initial.TopLevel])] ->
   IO (Either Error (Context.T Sexp.T Sexp.T Sexp.T))
-frontendToSexp syn =
+contextify syn =
   case fmap (second (Desugar.op . fmap ToSexp.transTopLevel)) syn of
     [] ->
       pure $ Left DesugarErr

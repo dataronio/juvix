@@ -254,14 +254,14 @@ steps:
     AWS_SECRET_ACCESS_KEY: {from_secret: aws_secret_access_key}
     BACKEND_OPERATION_TIMEOUT: 8m
   image: meltwater/drone-cache:latest
-  name: restore-cache-frontend
+  name: restore-cache-parsing
   pull: never
   settings:
     archive_format: gzip
     backend: s3
     bucket: heliax-drone-cache-v2
-    cache_key: juvix/docs/{{ checksum "library/Frontend/stack.yaml" }}
-    mount: [library/Frontend/.stack-work]
+    cache_key: juvix/docs/{{ checksum "library/Parsing/stack.yaml" }}
+    mount: [library/Parsing/.stack-work]
     override: false
     rebuild: false
     region: eu-west-1
@@ -470,7 +470,7 @@ steps:
     status: [success, failure]
 - commands: [./scripts/build-and-publish-docs.sh]
   depends_on: [restore-cache-stack, restore-cache-context, restore-cache-core, restore-cache-data-structure,
-    restore-cache-easy, restore-cache-frontend, restore-cache-http, restore-cache-llvm,
+    restore-cache-easy, restore-cache-parsing, restore-cache-http, restore-cache-llvm,
     restore-cache-michelson, restore-cache-plonk, restore-cache-sexp, restore-cache-standard-library,
     restore-cache-translate, restore-cache-witch]
   environment:
@@ -544,14 +544,14 @@ steps:
     AWS_SECRET_ACCESS_KEY: {from_secret: aws_secret_access_key}
     BACKEND_OPERATION_TIMEOUT: 8m
   image: meltwater/drone-cache:latest
-  name: rebuild-cache-frontend
+  name: rebuild-cache-parsing
   pull: never
   settings:
     archive_format: gzip
     backend: s3
     bucket: heliax-drone-cache-v2
-    cache_key: juvix/docs/{{ checksum "library/Frontend/stack.yaml" }}
-    mount: [library/Frontend/.stack-work]
+    cache_key: juvix/docs/{{ checksum "library/Parsing/stack.yaml" }}
+    mount: [library/Parsing/.stack-work]
     override: false
     rebuild: true
     region: eu-west-1
@@ -797,6 +797,6 @@ type: docker
 workspace: {path: /drone/workspace}
 ---
 kind: signature
-hmac: 9f1686700caf8e964bd9f116fef247dafd18d99d6c73e9631a8694e7ddb34386
+hmac: 63190a73fc731a1e5d12b0bc7793b82ea3ace6a660c2f70c535a7a67029aa7b2
 
 ...

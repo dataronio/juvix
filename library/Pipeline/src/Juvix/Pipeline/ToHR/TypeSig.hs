@@ -9,7 +9,7 @@ import Juvix.Pipeline.ToHR.Env
 import Juvix.Pipeline.ToHR.Term
 import Juvix.Pipeline.ToHR.Types
 import qualified Juvix.Sexp as Sexp
-import qualified Juvix.Sexp.Structure.Frontend as Structure
+import qualified Juvix.Sexp.Structure.Parsing as Structure
 import Prelude (error)
 
 transformTypeSig ::

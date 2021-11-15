@@ -1,9 +1,9 @@
 module Test.ToSexp (top) where
 
 import qualified Juvix.Desugar as Desugar
-import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Types as Types
 import Juvix.Library hiding (head)
+import qualified Juvix.Parsing.Parser as Parser
+import qualified Juvix.Parsing.Types as Types
 import qualified Juvix.Pipeline.ToSexp as ToSexp
 import qualified Juvix.Sexp as Sexp
 import qualified Test.Tasty as T

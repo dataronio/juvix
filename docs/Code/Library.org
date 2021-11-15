@@ -1065,18 +1065,18 @@ Tests that weak works as expected
   + [[Evaluator]]
   + [[IR/Types]]
   + [[Library]]
-* Frontend
-** Setup <<Frontend/Setup>>
+* Parsing
+** Setup <<Parsing/Setup>>
 ** src
 *** Juvix
-**** Frontend <<Juvix/Frontend>>
+**** Parsing <<Juvix/Parsing>>
 - _Relies on_
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Parser]]
-***** Parser <<Frontend/Parser>>
+***** Parser <<Parsing/Parser>>
 Module      : Parser
 Description : The Juvix frontend parser
 In order to be able to understand this code, we suggest reading about
@@ -1104,7 +1104,7 @@ how parser combinators work. [Here](https://hasura.io/blog/parser-combinators-wa
 @
 Here we outline three key functions:
 - _Relies on_
-  + [[Frontend/Types]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[Library/Parser]]
   + [[Library/Parser]]
@@ -1152,16 +1152,16 @@ careful. This is mainly due to how some forms like `do` and infix
 generators behave together. In other cases like in adt declarations,
 we want to disable application `type List a = Cons a (List a)`. It
 would be a shame if the `a` was applied to `List a`!
-***** Types <<Frontend/Types>>
+***** Types <<Parsing/Types>>
 - This file defines the main ADT for the Juvix front end language.
-- This ADT corresponds to the BNF laid out [[https://github.com/heliaxdev/juvix/blob/develop/doc/Frontend/syntax.org][here]].
+- This ADT corresponds to the BNF laid out [[https://juvix.readthedocs.io/en/latest/compiler/frontend/s-expression-syntax.html#bnf-syntax][here]].
 - Later a trees that grow version of this will be implemented, so
   infix functions can better transition across syntax
 - Note :: The names for the types in =ArrowData= are stored in the
           =ArrowGen= and not in =NamedType=
 - _Relies on_
-  + [[Frontend/Types/Base]]
-****** Base <<Frontend/Types/Base>>
+  + [[Parsing/Types/Base]]
+****** Base <<Parsing/Types/Base>>
 - _Relies on_
   + [[Library]]
   + [[Library/Usage]]
@@ -1170,15 +1170,15 @@ would be a shame if the `a` was applied to `List a`!
   + [[Library]]
   + [[Library/Parser]]
 ** test
-*** Main <<Frontend/test/Main>>
+*** Main <<Parsing/test/Main>>
 - _Relies on_
   + [[Library]]
   + [[Fetch]]
 *** Parser <<test/Parser>>
 - _Relies on_
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
-  + [[Frontend/Types]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Parser]]
@@ -1202,8 +1202,8 @@ would be a shame if the `a` was applied to `List a`!
   + [[Core/Parameterisation]]
   + [[Core/Translate]]
   + [[Core/Types]]
-  + [[Juvix/Frontend]]
-  + [[Frontend/Types]]
+  + [[Juvix/Parsing]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[Feedback]]
   + [[NameSymbol]]
@@ -1236,7 +1236,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Core/Translate]]
   + [[Core/Types]]
   + [[Desugar]]
-  + [[Frontend/Types]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[NameSymbol]]
   + [[PrettyPrint]]
@@ -1261,7 +1261,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Core/IR]]
   + [[IR/Types]]
   + [[Core/Parameterisation]]
-  + [[Juvix/Frontend]]
+  + [[Juvix/Parsing]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Parser]]
@@ -1325,7 +1325,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Term]]
   + [[ToHR/Types]]
   + [[Juvix/Sexp]]
-  + [[Structure/Frontend]]
+  + [[Structure/Parsing]]
 ****** Types <<ToHR/Types>>
 - _Relies on_
   + [[Juvix/Context]]
@@ -1386,7 +1386,7 @@ would be a shame if the `a` was applied to `List a`!
 - _Relies on_
   + [[Juvix/Context]]
   + [[Traverse]]
-  + [[Juvix/Frontend]]
+  + [[Juvix/Parsing]]
   + [[Library]]
   + [[Juvix/Pipeline]]
   + [[Pipeline/ToSexp]]
@@ -1394,8 +1394,8 @@ would be a shame if the `a` was applied to `List a`!
 **** ToSexp <<Test/ToSexp>>
 - _Relies on_
   + [[Desugar]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
@@ -1439,11 +1439,11 @@ with any stage of the compiler while modifying the source code.
   + [[Core/Parameterisation]]
   + [[Core/Types]]
   + [[Desugar]]
-  + [[Juvix/Frontend]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
-  + [[Frontend/Types]]
-  + [[Frontend/Types/Base]]
+  + [[Juvix/Parsing]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
+  + [[Parsing/Types]]
+  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[BLS12381]]
   + [[Feedback]]
@@ -1494,7 +1494,7 @@ with any stage of the compiler while modifying the source code.
   + [[Core/IR]]
   + [[Typechecker/Types]]
   + [[Core/Parameterisation]]
-  + [[Frontend/Types]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[BLS12381]]
   + [[Feedback]]
@@ -1570,7 +1570,17 @@ _TODO_
   + [[Juvix/Sexp]]
   + [[Structure]]
   + [[Structure/Helpers]]
-****** Frontend <<Structure/Frontend>>
+****** Helpers <<Structure/Helpers>>
+- _Relies on_
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Juvix/Sexp]]
+****** Lens
+- _Relies on_
+  + [[CoreNamed]]
+  + [[Structure/Parsing]]
+  + [[Transition]]
+****** Parsing <<Structure/Parsing>>
 Hardening S-expressions into a more readable form. Here we use a
 mixture of record structures and aliases. Each cover a form that we
 wish to talk about rather than just match away at
@@ -1604,16 +1614,6 @@ _TODO_
   + [[Juvix/Sexp]]
   + [[Structure]]
   + [[Structure/Helpers]]
-****** Helpers <<Structure/Helpers>>
-- _Relies on_
-  + [[Library]]
-  + [[NameSymbol]]
-  + [[Juvix/Sexp]]
-****** Lens
-- _Relies on_
-  + [[CoreNamed]]
-  + [[Structure/Frontend]]
-  + [[Transition]]
 ****** Transition
 Hardening S-expressions into a more readable form. Here we use a
 mixture of record structures and aliases. Each cover a form that we
@@ -1647,8 +1647,8 @@ _TODO_
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[Structure]]
-  + [[Structure/Frontend]]
-  + [[Structure/Frontend]]
+  + [[Structure/Parsing]]
+  + [[Structure/Parsing]]
   + [[Structure/Helpers]]
 ** test
 *** Main <<Sexp/test/Main>>
@@ -1920,7 +1920,7 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[CoreNamed]]
-  + [[Structure/Frontend]]
+  + [[Structure/Parsing]]
   + [[Structure/Helpers]]
   + [[Lens]]
   + [[Transition]]
@@ -2012,7 +2012,7 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[Library]]
   + [[Juvix/Sexp]]
-  + [[Structure/Frontend]]
+  + [[Structure/Parsing]]
   + [[Lens]]
   + [[Transition]]
 **** Translate <<Juvix/Translate>>
@@ -2024,7 +2024,7 @@ done with no extra information needed. Thus we export the following passes
   + [[TopLevel]]
 ****** TopLevel
 - _Relies on_
-  + [[Frontend/Types/Base]]
+  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
@@ -2048,10 +2048,10 @@ done with no extra information needed. Thus we export the following passes
   + [[Contextify/Environment]]
   + [[Contextify/Passes]]
   + [[Desugar/Passes]]
-  + [[Juvix/Frontend]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
-  + [[Frontend/Types/Base]]
+  + [[Juvix/Parsing]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
+  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[Feedback]]
   + [[NameSymbol]]
@@ -2077,8 +2077,8 @@ done with no extra information needed. Thus we export the following passes
   + [[ResolveOpenInfo]]
   + [[ToContext/Types]]
   + [[Desugar]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types/Base]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[Juvix/Sexp]]
   + [[TopLevel]]
@@ -2088,8 +2088,8 @@ done with no extra information needed. Thus we export the following passes
   + [[Juvix/Context]]
   + [[Juvix/Contextify]]
   + [[Desugar]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[Internal]]
   + [[Juvix/Sexp]]
@@ -2104,8 +2104,8 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[Desugar]]
   + [[Desugar/Passes]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[Juvix/Sexp]]
   + [[TopLevel]]
@@ -2115,8 +2115,8 @@ done with no extra information needed. Thus we export the following passes
   + [[Juvix/Context]]
   + [[Juvix/Contextify]]
   + [[Desugar]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types/Base]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
@@ -2139,7 +2139,7 @@ done with no extra information needed. Thus we export the following passes
   + [[Juvix/Sexp]]
   + [[Structure]]
   + [[CoreNamed]]
-  + [[Structure/Frontend]]
+  + [[Structure/Parsing]]
   + [[Transition]]
 ****** Transform
 - _Relies on_
@@ -2150,15 +2150,15 @@ done with no extra information needed. Thus we export the following passes
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[CoreNamed]]
-  + [[Structure/Frontend]]
+  + [[Structure/Parsing]]
   + [[Transition]]
   + [[SexpHelpers]]
 ** test
 *** CPSTranslation <<test/CPSTranslation>>
 - _Relies on_
   + [[Desugar]]
-  + [[Frontend/Parser]]
-  + [[Frontend/Types]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
   + [[Library]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]

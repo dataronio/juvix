@@ -1,10 +1,11 @@
 module Frontend.Parser where
 
 import qualified Criterion.Main as Criterion
-import Data.Attoparsec.ByteString
-import qualified Juvix.Frontend.Parser as Parser
-import qualified Juvix.Frontend.Types as Types
 import Juvix.Library hiding (mod)
+import qualified Juvix.Library.Parser.Lexer as Lexer
+import qualified Juvix.Parsing.Parser as Parser
+import qualified Juvix.Parsing.Types as Types
+import qualified Text.Megaparsec as P
 import Prelude (String)
 
 --------------------------------------------------------------------------------
@@ -85,8 +86,8 @@ mod =
 -- Parser functions
 --------------------------------------------------------------------------------
 
-letParser :: ByteString -> Either String [Types.Let]
-letParser = parseOnly (many' (Parser.spaceLiner Parser.let'))
+letParser :: ByteString -> Either (P.ParseErrorBundle ByteString Void) [Types.Let]
+letParser = P.parse (P.some (Lexer.spaceLiner Parser.let')) ""
 
-topLevelParser :: ByteString -> Either String Types.TopLevel
-topLevelParser = parseOnly Parser.topLevel
+topLevelParser :: ByteString -> Either (P.ParseErrorBundle ByteString Void) Types.TopLevel
+topLevelParser = P.parse Parser.topLevel ""

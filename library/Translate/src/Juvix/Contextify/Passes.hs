@@ -16,9 +16,9 @@ import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Sexp.Structure.CoreNamed as CoreNamed
-import qualified Juvix.Sexp.Structure.Frontend as Structure
 import qualified Juvix.Sexp.Structure.Helpers as CoreNamed
 import Juvix.Sexp.Structure.Lens
+import qualified Juvix.Sexp.Structure.Parsing as Structure
 import qualified Juvix.Sexp.Structure.Transition as Structure
 import qualified StmContainers.Map as STM
 

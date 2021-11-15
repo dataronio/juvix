@@ -9,16 +9,16 @@ import qualified Juvix.Contextify as Contextify
 import qualified Juvix.Contextify.Environment as Environment
 import qualified Juvix.Contextify.Passes as Contextify
 import qualified Juvix.Desugar.Passes as Pass
-import qualified Juvix.Frontend as Frontend
-import qualified Juvix.Frontend.Parser as Parser
-import Juvix.Frontend.Types (ModuleOpen (..), TopLevel)
-import Juvix.Frontend.Types.Base (Header)
 import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Parser (Parser)
 import qualified Juvix.Library.Parser as J
 import Juvix.Library.Test.Golden
+import qualified Juvix.Parsing as Parsing
+import qualified Juvix.Parsing.Parser as Parser
+import Juvix.Parsing.Types (ModuleOpen (..), TopLevel)
+import Juvix.Parsing.Types.Base (Header)
 import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Test.Data.Context.ShowReferences as Context.ShowRef
 import qualified Juvix.Translate.Pipeline.TopLevel as TopLevel
@@ -323,7 +323,7 @@ handleContextPass desuagredSexp contextPass =
 
 sexp :: FilePath -> Feedback (NameSymbol.T, [Sexp.T])
 sexp path = do
-  fileRead <- liftIO $ Frontend.parseSingleFile path
+  fileRead <- liftIO $ Parsing.parseSingleFile path
   case fileRead of
     Right (names, top) ->
       pure (names, fmap TopLevel.transTopLevel top)
@@ -332,7 +332,7 @@ sexp path = do
 fullyDesugarPath ::
   (MonadIO m, MonadFail m) => [FilePath] -> m [(NameSymbol.T, [Sexp.T])]
 fullyDesugarPath paths = do
-  fileRead <- liftIO $ Frontend.parseFiles paths
+  fileRead <- liftIO $ Parsing.parseFiles paths
   case fileRead of
     Right xs ->
       pure $ fmap (\(names, top) -> (names, fullDesugar (fmap TopLevel.transTopLevel top))) xs

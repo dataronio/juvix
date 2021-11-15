@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -23,7 +24,7 @@ data T term ty sumRep = T
     topLevelMap :: HashMap.T Symbol (Definition term ty sumRep),
     reverseLookup :: ReverseLookup
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 instance (A.ToJSON term, A.ToJSON ty, A.ToJSON sumRep) => A.ToJSON (T term ty sumRep) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
@@ -60,7 +61,7 @@ data Definition term ty sumRep
     -- we should search the currentNameSpace from here
     CurrentNameSpace
   | SumCon (SumT term ty)
-  deriving (Show, Read, Generic, Eq)
+  deriving (Show, Read, Generic, Eq, NFData)
 
 instance (A.ToJSON term, A.ToJSON ty, A.ToJSON sumRep) => A.ToJSON (Definition term ty sumRep) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
@@ -74,7 +75,7 @@ data Def term ty = D
     defTerm :: term,
     defPrecedence :: Precedence
   }
-  deriving (Show, Read, Generic, Eq, Data)
+  deriving (Show, Read, Generic, Eq, Data, NFData)
 
 instance (A.ToJSON term, A.ToJSON ty) => A.ToJSON (Def term ty) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
@@ -86,7 +87,7 @@ data SumT term ty = Sum
   { sumTDef :: Maybe (Def term ty),
     sumTName :: Symbol
   }
-  deriving (Show, Read, Generic, Eq, Data)
+  deriving (Show, Read, Generic, Eq, Data, NFData)
 
 instance (A.ToJSON term, A.ToJSON ty) => A.ToJSON (SumT term ty) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
@@ -102,7 +103,9 @@ data Record term ty sumRep = Rec
     recordOpenList :: [Open.TName NameSymbol.T],
     recordQualifiedMap :: SymbolMap
   }
-  deriving (Show, Read, Generic, Eq)
+  deriving (Show, Read, Generic, Eq, NFData)
+
+instance NFData (STM.Map k v) where rnf x = seq x ()
 
 instance (A.ToJSON term, A.ToJSON ty, A.ToJSON sumRep) => A.ToJSON (Record term ty sumRep) where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
@@ -112,7 +115,7 @@ instance (A.FromJSON term, A.FromJSON ty, A.FromJSON sumRep) => A.FromJSON (Reco
 
 newtype Information
   = Prec Precedence
-  deriving (Show, Read, Generic, Eq, Data)
+  deriving (Show, Read, Generic, Eq, Data, NFData)
   deriving newtype (A.ToJSON, A.FromJSON)
 
 instance Hashable Information where
@@ -128,7 +131,7 @@ data WhoUses = Who
     modName :: NameSymbol.T,
     symbolMap :: SymbolMap
   }
-  deriving (Show, Read, Eq, Generic)
+  deriving (Show, Read, Eq, Generic, NFData)
 
 instance A.ToJSON WhoUses where
   toJSON = A.genericToJSON (A.defaultOptions {A.sumEncoding = A.ObjectWithSingleField})
