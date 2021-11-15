@@ -22,6 +22,48 @@ You can jump to this section in =config= to edit them directly!
 Note that for the =main= function to work, one has to load their repl
 in the juvix directory itself.
 
+** Dependencies
+- Only a CL compiler and [[https://common-lisp.net/project/asdf/][ASDF]] is needed to run the base generation
+- For the GUΙ visualizer you will need
+  + _[[https://www.quicklisp.org/beta/][Quick Lisp]]_
+    * [[https://common-lisp.net/project/fset/Site/FSet-Tutorial.html][=fset=]]
+    * [[https://common-lisp.net/project/mcclim/][=mcclim=]]
+    * =clim=
+  + These can be grabbed by running =(ql:quickload
+    :yaml-generator-gui)= after quick-lisp is installed
+
+** Launching the GUI
+- to better visualize how our packages depend on each other one can
+  run a GUI visualizer which has some features.
+- One can run the GUI by loading =yaml-generator.asd= by:
+  + =sbcl --load yaml-generator.asdf=
+- Then the following piece of code to load up the gui
+  #+begin_src lisp
+    ;; You need to run this once for the package installs
+    (ql:quickload :yaml-generator-gui)
+    ;; can just run this from now on
+    (launch-gui)
+  #+end_src
+** GUI commands and interaction
+- At this point one should be looking at the full dependency graph of
+  the package of Juvix
+- You can move nodes around by left clicking and moving them any way
+  you like!
+- You can zoom in on a specific package by right clicking and pressing
+  =Focus= on the command prompt. At this point press space or
+  enter. You can now select the package you want by clicking on it.
+  + If you pressed enter instead of space, then you'll need to press
+    the OK button
+  + If you pressed space you just have to press enter as the command
+    is now fully applied!
+- You could also launch this by typing =f= =<sapce>= or =f=
+  =<tab>=. All commands are either on the right click menu or typeable!
+- If you want to reset your view on Juvix, then you can right click,
+  then click on reset then press space
+  + You could alternatively press =r= =<space>= or =r= =<tab>=
+    =<space>= which will invoke the same command.
+- This is the current extent of the GUI!
+
 ** Editing Dependencies
 Whenever one comes across a new dependency, they may need to edit
 =config=, here are all the forms that one may run into
@@ -90,8 +132,6 @@ their inclusion into the dependency file.
             ,*tezos-morley*)))
 
 #+end_src
-
-
 ** Making your own library
 If we make a new dependency, or you need to edit your own you can do
 so. The structure looks like the following.
@@ -137,4 +177,5 @@ you'll need to declare them before hand with just their name so it can
 be processed as a local package
 
 With all that said, Happy hacking!
+
 
