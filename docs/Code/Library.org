@@ -502,9 +502,40 @@ Shared between Types and Sum
 * BerlinPipeline
 ** Setup <<BerlinPipeline/Setup>>
 ** src
-*** Lib
+*** Juvix
+**** BerlinPipeline
+***** CircularList
 - _Relies on_
   + [[Library]]
+***** Env <<BerlinPipeline/Env>>
+- _Relies on_
+  + [[CircularList]]
+  + [[BerlinPipeline/Pipeline]]
+  + [[RecursiveList]]
+  + [[Step]]
+  + [[Library]]
+  + [[NameSymbol]]
+***** Meta
+- _Relies on_
+  + [[Library]]
+***** Pipeline <<BerlinPipeline/Pipeline>>
+- _Relies on_
+  + [[Meta]]
+  + [[Juvix/Context]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Juvix/Sexp]]
+***** RecursiveList
+A Recursive list represents the concept of a list with a chance to nest.
+This allows us to get a tree like structure, where a pipeline step can contain more steps.
+- _Relies on_
+  + [[Library]]
+***** Step
+- _Relies on_
+  + [[Meta]]
+  + [[BerlinPipeline/Pipeline]]
+  + [[Library]]
+  + [[NameSymbol]]
 ** test
 *** Main <<BerlinPipeline/test/Main>>
 - _Relies on_
@@ -1071,11 +1102,11 @@ Tests that weak works as expected
 *** Juvix
 **** Parsing <<Juvix/Parsing>>
 - _Relies on_
-  + [[Parsing/Parser]]
-  + [[Parsing/Types]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Parser]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
 ***** Parser <<Parsing/Parser>>
 Module      : Parser
 Description : The Juvix frontend parser
@@ -1104,10 +1135,10 @@ how parser combinators work. [Here](https://hasura.io/blog/parser-combinators-wa
 @
 Here we outline three key functions:
 - _Relies on_
-  + [[Parsing/Types]]
   + [[Library]]
   + [[Library/Parser]]
   + [[Library/Parser]]
+  + [[Parsing/Types]]
 ****** The `expressionGen` uses the `tableExp` as the precedence table of infix parsers. So `refine` has a higher precedence than `infixOp`. At the end of `expressionGen` we get back a new parser for any expression parser we may hand it.
 ****** The `infixOp` structure explicitly states what kind of infix it is, in our case we make it nest on the right, so `a -> b -> c` gets turned into `a -> (b -> c)`. The important thing to note is that we only parse for the inifix symbol itself, we let the parser we hand to `expressionGen` handle the other side.
 Every other tool you'll see is an abstraction on top of these base
@@ -1176,13 +1207,13 @@ would be a shame if the `a` was applied to `List a`!
   + [[Fetch]]
 *** Parser <<test/Parser>>
 - _Relies on_
-  + [[Parsing/Parser]]
-  + [[Parsing/Types]]
-  + [[Parsing/Types]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Parser]]
   + [[Library/Parser]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
+  + [[Parsing/Types]]
 * Pipeline
 ** Setup <<Pipeline/Setup>>
 ** src
@@ -1202,12 +1233,12 @@ would be a shame if the `a` was applied to `List a`!
   + [[Core/Parameterisation]]
   + [[Core/Translate]]
   + [[Core/Types]]
-  + [[Juvix/Parsing]]
-  + [[Parsing/Types]]
   + [[Library]]
   + [[Feedback]]
   + [[NameSymbol]]
   + [[Library/Parser]]
+  + [[Juvix/Parsing]]
+  + [[Parsing/Types]]
   + [[Compile]]
   + [[ToHR]]
   + [[Juvix/Pipeline/ToIR]]
@@ -1236,10 +1267,10 @@ would be a shame if the `a` was applied to `List a`!
   + [[Core/Translate]]
   + [[Core/Types]]
   + [[Desugar]]
-  + [[Parsing/Types]]
   + [[Library]]
   + [[NameSymbol]]
   + [[PrettyPrint]]
+  + [[Parsing/Types]]
   + [[Juvix/Sexp]]
   + [[Translate/Pipeline]]
 ***** Types <<Pipeline/Types>>
@@ -1261,11 +1292,11 @@ would be a shame if the `a` was applied to `List a`!
   + [[Core/IR]]
   + [[IR/Types]]
   + [[Core/Parameterisation]]
-  + [[Juvix/Parsing]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Library/Parser]]
   + [[Library/Usage]]
+  + [[Juvix/Parsing]]
   + [[Def]]
   + [[ToHR/Env]]
   + [[ToHR/Sig]]
@@ -1386,17 +1417,17 @@ would be a shame if the `a` was applied to `List a`!
 - _Relies on_
   + [[Juvix/Context]]
   + [[Traverse]]
-  + [[Juvix/Parsing]]
   + [[Library]]
+  + [[Juvix/Parsing]]
   + [[Juvix/Pipeline]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
 **** ToSexp <<Test/ToSexp>>
 - _Relies on_
   + [[Desugar]]
+  + [[Library]]
   + [[Parsing/Parser]]
   + [[Parsing/Types]]
-  + [[Library]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
 * Playground
@@ -1439,17 +1470,17 @@ with any stage of the compiler while modifying the source code.
   + [[Core/Parameterisation]]
   + [[Core/Types]]
   + [[Desugar]]
-  + [[Juvix/Parsing]]
-  + [[Parsing/Parser]]
-  + [[Parsing/Types]]
-  + [[Parsing/Types]]
-  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[BLS12381]]
   + [[Feedback]]
   + [[HashMap]]
   + [[NameSymbol]]
   + [[Library/Usage]]
+  + [[Juvix/Parsing]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
+  + [[Parsing/Types]]
+  + [[Parsing/Types/Base]]
   + [[Juvix/Pipeline]]
   + [[Compile]]
   + [[ToHR]]
@@ -1494,11 +1525,11 @@ with any stage of the compiler while modifying the source code.
   + [[Core/IR]]
   + [[Typechecker/Types]]
   + [[Core/Parameterisation]]
-  + [[Parsing/Types]]
   + [[Library]]
   + [[BLS12381]]
   + [[Feedback]]
   + [[NameSymbol]]
+  + [[Parsing/Types]]
   + [[Juvix/Pipeline]]
   + [[Juvix/Sexp]]
 *** test
@@ -1647,9 +1678,9 @@ _TODO_
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[Structure]]
-  + [[Structure/Parsing]]
-  + [[Structure/Parsing]]
   + [[Structure/Helpers]]
+  + [[Structure/Parsing]]
+  + [[Structure/Parsing]]
 ** test
 *** Main <<Sexp/test/Main>>
 - _Relies on_
@@ -1920,9 +1951,9 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[CoreNamed]]
-  + [[Structure/Parsing]]
   + [[Structure/Helpers]]
   + [[Lens]]
+  + [[Structure/Parsing]]
   + [[Transition]]
 ***** InfixPrecedence
 ****** ShuntYard <<InfixPrecedence/ShuntYard>>
@@ -2012,8 +2043,8 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[Library]]
   + [[Juvix/Sexp]]
-  + [[Structure/Parsing]]
   + [[Lens]]
+  + [[Structure/Parsing]]
   + [[Transition]]
 **** Translate <<Juvix/Translate>>
 - _Relies on_
@@ -2024,9 +2055,9 @@ done with no extra information needed. Thus we export the following passes
   + [[TopLevel]]
 ****** TopLevel
 - _Relies on_
-  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
+  + [[Parsing/Types/Base]]
   + [[Juvix/Sexp]]
 ** test
 *** Main <<Translate/test/Main>>
@@ -2048,16 +2079,16 @@ done with no extra information needed. Thus we export the following passes
   + [[Contextify/Environment]]
   + [[Contextify/Passes]]
   + [[Desugar/Passes]]
-  + [[Juvix/Parsing]]
-  + [[Parsing/Parser]]
-  + [[Parsing/Types]]
-  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[Feedback]]
   + [[NameSymbol]]
   + [[Library/Parser]]
   + [[Library/Parser]]
   + [[Library/Test/Golden]]
+  + [[Juvix/Parsing]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
+  + [[Parsing/Types/Base]]
   + [[Juvix/Sexp]]
   + [[ShowReferences]]
   + [[TopLevel]]
@@ -2077,9 +2108,9 @@ done with no extra information needed. Thus we export the following passes
   + [[ResolveOpenInfo]]
   + [[ToContext/Types]]
   + [[Desugar]]
+  + [[Library]]
   + [[Parsing/Parser]]
   + [[Parsing/Types/Base]]
-  + [[Library]]
   + [[Juvix/Sexp]]
   + [[TopLevel]]
 **** Contextualise
@@ -2088,10 +2119,10 @@ done with no extra information needed. Thus we export the following passes
   + [[Juvix/Context]]
   + [[Juvix/Contextify]]
   + [[Desugar]]
-  + [[Parsing/Parser]]
-  + [[Parsing/Types]]
   + [[Library]]
   + [[Internal]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types]]
   + [[Juvix/Sexp]]
   + [[TopLevel]]
 ***** Infix
@@ -2104,9 +2135,9 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[Desugar]]
   + [[Desugar/Passes]]
+  + [[Library]]
   + [[Parsing/Parser]]
   + [[Parsing/Types]]
-  + [[Library]]
   + [[Juvix/Sexp]]
   + [[TopLevel]]
 **** Sexp
@@ -2115,10 +2146,10 @@ done with no extra information needed. Thus we export the following passes
   + [[Juvix/Context]]
   + [[Juvix/Contextify]]
   + [[Desugar]]
-  + [[Parsing/Parser]]
-  + [[Parsing/Types/Base]]
   + [[Library]]
   + [[NameSymbol]]
+  + [[Parsing/Parser]]
+  + [[Parsing/Types/Base]]
   + [[Juvix/Sexp]]
   + [[TopLevel]]
 * Witch
@@ -2157,9 +2188,9 @@ done with no extra information needed. Thus we export the following passes
 *** CPSTranslation <<test/CPSTranslation>>
 - _Relies on_
   + [[Desugar]]
+  + [[Library]]
   + [[Parsing/Parser]]
   + [[Parsing/Types]]
-  + [[Library]]
   + [[Pipeline/ToSexp]]
   + [[Juvix/Sexp]]
   + [[Witch/CPSTranslation]]

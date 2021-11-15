@@ -1,22 +1,22 @@
 * Context
 - _Relies on_
-  + [[Parser]]
-  + [[Desugar]]
-  + [[ToSexp]]
-  + [[Pipeline]]
   + [[LLVM]]
-  + [[Feedback]]
+  + [[Desugar]]
   + [[Library]]
+  + [[Feedback]]
+  + [[Parser]]
+  + [[Pipeline]]
+  + [[ToSexp]]
 * Main
 - _Relies on_
   + [[Library]]
 * Frontend
 ** Parser
 - _Relies on_
+  + [[Library]]
   + [[Lexer]]
   + [[Parser]]
   + [[Types]]
-  + [[Library]]
 * ghc
 ** Church
 ** Map
