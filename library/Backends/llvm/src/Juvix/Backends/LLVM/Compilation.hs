@@ -217,11 +217,12 @@ functionTypeLLVM prim =
 typeToLLVM :: ErasedAnn.Type PrimTy -> LLVM.Type
 typeToLLVM (ErasedAnn.PrimTy (PrimTy ty)) = ty
 typeToLLVM ty@(ErasedAnn.Pi _usage _f _xs) =
-  LLVM.FunctionType
-    { LLVM.resultType = typeToLLVM resultType,
-      LLVM.argumentTypes = map typeToLLVM argumentTypes,
-      LLVM.isVarArg = False
-    }
+  Types.pointerOf
+    LLVM.FunctionType
+      { LLVM.resultType = typeToLLVM resultType,
+        LLVM.argumentTypes = map typeToLLVM argumentTypes,
+        LLVM.isVarArg = False
+      }
   where
     (argumentTypes, resultType) = functionType ty
 
