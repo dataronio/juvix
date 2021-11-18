@@ -367,7 +367,10 @@ Surface language
 ******* Compilation <<LLVM/Compilation>>
 - _Relies on_
   + [[Block]]
+  + [[Codegen/Closure]]
   + [[Codegen/Types]]
+  + [[ClosureConversion]]
+  + [[Pass/Types]]
   + [[Primitive]]
   + [[Ann]]
   + [[Library]]
@@ -467,6 +470,12 @@ compile a new top level declaration.
   + [[Codegen/Types]]
   + [[Library]]
   + [[HashMap]]
+******** Closure <<Codegen/Closure>>
+- _Relies on_
+  + [[Block]]
+  + [[Codegen/Types]]
+  + [[Pass/Types]]
+  + [[Library]]
 ******** Types <<Codegen/Types>>
 - _Relies on_
   + [[Shared]]
@@ -477,6 +486,22 @@ Shared between Types and Sum
 - _Relies on_
   + [[Library]]
   + [[HashMap]]
+******* Pass
+******** ClosureConversion
+- _Relies on_
+  + [[Pass/Types]]
+  + [[Primitive]]
+  + [[Ann]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+******** Types <<Pass/Types>>
+- _Relies on_
+  + [[Primitive]]
+  + [[Ann]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
 *** test
 **** Main <<llvm/test/Main>>
 - _Relies on_
@@ -547,7 +572,7 @@ This allows us to get a tree like structure, where a pipeline step can contain m
 ** Setup <<Context/Setup>>
 ** src
 *** Juvix
-**** Closure
+**** Closure <<Juvix/Closure>>
 Closure.T serves as the data structure in which we will store
 temporary lexical bindings as our code encounters binders.
 - _Relies on_
@@ -1285,7 +1310,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Library]]
 ***** ToHR
 - _Relies on_
-  + [[Closure]]
+  + [[Juvix/Closure]]
   + [[Juvix/Context]]
   + [[Traversal]]
   + [[Core/Base]]
@@ -1306,7 +1331,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Juvix/Sexp]]
 ****** Def
 - _Relies on_
-  + [[Closure]]
+  + [[Juvix/Closure]]
   + [[Juvix/Context]]
   + [[Core/Base]]
   + [[Core/Base/Types]]
@@ -1323,7 +1348,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Juvix/Sexp]]
 ****** Env <<ToHR/Env>>
 - _Relies on_
-  + [[Closure]]
+  + [[Juvix/Closure]]
   + [[Juvix/Context]]
   + [[Core/Base/Types]]
   + [[HR]]
@@ -1396,7 +1421,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Juvix/Sexp]]
 ******* Extract
 - _Relies on_
-  + [[Closure]]
+  + [[Juvix/Closure]]
   + [[Juvix/Context]]
   + [[Core/Base/Types]]
   + [[HR]]
@@ -1917,7 +1942,7 @@ TODO ∷ determine what has changed in the rebasing of this algo
   #+END_SRC
   + here we need to dismiss =our-point.x= and =our-point.y=, just
 - _Relies on_
-  + [[Closure]]
+  + [[Juvix/Closure]]
   + [[Contextify/Environment]]
   + [[Library]]
   + [[NameSymbol]]
@@ -1935,7 +1960,7 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Juvix/Sexp]]
 ***** Environment <<Contextify/Environment>>
 - _Relies on_
-  + [[Closure]]
+  + [[Juvix/Closure]]
   + [[Juvix/Context]]
   + [[NameSpace]]
   + [[Traversal]]
@@ -1945,7 +1970,7 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Juvix/Sexp]]
 ***** Passes <<Contextify/Passes>>
 - _Relies on_
-  + [[Closure]]
+  + [[Juvix/Closure]]
   + [[Juvix/Context]]
   + [[Contextify/Environment]]
   + [[InfixPrecedence/ShuntYard]]
@@ -2097,7 +2122,7 @@ done with no extra information needed. Thus we export the following passes
 **** Context
 ***** Environment <<Context/Environment>>
 - _Relies on_
-  + [[Closure]]
+  + [[Juvix/Closure]]
   + [[Juvix/Contextify]]
   + [[Contextify/Environment]]
   + [[Library]]
