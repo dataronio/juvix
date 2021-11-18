@@ -25,6 +25,6 @@ uniqueName :: Symbol -> Names -> (Symbol, Names)
 uniqueName nm ns =
   case Map.lookup nm ns of
     Nothing -> (nm, Map.insert nm 1 ns)
-    Just ix -> (intern (show nm <> show ix), Map.insert nm (succ ix) ns)
+    Just ix -> (intern (unintern nm <> show ix), Map.insert nm (succ ix) ns)
 
 instance Hashable Name
