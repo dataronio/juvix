@@ -241,5 +241,5 @@ functionType ::
 functionType ty = (init tys, P.last tys)
   where
     tys = functionType' ty
-    functionType' (ErasedAnn.Pi usage l r) = l : functionType' r
+    functionType' (ErasedAnn.Pi _usage l r) = l : functionType' r
     functionType' ty = [ty]
