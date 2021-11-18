@@ -158,5 +158,10 @@ toEither (Feedback.Success app a) = Right (app, a)
 toEither (Feedback.Fail failure) = Left failure
 
 -- Running by hand example
--- x <- Feedback.runFeedbackT (compile "../../../test/examples/positive/llvm/MainApply.ju")
--- toEither x
+printCompile :: FilePath -> IO ()
+printCompile filePath = do
+  x <- Feedback.runFeedbackT (compile filePath)
+  case toEither x of
+    Right (_, str) ->
+      putStrLn str
+    Left err -> print err

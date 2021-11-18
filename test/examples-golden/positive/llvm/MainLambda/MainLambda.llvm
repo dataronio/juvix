@@ -1,11 +1,11 @@
-"; ModuleID = 'juvix-module'
+; ModuleID = 'juvix-module'
 
 
  
 
 
 define external fastcc  i8 @lambda(i8  %"0", i8  %"1")    {
-"\22lambda\221":
+lambda1:
   ret i8 %"1" 
 }
 
@@ -14,4 +14,4 @@ define external fastcc  i8 @main(i8  %arg1, i8  %arg2)    {
 main:
   %0 =  call fastcc  i8  @lambda(i8  %arg1, i8  %arg2)  
   ret i8 %0 
-}"
+}
