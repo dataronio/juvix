@@ -75,15 +75,16 @@ handleLambda (ErasedAnn.LamM {arguments, capture, body}, ty) old@Env {ofMap, tyM
   | null capture =
     Types.LamM {arguments, body = convert body newEnv}
   | otherwise =
-    let closureArgs = lamArgumentToClosureArgs arguments
-        closureCapt = lamMCapturesToCapture capture old
+    let closureCapt = lamMCapturesToCapture capture old
         newEnvMapping =
-          foldMap argumentToEnv closureArgs
-            <> foldMap captureToEnv closureCapt
-            <> ofMap -- last as it gets overwritten by the other mapEnvs
+          foldr
+            HashMap.delete
+            -- last as it gets overwritten by the other mapEnvs
+            (foldMap captureToEnv closureCapt <> ofMap)
+            arguments
      in Types.Closure
           { capture = closureCapt,
-            argumentOffsets = closureArgs,
+            argumentOffsets = arguments,
             body = convert body (newEnv {ofMap = newEnvMapping})
           }
   where
@@ -122,6 +123,8 @@ lamMCapturesToCapture names Env {ofMap = envMapping, tyMap} =
               Nothing -> panic "unknown captured argument"
         }
 
+-- lamArgumentToClosureArgs is crurently unused due to not being able
+-- to currently compile arguments as closure offsets.
 lamArgumentToClosureArgs :: [NameSymbol.T] -> [Types.ArraySlot]
 lamArgumentToClosureArgs names = zipWith f names (enumFrom (0 :: Natural))
   where

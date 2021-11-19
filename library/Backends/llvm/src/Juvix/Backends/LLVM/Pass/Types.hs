@@ -67,7 +67,10 @@ data IndexInto = IndexInto
 -- from the closure array/environment or the closure argument array/environment
 data FunctionEnvironment
   = ClosureEnvironment
-  | ArgumentEnvironemnt
+  | -- Currently unused due to how it's impossible to distinguish
+    -- between functions and closures. We should in time compile with
+    -- this, and will be needed for currying
+    ArgumentEnvironemnt
   deriving (Show)
 
 --------------------------------------------------------------------------------
@@ -76,7 +79,7 @@ data FunctionEnvironment
 
 data Annotated term = Ann
   { usage :: Usage.T,
-    type' :: ErasedAnn.Type Prim.PrimTy,
+    annTy :: ErasedAnn.Type Prim.PrimTy,
     term :: term
   }
   deriving (Show)
@@ -97,7 +100,9 @@ data TermClosure
   | -- Addition to Core.
     Closure
       { capture :: [Capture],
-        argumentOffsets :: [ArraySlot],
+        -- ArgumentOffsets are currently NameSymbol.T's due to calling
+        -- conventions. Subject to change back to [ArraySlot]
+        argumentOffsets :: [NameSymbol.T],
         body :: Annotated TermClosure
       }
   | PairM

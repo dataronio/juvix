@@ -164,6 +164,7 @@ compileApp returnTy f@Types.Ann {term} xs =
       compilePrimApp returnTy prim xs
     _ -> do
       arguments <- traverse compileTerm xs
+      -- do a case on the function itself to see if it's a closure!
       function <- compileTerm f
       --
       let -- We should probably get the type from the function itself
