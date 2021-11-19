@@ -18,10 +18,16 @@ import qualified LLVM.AST.Type as LLVM
 import LLVM.IRBuilder.Module
 import qualified LLVM.Pretty as LLVM
 import qualified Prelude as P
+import qualified Juvix.Backends.LLVM.Pass.Types as Types
+import qualified Juvix.Backends.LLVM.Pass.ClosureConversion as ClosureConversion
 
 --------------------------------------------------------------------------------
 -- Top Level Compilation
 --------------------------------------------------------------------------------
+
+preProcess ::
+  ErasedAnn.AnnTerm PrimTy RawPrimVal -> Types.Annotated Types.TermClosure
+preProcess = ClosureConversion.op
 
 -- | Compile the input program to an LLVM module.
 -- TODO: maybe do something smarter with the module name?
@@ -48,7 +54,7 @@ register t = do
   Closure.register
   Block.defineMalloc
   Block.defineFree
-  mkMain t
+  mkMain (preProcess t)
 
 --------------------------------------------------------------------------------
 -- Function Declaration
@@ -70,9 +76,9 @@ register t = do
 mkMain ::
   Types.Define m =>
   -- | Term to compile.
-  ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  Types.Annotated Types.TermClosure ->
   m LLVM.Operand
-mkMain t@(ErasedAnn.Ann _usage ty _t') = do
+mkMain t@(Types.Ann _usage ty _t') = do
   let (paramTys, returnTy) = functionTypeLLVM ty
       paramNames =
         zipWith
@@ -98,13 +104,13 @@ mkMain t@(ErasedAnn.Ann _usage ty _t') = do
 
 -- | Compile a term to its equivalent LLVM code.
 compileTerm ::
-  Types.Define m => ErasedAnn.AnnTerm PrimTy RawPrimVal -> m LLVM.Operand
-compileTerm (ErasedAnn.Ann _usage ty t) =
+  Types.Define m => Types.Annotated Types.TermClosure -> m LLVM.Operand
+compileTerm (Types.Ann _usage ty t) =
   case t of
-    ErasedAnn.LamM caps as body -> compileLam ty caps as body
-    ErasedAnn.AppM fn arguments -> compileApp ty fn arguments
-    ErasedAnn.Var sym -> compileVar sym
-    ErasedAnn.Prim _t -> mkPrim t ty
+    Types.LamM as body -> compileLam ty as body
+    Types.AppM fn arguments -> compileApp ty fn arguments
+    Types.Var sym -> compileVar sym
+    Types.Prim _t -> mkPrim t ty
 
 compileVar ::
   (HasState "symTab" Types.SymbolTable m, HasThrow "err" Types.Errors m) =>
@@ -118,18 +124,15 @@ compileVar sym = do
 -- | Write an LLVM function definition based on a the given lambda abstraction.
 -- The function returns the name of the create function.
 compileLam ::
-  (Foldable t, Types.Define m) =>
+  Types.Define m =>
   -- | The type of the lambda abstraction.
   ErasedAnn.Type PrimTy ->
-  -- | List of captures variables (free variables for the body).
-  t a ->
   -- | List of parameter names.
   [NameSymbol.T] ->
   -- | The body of the lambda abstraction.
-  ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  Types.Annotated Types.TermClosure ->
   m LLVM.Operand
-compileLam ty captures arguments body
-  | length captures == 0 = do
+compileLam ty arguments body = do
     let (llvmArgty, llvmRetty) =
           functionTypeLLVM ty
         llvmArgNames =
@@ -142,8 +145,6 @@ compileLam ty captures arguments body
       do
         bod <- compileTerm body
         Block.ret bod
-  | otherwise =
-    throw @"err" (Types.UnsupportedOperation "closures are not supported")
 
 -- | The function assumes the arguments passed are the arguments of an
 -- application.
@@ -152,14 +153,14 @@ compileApp ::
   -- | Application return type
   ErasedAnn.Type PrimTy ->
   -- | The function term of an application.
-  ErasedAnn.AnnTerm PrimTy RawPrimVal ->
+  Types.Annotated Types.TermClosure ->
   -- | The arguments to the application.
-  [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
+  [Types.Annotated Types.TermClosure] ->
   m LLVM.Operand
-compileApp returnTy f@ErasedAnn.Ann {ErasedAnn.term} xs =
+compileApp returnTy f@Types.Ann {term} xs =
   case term of
     -- we only treat prims specially
-    ErasedAnn.Prim prim ->
+    Types.Prim prim ->
       compilePrimApp returnTy prim xs
     _ -> do
       arguments <- traverse compileTerm xs
@@ -180,7 +181,7 @@ compilePrimApp ::
   -- | The function primitive of the application.
   RawPrimVal ->
   -- | The arguments to the application.
-  [ErasedAnn.AnnTerm PrimTy RawPrimVal] ->
+  [Types.Annotated Types.TermClosure] ->
   m LLVM.Operand
 compilePrimApp ty f xs
   | arityRaw f == lengthN xs =
@@ -209,11 +210,11 @@ mkPrim ::
   (Types.Define m) =>
   Monad m =>
   -- | Term that contains the primitive.
-  ErasedAnn.Term PrimTy RawPrimVal ->
+  Types.TermClosure ->
   -- | Type of the primitive.
   ErasedAnn.Type PrimTy ->
   m LLVM.Operand
-mkPrim (ErasedAnn.Prim prim) ty = case prim of
+mkPrim (Types.Prim prim) ty = case prim of
   LitInt i -> case ty of
     ErasedAnn.PrimTy (PrimTy LLVM.IntegerType {LLVM.typeBits}) ->
       return $
