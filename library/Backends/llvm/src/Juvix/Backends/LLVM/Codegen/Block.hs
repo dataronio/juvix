@@ -107,6 +107,7 @@ module Juvix.Backends.LLVM.Codegen.Block
     defineMalloc,
     defineFree,
     malloc,
+    mallocType,
     free,
 
     -- * Operations
@@ -118,6 +119,9 @@ module Juvix.Backends.LLVM.Codegen.Block
     sub,
     mul,
     icmp,
+
+    -- ** Null
+    Juvix.Backends.LLVM.Codegen.Block.null,
 
     -- ** Floating Point Operations
     fdiv,
@@ -150,6 +154,7 @@ module Juvix.Backends.LLVM.Codegen.Block
 
     -- ** Pointer operations
     getElementPtr,
+    unsafeGetElementPtr,
     loadElementPtr,
     constant32List,
 
@@ -723,7 +728,7 @@ printCString str args = do
 defineMalloc :: External m => m ()
 defineMalloc = do
   let name = "malloc"
-  op <- external (Types.pointerOf Type.i8) name [(Types.size_t, "size")]
+  op <- external (Types.pointerOf Type.i8) name [(Type.i32, "size")]
   assign (intern name) op
 
 -- | @defineFree@ defines the free function
@@ -745,8 +750,21 @@ malloc size resultType = do
       callConvention
         CC.Fast
         malloc
-        (emptyArgs [Operand.ConstantOperand (C.Int Types.size_t_int size)])
+        (emptyArgs [Operand.ConstantOperand (C.Int 32 size)])
   bitCast i8Ptr resultType
+
+-- Does the sizeof code actually work!?
+-- | @mallocType@ mallocs the given type
+mallocType :: Call m => Type -> m Operand
+mallocType resultType = do
+  malloc <- externf "malloc"
+  i8Ptr <-
+    instr (Types.pointerOf Type.i8) $
+      callConvention
+        CC.Fast
+        malloc
+        (emptyArgs [Operand.ConstantOperand (C.sizeof resultType)])
+  bitCast i8Ptr (Types.pointerOf resultType)
 
 -- | @free@ frees the given operand
 free :: Call m => Operand -> m ()
@@ -860,6 +878,14 @@ fdiv t a b = instr t $ FDiv noFastMathFlags a b []
 fadd t a b = instr t $ FAdd noFastMathFlags a b []
 fsub t a b = instr t $ FSub noFastMathFlags a b []
 fmul t a b = instr t $ FMul noFastMathFlags a b []
+
+--------------------------------------------------------------------------------
+-- Null
+--------------------------------------------------------------------------------
+
+null :: Type -> Operand
+null ty = do
+  Operand.ConstantOperand (C.Null ty)
 
 --------------------------------------------------------------------------------
 -- Control Flow
@@ -1141,6 +1167,16 @@ getElementPtr (Minimal address indices type') =
   instr type' $
     GetElementPtr
       { inBounds = True,
+        metadata = [],
+        address = address,
+        indices = indices
+      }
+
+unsafeGetElementPtr :: RetInstruction m => MinimalPtr -> m Operand
+unsafeGetElementPtr (Minimal address indices type') =
+  instr type' $
+    GetElementPtr
+      { inBounds = False,
         metadata = [],
         address = address,
         indices = indices
