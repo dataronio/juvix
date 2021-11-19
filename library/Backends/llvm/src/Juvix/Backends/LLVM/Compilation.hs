@@ -5,6 +5,7 @@ where
 
 import qualified Juvix.Backends.LLVM.Codegen.Block as Block
 import qualified Juvix.Backends.LLVM.Codegen.Types as Types
+import qualified Juvix.Backends.LLVM.Codegen.Closure as Closure
 import Juvix.Backends.LLVM.Primitive
 import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library
@@ -30,7 +31,7 @@ compileProgram ::
   ErasedAnn.AnnTerm PrimTy RawPrimVal ->
   Feedback.FeedbackT [] P.String m Text
 compileProgram t =
-  case Block.runEnvState (mkMain t) mempty of
+  case Block.runEnvState (register t) mempty of
     (Right _, state) ->
       state
         |> Types.moduleAST
@@ -40,6 +41,14 @@ compileProgram t =
     (Left err, _) -> do
       show err
         |> Feedback.fail
+
+register ::
+  Types.Define m => ErasedAnn.AnnTerm PrimTy RawPrimVal -> m LLVM.Operand
+register t = do
+  Closure.register
+  Block.defineMalloc
+  Block.defineFree
+  mkMain t
 
 --------------------------------------------------------------------------------
 -- Function Declaration
