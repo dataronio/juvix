@@ -1,11 +1,20 @@
-"; ModuleID = 'juvix-module'
+; ModuleID = 'juvix-module'
 
 
  
+
+
+%closure = type <{i8*, i8**}>
+
+
+declare external fastcc  i8* @malloc(i32)    
+
+
+declare external fastcc  void @free(i8*)    
 
 
 define external fastcc  i8 @main()    {
 main:
   %0 = add nuw nsw i8 4, 6 
   ret i8 %0 
-}"
+}

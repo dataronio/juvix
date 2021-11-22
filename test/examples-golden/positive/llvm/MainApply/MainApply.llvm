@@ -4,7 +4,16 @@
  
 
 
-define external fastcc  i8 @lambda(i8  %"0", i8  %"1")    {
+%closure = type <{i8*, i8**}>
+
+
+declare external fastcc  i8* @malloc(i32)    
+
+
+declare external fastcc  void @free(i8*)    
+
+
+define external fastcc  i8 @lambda(i8**  %juvix_environmentArray, i8  %"0", i8  %"1")    {
 lambda1:
   ret i8 %"0" 
 }
@@ -12,6 +21,6 @@ lambda1:
 
 define external fastcc  i8 @main()    {
 main:
-  %0 =  call fastcc  i8  @lambda(i8  10, i8  20)  
+  %0 =  call fastcc  i8  @lambda(i8**  zeroinitializer, i8  10, i8  20)  
   ret i8 %0 
 }
