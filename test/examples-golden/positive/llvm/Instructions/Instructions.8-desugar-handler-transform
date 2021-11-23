@@ -37,6 +37,11 @@
         ( ":infix" "->" "int8" "int8" )
         ( () ( "llvm-mul" 50 ) ) )
 ,
+    ( ":defsig-match" "hello-world" "string" ( () "Hello, world!" ) )
+,
+    ( ":defsig-match" "hello-again-world" "string"
+        ( () "Hello again, world!" ) )
+,
     ( ":defsig-match" "main" "int"
         ( ()
             ( ":let-match" "ti8"
@@ -50,5 +55,8 @@
                             ( ":let-match" "ts"
                                 ( () ( "test-sub" 47 ) )
                                 ( ":let-match" "tm"
-                                    ( ()
-                                        ( "test-mul" 51 ) ) 99 ) ) ) ) ) ) ) ) ]
+                                    ( () ( "test-mul" 51 ) )
+                                    ( ":let-match" "hw"
+                                        ( () "hello-world" )
+                                        ( ":let-match" "haw"
+                                            ( () "hello-again-world" ) 99 ) ) ) ) ) ) ) ) ) ) ]

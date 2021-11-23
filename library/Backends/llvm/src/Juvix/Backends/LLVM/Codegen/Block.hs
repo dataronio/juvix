@@ -98,6 +98,7 @@ module Juvix.Backends.LLVM.Codegen.Block
     -- * Printing functionality
     definePrintf,
     printf,
+    globalString,
     cString,
     cStringPointer,
     printCString,
@@ -645,6 +646,34 @@ printf :: Call m => [Operand] -> m Operand
 printf args = do
   printf <- externf "printf"
   instr Type.i32 $ callConvention CC.C printf (emptyArgs args)
+
+-- | @globalString@ creates a globally-defined string constant and
+-- returns a pointer to it.
+globalString ::
+  ( RetInstruction m,
+    HasState "moduleDefinitions" [Definition] m
+  ) =>
+  [Char] ->
+  Name ->
+  m Operand
+globalString str name = do
+  addDefn $
+    GlobalDefinition $
+      globalVariableDefaults
+        { Global.name = name,
+          Global.initializer = Just (cString str),
+          Global.type' = ArrayType (fromIntegral (length str + 1)) Type.i8
+        }
+  getElementPtr $
+    Types.Minimal
+      { Types.type' = Types.pointerOf Type.i8,
+        Types.address' =
+          ConstantOperand $
+            C.GlobalReference
+              (Types.pointerOf $ ArrayType (fromIntegral (length str + 1)) Type.i8)
+              name,
+        Types.indincies' = constant32List [0, 0]
+      }
 
 -- | @cString@ given a haskell string, get the LLVM C style
 -- representation of the function. The result is a constant string in

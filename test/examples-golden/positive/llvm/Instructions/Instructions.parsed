@@ -331,6 +331,52 @@ Right
             )
         , Signature
             ( Sig
+                { signatureName = "hello-world"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "string" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "hello-world"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Constant
+                            ( String
+                                ( Sho "Hello, world!" )
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "hello-again-world"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "string" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "hello-again-world"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Constant
+                            ( String
+                                ( Sho "Hello again, world!" )
+                            )
+                        )
+                    }
+                )
+            )
+        , Signature
+            ( Sig
                 { signatureName = "main"
                 , signatureUsage = Nothing
                 , signatureArrowType = Name
@@ -428,9 +474,33 @@ Right
                                                                                     )
                                                                                 )
                                                                             }
-                                                                        , letBody = Constant
-                                                                            ( Number
-                                                                                ( Integer' 99 )
+                                                                        , letBody = Let
+                                                                            ( Let'
+                                                                                { letBindings = Like
+                                                                                    { functionLikedName = "hw"
+                                                                                    , functionLikeArgs = []
+                                                                                    , functionLikeBody = Body
+                                                                                        ( Name
+                                                                                            ( "hello-world" :| [] )
+                                                                                        )
+                                                                                    }
+                                                                                , letBody = Let
+                                                                                    ( Let'
+                                                                                        { letBindings = Like
+                                                                                            { functionLikedName = "haw"
+                                                                                            , functionLikeArgs = []
+                                                                                            , functionLikeBody = Body
+                                                                                                ( Name
+                                                                                                    ( "hello-again-world" :| [] )
+                                                                                                )
+                                                                                            }
+                                                                                        , letBody = Constant
+                                                                                            ( Number
+                                                                                                ( Integer' 99 )
+                                                                                            )
+                                                                                        }
+                                                                                    )
+                                                                                }
                                                                             )
                                                                         }
                                                                     )

@@ -9,11 +9,24 @@ module Juvix.Backends.LLVM.Parameterization
   )
 where
 
+import qualified Juvix.Backends.LLVM.Codegen.Types as Types
 import Juvix.Backends.LLVM.Primitive
 import qualified Juvix.Core.Base.Types as Core
 import qualified Juvix.Core.IR.Evaluator as IR
 import qualified Juvix.Core.Parameterisation as Param
 import Juvix.Library
+  ( Applicative (pure),
+    Bool,
+    Eq ((==)),
+    Foldable (length),
+    Integer,
+    Maybe (..),
+    Monoid (mempty),
+    Text,
+    const,
+    ($),
+    (.),
+  )
 import qualified LLVM.AST.Type as LLVM
 
 instance Param.CanPrimApply Param.Star PrimTy where
@@ -35,7 +48,7 @@ llvm =
     { Param.hasType = hasType,
       Param.builtinTypes = builtinTypes,
       Param.builtinValues = builtinValues,
-      Param.stringVal = const Nothing,
+      Param.stringVal = stringToRawPrimVal,
       Param.intVal = integerToRawPrimVal,
       Param.floatVal = const Nothing
     }
@@ -47,12 +60,14 @@ llvm =
       Sub -> Param.check3Equal ty
       Mul -> Param.check3Equal ty
       LitInt _ -> length ty == 1
+      LitString _ -> length ty == 1
 
     -- The primitive LLVM types available to Juvix users.
     builtinTypes :: Param.Builtins PrimTy
     builtinTypes =
       [ ("LLVM.int8", PrimTy LLVM.i8),
-        ("LLVM.int16", PrimTy LLVM.i16)
+        ("LLVM.int16", PrimTy LLVM.i16),
+        ("LLVM.string", PrimTy $ Types.pointerOf LLVM.i8)
       ]
 
     -- The primitive LLVM values available to Juvix users.
@@ -70,6 +85,9 @@ llvm =
     -- function.
     integerToRawPrimVal :: Integer -> Maybe RawPrimVal
     integerToRawPrimVal = Just . LitInt
+
+    stringToRawPrimVal :: Text -> Maybe RawPrimVal
+    stringToRawPrimVal = Just . LitString
 
 -- | TODO: for now these are just copied over from the Michelson backend.
 instance IR.HasWeak PrimTy where weakBy' _ _ t = t

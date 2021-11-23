@@ -40,6 +40,14 @@ let test-sub = llvm-sub 46
 sig test-mul : int8 -> int8
 let test-mul = llvm-mul 50
 
+-- Test "hello world".
+sig hello-world : string
+let hello-world = "Hello, world!"
+
+-- Make sure we generate unique names for global strings.
+sig hello-again-world : string
+let hello-again-world = "Hello again, world!"
+
 sig main : int
 let main =
   let ti8 = test-int8 in
@@ -48,4 +56,6 @@ let main =
   let ta = test-add 45 in
   let ts = test-sub 47 in
   let tm = test-mul 51 in
+  let hw = hello-world in
+  let haw = hello-again-world in
   99

@@ -10,9 +10,11 @@ import qualified Juvix.Core.Erased.Ann as ErasedAnn
 import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import qualified LLVM.AST as LLVM (Operand (..))
+import qualified LLVM.AST as LLVM (Definition, Operand (..))
 import qualified LLVM.AST.Constant as LLVM (Constant (..))
+import qualified LLVM.AST.Name as Name
 import qualified LLVM.AST.Type as LLVM
+import LLVM.IRBuilder.Module
 import qualified LLVM.Pretty as LLVM
 import qualified Prelude as P
 
@@ -195,6 +197,7 @@ compilePrimApp ty f xs
 -- | Write LLVM code for a primitive.
 -- TODO: implement other primitives.
 mkPrim ::
+  (Types.Define m) =>
   Monad m =>
   -- | Term that contains the primitive.
   ErasedAnn.Term PrimTy RawPrimVal ->
@@ -207,6 +210,10 @@ mkPrim (ErasedAnn.Prim prim) ty = case prim of
       return $
         LLVM.ConstantOperand $
           LLVM.Int {LLVM.integerBits = typeBits, LLVM.integerValue = i}
+  LitString s -> case ty of
+    ErasedAnn.PrimTy (PrimTy (LLVM.PointerType (LLVM.IntegerType 8) _)) -> do
+      name <- Block.generateUniqueName "LitString"
+      Block.globalString (toS s) name
 
 functionTypeLLVM :: ErasedAnn.Type PrimTy -> ([LLVM.Type], LLVM.Type)
 functionTypeLLVM prim =

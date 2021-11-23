@@ -358,6 +358,41 @@
             )
         )
     ,
+        ( "Prelude" :|
+            [ "LLVM"
+            , "string"
+            ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Prelude" :|
+                    [ "LLVM"
+                    , "string"
+                    ]
+                , rawFunUsage = GSAny
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Prelude" :| [ "ty" ] )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = PrimTy
+                        ( PrimTy
+                            ( PointerType
+                                { pointerReferent = IntegerType
+                                    { typeBits = 8 }
+                                , pointerAddrSpace = AddrSpace 0
+                                }
+                            )
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
         ( "Prelude" :| [ "const" ]
         , RawGFunction
             ( RawFunction

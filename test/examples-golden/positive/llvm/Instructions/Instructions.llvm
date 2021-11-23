@@ -4,9 +4,31 @@
  
 
 
+@LitString =    global [14 x i8] c"Hello, world!\00"
+
+
+@LitString1 =    global [20 x i8] c"Hello again, world!\00"
+
+
+define external fastcc  i8 @lambda8(i8*  %"7")    {
+lambda8:
+  ret i8 99 
+}
+
+
+define external fastcc  i8 @lambda7(i8*  %"6")    {
+lambda7:
+  %0 = getelementptr inbounds [20 x i8], [20 x i8]* @LitString1, i32 0, i32 0 
+  %1 =  call fastcc  i8  @lambda8(i8*  %0)  
+  ret i8 %1 
+}
+
+
 define external fastcc  i8 @lambda6(i8  %"5")    {
 lambda6:
-  ret i8 99 
+  %0 = getelementptr inbounds [14 x i8], [14 x i8]* @LitString, i32 0, i32 0 
+  %1 =  call fastcc  i8  @lambda7(i8*  %0)  
+  ret i8 %1 
 }
 
 

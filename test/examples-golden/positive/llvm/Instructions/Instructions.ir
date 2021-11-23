@@ -351,6 +351,32 @@
             )
         )
     ,
+        ( "Instructions" :| [ "hello-again-world" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Instructions" :| [ "hello-again-world" ]
+                , rawFunUsage = GSAny
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Prelude" :|
+                                [ "LLVM"
+                                , "string"
+                                ]
+                            )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim
+                        ( LitString "Hello again, world!" ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
         ( "Prelude" :|
             [ "LLVM"
             , "int16"
@@ -534,6 +560,32 @@
                     , rawClausePats = []
                     , rawClauseBody = Prim
                         ( LitInt 0 ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Instructions" :| [ "hello-world" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Instructions" :| [ "hello-world" ]
+                , rawFunUsage = GSAny
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Prelude" :|
+                                [ "LLVM"
+                                , "string"
+                                ]
+                            )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim
+                        ( LitString "Hello, world!" ) ()
                     , rawClauseCatchall = False
                     } :| []
                 }
@@ -755,13 +807,62 @@
                                                     ( LitInt 51 ) ()
                                                 ) ()
                                             )
-                                            ( Prim
-                                                ( LitInt 99 ) ()
+                                            ( Let SAny
+                                                ( Free
+                                                    ( Global
+                                                        ( "Instructions" :| [ "hello-world" ] )
+                                                    ) ()
+                                                )
+                                                ( Let SAny
+                                                    ( Free
+                                                        ( Global
+                                                            ( "Instructions" :| [ "hello-again-world" ] )
+                                                        ) ()
+                                                    )
+                                                    ( Prim
+                                                        ( LitInt 99 ) ()
+                                                    ) ()
+                                                ) ()
                                             ) ()
                                         ) ()
                                     ) ()
                                 ) ()
                             ) ()
+                        ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Prelude" :|
+            [ "LLVM"
+            , "string"
+            ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Prelude" :|
+                    [ "LLVM"
+                    , "string"
+                    ]
+                , rawFunUsage = GSAny
+                , rawFunType = Elim
+                    ( Free
+                        ( Global
+                            ( "Prelude" :| [ "ty" ] )
+                        ) ()
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = PrimTy
+                        ( PrimTy
+                            ( PointerType
+                                { pointerReferent = IntegerType
+                                    { typeBits = 8 }
+                                , pointerAddrSpace = AddrSpace 0
+                                }
+                            )
                         ) ()
                     , rawClauseCatchall = False
                     } :| []

@@ -46,6 +46,14 @@
 ,
     ( ":defun-match" "test-mul" ( () ( "llvm-mul" 50 ) ) )
 ,
+    ( ":defsig" "hello-world" "string" )
+,
+    ( ":defun-match" "hello-world" ( () "Hello, world!" ) )
+,
+    ( ":defsig" "hello-again-world" "string" )
+,
+    ( ":defun-match" "hello-again-world" ( () "Hello again, world!" ) )
+,
     ( ":defsig" "main" "int" )
 ,
     ( ":defun-match" "main"
@@ -61,5 +69,8 @@
                             ( ":let-match" "ts"
                                 ( () ( "test-sub" 47 ) )
                                 ( ":let-match" "tm"
-                                    ( ()
-                                        ( "test-mul" 51 ) ) 99 ) ) ) ) ) ) ) ) ]
+                                    ( () ( "test-mul" 51 ) )
+                                    ( ":let-match" "hw"
+                                        ( () "hello-world" )
+                                        ( ":let-match" "haw"
+                                            ( () "hello-again-world" ) 99 ) ) ) ) ) ) ) ) ) ) ]

@@ -343,6 +343,30 @@ fromList
             )
         )
     ,
+        ( "Instructions" :| [ "hello-again-world" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Instructions" :| [ "hello-again-world" ]
+                , rawFunUsage = GSAny
+                , rawFunType = Elim
+                    ( ElimX
+                        ( "Prelude" :|
+                            [ "LLVM"
+                            , "string"
+                            ]
+                        )
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim
+                        ( LitString "Hello again, world!" ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
         ( "Prelude" :|
             [ "LLVM"
             , "int16"
@@ -539,6 +563,30 @@ fromList
             )
         )
     ,
+        ( "Instructions" :| [ "hello-world" ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Instructions" :| [ "hello-world" ]
+                , rawFunUsage = GSAny
+                , rawFunType = Elim
+                    ( ElimX
+                        ( "Prelude" :|
+                            [ "LLVM"
+                            , "string"
+                            ]
+                        )
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = Prim
+                        ( LitString "Hello, world!" ) ()
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
         ( "Instructions" :| [ "test-litint-add" ]
         , RawGFunction
             ( RawFunction
@@ -726,8 +774,20 @@ fromList
                                                     ( LitInt 51 ) ()
                                                 ) ()
                                             )
-                                            ( Prim
-                                                ( LitInt 99 ) ()
+                                            ( Let SAny
+                                                ( ElimX
+                                                    ( "Instructions" :| [ "hello-world" ] )
+                                                )
+                                                ( Let SAny
+                                                    ( ElimX
+                                                        ( "Instructions" :| [ "hello-again-world" ] )
+                                                    )
+                                                    ( Prim
+                                                        ( LitInt 99 ) ()
+                                                    )
+                                                    ( "haw" :| [] )
+                                                )
+                                                ( "hw" :| [] )
                                             )
                                             ( "tm" :| [] )
                                         )
@@ -740,6 +800,39 @@ fromList
                             ( "ti16" :| [] )
                         )
                         ( "ti8" :| [] )
+                    , rawClauseCatchall = False
+                    } :| []
+                }
+            )
+        )
+    ,
+        ( "Prelude" :|
+            [ "LLVM"
+            , "string"
+            ]
+        , RawGFunction
+            ( RawFunction
+                { rawFunName = "Prelude" :|
+                    [ "LLVM"
+                    , "string"
+                    ]
+                , rawFunUsage = GSAny
+                , rawFunType = Elim
+                    ( ElimX
+                        ( "Prelude" :| [ "ty" ] )
+                    ) ()
+                , rawFunClauses = RawFunClause
+                    { rawClauseTel = []
+                    , rawClausePats = []
+                    , rawClauseBody = PrimTy
+                        ( PrimTy
+                            ( PointerType
+                                { pointerReferent = IntegerType
+                                    { typeBits = 8 }
+                                , pointerAddrSpace = AddrSpace 0
+                                }
+                            )
+                        ) ()
                     , rawClauseCatchall = False
                     } :| []
                 }

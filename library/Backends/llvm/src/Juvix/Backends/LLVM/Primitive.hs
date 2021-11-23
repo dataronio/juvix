@@ -31,6 +31,7 @@ data RawPrimVal
   | Sub
   | Mul
   | LitInt Integer
+  | LitString Text
   deriving (Eq, Show, Read)
 
 -- | The primitive values as exposed to users of Juvix, wrapping inside a

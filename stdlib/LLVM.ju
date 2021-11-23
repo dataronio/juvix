@@ -8,6 +8,9 @@ let int8 = %LLVM.int8
 sig int16 : ty
 let int16 = %LLVM.int16
 
+sig string : ty
+let string = %LLVM.string
+
 -- Alias for int8 to be more compitable with the Michelson backend.
 sig int : ty
 let int = int8

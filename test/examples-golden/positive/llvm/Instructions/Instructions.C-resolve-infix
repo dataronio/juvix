@@ -51,6 +51,15 @@ ShowRec
                             ( ":lambda-case" ( () ( "llvm-add" 44 ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
+                ( "hello-again-world"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "TopLevel.Prelude.LLVM.string"
+                        , defTerm =
+                            ( ":lambda-case" ( () "Hello again, world!" ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
                 ( "test-int8"
                 , Def
                     ( D
@@ -80,7 +89,11 @@ ShowRec
                                                         ( () ( "test-sub" 47 ) )
                                                         ( ":let-match" "tm"
                                                             ( ()
-                                                                ( "test-mul" 51 ) ) 99 ) ) ) ) ) ) ) )
+                                                                ( "test-mul" 51 ) )
+                                                            ( ":let-match" "hw"
+                                                                ( () "hello-world" )
+                                                                ( ":let-match" "haw"
+                                                                    ( () "hello-again-world" ) 99 ) ) ) ) ) ) ) ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "llvm-add"
@@ -117,6 +130,15 @@ ShowRec
                         , defTerm =
                             ( ":lambda-case"
                                 ( () ( ":primitive" "LLVM.mul" ) ) )
+                        , defPrecedence = Pred Left 9 } ) )
+            ,
+                ( "hello-world"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "TopLevel.Prelude.LLVM.string"
+                        , defTerm =
+                            ( ":lambda-case" ( () "Hello, world!" ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "test-litint-add"
@@ -172,6 +194,10 @@ ShowRec
             ( "SAny"
             , SymInfo
                 { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "string"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
         ,
             ( "Circuit"
             , SymInfo
