@@ -12,6 +12,7 @@ packages:
 - ../../Backends/Plonk
 - ../../Backends/llvm
 - ../../Sexp
+- ../../Test/DataStructures
 
 extra-deps:
 
