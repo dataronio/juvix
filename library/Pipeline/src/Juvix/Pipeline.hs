@@ -152,6 +152,7 @@ class HasBackend b where
       Left er -> Feedback.fail ("Error on toHR: " <> toS (pShowNoColor er))
 
   toIR ::
+    (Show (Ty b), Show (Val b)) =>
     Core.RawGlobals HR.T (Ty b) (Val b) ->
     Pipeline (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Ty b) (Val b))
   toIR hr = pure $ ToIR.hrToIRDefs hr

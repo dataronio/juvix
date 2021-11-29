@@ -32,7 +32,10 @@ import qualified Juvix.Library.NameSymbol as NameSymbol
 
 -- | @hrToIR@ runs @hrToIR'@ with an empty stack, see that function for
 -- more documentation
-hrToIR :: HR.Term primTy primVal -> IR.Term primTy primVal
+hrToIR ::
+  (Show primTy, Show primVal) =>
+  HR.Term primTy primVal ->
+  IR.Term primTy primVal
 hrToIR = hrToIRWith mempty
 
 -- contract: no shadowing
@@ -42,6 +45,7 @@ hrToIR = hrToIRWith mempty
 -- used as extra arguments to the algorithm, serving as the global
 -- functions argument to the term itself.
 hrToIRWith ::
+  (Show primTy, Show primVal) =>
   -- | name <-> pattern var mapping from outer scopes
   HashMap NameSymbol.T Core.PatternVar ->
   HR.Term primTy primVal ->
@@ -56,7 +60,7 @@ hrToIRWith pats term =
 -- @hrElimToIR'@ for @Elim@'s that lookup the index of stack to get the
 -- correct de Bruijn index.
 hrToIR' ::
-  (HasNameStack m, HasSymToPat m) =>
+  (HasNameStack m, HasSymToPat m, Show primTy, Show primVal) =>
   HR.Term primTy primVal ->
   m (IR.Term primTy primVal)
 hrToIR' = \case
@@ -110,7 +114,7 @@ hrToIR' = \case
 -- not found are either treated as @Global@ or @Pattern@ variables,
 -- with the latter referring to the function arguments to the term
 hrElimToIR' ::
-  (HasNameStack m, HasSymToPat m) =>
+  (HasNameStack m, HasSymToPat m, Show primTy, Show primVal) =>
   HR.Elim primTy primVal ->
   m (IR.Elim primTy primVal)
 hrElimToIR' = \case
@@ -232,18 +236,20 @@ irElimToHR' = \case
 
 -- | @hrPatternsToIR@ works like @hrPatternToIR@ but for a list of variables
 hrPatternsToIR ::
-  Traversable t =>
+  (Traversable t, Show primTy, Show primVal) =>
   t (HR.Pattern primTy primVal) ->
   (t (IR.Pattern primTy primVal), HashMap NameSymbol.T Core.PatternVar)
 hrPatternsToIR pats =
   mapAccumL (swap ... hrPatternToIRWith) mempty pats |> swap
 
 hrPatternToIR ::
+  (Show primTy, Show primVal) =>
   HR.Pattern primTy primVal ->
   (IR.Pattern primTy primVal, HashMap NameSymbol.T Core.PatternVar)
 hrPatternToIR = hrPatternToIRWith mempty
 
 hrPatternToIRWith ::
+  (Show primTy, Show primVal) =>
   HashMap NameSymbol.T Core.PatternVar ->
   HR.Pattern primTy primVal ->
   (IR.Pattern primTy primVal, HashMap NameSymbol.T Core.PatternVar)
@@ -253,7 +259,7 @@ hrPatternToIRWith pats pat =
     |> second symToPat
 
 hrPatternToIR' ::
-  (HasNameStack m, HasSymToPat m, HasNextPatVar m) =>
+  (HasNameStack m, HasSymToPat m, HasNextPatVar m, Show primTy, Show primVal) =>
   HR.Pattern primTy primVal ->
   m (IR.Pattern primTy primVal)
 hrPatternToIR' = \case

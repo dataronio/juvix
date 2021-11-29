@@ -280,7 +280,11 @@ free :: forall primTy primVal. E.Term primTy primVal -> [NameSymbol.T]
 free = Erased.free . E.eraseAnn
 
 -- | Take a typed term and some usage, and annotate the return term with that usage
-convertTerm :: E.TermT primTy primVal -> Usage.T -> AnnTermT primTy primVal
+convertTerm ::
+  (Show primTy, Show primVal) =>
+  E.TermT primTy primVal ->
+  Usage.T ->
+  AnnTermT primTy primVal
 convertTerm term usage =
   let ty = E.getType term
       ty' = convertType ty
