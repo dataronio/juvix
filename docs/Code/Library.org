@@ -375,7 +375,6 @@ Surface language
   + [[Ann]]
   + [[Library]]
   + [[Feedback]]
-  + [[HashMap]]
   + [[NameSymbol]]
 ******* Parameterization <<LLVM/Parameterization>>
 Parameterization and application of the LLVM backend primitives.
@@ -474,7 +473,6 @@ compile a new top level declaration.
 - _Relies on_
   + [[Block]]
   + [[Codegen/Types]]
-  + [[Pass/Types]]
   + [[Library]]
 ******** Types <<Codegen/Types>>
 - _Relies on_

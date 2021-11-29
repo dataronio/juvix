@@ -754,6 +754,7 @@ malloc size resultType = do
   bitCast i8Ptr resultType
 
 -- Does the sizeof code actually work!?
+
 -- | @mallocType@ mallocs the given type
 mallocType :: Call m => Type -> m Operand
 mallocType resultType = do
