@@ -9,6 +9,7 @@ where
 import qualified Data.ByteString.Short as Short hiding (empty)
 import qualified Distribution.System as System
 import Juvix.Backends.LLVM.Codegen.Types.Shared
+import qualified Juvix.Backends.LLVM.Codegen.Types.Sum as Sum
 import Juvix.Library hiding (Type)
 import qualified Juvix.Library.HashMap as Map
 import LLVM.AST as AST
@@ -27,6 +28,10 @@ data CodegenState = CodegenState
     blocks :: Map.T Name BlockState,
     -- | Function scope symbol table
     symTab :: SymbolTable,
+    -- | Mapping from symbol to Type
+    typTab :: TypeTable,
+    -- | a mapping from the variants to the sum type
+    varTab :: VariantToType,
     -- | Count of basic blocks
     blockCount :: Int,
     -- | Count of unnamed instructions
@@ -88,6 +93,18 @@ newtype Codegen a = CodeGen {runCodegen :: CodegenAlias a}
       HasSource "symTab" SymbolTable
     )
     via StateField "symTab" CodegenAlias
+  deriving
+    ( HasState "varTab" VariantToType,
+      HasSink "varTab" VariantToType,
+      HasSource "varTab" VariantToType
+    )
+    via StateField "varTab" CodegenAlias
+  deriving
+    ( HasState "typTab" TypeTable,
+      HasSink "typTab" TypeTable,
+      HasSource "typTab" TypeTable
+    )
+    via StateField "typTab" CodegenAlias
   deriving
     ( HasState "blockCount" Int,
       HasSink "blockCount" Int,
@@ -183,10 +200,23 @@ type RetInstruction m =
     Instruct m
   )
 
+type MallocSum m =
+  ( RetInstruction m,
+    HasState "typTab" TypeTable m,
+    HasState "varTab" VariantToType m,
+    HasState "symTab" SymbolTable m
+  )
+
 type NewBlock m =
   ( HasState "blockCount" Int m,
     HasState "blocks" (Map.T Name BlockState) m,
     HasState "names" Names m
+  )
+
+type AllocaSum m =
+  ( RetInstruction m,
+    HasState "typTab" TypeTable m,
+    HasState "varTab" VariantToType m
   )
 
 type Define m =
@@ -285,6 +315,10 @@ debugLevelOne = whenM ((1 <=) <$> ask @"debug")
 --------------------------------------------------------------------------------
 -- LLVM Types
 --------------------------------------------------------------------------------
+
+-- | 'variantToType' takes the type out of the variant
+variantToType :: Sum.VariantInfo -> Type
+variantToType = Sum.typ'
 
 pointerOf :: Type -> Type
 pointerOf typ = PointerType typ (AddrSpace.AddrSpace 0)

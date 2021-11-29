@@ -223,6 +223,8 @@ emptyCodegen =
     { Types.currentBlock = mkName entryBlockName,
       Types.blocks = Map.empty,
       Types.symTab = Map.empty,
+      Types.typTab = Map.empty,
+      Types.varTab = Map.empty,
       Types.count = 0,
       Types.names = Map.empty,
       Types.blockCount = 1,
@@ -1188,7 +1190,7 @@ unsafeGetElementPtr (Minimal address indices type') =
 --
 -- @
 -- branchGen variant variantType extraDeref = do
---   casted <- Block.bitCast numPort (Types.pointerOf (Types.varientToType variant))
+--   casted <- Block.bitCast numPort (Types.pointerOf (Types.variantToType variant))
 --   value <-
 --     Block.loadElementPtr $
 --       Types.Minimal
@@ -1209,6 +1211,155 @@ loadElementPtr minimal = do
 -- for example usage.
 constant32List :: Functor f => f Integer -> f Operand
 constant32List = fmap (ConstantOperand . C.Int 32)
+
+--------------------------------------------------------------------------------
+-- Sum Type Declarations
+--------------------------------------------------------------------------------
+argsGen :: [Name.Name]
+argsGen = (mkName . ("_" <>) . show) <$> ([1 ..] :: [Integer])
+
+variantCreationName :: Symbol -> Symbol
+variantCreationName = (<> "_%func")
+
+-- | Generic logic to create a variant, used in 'createVariantAllocaFunction'
+-- and 'createVariantGen'
+variantCreation ::
+  ( RetInstruction m,
+    HasState "typTab" TypeTable m,
+    Integral a,
+    Foldable t
+  ) =>
+  Type ->
+  Symbol ->
+  Word32 ->
+  t Operand ->
+  a ->
+  (Type -> m Operand) ->
+  m Operand
+variantCreation sumTyp variantName tag args offset allocFn = do
+  typTable <- get @"typTab"
+  sum <- allocFn sumTyp
+  getEle <-
+    getElementPtr $
+      Minimal
+        { Types.type' = Types.pointerOf (Type.IntegerType tag),
+          Types.address' = sum,
+          Types.indincies' = constant32List [0, 0]
+        }
+  store
+    getEle
+    (ConstantOperand (C.Int tag (toInteger offset)))
+  -- TODO ∷ remove the ! call here
+  let varType = typTable Map.! variantName
+  casted <- bitCast sum (Types.pointerOf varType)
+  foldM_
+    ( \i inst -> do
+        ele <-
+          getElementPtr $
+            Minimal
+              { Types.type' = Types.pointerOf (intoStructTypeErr varType i),
+                Types.address' = casted,
+                Types.indincies' = constant32List [0, i]
+              }
+        store ele inst
+        pure (succ i)
+    )
+    1 -- not 0, as 0 is reserved for the tag that was set
+    args
+  pure casted
+
+-- TODO ∷ Remove repeat code!!!
+-- TODO ∷ use, so far the createVariant is only used
+
+-- | creates a variant creation definition function
+createVariantAllocaFunction ::
+  ( Define m,
+    HasState "typTab" TypeTable m,
+    HasState "varTab" VariantToType m
+  ) =>
+  Symbol ->
+  [Type] ->
+  m Operand
+createVariantAllocaFunction variantName argTypes = do
+  varTable <- get @"varTab"
+  typTable <- get @"typTab"
+  case Map.lookup variantName varTable of
+    Nothing ->
+      throw @"err" (NoSuchVariant (show variantName))
+    Just
+      ( S
+          { sum' = sumName,
+            offset = offset,
+            tagSize' = tag
+          }
+        ) ->
+        case Map.lookup sumName typTable of
+          Nothing ->
+            throw @"err" (DoesNotHappen ("type " <> show sumName <> "does not exist"))
+          Just sumTyp ->
+            let varCName = variantCreationName variantName
+                args = zip argTypes argsGen
+             in defineFunction sumTyp varCName args $ do
+                  argsName <- traverse (externf . snd) args
+                  casted <- variantCreation sumTyp variantName tag argsName offset alloca
+                  _ <- ret casted
+                  createBlocks
+
+createVariantGen ::
+  ( RetInstruction m,
+    HasState "typTab" TypeTable m,
+    HasState "varTab" VariantToType m,
+    Foldable t
+  ) =>
+  Symbol ->
+  t Operand ->
+  (Type -> m Operand) ->
+  m Operand
+createVariantGen variantName args allocFn = do
+  varTable <- get @"varTab"
+  typTable <- get @"typTab"
+  case Map.lookup variantName varTable of
+    Nothing ->
+      throw @"err" (NoSuchVariant (show variantName))
+    Just
+      ( S
+          { sum' = sumName,
+            offset = offset,
+            tagSize' = tag
+          }
+        ) ->
+        case Map.lookup sumName typTable of
+          Nothing ->
+            throw @"err" (DoesNotHappen ("type " <> show sumName <> "does not exist"))
+          Just sumTyp ->
+            variantCreation sumTyp variantName tag args offset allocFn
+
+-- | Creates a variant by calling alloca.
+-- WARNING:  This is unsafe until we can do escape analysis!  Until then,
+-- use the mallocVariant.
+allocaVariant ::
+  ( RetInstruction m,
+    HasState "typTab" TypeTable m,
+    HasState "varTab" VariantToType m,
+    Foldable t
+  ) =>
+  Symbol ->
+  t Operand ->
+  m Operand
+allocaVariant variantName args = createVariantGen variantName args alloca
+
+-- | Creates a variant by calling malloc.
+mallocVariant ::
+  ( Call m,
+    HasState "typTab" TypeTable m,
+    HasState "varTab" VariantToType m,
+    Foldable t
+  ) =>
+  Symbol ->
+  t Operand ->
+  Integer ->
+  m Operand
+mallocVariant variantName args size = createVariantGen variantName args (malloc size)
 
 -------------------------------------------------------------------------------
 -- Symbol Table

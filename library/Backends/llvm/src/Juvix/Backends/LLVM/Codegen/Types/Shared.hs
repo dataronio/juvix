@@ -2,6 +2,8 @@
 module Juvix.Backends.LLVM.Codegen.Types.Shared
   ( SymbolTable,
     TypeTable,
+    SumInfo (..),
+    VariantToType,
     Names,
     uniqueName,
   )
@@ -14,6 +16,17 @@ import LLVM.AST
 type SymbolTable = Map.T Symbol Operand
 
 type TypeTable = Map.T Symbol Type
+
+data SumInfo = S
+  { sum' :: Symbol,
+    offset :: Int,
+    tagSize' :: Word32
+  }
+  deriving (Show, Eq)
+
+-- | a mapping between the variant and the sum type along with
+-- the tag associated with it
+type VariantToType = Map.T Symbol SumInfo
 
 -- | Mapping from Symbols to Ints that allow us to pick an unique
 -- numbering to go along with a given name.
