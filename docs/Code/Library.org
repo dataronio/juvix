@@ -1373,6 +1373,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Juvix/Sexp]]
 ****** Term
 - _Relies on_
+  + [[Juvix/Closure]]
   + [[Core/Base]]
   + [[HR]]
   + [[Core/Parameterisation]]

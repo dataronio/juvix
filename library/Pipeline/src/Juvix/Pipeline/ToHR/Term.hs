@@ -2,6 +2,7 @@ module Juvix.Pipeline.ToHR.Term (transformTermHR) where
 
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Juvix.Closure as Closure
 import qualified Juvix.Core.Base as Core
 import qualified Juvix.Core.HR as HR
 import qualified Juvix.Core.Parameterisation as P
@@ -87,8 +88,14 @@ transformTermHR q p@(name Sexp.:> form)
     transformSimpleLet e@(Sexp.List [name, Sexp.List [arg, cbody], body])
       | Just Sexp.A {atomName} <- Sexp.atomFromT name,
         Just xs <- Sexp.toList arg = do
+        -- The name of the function is recursive, so add it before the
+        -- arguments are added even
+        modify @"closure" (Closure.insertGeneric (NameSymbol.toSymbol atomName))
+        beforeLamArgs <- get @"closure"
         args <- traverse parseVarArg xs
         cbody <- transformTermHR q cbody
+        -- reset the closure so the arguments of the lam don't leak to the RHS
+        put @"closure" beforeLamArgs
         rhs <- toElim (Sexp.Cons (Sexp.atom ":let-match=") e) $ foldr HR.Lam cbody args
         HR.Let Usage.SAny atomName rhs <$> transformTermHR q body
     transformSimpleLet (Sexp.List [_name, fun, _body]) =
@@ -96,8 +103,14 @@ transformTermHR q p@(name Sexp.:> form)
     transformSimpleLet _ = error "malformed let"
 
     transformSimpleLambda (Sexp.List [args, body])
-      | Just pats <- Sexp.toList args >>= NonEmpty.nonEmpty =
-        foldr HR.Lam <$> transformTermHR q body <*> traverse parseVarPat pats
+      | Just pats <- Sexp.toList args >>= NonEmpty.nonEmpty = do
+        beforeArgs <- get @"closure"
+        pats <- traverse parseVarPat pats
+        body <- transformTermHR q body
+        -- Cleanup the local variables as they are now no longer in
+        -- scope
+        put @"closure" beforeArgs
+        pure $ foldr HR.Lam body pats
     -- TODO: Avoid throwing error
     transformSimpleLambda _ = error "malformed lambda"
     transformPrim (Sexp.List [parm])
@@ -230,7 +243,7 @@ toElim e _ = throwFF $ NotAnElim e
 
 -- | Check whether the S-expression form is a non-implicit string atom
 parseVarArg ::
-  HasThrowFF ext primTy primVal m =>
+  (HasThrowFF ext primTy primVal m, HasClosure m) =>
   Sexp.T ->
   m NameSymbol.T
 parseVarArg p@(name Sexp.:> _rest)
@@ -241,11 +254,12 @@ parseVarArg p = parseVarPat p
 -- | Check whether the S-expression form is a string atom (i.e. not a number)
 -- and return its name
 parseVarPat ::
-  HasThrowFF ext primTy primVal m =>
+  (HasThrowFF ext primTy primVal m, HasClosure m) =>
   Sexp.T ->
   m NameSymbol.T
 parseVarPat p
-  | Just Sexp.A {atomName} <- Sexp.atomFromT p =
+  | Just Sexp.A {atomName} <- Sexp.atomFromT p = do
+    modify @"closure" (Closure.insertGeneric (NameSymbol.toSymbol atomName))
     pure atomName
 parseVarPat p =
   throwFF $ PatternUnimplemented p
