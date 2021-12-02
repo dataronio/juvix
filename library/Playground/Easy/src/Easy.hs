@@ -423,7 +423,6 @@ inline ::
   Options primTy primVal ->
   IO
     ( Core.Term IR.T primTy primVal,
-      Usage.Usage,
       Core.Term IR.T primTy primVal,
       Core.RawGlobals IR.T primTy primVal
     )
@@ -431,17 +430,17 @@ inline input options = do
   (patToSym, globalDefs) <- coreify input options
   let inlinedTerm = IR.inlineAllGlobals term lookupGlobal patToSym
       lookupGlobal = IR.rawLookupFun' globalDefs
-      (usage, term, mainTy) = toLambda getMain
+      (term, mainTy) = toLambda getMain
 
       getMain = case HM.elems $ HM.filter Compile.isMain globalDefs of
         [] -> error $ "No main function found in " <> toS (Pretty.pShowNoColor globalDefs)
         main : _ -> main
 
       toLambda main = case TransformExt.extForgetE <$> IR.toLambdaR @IR.T main of
-        Just (IR.Ann usage term ty) -> (usage, term, ty)
+        Just (IR.Ann term ty) -> (term, ty)
         _ -> error $ "Unable to convert main to lambda" <> toS (Pretty.pShowNoColor main)
 
-  return (inlinedTerm, usage, mainTy, globalDefs)
+  return (inlinedTerm, mainTy, globalDefs)
 
 inlineFile ::
   ( Show primTy,
@@ -453,7 +452,6 @@ inlineFile ::
   Options primTy primVal ->
   IO
     ( Core.Term IR.T primTy primVal,
-      Usage.Usage,
       Core.Term IR.T primTy primVal,
       Core.RawGlobals IR.T primTy primVal
     )
@@ -461,17 +459,17 @@ inlineFile fp options = do
   (patToSym, globalDefs) <- coreifyFile fp options
   let inlinedTerm = IR.inlineAllGlobals term lookupGlobal patToSym
       lookupGlobal = IR.rawLookupFun' globalDefs
-      (usage, term, mainTy) = toLambda getMain
+      (term, mainTy) = toLambda getMain
 
       getMain = case HM.elems $ HM.filter Compile.isMain globalDefs of
         [] -> error $ "No main function found in " <> toS (Pretty.pShowNoColor globalDefs)
         main : _ -> main
 
       toLambda main = case TransformExt.extForgetE <$> IR.toLambdaR @IR.T main of
-        Just (IR.Ann usage term ty) -> (usage, term, ty)
+        Just (IR.Ann term ty) -> (term, ty)
         _ -> error $ "Unable to convert main to lambda" <> toS (Pretty.pShowNoColor main)
 
-  return (inlinedTerm, usage, mainTy, globalDefs)
+  return (inlinedTerm, mainTy, globalDefs)
 
 erase ::
   ( ty ~ Pipeline.Ty b,
@@ -583,7 +581,7 @@ printTimeLapse byteString option = do
   traverse_ (printCoreFunction cored option) currentDefinedItems
   print "finished Cored"
   --
-  (inlined, _, _, _) <- inline byteString option
+  (inlined, _, _) <- inline byteString option
   printCompactParens inlined
   print "finished Inline"
   -- --
@@ -615,7 +613,7 @@ printTimeLapseFile file option = do
   traverse_ (printCoreFunction cored option) currentDefinedItems
   print "finished Cored"
   --
-  (inlined, _, _, _) <- inlineFile file option
+  (inlined, _, _) <- inlineFile file option
   printCompactParens inlined
   print "finished Inline"
   --

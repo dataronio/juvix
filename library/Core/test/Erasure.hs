@@ -140,7 +140,6 @@ appUnusedArg =
     ( Typed.Elim
         ( Typed.App
             ( Typed.Ann
-                one
                 constTerm
                 constTyT
                 (anyAnn constTy)
@@ -161,7 +160,6 @@ unusedFunction =
     ( Typed.Elim
         ( Typed.App
             ( Typed.Ann
-                one
                 constTerm
                 constTy2T
                 (anyAnn constTy2)

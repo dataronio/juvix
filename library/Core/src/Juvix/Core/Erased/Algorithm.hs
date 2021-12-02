@@ -237,7 +237,7 @@ eraseElim (Typed.App e s ann) = do
     else do
       s <- eraseTerm s
       Erasure.App e s <$> eraseType (Typed.annType ann)
-eraseElim (Typed.Ann _ s _ _) = do
+eraseElim (Typed.Ann s _ _) = do
   eraseTerm s
 
 eraseType ::

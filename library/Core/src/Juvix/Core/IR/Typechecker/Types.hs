@@ -165,4 +165,4 @@ getElimAnn :: Core.Elim T primTy primVal -> Annotation IR.T primTy primVal
 getElimAnn (Bound _ ann) = ann
 getElimAnn (Free _ ann) = ann
 getElimAnn (App _ _ ann) = ann
-getElimAnn (Ann _ _ _ ann) = ann
+getElimAnn (Ann _ _ ann) = ann

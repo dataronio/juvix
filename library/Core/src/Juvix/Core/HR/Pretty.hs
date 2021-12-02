@@ -56,12 +56,8 @@ instance PrimPretty primTy primVal => PrettySyntax (Elim primTy primVal) where
     App f s -> ppApps f' $ ss <> [s]
       where
         (f', ss) = getApps f
-    Ann π s a ->
-      parens
-        <$> hangA
-          indentWidth
-          (hsepA [ppUsage π, pure pipe, ppOuter s])
-          (hsepA [pure colon, ppOuter a])
+    Ann s a ->
+      parens <$> hangA indentWidth (hsepA [ppOuter s, pure colon]) (ppOuter a)
 
 instance
   PrimPretty primTy primVal =>

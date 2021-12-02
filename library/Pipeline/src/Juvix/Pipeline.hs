@@ -36,6 +36,7 @@ import Juvix.Library
 import qualified Juvix.Library.Feedback as Feedback
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Parser (ParserError)
+import qualified Juvix.Library.Usage as Usage
 import qualified Juvix.Parsing as Parsing
 import qualified Juvix.Parsing.Types as Types
 import Juvix.Pipeline.Compile
@@ -163,9 +164,9 @@ class HasBackend b where
     (Core.PatternMap Core.GlobalName, Core.RawGlobals IR.T (Ty b) (Val b)) ->
     Pipeline (ErasedAnn.AnnTermT (Ty b) (Val b))
   toErased param (patToSym, globalDefs) = do
-    (usage, term, mainTy) <- getMain >>= toLambda
+    (term, mainTy) <- getMain >>= toLambda
     let inlinedTerm = IR.inlineAllGlobals term lookupGlobal patToSym
-    let erasedAnn = ErasedAnn.irToErasedAnn @(Err b) inlinedTerm usage mainTy
+    let erasedAnn = ErasedAnn.irToErasedAnn @(Err b) inlinedTerm Usage.SAny mainTy
     res <- liftIO $ fst <$> exec erasedAnn param evaluatedGlobals
     case res of
       Right r -> do
@@ -184,7 +185,7 @@ class HasBackend b where
         main : _ -> pure main
       toLambda main =
         case TransformExt.extForgetE <$> IR.toLambdaR @IR.T main of
-          Just (IR.Ann usage term mainTy) -> pure (usage, term, mainTy)
+          Just (IR.Ann term mainTy) -> pure (term, mainTy)
           _ -> Feedback.fail $ "Unable to convert main to lambda" <> toS (pShowNoColor main)
 
   -------------

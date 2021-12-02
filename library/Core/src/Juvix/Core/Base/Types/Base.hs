@@ -150,10 +150,10 @@ extensibleWith
         Bound BoundVar
       | -- | Free variables of type name (see above)
         Free Name
-      | -- | elimination rule of PI (APP).
+      | -- | Function application.
         App (Elim primTy primVal) (Term primTy primVal)
-      | -- | Annotation with usage.
-        Ann Usage (Term primTy primVal) (Term primTy primVal)
+      | -- | Type annotation.
+        Ann (Term primTy primVal) (Term primTy primVal)
       deriving (Eq, Show, Generic, Data, NFData)
 
     -- Values/types

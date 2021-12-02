@@ -173,8 +173,8 @@ instance
     Core.App <$> patSubst' b m f
       <*> patSubst' b m e
       <*> patSubst' b m a
-  patSubst' b m (Core.Ann π s t a) =
-    Core.Ann π <$> patSubst' b m s
+  patSubst' b m (Core.Ann s t a) =
+    Core.Ann <$> patSubst' b m s
       <*> patSubst' b m t
       <*> patSubst' b m a
   patSubst' b m (Core.ElimX a) =
@@ -327,7 +327,7 @@ takeToElimTy ::
   Core.Elim (OnlyExts.T ext) (Param.KindedType primTy) val
 takeToElimTy (App.Take {type', term}) =
   let term' = IR.PrimTy (App.Return {retType = type', retTerm = term})
-   in IR.Ann Usage.SAny term' (IR.Star $ Core.U 0)
+   in IR.Ann term' (IR.Star $ Core.U 0)
 
 -- | Transform a `App.Arg` into a `IR.Term`.
 -- TODO: move this function somewhere else?
@@ -347,7 +347,7 @@ takeToElim ::
 takeToElim (App.Take {type', term}) =
   let term' = IR.Prim (App.Return {retType = type', retTerm = term})
       ty' = typeToTerm type'
-   in IR.Ann Usage.SAny term' ty'
+   in IR.Ann term' ty'
 
 -- | Transform a `App.Arg` into a `IR.Term`.
 -- TODO: move this function somewhere else?

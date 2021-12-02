@@ -144,8 +144,8 @@ inlineAllGlobalsElim t lookupFun patternMap =
     Core.Free (Core.Pattern i) _ -> fromMaybe t $ PM.lookup i patternMap >>= lookupFun
     Core.App elim term ann ->
       Core.App (inlineAllGlobalsElim elim lookupFun patternMap) (inlineAllGlobals term lookupFun patternMap) ann
-    Core.Ann u t1 t2 ann ->
-      Core.Ann u (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
+    Core.Ann t1 t2 ann ->
+      Core.Ann (inlineAllGlobals t1 lookupFun patternMap) (inlineAllGlobals t2 lookupFun patternMap) ann
     Core.ElimX {} -> t
 
 -- | Evaluate a term with extensions, discards annotations but keeps the
@@ -225,7 +225,7 @@ evalElimWith g exts (Core.App s t _) =
     (\s t -> first ErrorValue (vapp s t ()))
       <$> evalElimWith g exts s
       <*> evalTermWith g exts t
-evalElimWith g exts (Core.Ann _ s _ _) =
+evalElimWith g exts (Core.Ann s _ _) =
   evalTermWith g exts s
 evalElimWith g exts (Core.ElimX a) =
   eExtFun exts g a
@@ -263,8 +263,6 @@ toLambda' ::
     Show primVal,
     Show (Core.Pattern ext primTy primVal)
   ) =>
-  -- | Usage information of the function.
-  Core.GlobalUsage ->
   -- | The type of the function.
   Core.Term IR.T primTy primVal ->
   -- | List of arguments to the function.
@@ -272,16 +270,15 @@ toLambda' ::
   -- | The body of the function.
   Core.Term ext primTy primVal ->
   Maybe (Core.Elim (OnlyExts.T ext') primTy primVal)
-toLambda' π' ty' pats rhs = do
+toLambda' ty' pats rhs = do
   patVars <- traverse singleVar pats
   let len = fromIntegral $ length patVars
   let vars = map bound $ genericTake len (iterate (subtract 1) (len - 1))
   let patMap = IntMap.fromList $ zip patVars vars
-  let π = IR.globalToUsage π'
   let ty = OnlyExts.injectT ty'
   case patSubst patMap $ weakBy len $ toOnlyExtsT rhs of
     Left _ -> Nothing
-    Right x -> pure $ IR.Ann π (applyN len lam x) ty
+    Right x -> pure $ IR.Ann (applyN len lam x) ty
   where
     applyN 0 _ x = x
     applyN n f x = applyN (n - 1) f (f $! x)
@@ -343,9 +340,9 @@ toLambda ::
   ) =>
   Core.Global IR.T ext primTy primVal ->
   Maybe (Core.Elim (OnlyExts.T ext') primTy primVal)
-toLambda (Core.GFunction (Core.Function {funUsage = π, funType = ty, funClauses}))
+toLambda (Core.GFunction (Core.Function {funType = ty, funClauses}))
   | Core.FunClause _ pats rhs _ _ _ :| [] <- funClauses =
-    toLambda' π (Core.quote ty) pats rhs
+    toLambda' (Core.quote ty) pats rhs
 toLambda _ = Nothing
 
 -- | Translate a `RawGlobal'` function definition into an elimination term.
@@ -362,9 +359,9 @@ toLambdaR ::
   Core.RawGlobal ext primTy primVal ->
   Maybe (Core.Elim (OnlyExts.T ext') primTy primVal)
 toLambdaR (Core.RawGFunction f)
-  | Core.RawFunction {rawFunUsage = π, rawFunType = ty, rawFunClauses} <- f,
+  | Core.RawFunction {rawFunType = ty, rawFunClauses} <- f,
     Core.RawFunClause _ pats rhs _ :| [] <- rawFunClauses =
-    toLambda' π (extForgetT ty) pats rhs
+    toLambda' (extForgetT ty) pats rhs
 toLambdaR _ = Nothing
 
 -- | Given an environment of global definitions, and a name to lookup,

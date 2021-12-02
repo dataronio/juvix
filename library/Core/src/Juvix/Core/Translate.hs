@@ -131,10 +131,10 @@ hrElimToIR' = \case
     f <- hrElimToIR' f
     x <- hrToIR' x
     pure (IR.App f x)
-  HR.Ann u t x -> do
+  HR.Ann t x -> do
     t <- hrToIR' t
     x <- hrToIR' x
-    pure (IR.Ann u t x)
+    pure (IR.Ann t x)
 
 -- | @irToHR@ runs @irToHR'@ with an empty stack, see that function for
 -- more documentation
@@ -229,10 +229,10 @@ irElimToHR' = \case
     f <- irElimToHR' f
     x <- irToHR' x
     pure (HR.App f x)
-  IR.Ann u t x -> do
+  IR.Ann t x -> do
     t <- irToHR' t
     x <- irToHR' x
-    pure (HR.Ann u t x)
+    pure (HR.Ann t x)
 
 -- | @hrPatternsToIR@ works like @hrPatternToIR@ but for a list of variables
 hrPatternsToIR ::
@@ -324,7 +324,7 @@ varsElim = \case
   IR.Free (Core.Global x) -> [x]
   IR.Free (Core.Pattern _) -> mempty
   IR.App f s -> varsElim f <> varsTerm s
-  IR.Ann _ t a -> varsTerm t <> varsTerm a
+  IR.Ann t a -> varsTerm t <> varsTerm a
 
 varsPattern :: IR.Pattern primTy primVal -> HashSet NameSymbol.T
 varsPattern = \case

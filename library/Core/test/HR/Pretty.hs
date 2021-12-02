@@ -265,14 +265,14 @@ annTests =
     "Annotations"
     [ T.testCase "ann wide" $
         prettyAt 1000 ann
-          @?= "(ω | f x y : C x y)",
+          @?= "(f x y : C x y)",
       T.testCase "ann narrow" $
-        prettyAt 11 ann
-          @?= "(ω | f x y\n\
-              \   : C x y)"
+        prettyAt 10 ann
+          @?= "(f x y :\n\
+              \   C x y)"
     ]
 
-ann = Ann SAny fxy cxy
+ann = Ann fxy cxy
 
 pattern AppE f e = App f (Elim e)
 

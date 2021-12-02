@@ -111,8 +111,8 @@ instance AllWeak ext primTy primVal => HasWeak (Core.Elim ext primTy primVal) wh
     Core.Free x (weakBy' b i a)
   weakBy' b i (Core.App s t a) =
     Core.App (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
-  weakBy' b i (Core.Ann π s t a) =
-    Core.Ann π (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
+  weakBy' b i (Core.Ann s t a) =
+    Core.Ann (weakBy' b i s) (weakBy' b i t) (weakBy' b i a)
   weakBy' b i (Core.ElimX a) =
     Core.ElimX (weakBy' b i a)
 
