@@ -877,6 +877,16 @@ keeps the extensions.
   + [[Core/Pretty]]
   + [[Library]]
   + [[NameSymbol]]
+****** Sexp <<HR/Sexp>>
+- _Relies on_
+  + [[Base/Types/Base]]
+  + [[HR/Types]]
+  + [[Library]]
+  + [[Library/Usage]]
+  + [[Juvix/Sexp]]
+  + [[Structure]]
+  + [[CoreNamed]]
+  + [[Lens]]
 ****** Types <<HR/Types>>
 - _Relies on_
   + [[Application]]
@@ -1128,6 +1138,14 @@ Tests for the type checker and evaluator in Core/IR/Typechecker.hs
   + [[NameSymbol]]
   + [[PrettyPrint]]
   + [[Library/Usage]]
+**** Serialize
+- _Relies on_
+  + [[HR]]
+  + [[HR/Sexp]]
+  + [[Library]]
+  + [[NameSymbol]]
+  + [[Library/Usage]]
+  + [[Juvix/Sexp]]
 *** IR
 **** Weak <<IR/Weak>>
 Tests that weak works as expected
