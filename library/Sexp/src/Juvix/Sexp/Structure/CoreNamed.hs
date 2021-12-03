@@ -79,6 +79,55 @@ data Let = Let
   }
   deriving (Show)
 
+data CatProduct = CatProduct
+  { catProductFst :: Sexp.T,
+    catProductSnd :: Sexp.T
+  }
+  deriving (Show)
+
+data CatProductIntro = CatProductIntro
+  { catProductIntroFst :: Sexp.T,
+    catProductIntroSnd :: Sexp.T
+  }
+  deriving (Show)
+
+data CatProductElimLeft = CatProductElimLeft
+  { catCoProductElimLeftType :: Sexp.T,
+    catCoProductElimLeftTerm :: Sexp.T
+  }
+  deriving (Show)
+
+data CatProductElimRight = CatProductElimRight
+  { catCoProductElimRightType :: Sexp.T,
+    catCoProductElimRightTerm :: Sexp.T
+  }
+  deriving (Show)
+
+data CatCoProduct = CatCoProduct
+  { catCoProductLeft :: Sexp.T,
+    catCoProductRight :: Sexp.T
+  }
+  deriving (Show)
+
+data CatCoproductIntroLeft = CatCoproductIntroLeft
+  { catCoproductIntroLeftTerm :: Sexp.T
+  }
+  deriving (Show)
+
+data CatCoproductIntroRight = CatCoproductIntroRight
+  { catCoproductIntroRightTerm :: Sexp.T
+  }
+  deriving (Show)
+
+data CatCoproductElim = CatCoproductElim
+  { catCoproductTerm :: Sexp.T,
+    catCoproductElimLeftType :: Sexp.T,
+    catCoproductElimLeft :: Sexp.T,
+    catCoproductElimRightType :: Sexp.T,
+    catCoproductElimRight :: Sexp.T
+  }
+  deriving (Show)
+
 -- Elim
 
 newtype Var = Var {varName :: NameSymbol.T} deriving (Show)
@@ -91,7 +140,6 @@ data App = App
 
 data Ann = Ann
   { annTerm :: Sexp.T,
-    annMeta :: Meta,
     annTy :: Sexp.T
   }
   deriving (Show)
@@ -457,17 +505,16 @@ toAnn :: Sexp.T -> Maybe Ann
 toAnn form
   | isAnn form =
     case form of
-      _nameAnn Sexp.:> sexp1 Sexp.:> meta2 Sexp.:> sexp3 Sexp.:> Sexp.Nil
-        | Just meta2 <- toMeta meta2 ->
-          Ann sexp1 meta2 sexp3 |> Just
+      _nameAnn Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        Ann sexp1 sexp2 |> Just
       _ ->
         Nothing
   | otherwise =
     Nothing
 
 fromAnn :: Ann -> Sexp.T
-fromAnn (Ann sexp1 meta2 sexp3) =
-  Sexp.list [Sexp.atom nameAnn, sexp1, fromMeta meta2, sexp3]
+fromAnn (Ann sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameAnn, sexp1, sexp2]
 
 instance Structure Ann where
   to = toAnn
@@ -576,3 +623,243 @@ fromLookup (Lookup sexp1 symbol2) =
 instance Structure Lookup where
   to = toLookup
   from = fromLookup
+
+----------------------------------------
+-- CatProduct
+----------------------------------------
+
+nameCatProduct :: NameSymbol.T
+nameCatProduct = ":cat-product"
+
+isCatProduct :: Sexp.T -> Bool
+isCatProduct (Sexp.Cons form _) = Sexp.isAtomNamed form nameCatProduct
+isCatProduct _ = False
+
+toCatProduct :: Sexp.T -> Maybe CatProduct
+toCatProduct form
+  | isCatProduct form =
+    case form of
+      _nameCatProduct Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        CatProduct sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromCatProduct :: CatProduct -> Sexp.T
+fromCatProduct (CatProduct sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameCatProduct, sexp1, sexp2]
+
+instance Structure CatProduct where
+  to = toCatProduct
+  from = fromCatProduct
+
+----------------------------------------
+-- CatProductIntro
+----------------------------------------
+
+nameCatProductIntro :: NameSymbol.T
+nameCatProductIntro = ":cat-product-intro"
+
+isCatProductIntro :: Sexp.T -> Bool
+isCatProductIntro (Sexp.Cons form _) = Sexp.isAtomNamed form nameCatProductIntro
+isCatProductIntro _ = False
+
+toCatProductIntro :: Sexp.T -> Maybe CatProductIntro
+toCatProductIntro form
+  | isCatProductIntro form =
+    case form of
+      _nameCatProductIntro Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        CatProductIntro sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromCatProductIntro :: CatProductIntro -> Sexp.T
+fromCatProductIntro (CatProductIntro sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameCatProductIntro, sexp1, sexp2]
+
+instance Structure CatProductIntro where
+  to = toCatProductIntro
+  from = fromCatProductIntro
+
+----------------------------------------
+-- CatProductElimLeft
+----------------------------------------
+
+nameCatProductElimLeft :: NameSymbol.T
+nameCatProductElimLeft = ":cat-elim-left"
+
+isCatProductElimLeft :: Sexp.T -> Bool
+isCatProductElimLeft (Sexp.Cons form _) = Sexp.isAtomNamed form nameCatProductElimLeft
+isCatProductElimLeft _ = False
+
+toCatProductElimLeft :: Sexp.T -> Maybe CatProductElimLeft
+toCatProductElimLeft form
+  | isCatProductElimLeft form =
+    case form of
+      _nameCatProductElimLeft Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        CatProductElimLeft sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromCatProductElimLeft :: CatProductElimLeft -> Sexp.T
+fromCatProductElimLeft (CatProductElimLeft sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameCatProductElimLeft, sexp1, sexp2]
+
+instance Structure CatProductElimLeft where
+  to = toCatProductElimLeft
+  from = fromCatProductElimLeft
+
+----------------------------------------
+-- CatProductElimRight
+----------------------------------------
+
+nameCatProductElimRight :: NameSymbol.T
+nameCatProductElimRight = ":cat-elim-right"
+
+isCatProductElimRight :: Sexp.T -> Bool
+isCatProductElimRight (Sexp.Cons form _) = Sexp.isAtomNamed form nameCatProductElimRight
+isCatProductElimRight _ = False
+
+toCatProductElimRight :: Sexp.T -> Maybe CatProductElimRight
+toCatProductElimRight form
+  | isCatProductElimRight form =
+    case form of
+      _nameCatProductElimRight Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        CatProductElimRight sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromCatProductElimRight :: CatProductElimRight -> Sexp.T
+fromCatProductElimRight (CatProductElimRight sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameCatProductElimRight, sexp1, sexp2]
+
+instance Structure CatProductElimRight where
+  to = toCatProductElimRight
+  from = fromCatProductElimRight
+
+----------------------------------------
+-- CatCoProduct
+----------------------------------------
+
+nameCatCoProduct :: NameSymbol.T
+nameCatCoProduct = ":cat-coproduct"
+
+isCatCoProduct :: Sexp.T -> Bool
+isCatCoProduct (Sexp.Cons form _) = Sexp.isAtomNamed form nameCatCoProduct
+isCatCoProduct _ = False
+
+toCatCoProduct :: Sexp.T -> Maybe CatCoProduct
+toCatCoProduct form
+  | isCatCoProduct form =
+    case form of
+      _nameCatCoProduct Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> Sexp.Nil ->
+        CatCoProduct sexp1 sexp2 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromCatCoProduct :: CatCoProduct -> Sexp.T
+fromCatCoProduct (CatCoProduct sexp1 sexp2) =
+  Sexp.list [Sexp.atom nameCatCoProduct, sexp1, sexp2]
+
+instance Structure CatCoProduct where
+  to = toCatCoProduct
+  from = fromCatCoProduct
+
+----------------------------------------
+-- CatCoproductIntroLeft
+----------------------------------------
+
+nameCatCoproductIntroLeft :: NameSymbol.T
+nameCatCoproductIntroLeft = ":cat-intro-left"
+
+isCatCoproductIntroLeft :: Sexp.T -> Bool
+isCatCoproductIntroLeft (Sexp.Cons form _) = Sexp.isAtomNamed form nameCatCoproductIntroLeft
+isCatCoproductIntroLeft _ = False
+
+toCatCoproductIntroLeft :: Sexp.T -> Maybe CatCoproductIntroLeft
+toCatCoproductIntroLeft form
+  | isCatCoproductIntroLeft form =
+    case form of
+      _nameCatCoproductIntroLeft Sexp.:> sexp1 Sexp.:> Sexp.Nil ->
+        CatCoproductIntroLeft sexp1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromCatCoproductIntroLeft :: CatCoproductIntroLeft -> Sexp.T
+fromCatCoproductIntroLeft (CatCoproductIntroLeft sexp1) =
+  Sexp.list [Sexp.atom nameCatCoproductIntroLeft, sexp1]
+
+instance Structure CatCoproductIntroLeft where
+  to = toCatCoproductIntroLeft
+  from = fromCatCoproductIntroLeft
+
+----------------------------------------
+-- CatCoproductIntroRight
+----------------------------------------
+
+nameCatCoproductIntroRight :: NameSymbol.T
+nameCatCoproductIntroRight = ":cat-intro-right"
+
+isCatCoproductIntroRight :: Sexp.T -> Bool
+isCatCoproductIntroRight (Sexp.Cons form _) = Sexp.isAtomNamed form nameCatCoproductIntroRight
+isCatCoproductIntroRight _ = False
+
+toCatCoproductIntroRight :: Sexp.T -> Maybe CatCoproductIntroRight
+toCatCoproductIntroRight form
+  | isCatCoproductIntroRight form =
+    case form of
+      _nameCatCoproductIntroRight Sexp.:> sexp1 Sexp.:> Sexp.Nil ->
+        CatCoproductIntroRight sexp1 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromCatCoproductIntroRight :: CatCoproductIntroRight -> Sexp.T
+fromCatCoproductIntroRight (CatCoproductIntroRight sexp1) =
+  Sexp.list [Sexp.atom nameCatCoproductIntroRight, sexp1]
+
+instance Structure CatCoproductIntroRight where
+  to = toCatCoproductIntroRight
+  from = fromCatCoproductIntroRight
+
+----------------------------------------
+-- CatCoproductElim
+----------------------------------------
+
+nameCatCoproductElim :: NameSymbol.T
+nameCatCoproductElim = ":cat-coelim"
+
+isCatCoproductElim :: Sexp.T -> Bool
+isCatCoproductElim (Sexp.Cons form _) = Sexp.isAtomNamed form nameCatCoproductElim
+isCatCoproductElim _ = False
+
+toCatCoproductElim :: Sexp.T -> Maybe CatCoproductElim
+toCatCoproductElim form
+  | isCatCoproductElim form =
+    case form of
+      _nameCatCoproductElim Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> sexp3 Sexp.:> sexp4 Sexp.:> sexp5 Sexp.:> Sexp.Nil ->
+        CatCoproductElim sexp1 sexp2 sexp3 sexp4 sexp5 |> Just
+      _ ->
+        Nothing
+  | otherwise =
+    Nothing
+
+fromCatCoproductElim :: CatCoproductElim -> Sexp.T
+fromCatCoproductElim (CatCoproductElim sexp1 sexp2 sexp3 sexp4 sexp5) =
+  Sexp.list [Sexp.atom nameCatCoproductElim, sexp1, sexp2, sexp3, sexp4, sexp5]
+
+instance Structure CatCoproductElim where
+  to = toCatCoproductElim
+  from = fromCatCoproductElim

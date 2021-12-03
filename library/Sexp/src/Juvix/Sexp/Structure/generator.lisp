@@ -398,7 +398,7 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
   ;; do we need to generate this?
   (generate-haskell "App" (repeat 2 "sexp") nil)
 
-  (generate-haskell "Ann" '("sexp" "meta" "sexp") ":")
+  (generate-haskell "Ann" '("sexp" "sexp") ":")
 
   (generate-haskell "Meta" '("sexp" "integer") nil)
 
@@ -406,4 +406,20 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "RecordTy" (list "field") ":record-ty" :list-star t)
 
-  (generate-haskell "Lookup" (list "sexp" "symbol") ":lookup" :list-star t))
+  (generate-haskell "Lookup" (list "sexp" "symbol") ":lookup" :list-star t)
+
+  (generate-haskell "CatProduct" (repeat 2 "sexp") ":cat-product")
+
+  (generate-haskell "CatProductIntro" (repeat 2 "sexp") ":cat-product-intro")
+
+  (generate-haskell "CatProductElimLeft" (repeat 2 "sexp") ":cat-elim-left")
+
+  (generate-haskell "CatProductElimRight" (repeat 2 "sexp") ":cat-elim-right")
+
+  (generate-haskell "CatCoProduct" (repeat 2 "sexp") ":cat-coproduct")
+
+  (generate-haskell "CatCoproductIntroLeft" (repeat 1 "sexp") ":cat-intro-left")
+
+  (generate-haskell "CatCoproductIntroRight" (repeat 1 "sexp") ":cat-intro-right")
+
+  (generate-haskell "CatCoproductElim" (repeat 5 "sexp") ":cat-coelim"))
