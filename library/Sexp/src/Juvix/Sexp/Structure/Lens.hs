@@ -64,7 +64,7 @@ Lens.makeLensesWith Lens.camelCaseFields ''Named.CatProductElimRight
 Lens.makeLensesWith Lens.camelCaseFields ''Named.CatCoproductIntroLeft
 Lens.makeLensesWith Lens.camelCaseFields ''Named.CatCoproductIntroRight
 Lens.makeLensesWith Lens.camelCaseFields ''Named.CatCoproductElim
-Lens.makeLensesWith Lens.camelCaseFields ''CatCoProduct
+Lens.makeLensesWith Lens.camelCaseFields ''Named.CatCoProduct
 Lens.makeLensesWith Lens.camelCaseFields ''Parsing.DefHandler
 Lens.makeLensesWith Lens.camelCaseFields ''Transition.LetHandler
 Lens.makeLensesWith Lens.camelCaseFields ''Parsing.Effect
