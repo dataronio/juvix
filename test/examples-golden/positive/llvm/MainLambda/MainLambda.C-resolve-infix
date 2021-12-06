@@ -106,6 +106,10 @@ ShowRec
             , SymInfo
                 { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
         ,
+            ( "Int"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
             ( "cat-product-intro"
             , SymInfo
                 { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )

@@ -173,6 +173,7 @@ stdlibs =
   [ "Circuit.ju",
     "Circuit/Field.ju",
     "LLVM.ju",
+    "LLVM/Int.ju",
     "MichelsonAlias.ju",
     "Michelson.ju",
     "Prelude.ju"

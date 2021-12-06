@@ -1,0 +1,128 @@
+ShowRec
+    { contents = T
+        { public = fromList
+            [
+                ( "main"
+                , Def
+                    ( D
+                        { defUsage = Nothing
+                        , defMTy = Just "string"
+                        , defTerm =
+                            ( ":lambda-case" ( () "hello-world" ) )
+                        , defPrecedence = Pred Left 9 } ) ) ]
+        , private = fromList [] }
+    , mTy = Nothing
+    , openList = []
+    , qualifiedMap = fromList
+        [
+            ( "sub"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "cat-coproduct-elim"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "mul"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "int16"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "cat-coproduct"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-coproduct-intro-right"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "ty_"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( ":"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "ty"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "SAny"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "string"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "Circuit"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "LLVM"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "->"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product-elim-left"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "add"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "arr"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "Michelson"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "id"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product-elim-right"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "const"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-product"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "Int"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "cat-product-intro"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "int8"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "int"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
+        ,
+            ( "dpair"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "cat-coproduct-intro-left"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } ) ] }

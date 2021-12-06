@@ -3,21 +3,6 @@
 ,
     ( "open" "LLVM" )
 ,
-    ( ":defsig" "llvm-add"
-        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) ) )
-,
-    ( ":defun" "llvm-add" () ( ":primitive" "LLVM.add" ) )
-,
-    ( ":defsig" "llvm-sub"
-        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) ) )
-,
-    ( ":defun" "llvm-sub" () ( ":primitive" "LLVM.sub" ) )
-,
-    ( ":defsig" "llvm-mul"
-        ( ":infix" "->" "int8" ( ":infix" "->" "int8" "int8" ) ) )
-,
-    ( ":defun" "llvm-mul" () ( ":primitive" "LLVM.mul" ) )
-,
     ( ":defsig" "llvm-litint" "int8" )
 ,
     ( ":defun" "llvm-litint" () ( ":primitive" "LLVM.litint" ) )
@@ -32,19 +17,19 @@
 ,
     ( ":defsig" "test-litint-add" "int8" )
 ,
-    ( ":defun" "test-litint-add" () ( "llvm-add" "llvm-litint" 43 ) )
+    ( ":defun" "test-litint-add" () ( "Int.add" "llvm-litint" 43 ) )
 ,
     ( ":defsig" "test-add" ( ":infix" "->" "int8" "int8" ) )
 ,
-    ( ":defun" "test-add" () ( "llvm-add" 44 ) )
+    ( ":defun" "test-add" () ( "Int.add" 44 ) )
 ,
     ( ":defsig" "test-sub" ( ":infix" "->" "int8" "int8" ) )
 ,
-    ( ":defun" "test-sub" () ( "llvm-sub" 46 ) )
+    ( ":defun" "test-sub" () ( "Int.sub" 46 ) )
 ,
     ( ":defsig" "test-mul" ( ":infix" "->" "int8" "int8" ) )
 ,
-    ( ":defun" "test-mul" () ( "llvm-mul" 50 ) )
+    ( ":defun" "test-mul" () ( "Int.mul" 50 ) )
 ,
     ( ":defsig" "hello-world" "string" )
 ,

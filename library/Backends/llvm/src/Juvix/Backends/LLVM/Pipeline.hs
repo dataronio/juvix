@@ -24,11 +24,10 @@ instance Pipeline.HasBackend BLLVM where
   type Val BLLVM = RawPrimVal
   type Err BLLVM = CompilationError
 
-  stdlibs _ = ["stdlib/LLVM.ju"]
+  stdlibs _ = ["LLVM.ju", "LLVM/Int.ju"]
 
   param _ = llvm
 
-  -- Copied over from the Michelson backend, and adapter where necessary.
   typecheck ctx = Pipeline.typecheck' ctx llvm
 
   compile' term = do

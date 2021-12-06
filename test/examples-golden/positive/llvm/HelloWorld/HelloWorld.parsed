@@ -1,0 +1,36 @@
+Right
+    ( Header
+        ( "HelloWorld" :| [] )
+        [ ModuleOpen
+            ( Open
+                ( "Prelude" :| [] )
+            )
+        , ModuleOpen
+            ( Open
+                ( "LLVM" :| [] )
+            )
+        , Signature
+            ( Sig
+                { signatureName = "main"
+                , signatureUsage = Nothing
+                , signatureArrowType = Name
+                    ( "string" :| [] )
+                , signatureConstraints = []
+                }
+            )
+        , Function
+            ( Func
+                ( Like
+                    { functionLikedName = "main"
+                    , functionLikeArgs = []
+                    , functionLikeBody = Body
+                        ( Constant
+                            ( String
+                                ( Sho "hello-world" )
+                            )
+                        )
+                    }
+                )
+            )
+        ]
+    )

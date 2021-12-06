@@ -3,16 +3,6 @@ mod Instructions where
 open Prelude
 open LLVM
 
--- Aliases for LLVM builtins.
-sig llvm-add : int8 -> int8 -> int8
-let llvm-add = %LLVM.add
-
-sig llvm-sub : int8 -> int8 -> int8
-let llvm-sub = %LLVM.sub
-
-sig llvm-mul : int8 -> int8 -> int8
-let llvm-mul = %LLVM.mul
-
 sig llvm-litint : int8
 let llvm-litint = %LLVM.litint
 
@@ -26,19 +16,19 @@ let test-int16 = 48
 
 -- Typecheck the "litint" value.
 sig test-litint-add : int8
-let test-litint-add = llvm-add llvm-litint 43
+let test-litint-add = Int.add llvm-litint 43
 
 -- Typecheck the "add" function.
 sig test-add : int8 -> int8
-let test-add = llvm-add 44
+let test-add = Int.add 44
 
 -- Typecheck the "sub" function.
 sig test-sub : int8 -> int8
-let test-sub = llvm-sub 46
+let test-sub = Int.sub 46
 
 -- Typecheck the "mul" function.
 sig test-mul : int8 -> int8
-let test-mul = llvm-mul 50
+let test-mul = Int.mul 50
 
 -- Test "hello world".
 sig hello-world : string

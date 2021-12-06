@@ -47,7 +47,7 @@ instance
   type Ty (BPlonk f) = Types.PrimTy f
   type Val (BPlonk f) = Types.PrimVal f
   type Err (BPlonk f) = Types.CompilationError f
-  stdlibs _ = ["stdlib/Circuit.ju", "stdlib/Circuit/Field.ju"]
+  stdlibs _ = ["Circuit.ju", "Circuit/Field.ju"]
 
   param _ = Parameterization.param @f
   typecheck ctx = Pipeline.typecheck' ctx (Parameterization.param @f)

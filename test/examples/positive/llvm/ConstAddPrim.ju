@@ -6,8 +6,5 @@ mod ConstAddPrim where
 open Prelude
 open LLVM
 
-sig addint : int -> int -> int
-let addint = %LLVM.add
-
 sig main : int
-let main = addint 4 6
+let main = Int.add 4 6

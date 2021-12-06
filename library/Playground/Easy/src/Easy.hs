@@ -114,7 +114,8 @@ defLLVM =
     { prelude =
         -- TODO: Avoid relative paths
         [ "../../../stdlib/Prelude.ju",
-          "../../../stdlib/LLVM.ju"
+          "../../../stdlib/LLVM.ju",
+          "../../../stdlib/LLVM/Int.ju"
         ],
       param = LLVM.Param.llvm,
       typeAgainst = LLVM.Prim.Set

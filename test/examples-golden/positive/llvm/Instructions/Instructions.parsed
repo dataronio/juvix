@@ -11,117 +11,6 @@ Right
             )
         , Signature
             ( Sig
-                { signatureName = "llvm-add"
-                , signatureUsage = Nothing
-                , signatureArrowType = Infix
-                    ( Inf
-                        { infixLeft = Name
-                            ( "int8" :| [] )
-                        , infixOp = "->" :| []
-                        , infixRight = Infix
-                            ( Inf
-                                { infixLeft = Name
-                                    ( "int8" :| [] )
-                                , infixOp = "->" :| []
-                                , infixRight = Name
-                                    ( "int8" :| [] )
-                                }
-                            )
-                        }
-                    )
-                , signatureConstraints = []
-                }
-            )
-        , Function
-            ( Func
-                ( Like
-                    { functionLikedName = "llvm-add"
-                    , functionLikeArgs = []
-                    , functionLikeBody = Body
-                        ( Primitive
-                            ( Prim
-                                ( "LLVM" :| [ "add" ] )
-                            )
-                        )
-                    }
-                )
-            )
-        , Signature
-            ( Sig
-                { signatureName = "llvm-sub"
-                , signatureUsage = Nothing
-                , signatureArrowType = Infix
-                    ( Inf
-                        { infixLeft = Name
-                            ( "int8" :| [] )
-                        , infixOp = "->" :| []
-                        , infixRight = Infix
-                            ( Inf
-                                { infixLeft = Name
-                                    ( "int8" :| [] )
-                                , infixOp = "->" :| []
-                                , infixRight = Name
-                                    ( "int8" :| [] )
-                                }
-                            )
-                        }
-                    )
-                , signatureConstraints = []
-                }
-            )
-        , Function
-            ( Func
-                ( Like
-                    { functionLikedName = "llvm-sub"
-                    , functionLikeArgs = []
-                    , functionLikeBody = Body
-                        ( Primitive
-                            ( Prim
-                                ( "LLVM" :| [ "sub" ] )
-                            )
-                        )
-                    }
-                )
-            )
-        , Signature
-            ( Sig
-                { signatureName = "llvm-mul"
-                , signatureUsage = Nothing
-                , signatureArrowType = Infix
-                    ( Inf
-                        { infixLeft = Name
-                            ( "int8" :| [] )
-                        , infixOp = "->" :| []
-                        , infixRight = Infix
-                            ( Inf
-                                { infixLeft = Name
-                                    ( "int8" :| [] )
-                                , infixOp = "->" :| []
-                                , infixRight = Name
-                                    ( "int8" :| [] )
-                                }
-                            )
-                        }
-                    )
-                , signatureConstraints = []
-                }
-            )
-        , Function
-            ( Func
-                ( Like
-                    { functionLikedName = "llvm-mul"
-                    , functionLikeArgs = []
-                    , functionLikeBody = Body
-                        ( Primitive
-                            ( Prim
-                                ( "LLVM" :| [ "mul" ] )
-                            )
-                        )
-                    }
-                )
-            )
-        , Signature
-            ( Sig
                 { signatureName = "llvm-litint"
                 , signatureUsage = Nothing
                 , signatureArrowType = Name
@@ -207,7 +96,7 @@ Right
                         ( Application
                             ( App
                                 { applicationName = Name
-                                    ( "llvm-add" :| [] )
+                                    ( "Int" :| [ "add" ] )
                                 , applicationArgs = Name
                                     ( "llvm-litint" :| [] ) :|
                                     [ Constant
@@ -246,7 +135,7 @@ Right
                         ( Application
                             ( App
                                 { applicationName = Name
-                                    ( "llvm-add" :| [] )
+                                    ( "Int" :| [ "add" ] )
                                 , applicationArgs = Constant
                                     ( Number
                                         ( Integer' 44 )
@@ -282,7 +171,7 @@ Right
                         ( Application
                             ( App
                                 { applicationName = Name
-                                    ( "llvm-sub" :| [] )
+                                    ( "Int" :| [ "sub" ] )
                                 , applicationArgs = Constant
                                     ( Number
                                         ( Integer' 46 )
@@ -318,7 +207,7 @@ Right
                         ( Application
                             ( App
                                 { applicationName = Name
-                                    ( "llvm-mul" :| [] )
+                                    ( "Int" :| [ "mul" ] )
                                 , applicationArgs = Constant
                                     ( Number
                                         ( Integer' 50 )

@@ -1,0 +1,25 @@
+mod Prelude.LLVM.Int where
+
+open Prelude
+open LLVM
+
+sig add : int -> int -> int
+let add = %LLVM.add
+
+sig (+) : int -> int -> int
+let (+) = %LLVM.add
+declare infixl (+) 5
+
+sig sub : int -> int -> int
+let sub = %LLVM.sub
+
+sig (-) : int -> int -> int
+let (-) = %LLVM.sub
+declare infixl (-) 5
+
+sig mul : int -> int -> int
+let mul = %LLVM.mul
+
+sig (*) : int -> int -> int
+let (*) = %LLVM.mul
+declare infixl (*) 7

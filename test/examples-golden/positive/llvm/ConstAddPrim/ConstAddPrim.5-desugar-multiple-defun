@@ -3,10 +3,6 @@
 ,
     ( "open" "LLVM" )
 ,
-    ( ":defsig" "addint" ( ":infix" "->" "int" ( ":infix" "->" "int" "int" ) ) )
-,
-    ( ":defun-match" "addint" ( () ( ":primitive" "LLVM.add" ) ) )
-,
     ( ":defsig" "main" "int" )
 ,
-    ( ":defun-match" "main" ( () ( "addint" 4 6 ) ) ) ]
+    ( ":defun-match" "main" ( () ( "Int.add" 4 6 ) ) ) ]

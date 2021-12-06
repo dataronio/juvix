@@ -93,10 +93,10 @@ createTmpPath :: Text -> IO FilePath
 createTmpPath code = Temp.writeSystemTempFile "juvix-tmp.ju" (Text.unpack code)
 
 prelude :: FilePath
-prelude = "stdlib/Prelude.ju"
+prelude = "Prelude.ju"
 
-getJuvixHome :: IO FilePath
-getJuvixHome = (<> "/.juvix/") <$> getHomeDirectory
+getJuvixStdlibs :: IO FilePath
+getJuvixStdlibs = (<> "/.juvix/stdlib/") <$> getHomeDirectory
 
 -- ! This should be given as a default for the command-line.
 
@@ -132,11 +132,11 @@ class HasBackend b where
   -- | Parse juvix source code using prelude and the default set of libraries of the backend
   toML :: b -> Text -> Pipeline [(NameSymbol.T, [Types.TopLevel])]
   toML b t = do
-    juvixHome <- liftIO getJuvixHome
-    toML' ((juvixHome <>) <$> (prelude : stdlibs b)) b t
+    stdlibDir <- liftIO getJuvixStdlibs
+    toML' ((stdlibDir <>) <$> (prelude : stdlibs b)) b t
 
   toSexp :: b -> [(NameSymbol.T, [Types.TopLevel])] -> Pipeline (Context.T Sexp.T Sexp.T Sexp.T)
-  toSexp _b x = liftIO $ do
+  toSexp b x = liftIO $ do
     e <- ToSexp.contextify x
     case e of
       Left err -> Feedback.fail . toS . pShowNoColor $ err
@@ -202,8 +202,8 @@ class HasBackend b where
   -- TODO: parse === toML?
   parse :: b -> Text -> Pipeline (Context.T Sexp.T Sexp.T Sexp.T)
   parse b t = do
-    juvixHome <- liftIO getJuvixHome
-    parseWithLibs ((juvixHome <>) <$> libs) b t
+    stdlibDir <- liftIO getJuvixStdlibs
+    parseWithLibs ((stdlibDir <>) <$> libs) b t
     where
       libs = prelude : stdlibs b
 

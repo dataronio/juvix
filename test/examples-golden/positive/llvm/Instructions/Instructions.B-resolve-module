@@ -19,7 +19,8 @@ ShowRec
                         , defMTy = Just
                             ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" )
                         , defTerm =
-                            ( ":lambda-case" ( () ( "llvm-mul" 50 ) ) )
+                            ( ":lambda-case"
+                                ( () ( "TopLevel.Prelude.LLVM.Int.mul" 50 ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "test-int16"
@@ -38,7 +39,8 @@ ShowRec
                         , defMTy = Just
                             ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" )
                         , defTerm =
-                            ( ":lambda-case" ( () ( "llvm-sub" 46 ) ) )
+                            ( ":lambda-case"
+                                ( () ( "TopLevel.Prelude.LLVM.Int.sub" 46 ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "test-add"
@@ -48,7 +50,8 @@ ShowRec
                         , defMTy = Just
                             ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" )
                         , defTerm =
-                            ( ":lambda-case" ( () ( "llvm-add" 44 ) ) )
+                            ( ":lambda-case"
+                                ( () ( "TopLevel.Prelude.LLVM.Int.add" 44 ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
                 ( "hello-again-world"
@@ -96,42 +99,6 @@ ShowRec
                                                                     ( () "hello-again-world" ) 99 ) ) ) ) ) ) ) ) ) )
                         , defPrecedence = Pred Left 9 } ) )
             ,
-                ( "llvm-add"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8"
-                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "LLVM.add" ) ) )
-                        , defPrecedence = Pred Left 9 } ) )
-            ,
-                ( "llvm-sub"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8"
-                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "LLVM.sub" ) ) )
-                        , defPrecedence = Pred Left 9 } ) )
-            ,
-                ( "llvm-mul"
-                , Def
-                    ( D
-                        { defUsage = Nothing
-                        , defMTy = Just
-                            ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8"
-                                ( ":infix" "TopLevel.Prelude.->" "TopLevel.Prelude.LLVM.int8" "TopLevel.Prelude.LLVM.int8" ) )
-                        , defTerm =
-                            ( ":lambda-case"
-                                ( () ( ":primitive" "LLVM.mul" ) ) )
-                        , defPrecedence = Pred Left 9 } ) )
-            ,
                 ( "hello-world"
                 , Def
                     ( D
@@ -148,7 +115,8 @@ ShowRec
                         , defMTy = Just "TopLevel.Prelude.LLVM.int8"
                         , defTerm =
                             ( ":lambda-case"
-                                ( () ( "llvm-add" "llvm-litint" 43 ) ) )
+                                ( ()
+                                    ( "TopLevel.Prelude.LLVM.Int.add" "llvm-litint" 43 ) ) )
                         , defPrecedence = Pred Left 9 } ) ) ]
         , private = fromList [] }
     , mTy = Nothing
@@ -242,6 +210,10 @@ ShowRec
             ( "cat-product"
             , SymInfo
                 { used = NotUsed, mod = "TopLevel" :| [ "Prelude" ] } )
+        ,
+            ( "Int"
+            , SymInfo
+                { used = NotUsed, mod = "TopLevel" :| [ "Prelude", "LLVM" ] } )
         ,
             ( "cat-product-intro"
             , SymInfo

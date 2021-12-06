@@ -1,0 +1,30 @@
+Ann
+    { usage = SAny
+    , type' = PrimTy
+        ( Return
+            { retType = PrimType
+                { getPrimType = STAR :| [] }
+            , retTerm = PrimTy
+                ( PointerType
+                    { pointerReferent = IntegerType
+                        { typeBits = 8 }
+                    , pointerAddrSpace = AddrSpace 0
+                    }
+                )
+            }
+        )
+    , term = Prim
+        ( Return
+            { retType = PrimType
+                { getPrimType = PrimTy
+                    ( PointerType
+                        { pointerReferent = IntegerType
+                            { typeBits = 8 }
+                        , pointerAddrSpace = AddrSpace 0
+                        }
+                    ) :| []
+                }
+            , retTerm = LitString "hello-world"
+            }
+        )
+    }

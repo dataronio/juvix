@@ -19,19 +19,19 @@ checksumsFile = "checksums.json"
 
 createStdLibDir :: FilePath -> IO ()
 createStdLibDir p = do
-  d <- getJuvixHome "stdlib/"
+  d <- getJuvixStdlibs
   createDirectoryIfMissing True (d <> p)
 
-getJuvixHome :: FilePath -> IO FilePath
-getJuvixHome p = do
-  d <- (<> ("/.juvix/" <> p)) <$> getHomeDirectory
+getJuvixStdlibs :: IO FilePath
+getJuvixStdlibs = do
+  d <- (<> "/.juvix/stdlib/") <$> getHomeDirectory
   return d
 
 downloadStdLibs :: IO ()
 downloadStdLibs = do
   r <- Wreq.asValue =<< (Wreq.get $ juvixAWS ++ "/" ++ checksumsFile)
   let files = r ^. Wreq.responseBody . _Object
-  localJuvix <- getJuvixHome "stdlib/"
+  localJuvix <- getJuvixStdlibs
   print $ "Loading standard libs: " ++ show files
   sequence_ $
     Map.mapWithKey
@@ -48,7 +48,7 @@ downloadStdLibs = do
 
 localStdLibs :: IO Bool
 localStdLibs = do
-  d <- getJuvixHome "stdlib/"
+  d <- getJuvixStdlibs
   doesDirectoryExist d
 
 loadStdLibs :: IO ()
