@@ -3,6 +3,7 @@ module Main where
 import Conv (coreConversions)
 import Erasure (erasureTests)
 import qualified HR.Pretty
+import qualified HR.Serialize as Serialize
 import qualified IR.Weak as Weak
 import Juvix.Library (IO)
 import Juvix.Library.Fetch (loadStdLibs)
@@ -26,7 +27,8 @@ allCheckedTests =
       erasureTests,
       Weak.top,
       HR.Pretty.top,
-      Utility.top
+      Utility.top,
+      Serialize.top
     ]
 
 main :: IO ()
