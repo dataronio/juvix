@@ -331,7 +331,7 @@ common ones to include"
 (defparameter *core*
   (make-stack-yaml
    :name       "Core"
-   :packages   (list *standard-library*)
+   :packages   (list *standard-library* *sexp*)
    :extra-deps (list (general-dependencies *extensible*)
                       *standard-library-extra-deps*
                       *eac-solver*)))

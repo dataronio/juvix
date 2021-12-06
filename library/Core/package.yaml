@@ -23,6 +23,8 @@ dependencies:
 - containers
 - unordered-containers
 - mtl
+- lens
+- sexp
 
 default-extensions:
   - NoImplicitPrelude
