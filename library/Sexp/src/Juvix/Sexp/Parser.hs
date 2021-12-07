@@ -31,25 +31,25 @@ list = do
     [] -> pure Sexp.Nil
     _ -> pure (foldr Sexp.Cons Sexp.Nil d)
 
-atom :: Parser Sexp.Atom
+atom :: Parser (Sexp.Atom ())
 atom = P.try double <|> number <|> name <|> string
 
-name :: Parser Sexp.Atom
+name :: Parser (Sexp.Atom ())
 name = do
   sym <- symbol
   pure (Sexp.A sym Nothing)
 
-number :: Parser Sexp.Atom
+number :: Parser (Sexp.Atom ())
 number = do
   int <- J.integer
   pure (Sexp.N int Nothing)
 
-double :: Parser Sexp.Atom
+double :: Parser (Sexp.Atom ())
 double = do
   double <- J.double
   pure (Sexp.D double Nothing)
 
-string :: Parser Sexp.Atom
+string :: Parser (Sexp.Atom ())
 string = do
   text <-
     J.between

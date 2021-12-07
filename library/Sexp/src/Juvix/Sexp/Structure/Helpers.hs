@@ -50,4 +50,4 @@ toInteger :: Sexp.T -> Maybe Integer
 toInteger (Sexp.Atom (Sexp.N num _)) = Just num
 toInteger Sexp.Nil = Nothing
 toInteger Sexp.Cons {} = Nothing
-toInteger (Sexp.Atom Sexp.A {}) = Nothing
+toInteger (Sexp.Atom _) = Nothing
