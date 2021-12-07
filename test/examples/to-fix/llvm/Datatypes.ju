@@ -27,10 +27,23 @@ let fticTestFunc x = x
 sig fticTestTerm : functionTypeInConstructor
 let fticTestTerm = FTIC_Right fticTestFunc
 
-type sExpInt = Atom int | SPair sExpInt sExpInt
+type sExpInt = AtomInt int | SPairInt sExpInt sExpInt
+
+type justPoly a = AtomJustPoly a
+type recNonPoly = RecNonPoly recNonPoly | AtomNonPoly int
+type recPoly a = RecPoly (recPoly a) | AtomPoly a
+
+sig polyOnly : justPoly int
+let polyOnly = AtomJustPoly 0
+
+sig nonPoly : recNonPoly
+let nonPoly = RecNonPoly (AtomNonPoly 0)
+
+sig poly : recPoly int
+let poly = RecPoly (AtomPoly 0)
 
 sig s1 : sExpInt
-let s1 = SPair (Atom 1) (SPair (SPair (Atom 2) (Atom 3)) (Atom 4))
+let s1 = SPairInt (AtomInt 1) (SPairInt (SPairInt (AtomInt 2) (AtomInt 3)) (AtomInt 4))
 
 sig ssize : sExpInt -> int
 let ssize (Atom x) = 1
@@ -39,10 +52,10 @@ let ssize (SPair x y) = ssize x + ssize y
 -- Fails to typecheck:
 -- "Error on toHR: Name "atomExp" :| [] not in scope
 -- ( probably a bug in the elaborator from frontend )"
-type atomExp a = atom a
+type atomExp a = AtomExp a
 
 sig testAExp : atomExp int
-let testAExp = Atom 1
+let testAExp = AtomExp 1
 
 -- Fails to typecheck:
 -- "Error on toHR: Name "sExp" :| [] not in scope
@@ -51,6 +64,10 @@ type sExp a = Atom a | SPair (sExp a) (sExp a)
 
 sig main : int
 let main =
+  let pol = polyOnly in
+  let npl = nonPoly in
+  let pl = poly in
+
   -- Fails to typecheck:
   --  "Error: TypecheckerError
   --  ( InsufficientUsage

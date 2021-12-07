@@ -54,7 +54,14 @@ contextToHR ctx param =
     -- put @"ffOrder" ordered
 
     -- Attaches the sum constructor with a data constructor filling
-    attachConstructor s@Context.Sum {sumTDef, sumTName} dataCons c =
+    attachConstructor ::
+      (Show ty, Show term, HasState "closure" Closure.T m) =>
+      Context.SumT Sexp.T Sexp.T ->
+      Symbol ->
+      Context.T term ty Sexp.T ->
+      m (Context.Definition Sexp.T Sexp.T sumRep)
+    attachConstructor s@Context.Sum {sumTDef, sumTName} dataCons c = do
+      modify @"closure" $ Closure.insertGeneric sumTName
       case sumTDef of
         Just __ -> s
         Nothing ->

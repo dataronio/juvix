@@ -1276,6 +1276,7 @@ would be a shame if the `a` was applied to `List a`!
   + [[Feedback]]
   + [[NameSymbol]]
   + [[Library/Parser]]
+  + [[Library/Usage]]
   + [[Juvix/Parsing]]
   + [[Parsing/Types]]
   + [[Compile]]
