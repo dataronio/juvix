@@ -121,7 +121,7 @@ onExpression ::
   HasClosure f =>
   Sexp.T ->
   (NameSymbol.T -> Bool) ->
-  (Sexp.Atom -> Sexp.T -> f Sexp.T) ->
+  (Sexp.Atom () -> Sexp.T -> f Sexp.T) ->
   f Sexp.T
 onExpression form trigger func =
   Sexp.foldSearchPred
@@ -136,13 +136,13 @@ onExpression form trigger func =
 -- | @Pass@ a standard pass that just changes the syntax, not the
 -- context type.
 data Pass m = Pass
-  { sumF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T,
-    termF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T,
-    tyF :: SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T
+  { sumF :: SexpContext -> Sexp.Atom () -> Sexp.T -> m Sexp.T,
+    termF :: SexpContext -> Sexp.Atom () -> Sexp.T -> m Sexp.T,
+    tyF :: SexpContext -> Sexp.Atom () -> Sexp.T -> m Sexp.T
   }
   deriving (Show)
 
-singlePass :: (SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T) -> Pass m
+singlePass :: (SexpContext -> Sexp.Atom () -> Sexp.T -> m Sexp.T) -> Pass m
 singlePass f = Pass f f f
 
 -- | @PassManual@ is a single function variant of @Pass@ that the given
@@ -150,7 +150,7 @@ singlePass f = Pass f f f
 -- automatic. See @Passes.notFoundSymbolToLookup@ for an example
 newtype PassManual m
   = PassManual
-      (SexpContext -> Sexp.Atom -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T)
+      (SexpContext -> Sexp.Atom () -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T)
   deriving (Show)
 
 -- | @PassChange@ Instead of recursing on the sexp structure, we check
@@ -158,7 +158,7 @@ newtype PassManual m
 newtype PassChange m
   = PassChange
       ( SexpContext ->
-        Sexp.Atom ->
+        Sexp.Atom () ->
         Sexp.T ->
         NameSpace.From Symbol ->
         m (Maybe (NameSpace.From Symbol, Context.Definition Sexp.T Sexp.T Sexp.T))
@@ -210,7 +210,7 @@ instance ToContextTraversal PassChange Context.ContextFormGeneral where
 
 foldSearchContextClosure ::
   (HasReader "closure" Closure.T f, HasThrow "error" ErrorS f) =>
-  (Context.T Sexp.T Sexp.T Sexp.T -> Sexp.Atom -> Sexp.T -> f Sexp.T) ->
+  (Context.T Sexp.T Sexp.T Sexp.T -> Sexp.Atom () -> Sexp.T -> f Sexp.T) ->
   (NameSymbol.T -> Bool) ->
   Sexp.T ->
   Context.T Sexp.T Sexp.T Sexp.T ->
@@ -291,7 +291,7 @@ namedForms =
 searchAndClosureNoCtx ::
   (HasClosure f) =>
   -- | the atom to dispatch on
-  Sexp.Atom ->
+  Sexp.Atom () ->
   -- | The sexp form in which the atom is called on
   Sexp.T ->
   -- | the continuation of continuing the changes
@@ -325,7 +325,7 @@ searchAndClosure ::
   -- :open-in case.
   SexpContext ->
   -- | the atom to dispatch on
-  Sexp.Atom ->
+  Sexp.Atom () ->
   -- | The sexp form in which the atom is called on
   Sexp.T ->
   -- | the continuation of continuing the changes

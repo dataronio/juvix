@@ -102,7 +102,7 @@ freeVarRes ::
   ( HasReader "closure" Closure.T m,
     HasState "free" (Set.HashSet NameSymbol.T) m
   ) =>
-  Sexp.Atom ->
+  Sexp.Atom () ->
   Sexp.T ->
   m Sexp.T
 freeVarRes Sexp.A {atomName = name} sexpAtom = do

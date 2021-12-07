@@ -61,7 +61,7 @@ resolveModule context =
     (Env.singlePass openResolution)
 
 openResolution ::
-  ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom -> Sexp.T -> m Sexp.T
+  ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom () -> Sexp.T -> m Sexp.T
 openResolution ctx a cdr
   | Just open <- Structure.toOpenIn (Sexp.Cons (Sexp.Atom a) cdr) =
     pure (open ^. body)
@@ -69,7 +69,7 @@ openResolution ctx a cdr
     atomResolution ctx a cdr
 
 atomResolution ::
-  ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom -> Sexp.T -> m Sexp.T
+  ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom () -> Sexp.T -> m Sexp.T
 atomResolution context atom@Sexp.A {atomName = name} sexpAtom = do
   closure <- ask @"closure"
   let symbolName = NameSymbol.hd name
@@ -107,7 +107,7 @@ inifixSoloPass context =
   Env.passContext context (== Structure.nameInfix) (Env.singlePass infixConversion)
 
 infixConversion ::
-  (Env.ErrS m, Env.HasClosure m) => Context.T t y s -> Sexp.Atom -> Sexp.T -> m Sexp.T
+  (Env.ErrS m, Env.HasClosure m) => Context.T t y s -> Sexp.Atom () -> Sexp.T -> m Sexp.T
 infixConversion context atom list = do
   grouped <- groupInfix context (Sexp.Cons (Sexp.Atom atom) list)
   case Shunt.shunt grouped of
@@ -258,7 +258,7 @@ notFoundSymbolToLookup context =
     (Env.PassManual primiveOrSymbol)
 
 primiveOrSymbol ::
-  ExpressionIO m => Env.SexpContext -> Sexp.Atom -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
+  ExpressionIO m => Env.SexpContext -> Sexp.Atom () -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
 primiveOrSymbol context atom cdr _rec'
   | Just _struct <- Structure.toPrimitive (Sexp.Cons (Sexp.Atom atom) cdr) =
     pure (Sexp.Cons (Sexp.Atom atom) cdr)
@@ -266,7 +266,7 @@ primiveOrSymbol context atom cdr _rec'
     notFoundAtomRes context atom cdr
 
 notFoundAtomRes ::
-  ExpressionIO m => Env.SexpContext -> Sexp.Atom -> Sexp.T -> m Sexp.T
+  ExpressionIO m => Env.SexpContext -> Sexp.Atom () -> Sexp.T -> m Sexp.T
 notFoundAtomRes context atom@Sexp.A {atomName = name} sexpAtom = do
   -- we need to check if the first part of the var is in our
   closure <- ask @"closure"

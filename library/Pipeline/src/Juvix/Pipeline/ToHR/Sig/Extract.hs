@@ -153,7 +153,7 @@ checkSymbolSig q symbol =
 -- | Retrieve constant primVal from parameterization
 getParamConstant ::
   (HasParam primTy primVal m, HasThrowFF ext primTy primVal m) =>
-  Sexp.Atom ->
+  Sexp.Atom () ->
   m primVal
 getParamConstant atom = do
   p <- ask @"param"

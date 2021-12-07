@@ -404,11 +404,11 @@ generatedRecord body =
 
 -- | @names@ - folding @grabNames@ that uniquifyies the result to
 -- achieve an unique list
-names :: Sexp.T -> [Sexp.Atom]
+names :: Sexp.T -> [Sexp.Atom ()]
 names body = Sexp.foldr grabNames [] body |> Set.fromList |> Set.toList
 
 -- | @grabNames@ - responsible for grabbing the names out of top levels
-grabNames :: Sexp.T -> [Sexp.Atom] -> [Sexp.Atom]
+grabNames :: Sexp.T -> [Sexp.Atom ()] -> [Sexp.Atom ()]
 grabNames (form Sexp.:> name Sexp.:> _) acc
   | Sexp.isAtomNamed form Structure.nameDefun
       || Sexp.isAtomNamed form Structure.nameType
