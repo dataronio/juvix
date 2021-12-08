@@ -8,6 +8,9 @@ module Juvix.Sexp
     foldPred,
     foldSearchPred,
     foldSearchPredManualRecurse,
+    map,
+    traverse,
+    foldM,
     foldr,
     foldr1,
 
@@ -41,7 +44,7 @@ module Juvix.Sexp
   )
 where
 
-import Juvix.Library hiding (foldr, init, list, show, toList)
+import Juvix.Library hiding (foldM, foldr, init, list, map, show, toList, traverse)
 import qualified Juvix.Library as Std
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Sexp.Parser
@@ -148,6 +151,23 @@ foldPred t pred f =
       Cons (foldPred cs pred f) (foldPred xs pred f)
     Nil -> Nil
     Atom a -> Atom a
+
+traverse :: Monad m => (B a -> m (B b)) -> B a -> m (B b)
+traverse f =
+  foldM (\acc x -> Cons <$> f x <*> pure acc) Nil
+
+foldM :: Monad m ⇒ (p -> B a -> m p) -> p -> B a -> m p
+foldM f acc ts =
+  case ts of
+    Cons a as -> f acc a >>= (\accum -> foldM f accum as)
+    Atom ____ -> f acc ts
+    Nil -> pure acc
+
+-- | @map@ works the same as it does in Haskell. However instead of
+-- running it on the generic of the Sexp, it instead runs it on the
+-- elements on the Sexp structure itself.
+map :: (B a -> B b) -> B a -> B b
+map f = foldr (Cons . f) Nil
 
 -- | @foldr@ works the same way as it does in Haskell. If the list is
 -- terminated improperly with an atom (called a dotted list), that is
