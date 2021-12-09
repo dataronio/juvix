@@ -43,17 +43,17 @@ import Prelude (error)
 -- - BNF output form:
 --   + (if pred-1 result-1 (if pred-2 result-2 (… (if pred-n result-n))))
 condTransform :: Sexp.T -> Sexp.T
-condTransform xs = Sexp.foldPred xs (== Structure.nameCond) condToIf
+condTransform xs = Sexp.mapPredStar xs (== Structure.nameCond) condToIf
   where
-    condToIf atom cdr
-      | Just cond <- Structure.toCond (Sexp.Atom atom Sexp.:> cdr),
+    condToIf sexp@(Sexp.Atom atom Sexp.:> _)
+      | Just cond <- Structure.toCond sexp,
         Just last <- lastMay (cond ^. entailments) =
         let acc =
               Structure.IfNoElse (last ^. predicate) (last ^. answer)
                 |> Structure.fromIfNoElse
          in foldr generation acc (initSafe (cond ^. entailments))
               |> Sexp.addMetaToCar atom
-      | otherwise = error "malformed cond"
+    condToIf _ = error "malformed cond"
     --
     generation predAns acc =
       Structure.If (predAns ^. predicate) (predAns ^. answer) acc
@@ -68,10 +68,10 @@ condTransform xs = Sexp.foldPred xs (== Structure.nameCond) condToIf
 --   2. (case pred ((True) then))
 -- - Note =case=, =then=, and =else= are literals
 ifTransform :: Sexp.T -> Sexp.T
-ifTransform xs = Sexp.foldPred xs (== Structure.nameIf) ifToCase
+ifTransform xs = Sexp.mapPredStar xs (== Structure.nameIf) ifToCase
   where
-    ifToCase atom cdr =
-      ( case Structure.toIfFull (Sexp.Atom atom Sexp.:> cdr) of
+    ifToCase sexp =
+      ( case Structure.toIfFull sexp of
           Just (Structure.Else ifThenElse) ->
             caseListElse
               (ifThenElse ^. predicate)
@@ -83,7 +83,7 @@ ifTransform xs = Sexp.foldPred xs (== Structure.nameIf) ifToCase
             error "malformed if"
       )
         |> Structure.fromCase
-        |> Sexp.addMetaToCar atom
+        |> Sexp.addMetaToCar (Sexp.atomErr (Sexp.car sexp))
     -- Bad these functions should be refactored into using the case transform
     caseList pred then' =
       Structure.Case
@@ -121,18 +121,17 @@ ifTransform xs = Sexp.foldPred xs (== Structure.nameIf) ifToCase
 --        rest)
 -- - Note the f's are exactly the same name
 multipleTransLet :: Sexp.T -> Sexp.T
-multipleTransLet xs = Sexp.foldPred xs (== Structure.nameLet) letToLetMatch
+multipleTransLet xs = Sexp.mapPredStar xs (== Structure.nameLet) letToLetMatch
   where
-    letToLetMatch atom cdr =
-      let currentForm = Sexp.Atom atom Sexp.:> cdr
-       in case Structure.toLet currentForm of
-            Just let' ->
-              let (letPatternMatches, notMatched) =
-                    grabSim (let' ^. name) currentForm
-               in Structure.LetMatch (let' ^. name) letPatternMatches notMatched
-                    |> Structure.fromLetMatch
-                    |> Sexp.addMetaToCar atom
-            Nothing -> error "malformed let"
+    letToLetMatch sexp =
+      case Structure.toLet sexp of
+        Just let' ->
+          let (letPatternMatches, notMatched) =
+                grabSim (let' ^. name) sexp
+           in Structure.LetMatch (let' ^. name) letPatternMatches notMatched
+                |> Structure.fromLetMatch
+                |> Sexp.addMetaToCar (Sexp.atomErr (Sexp.car sexp))
+        Nothing -> error "malformed let"
     grabSim name xs =
       case grabSimilarBinding name Structure.toLet xs of
         Just (structure, let') ->
@@ -266,15 +265,15 @@ combineSig [] = []
 -- - BNF output:
 --   + (:record-no-pun punned-1 punned-1 name-2 body-2 … punned-n punned-n)
 removePunnedRecords :: Sexp.T -> Sexp.T
-removePunnedRecords xs = Sexp.foldPred xs (== Structure.nameRecord) removePunned
+removePunnedRecords xs = Sexp.mapPredStar xs (== Structure.nameRecord) removePunned
   where
-    removePunned atom cdr =
-      case Structure.toRecord (Sexp.Atom atom Sexp.:> cdr) of
+    removePunned sexp =
+      case Structure.toRecord sexp of
         Just record ->
           fmap f (record ^. value)
             |> Structure.RecordNoPunned
             |> Structure.fromRecordNoPunned
-            |> Sexp.addMetaToCar atom
+            |> Sexp.addMetaToCar (Sexp.atomErr (Sexp.car sexp))
         Nothing -> error "malformed record"
       where
         f (Structure.Pun punned) =
@@ -321,36 +320,37 @@ removePunnedRecords xs = Sexp.foldPred xs (== Structure.nameRecord) removePunned
 -- - Where Expression follows the Top level Transformation, and
 --   <foo-name> is the name of foo
 moduleTransform :: Sexp.T -> Sexp.T
-moduleTransform xs = Sexp.foldPred xs (== Structure.nameDefModule) moduleToRecord
+moduleTransform xs = Sexp.mapPredStar xs (== Structure.nameDefModule) moduleToRecord
   where
     intoRecord body =
       Sexp.foldr combine (generatedRecord body) body
-    moduleToRecord atom cdr
-      | Just mod <- Structure.toDefModule (Sexp.Atom atom Sexp.:> cdr) =
+    moduleToRecord sexp
+      | Just mod <- Structure.toDefModule sexp =
         Structure.Defun
           (mod ^. name)
           (mod ^. args)
           (ignoreCond (mod ^. body) intoRecord)
           |> Structure.fromDefun
-          |> Sexp.addMetaToCar atom
+          |> Sexp.addMetaToCar (Sexp.atomErr (Sexp.car sexp))
       | otherwise = error "malformed defmodule"
 
 -- | @moduleLetTransform@ - See @moduleTransform@'s comment
 moduleLetTransform :: Sexp.T -> Sexp.T
-moduleLetTransform xs = Sexp.foldPred xs (== Structure.nameLetModule) moduleToRecord
+moduleLetTransform xs =
+  Sexp.mapPredStar xs (== Structure.nameLetModule) moduleToRecord
   where
     combineIntoRecord body =
       Sexp.foldr combine (generatedRecord body) body
-    moduleToRecord atom cdr
-      | Just mod <- Structure.toLetModule (Sexp.Atom atom Sexp.:> cdr) =
+    moduleToRecord sexp
+      | Just mod <- Structure.toLetModule sexp =
         Structure.Let
           (mod ^. name)
           (mod ^. args)
           (ignoreCond (mod ^. body) combineIntoRecord)
           (mod ^. rest)
           |> Structure.fromLet
-          |> Sexp.addMetaToCar atom
-    moduleToRecord _ _ = error "malformed let-mod"
+          |> Sexp.addMetaToCar (Sexp.atomErr (Sexp.car sexp))
+    moduleToRecord _ = error "malformed let-mod"
 
 ----------------------------------------
 -- Module Helpers
@@ -425,19 +425,20 @@ grabNames _ acc = acc
 -- Handler Transform
 ----------------------------------------
 handlerTransform :: Sexp.T -> Sexp.T
-handlerTransform xs = Sexp.foldPred xs (== Structure.nameDefHandler) handTrans
+handlerTransform xs =
+  Sexp.mapPredStar xs (== Structure.nameDefHandler) handTrans
   where
-    handTrans atom _
+    handTrans sexp
       | Just mod <- Structure.toDefHandler xs =
         let (ret_, ops_) = filterRet (mod ^. ops)
          in case ret_ of
               Just ret ->
                 Structure.Handler (mod ^. name) ret ops_
                   |> Structure.fromHandler
-                  |> Sexp.addMetaToCar atom
+                  |> Sexp.addMetaToCar (Sexp.atomErr (Sexp.car sexp))
               Nothing ->
                 error "malformed defhandler"
-    handTrans _ _ = error "malformed defhandler"
+    handTrans _ = error "malformed defhandler"
 
 filterRet :: Sexp.T -> (Maybe Structure.LetRet, [Structure.LetOp])
 filterRet = Sexp.foldr removeRet (Nothing, [])

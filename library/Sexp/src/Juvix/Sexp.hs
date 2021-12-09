@@ -3,6 +3,7 @@
 module Juvix.Sexp
   ( module Juvix.Sexp.Types,
     module Juvix.Sexp.Parser,
+    Opt (..),
 
     -- * Folding Functionality
     mapPredStar,
@@ -141,7 +142,7 @@ traverse f xs =
   foldM (\acc x -> Cons <$> f x <*> pure acc) Nil xs
     >>| reverse
 
-foldM :: Monad m ⇒ (p -> B a -> m p) -> p -> B a -> m p
+foldM :: Monad m => (p -> B a -> m p) -> p -> B a -> m p
 foldM f acc ts =
   case ts of
     Cons a as -> f acc a >>= (\accum -> foldM f accum as)
