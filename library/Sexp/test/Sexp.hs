@@ -1,12 +1,10 @@
 module Sexp (top) where
 
 import qualified Data.IORef as IORef
-import qualified Data.Set as Set
 import Juvix.Library
 import qualified Juvix.Sexp as Sexp
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
-import Prelude (error)
 
 top :: T.TestTree
 top =
@@ -18,7 +16,8 @@ top =
       mapPredStarWorksAsExpted2,
       mapPredStarWorksAsExpted3,
       listWorksAsExpected,
-      listStarWorksAsExpected
+      listStarWorksAsExpected,
+      traversePredWorksAsExpected
     ]
 
 --------------------------------------------------------------------------------
@@ -147,3 +146,22 @@ listStarWorksAsExpected =
   where
     manualList =
       Sexp.listStar [Sexp.number 1, Sexp.number 2, Sexp.list [Sexp.number 3]]
+
+traversePredWorksAsExpected :: T.TestTree
+traversePredWorksAsExpected =
+  T.testGroup
+    "traversePredOptStar works as expected"
+    [ T.testCase
+        "traversePredOpStar properly matches on car application"
+        $ do
+          y <- IORef.newIORef Sexp.Nil
+          let f :: Sexp.T -> IO Sexp.T
+              f rest = do
+                IORef.modifyIORef' y (rest Sexp.:>)
+                pure (Sexp.Cons (Sexp.atom "bob") (Sexp.cdr rest))
+              Right xs =
+                Sexp.parse "(let let (let))"
+          _ <- Sexp.traversePredOptStar xs (== "let") (Sexp.autoRecurse f) mempty
+          v <- IORef.readIORef y
+          Sexp.parse "((let) (let let (let)))" T.@=? Right v
+    ]

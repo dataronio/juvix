@@ -195,6 +195,7 @@ removePunnedRecords xs = Sexp.mapPredStar xs (== "record") removePunned
           pun Sexp.:> pun Sexp.:> acc
         f _ _ = error "malformed record"
     removePunned _ = error "does not happen"
+
 --------------------------------------------------------------------------------
 -- Pass Tests
 --------------------------------------------------------------------------------
