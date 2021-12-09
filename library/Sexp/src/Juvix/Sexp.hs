@@ -5,9 +5,10 @@ module Juvix.Sexp
     module Juvix.Sexp.Parser,
 
     -- * Folding Functionality
-    foldPred,
-    foldSearchPred,
-    foldSearchPredManualRecurse,
+    mapPredStar,
+    traversePredStar,
+    traversePredOptStar,
+    autoRecurse,
     map,
     traverse,
     foldM,
@@ -32,6 +33,7 @@ module Juvix.Sexp
     isAtomNamed,
     nameFromT,
     atomFromT,
+    atomErr,
     doubleFromT,
     stringFromT,
     groupBy2,
@@ -44,7 +46,7 @@ module Juvix.Sexp
   )
 where
 
-import Juvix.Library hiding (foldM, foldr, init, list, map, show, toList, traverse)
+import Juvix.Library hiding (foldM, foldr, init, list, map, reverse, show, toList, traverse)
 import qualified Juvix.Library as Std
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Sexp.Parser
@@ -54,107 +56,90 @@ import Prelude (error)
 -- Just for Ease of writing
 type B a = Base a
 
+-- | @Opt@ is a record controlling some extra features for some choice
+-- functions
+data Opt a b = Op
+  { atomF :: Maybe (Atom a -> Atom b),
+    onAtom :: Bool
+  }
+  deriving (Show)
+
+instance Semigroup (Opt a b) where
+  Op f onF <> Op g onB = Op (f <|> g) (onF || onB)
+
+instance Monoid (Opt a b) where
+  mempty = Op Nothing False
+
 --------------------------------------------------------------------------------
 -- Folding Capabilities
 --------------------------------------------------------------------------------
 
--- | @foldSearchPred@ is like @foldPred@ with some notable exceptions.
--- 1. Instead of recusing on the @predChange@ form, it will just leave
---    the main form in tact.
---    - This is because in this sort of task we
---      will wish to maybe just change an aspect of it but maybe not
---      the actual form!
--- 2. We have a @predBind@ predicate which allows us to tell it what
---    forms can cause binders. This is useful when we care about what
---    is in scope for doing certain changes.
---
--- 3. In the case where both predicates match, then we will run the
---    binder and then the actual transformation, this is to ensure the
---    lexical semantics are respected, and then we can cleanup after
---    this.
---
--- 4. If the @predChange@ function accepts ":atom", then the function
---    will also be ran on the atom
---
--- For arguments, this function takes a Sexp, along with 2 sets of
--- pred function pairs. The function for the binding we take a
--- continuation, as it's not easy to automate the recursive calls in
--- instances such as case, so we have to do it by hand for those
--- binder cases
-foldSearchPred ::
+-- | @traversePredStar@ is like @mapPredStar@ with some notable exceptions.
+-- 1. The @f@ function now takes an extra argument, recurse, which will
+--    recurse the given form with @traversePredOptStar@
+-- 2. Instead of recusing on the changed match expression automatically,
+--    it must be done through @autoRecurse@ or calling the extra recursion
+--    function automatically
+-- 3. If the @Opt@ function has the @onAtom@ field being true
+--    then the function will also be ran on the atom
+traversePredOptStar ::
   Monad f =>
   B a ->
-  (NameSymbol.T -> Bool, Atom a -> B a -> f (B a)) ->
-  (NameSymbol.T -> Bool, Atom a -> B a -> (B a -> f (B a)) -> f (B a)) ->
+  (NameSymbol.T -> Bool) ->
+  (B a -> (B a -> f (B a)) -> f (B a)) ->
+  Opt a a ->
   f (B a)
-foldSearchPred t (predChange, automaticF) p2 =
-  let manualF atom xs recurse =
-        -- reserve the old behavior with this case
-        case xs of
-          Atom {} -> automaticF atom xs
-          _ -> do
-            newCons <- automaticF atom xs
-            case newCons of
-              Cons {} -> Cons (car newCons) <$> recurse (cdr newCons)
-              _______ -> pure newCons
-   in foldSearchPredManualRecurse t (predChange, manualF) p2
-
--- | @foldSearchPredManualRecurse@ is just like @foldsSearchPred@
--- except the function which changes the sexp form manually has to
--- recurse, it no longer automatically does this.
-foldSearchPredManualRecurse ::
-  Monad f =>
-  B a ->
-  (NameSymbol.T -> Bool, Atom a -> B a -> (B a -> f (B a)) -> f (B a)) ->
-  (NameSymbol.T -> Bool, Atom a -> B a -> (B a -> f (B a)) -> f (B a)) ->
-  f (B a)
-foldSearchPredManualRecurse t p1@(predChange, f) p2@(predBind, g) =
+traversePredOptStar t predChange f opt =
   case t of
-    Cons a@(Atom atom@(A name _)) xs
-      -- this case is a bit special as we wish to remove the form but
-      -- it's a binder! So we must run it then run the transform on it!
-      | predBind name && predChange name -> do
-        bindedTerm <- bindCase
-        changeCase (cdr bindedTerm)
-      | predChange name -> changeCase xs
-      | predBind name -> bindCase
-      where
-        changeCase xs = do
-          f atom xs (\xs -> foldSearchPredManualRecurse xs p1 p2)
-        -- G takes the computation, as its changes are scoped over the
-        -- calls.
-        bindCase =
-          Cons a <$> g atom xs (\xs -> foldSearchPredManualRecurse xs p1 p2)
-    Cons cs xs ->
-      Cons <$> foldSearchPredManualRecurse cs p1 p2 <*> foldSearchPredManualRecurse xs p1 p2
-    Nil -> pure Nil
+    Cons (Atom (A name _)) _
+      | predChange name ->
+        f t recurseDown
+    Cons {} -> traverse recurseDown t
+    Nil {} -> pure Nil
     Atom a
-      | predChange ":atom" -> do
-        f a (Atom a) (\xs -> foldSearchPredManualRecurse xs p1 p2)
-      | otherwise -> pure $ Atom a
+      | onAtom opt -> f t recurseDown
+      | otherwise -> pure (Atom a)
+  where
+    recurseDown sexp = traversePredOptStar sexp predChange f opt
 
--- | @foldPred@ searches the sexp structure given to it with a given
--- predicate. This predicate is ran on the @car@ of every list
+-- | @traversePredStar@ is just like @traversePredOptStar@ except the
+-- empty option set is given, meaning that the function will not match
+-- on atoms.
+traversePredStar ::
+  Monad f => B a -> (NameSymbol.T -> Bool) -> (B a -> (B a -> f (B a)) -> f (B a)) -> f (B a)
+traversePredStar t predChange automaticF =
+  traversePredOptStar t predChange automaticF mempty
+
+autoRecurse ::
+  Monad m => (B a -> m (B a)) -> B a -> (B a -> m (B a)) -> m (B a)
+autoRecurse automaticF xs recurse = do
+  newCons <- automaticF xs
+  case newCons of
+    Cons {} -> traverse recurse newCons
+    _______ -> pure newCons
+
+-- | @mapPredStar@ searches the sexp structure given to it with a
+-- given predicate. This predicate is ran on the @car@ of every list
 -- structure. This simulates searches for the head of a function
 -- call. When the predicate returns true, the function passed to
--- foldPred (which we shall refer to as f), is then called on the
+-- @mapPredStar@ (which we shall refer to as f), is then called on the
 -- @car@, and the @cdr@ of the list, giving back a new sexp
 -- structure. This new sexp structure is then recursed upon by
--- foldPred. NOTE that this does mean the structure handed back by f.
-foldPred :: B a -> (NameSymbol.T -> Bool) -> (Atom a -> B a -> B a) -> B a
-foldPred t pred f =
+-- @mapPredStar@. NOTE that this does mean the structure handed back
+-- by f.
+mapPredStar :: B a -> (NameSymbol.T -> Bool) -> (B a -> B a) -> B a
+mapPredStar t pred f =
   case t of
-    Cons (Atom atom@(A name _)) xs
-      | pred name ->
-        foldPred (f atom xs) pred f
-    Cons cs xs ->
-      Cons (foldPred cs pred f) (foldPred xs pred f)
+    Cons (Atom (A name _)) _
+      | pred name -> mapPredStar (f t) pred f
+    Cons _ _ -> map (\t -> mapPredStar t pred f) t
+    Atom ato -> Atom ato
     Nil -> Nil
-    Atom a -> Atom a
 
 traverse :: Monad m => (B a -> m (B b)) -> B a -> m (B b)
-traverse f =
-  foldM (\acc x -> Cons <$> f x <*> pure acc) Nil
+traverse f xs =
+  foldM (\acc x -> Cons <$> f x <*> pure acc) Nil xs
+    >>| reverse
 
 foldM :: Monad m ⇒ (p -> B a -> m p) -> p -> B a -> m p
 foldM f acc ts =
@@ -165,7 +150,9 @@ foldM f acc ts =
 
 -- | @map@ works the same as it does in Haskell. However instead of
 -- running it on the generic of the Sexp, it instead runs it on the
--- elements on the Sexp structure itself.
+-- elements on the Sexp structure itself. Thus the @a -> b@ signature
+-- can only occur if the function recuses to change the sexp
+-- recursively
 map :: (B a -> B b) -> B a -> B b
 map f = foldr (Cons . f) Nil
 
@@ -196,6 +183,13 @@ foldr1 _ _empty = Nothing
 --------------------------------------------------------------------------------
 -- General Functionality
 --------------------------------------------------------------------------------
+
+reverse :: B a -> B a
+reverse xs = go xs Nil
+  where
+    go (Cons a as) acc = go as (Cons a acc)
+    go Nil acc = acc
+    go (Atom a) acc = Cons (Atom a) acc
 
 -- | @butLast@ takes a list and removes the last element of the list,
 -- if handed an atom, it will return the atom
@@ -287,6 +281,10 @@ string t = Atom $ S t Nothing
 isAtomNamed :: B a -> NameSymbol.T -> Bool
 isAtomNamed (Atom (A name _)) name2 = name == name2
 isAtomNamed _ _ = False
+
+atomErr :: B a -> Atom a
+atomErr (Atom a) = a
+atomErr _ = error "the value is not an atom"
 
 -- | @atomFromT@ returns the Atom from the list, will returning
 -- @Nothing@ if it is not an @Atom@

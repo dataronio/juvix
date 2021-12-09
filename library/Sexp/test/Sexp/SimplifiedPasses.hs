@@ -28,9 +28,9 @@ top =
 --------------------------------------------------------------------------------
 
 moduleTransform :: Sexp.T -> Sexp.T
-moduleTransform xs = Sexp.foldPred xs (== "defmodule") moduleToRecord
+moduleTransform xs = Sexp.mapPredStar xs (== "defmodule") moduleToRecord
   where
-    moduleToRecord atom (name Sexp.:> args Sexp.:> body) =
+    moduleToRecord (Sexp.Atom atom Sexp.:> name Sexp.:> args Sexp.:> body) =
       Sexp.list [Sexp.atom "defun", name, args, Sexp.foldr combine generatedRecord body]
         |> Sexp.addMetaToCar atom
       where
@@ -52,10 +52,9 @@ moduleTransform xs = Sexp.foldPred xs (== "defmodule") moduleToRecord
           | Sexp.isAtomNamed form "open" =
             Sexp.list [Sexp.atom "open-in", open, expression]
         combine (form Sexp.:> xs) expression
-          | Sexp.isAtomNamed form "defmodule",
-            Just atom <- Sexp.atomFromT form =
+          | Sexp.isAtomNamed form "defmodule" =
             -- have to recurse by hand here ☹
-            let (_ Sexp.:> name Sexp.:> rest) = moduleToRecord atom xs
+            let (_ Sexp.:> name Sexp.:> rest) = moduleToRecord (form Sexp.:> xs)
              in Sexp.list [Sexp.atom "let", name, rest, expression]
         -- ignore other forms
         combine _ expression = expression
@@ -70,17 +69,17 @@ moduleTransform xs = Sexp.foldPred xs (== "defmodule") moduleToRecord
             Just name <- Sexp.atomFromT name =
             name : acc
         f _ acc = acc
-    moduleToRecord _ _ = error "malformed record"
+    moduleToRecord _ = error "malformed record"
 
 condTransform :: Sexp.T -> Sexp.T
-condTransform xs = Sexp.foldPred xs (== "cond") condToIf
+condTransform xs = Sexp.mapPredStar xs (== "cond") condToIf
   where
-    condToIf atom cdr =
+    condToIf sexp =
       let acc =
-            generation (Sexp.last cdr) Sexp.Nil
+            generation (Sexp.last sexp) Sexp.Nil
               |> Sexp.butLast
-       in Sexp.foldr generation acc (Sexp.butLast cdr)
-            |> Sexp.addMetaToCar atom
+       in Sexp.foldr generation acc (Sexp.butLast (Sexp.cdr sexp))
+            |> Sexp.addMetaToCar (Sexp.atomErr (Sexp.car sexp))
     --
     generation (Sexp.Cons condition body) acc =
       Sexp.list [Sexp.atom "if", condition, Sexp.car body, acc]
@@ -88,17 +87,17 @@ condTransform xs = Sexp.foldPred xs (== "cond") condToIf
       error "malformed cond"
 
 ifTransform :: Sexp.T -> Sexp.T
-ifTransform xs = Sexp.foldPred xs (== "if") ifToCase
+ifTransform xs = Sexp.mapPredStar xs (== "if") ifToCase
   where
-    ifToCase atom cdr =
-      case cdr of
+    ifToCase sexp =
+      case Sexp.cdr sexp of
         Sexp.List [pred, then', else'] ->
           Sexp.list (caseListElse pred then' else')
         Sexp.List [pred, then'] ->
           Sexp.list (caseList pred then')
         _ ->
           error "malformed if"
-            |> Sexp.addMetaToCar atom
+            |> Sexp.addMetaToCar (Sexp.atomErr (Sexp.car sexp))
     caseList pred then' =
       [Sexp.atom "case", pred, Sexp.list [Sexp.atom "true", then']]
     caseListElse pred then' else' =
@@ -152,9 +151,9 @@ combineSig (x : xs) = x : combineSig xs
 combineSig [] = []
 
 multipleTransLet :: Sexp.T -> Sexp.T
-multipleTransLet xs = Sexp.foldPred xs (== "let") letToLetMatch
+multipleTransLet xs = Sexp.mapPredStar xs (== "let") letToLetMatch
   where
-    letToLetMatch atom (Sexp.List [a@(Sexp.Atom (Sexp.A name _)), bindingsBody, rest]) =
+    letToLetMatch (Sexp.List [Sexp.Atom atom, a@(Sexp.Atom (Sexp.A name _)), bindingsBody, rest]) =
       let (grabbed, notMatched) = grabSimilar name rest
        in Sexp.list
             [ Sexp.atom "let-match",
@@ -163,7 +162,7 @@ multipleTransLet xs = Sexp.foldPred xs (== "let") letToLetMatch
               notMatched
             ]
             |> Sexp.addMetaToCar atom
-    letToLetMatch _atom _ =
+    letToLetMatch _ =
       error "malformed let"
     --
     grabSimilar name (Sexp.List [let1, name1, bindingsBody, rest])
@@ -181,9 +180,9 @@ multipleTransLet xs = Sexp.foldPred xs (== "let") letToLetMatch
       error "doesn't happen"
 
 removePunnedRecords :: Sexp.T -> Sexp.T
-removePunnedRecords xs = Sexp.foldPred xs (== "record") removePunned
+removePunnedRecords xs = Sexp.mapPredStar xs (== "record") removePunned
   where
-    removePunned atom sexp =
+    removePunned (Sexp.Atom atom Sexp.:> sexp) =
       Sexp.listStar
         [ Sexp.atom "record-no-pun",
           Sexp.foldr f Sexp.Nil sexp
@@ -195,7 +194,7 @@ removePunnedRecords xs = Sexp.foldPred xs (== "record") removePunned
         f (Sexp.List [pun]) acc =
           pun Sexp.:> pun Sexp.:> acc
         f _ _ = error "malformed record"
-
+    removePunned _ = error "does not happen"
 --------------------------------------------------------------------------------
 -- Pass Tests
 --------------------------------------------------------------------------------

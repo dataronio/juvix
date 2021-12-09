@@ -1,5 +1,6 @@
 module Sexp (top) where
 
+import qualified Data.IORef as IORef
 import qualified Data.Set as Set
 import Juvix.Library
 import qualified Juvix.Sexp as Sexp
@@ -13,9 +14,9 @@ top =
     "sexp pass tests:"
     [ lastWorksAsExpected,
       foldrWorksAsExpted,
-      foldPredWorksAsExpted,
-      foldPredWorksAsExpted2,
-      foldPredWorksAsExpted3,
+      mapPredStarWorksAsExpted,
+      mapPredStarWorksAsExpted2,
+      mapPredStarWorksAsExpted3,
       listWorksAsExpected,
       listStarWorksAsExpected
     ]
@@ -50,13 +51,13 @@ foldrWorksAsExpted =
   where
     Right ns = Sexp.parse "(1 2 3 4 5)"
 
-foldPredWorksAsExpted :: T.TestTree
-foldPredWorksAsExpted =
+mapPredStarWorksAsExpted :: T.TestTree
+mapPredStarWorksAsExpted =
   T.testGroup
-    "foldPred works as Exptected"
+    "mapPredStar works as Exptected"
     [ T.testCase
-        "foldPred properly recurses"
-        ( Sexp.foldPred nest (== "if") (\_ sexp -> Sexp.Cons (Sexp.atom ":if") sexp)
+        "mapPredStar properly recurses"
+        ( Sexp.mapPredStar nest (== "if") (Sexp.Cons (Sexp.atom ":if") . Sexp.cdr)
             T.@=? expectedNest
         )
     ]
@@ -66,13 +67,13 @@ foldPredWorksAsExpted =
     Right expectedNest =
       Sexp.parse "(:if x y (:if z l))"
 
-foldPredWorksAsExpted2 :: T.TestTree
-foldPredWorksAsExpted2 =
+mapPredStarWorksAsExpted2 :: T.TestTree
+mapPredStarWorksAsExpted2 =
   T.testGroup
-    "foldPred works as Exptected"
+    "mapPredStar works as Exptected"
     [ T.testCase
-        "foldPred properly searches"
-        ( Sexp.foldPred nest (== "if") (\_ sexp -> Sexp.Cons (Sexp.atom ":if") sexp)
+        "mapPredStar properly searches"
+        ( Sexp.mapPredStar nest (== "if") (Sexp.Cons (Sexp.atom ":if") . Sexp.cdr)
             T.@=? expectedNest
         )
     ]
@@ -82,13 +83,16 @@ foldPredWorksAsExpted2 =
     Right expectedNest =
       Sexp.parse "(g x y (f z l))"
 
-foldPredWorksAsExpted3 :: T.TestTree
-foldPredWorksAsExpted3 =
+mapPredStarWorksAsExpted3 :: T.TestTree
+mapPredStarWorksAsExpted3 =
   T.testGroup
-    "foldPred works as Exptected"
+    "mapPredStar works as Exptected"
     [ T.testCase
-        "foldPred can deal with bigger sexp"
-        ( Sexp.foldPred nest (== ":defop") (\_ sexp -> Sexp.Cons (Sexp.atom ":op") sexp)
+        "mapPredStar can deal with bigger sexp"
+        ( Sexp.mapPredStar
+            nest
+            (== ":defop")
+            (\sexp -> Sexp.Cons (Sexp.atom ":op") (Sexp.cdr sexp))
             T.@=? expectedNest
         )
     ]
