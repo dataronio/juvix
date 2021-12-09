@@ -56,16 +56,16 @@ mapPredStarWorksAsExpted =
   T.testGroup
     "mapPredStar works as Exptected"
     [ T.testCase
-        "mapPredStar properly recurses"
+        "mapPredStar properly recurses and does not change the non car position"
         ( Sexp.mapPredStar nest (== "if") (Sexp.Cons (Sexp.atom ":if") . Sexp.cdr)
             T.@=? expectedNest
         )
     ]
   where
     Right nest =
-      Sexp.parse "(if x y (if z l))"
+      Sexp.parse "(if x y (if if l))"
     Right expectedNest =
-      Sexp.parse "(:if x y (:if z l))"
+      Sexp.parse "(:if x y (:if if l))"
 
 mapPredStarWorksAsExpted2 :: T.TestTree
 mapPredStarWorksAsExpted2 =
