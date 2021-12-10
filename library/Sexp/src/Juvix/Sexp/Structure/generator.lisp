@@ -304,7 +304,7 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
 
   (generate-haskell "Arrow" '("sexp" "sexp") "%<-")
 
-  (generate-haskell "Lambda" '("sexp" "sexp") "lambda")
+  (generate-haskell "Lambda" '("sexp" "sexp") ":lambda")
 
   (generate-haskell "Punned" '("sexp") nil)
 

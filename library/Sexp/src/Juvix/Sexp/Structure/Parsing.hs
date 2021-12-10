@@ -665,7 +665,7 @@ instance Structure Arrow where
 ----------------------------------------
 
 nameLambda :: NameSymbol.T
-nameLambda = "lambda"
+nameLambda = ":lambda"
 
 isLambda :: Sexp.T -> Bool
 isLambda (Sexp.Cons form _) = Sexp.isAtomNamed form nameLambda
