@@ -58,8 +58,8 @@ data DefunMatch = DefunMatch
 
 -- | @ArgBody@ abstracts over the details of arguments and body
 data ArgBody = ArgBody
-  { argsBodyArgs :: Sexp.T,
-    argsBodyBody :: Sexp.T
+  { argBodyArgs :: Sexp.T,
+    argBodyBody :: Sexp.T
   }
   deriving (Show)
 

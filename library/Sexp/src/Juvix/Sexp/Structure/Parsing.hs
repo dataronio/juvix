@@ -125,7 +125,7 @@ data Arrow = Arrow
 
 data Lambda = Lambda
   { lambdaArgs :: Sexp.T,
-    lambdabody :: Sexp.T
+    lambdaBody :: Sexp.T
   }
   deriving (Show)
 
