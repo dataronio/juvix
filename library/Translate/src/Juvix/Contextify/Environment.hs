@@ -262,12 +262,14 @@ binderDispatchWith ::
   -- | the continuation of continuing the changes
   (Sexp.T -> f Sexp.T) ->
   f Sexp.T
-binderDispatchWith (trig, func) ctx sexp@(atom Sexp.:> as) cont
+binderDispatchWith (trig, func) ctx sexp@(atom Sexp.:> _) cont
   | Just a <- Sexp.nameFromT atom,
     trig a =
     func ctx sexp cont
   | Structure.isOpenIn sexp =
-    openIn ctx as cont
+    openIn ctx sexp cont
+binderDispatchWith (_trig, func) ctx atom@(Sexp.Atom _) cont =
+  func ctx atom cont
 binderDispatchWith _ _ sexp cont =
   binderDispatchWithNoCtx sexp cont
 
@@ -285,6 +287,8 @@ binderDispatchWithNoCtxF (trig, func) sexp@(atom Sexp.:> _as) cont
   | Just a <- Sexp.nameFromT atom,
     trig a =
     (Sexp.autoRecurse func) sexp cont
+binderDispatchWithNoCtxF (_trig, func) atom@(Sexp.Atom _) cont =
+  (Sexp.autoRecurse func) atom cont
 binderDispatchWithNoCtxF _ sexp cont =
   binderDispatchWithNoCtx sexp cont
 
