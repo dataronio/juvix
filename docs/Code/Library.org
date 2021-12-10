@@ -2000,6 +2000,9 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
+  + [[Lens]]
+  + [[Structure/Parsing]]
+  + [[Transition]]
 ***** Passes <<Contextify/Passes>>
 - _Relies on_
   + [[Juvix/Closure]]
