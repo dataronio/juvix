@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns #-}
 module Juvix.Contextify.Passes
   ( resolveModule,
     inifixSoloPass,
@@ -55,22 +56,22 @@ type Expression m = (Env.ErrS m, Env.HasClosure m)
 resolveModule ::
   ExpressionIO m => Env.SexpContext -> m Env.SexpContext
 resolveModule context =
-  Env.passContext
+  Env.contextPassStar
     context
-    (\x -> x == ":atom" || x == Structure.nameOpenIn)
-    (Env.singlePass openResolution)
+    (== Structure.nameOpenIn)
+    (mempty {Sexp.onAtom = True})
+    openResolution
 
 openResolution ::
-  ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom () -> Sexp.T -> m Sexp.T
-openResolution ctx a cdr
-  | Just open <- Structure.toOpenIn (Sexp.Cons (Sexp.Atom a) cdr) =
+  ExpressionIO m => Context.T term ty sumRep -> Sexp.T -> m Sexp.T
+openResolution _ctx (Structure.toOpenIn -> Just open) =
     pure (open ^. body)
-  | otherwise =
-    atomResolution ctx a cdr
+openResolution ctx sexp =
+    atomResolution ctx sexp
 
 atomResolution ::
-  ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom () -> Sexp.T -> m Sexp.T
-atomResolution context atom@Sexp.A {atomName = name} sexpAtom = do
+  ExpressionIO m => Context.T term ty sumRep -> Sexp.T -> m Sexp.T
+atomResolution context sexpAtom@(Sexp.Atom (atom@Sexp.A {atomName = name})) = do
   closure <- ask @"closure"
   let symbolName = NameSymbol.hd name
   case Closure.lookup symbolName closure of
@@ -85,7 +86,7 @@ atomResolution context atom@Sexp.A {atomName = name} sexpAtom = do
         Just Context.SymInfo {mod = prefix} ->
           pure $ Sexp.addMetaToCar atom (Sexp.atom (prefix <> name))
         Nothing -> pure sexpAtom
-atomResolution _ _ s = pure s
+atomResolution _ s = pure s
 
 --------------------------------------------------------------------------------
 -- Infix Form Transformation
@@ -104,12 +105,12 @@ atomResolution _ _ s = pure s
 inifixSoloPass ::
   Expression m => Env.SexpContext -> m Env.SexpContext
 inifixSoloPass context =
-  Env.passContext context (== Structure.nameInfix) (Env.singlePass infixConversion)
+  Env.contextPassStar context (== Structure.nameInfix) mempty infixConversion
 
 infixConversion ::
-  (Env.ErrS m, Env.HasClosure m) => Context.T t y s -> Sexp.Atom () -> Sexp.T -> m Sexp.T
-infixConversion context atom list = do
-  grouped <- groupInfix context (Sexp.Cons (Sexp.Atom atom) list)
+  (Env.ErrS m, Env.HasClosure m) => Context.T t y s -> Sexp.T -> m Sexp.T
+infixConversion context sexp = do
+  grouped <- groupInfix context sexp
   case Shunt.shunt grouped of
     Right shunted ->
       pure $ convertShunt shunted
@@ -164,7 +165,7 @@ convertShunt (Shunt.App s app1 app2) =
 recordDeclaration ::
   ExpressionIO m => Env.SexpContext -> m Env.SexpContext
 recordDeclaration context =
-  Env.passContext context (== Structure.nameType) figureRecord
+  Env.contextPassChange context (== Structure.nameType) figureRecord
 
 -- - input form
 --   1. (type name₁ (arg₁ … argₙ)
@@ -184,9 +185,8 @@ figureRecord ::
   ExpressionIO m => Env.PassChange m
 figureRecord = Env.PassChange rec
   where
-    rec _ctx a cdr defName
-      | Just type' <- Structure.toType (Sexp.Atom a Sexp.:> cdr),
-        -- make sure it's a record only declaration
+    rec _ctx (Structure.toType -> Just type') defName
+      | -- make sure it's a record only declaration
         -- how do we handle sum types?
         maybe 0 length (Sexp.toList (type' ^. body)) == 1,
         Just record <- Structure.toRecordDec (Sexp.car (type' ^. body)) =
@@ -207,7 +207,7 @@ figureRecord = Env.PassChange rec
               )
           >>| Context.Def
           >>| \x -> Just (defName, x)
-      | otherwise =
+    rec _ _ _ =
         pure Nothing
 
 ------------------------------------------------------------
@@ -252,22 +252,23 @@ sexpToNameSymbolErr sexp =
 notFoundSymbolToLookup ::
   ExpressionIO m => Env.SexpContext -> m Env.SexpContext
 notFoundSymbolToLookup context =
-  Env.passContext
+  Env.contextPassManaulStar
     context
-    (\x -> x == ":atom" || x == Structure.namePrimitive)
-    (Env.PassManual primiveOrSymbol)
+    (== Structure.namePrimitive)
+    mempty {Sexp.onAtom = True}
+    (primiveOrSymbol)
 
 primiveOrSymbol ::
-  ExpressionIO m => Env.SexpContext -> Sexp.Atom () -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
-primiveOrSymbol context atom cdr _rec'
-  | Just _struct <- Structure.toPrimitive (Sexp.Cons (Sexp.Atom atom) cdr) =
-    pure (Sexp.Cons (Sexp.Atom atom) cdr)
+  ExpressionIO m => Env.SexpContext -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
+primiveOrSymbol context sexp _rec'
+  | Just _struct <- Structure.toPrimitive sexp =
+    pure sexp
   | otherwise =
-    notFoundAtomRes context atom cdr
+    notFoundAtomRes context sexp
 
 notFoundAtomRes ::
-  ExpressionIO m => Env.SexpContext -> Sexp.Atom () -> Sexp.T -> m Sexp.T
-notFoundAtomRes context atom@Sexp.A {atomName = name} sexpAtom = do
+  ExpressionIO m => Env.SexpContext -> Sexp.T -> m Sexp.T
+notFoundAtomRes context sexpAtom@(Sexp.Atom atom@Sexp.A {atomName = name}) = do
   -- we need to check if the first part of the var is in our
   closure <- ask @"closure"
   let firstQualification :| symbols = NameSymbol.toNonEmptySymbol name
@@ -326,4 +327,4 @@ notFoundAtomRes context atom@Sexp.A {atomName = name} sexpAtom = do
             -- Context nor the closure, let's just return back what is given to us!
             Nothing ->
               pure sexpAtom
-notFoundAtomRes _ _ s = pure s
+notFoundAtomRes _ s = pure s

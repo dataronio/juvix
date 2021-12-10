@@ -69,7 +69,7 @@ data Env = Env
   deriving (Generic, Show)
 
 type EnvAlias =
-  (State Env)
+  State Env
 
 newtype EnvM a = Ctx {_run :: EnvAlias a}
   deriving (Functor, Applicative, Monad)
@@ -96,16 +96,15 @@ freeVarPass ::
   Sexp.T ->
   f Sexp.T
 freeVarPass form =
-  Env.onExpression form (== ":atom") freeVarRes
+  Env.onExpression form (const False) mempty {Sexp.onAtom = True} freeVarRes
 
 freeVarRes ::
   ( HasReader "closure" Closure.T m,
     HasState "free" (Set.HashSet NameSymbol.T) m
   ) =>
-  Sexp.Atom () ->
   Sexp.T ->
   m Sexp.T
-freeVarRes Sexp.A {atomName = name} sexpAtom = do
+freeVarRes sexpAtom@(Sexp.Atom Sexp.A {atomName = name}) = do
   closure <- ask @"closure"
   let symbolName = NameSymbol.hd name
   case Closure.lookup symbolName closure of
@@ -113,4 +112,4 @@ freeVarRes Sexp.A {atomName = name} sexpAtom = do
     Nothing -> do
       modify @"free" (Set.insert name)
       pure sexpAtom
-freeVarRes _ s = pure s
+freeVarRes s = pure s
