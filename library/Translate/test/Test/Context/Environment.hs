@@ -56,8 +56,8 @@ emptyClosure :: Capture
 emptyClosure = Cap (Closure.T Map.empty) []
 
 recordClosure ::
-  (HasReader "closure" a m, HasWriter "report" [a] m) => c -> p -> b -> m b
-recordClosure _ _atom t = do
+  (HasReader "closure" a m, HasWriter "report" [a] m) => c -> b -> m b
+recordClosure _ t = do
   c <- ask @"closure"
   tell @"report" [c]
   -- Just drop the given atom
@@ -200,7 +200,7 @@ openTest =
                 :| [("A", parseDesugarSexp "let bar = 3")]
             )
         let (_, Cap _ [Closure.T capture]) =
-              runCtx (Env.passContext ctx trigger (Env.singlePass recordClosure)) emptyClosure
+              runCtx (Env.contextPassStar ctx trigger mempty recordClosure) emptyClosure
         Map.toList capture T.@=? [("bar", Closure.Info Nothing [] (Just "A"))]
     ]
   where
@@ -212,7 +212,7 @@ capture str trigger = do
   Right (ctx, _) <-
     contextualizeFoo str
   let (_, Cap _ capture) =
-        runCtx (Env.passContext ctx trigger (Env.singlePass recordClosure)) emptyClosure
+        runCtx (Env.contextPassStar ctx trigger mempty recordClosure) emptyClosure
   pure capture
 
 -- Right (ctx,_) <- contextualizeFoo "let f = 3"
