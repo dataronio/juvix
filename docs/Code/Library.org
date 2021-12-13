@@ -1138,7 +1138,7 @@ Tests for the type checker and evaluator in Core/IR/Typechecker.hs
   + [[NameSymbol]]
   + [[PrettyPrint]]
   + [[Library/Usage]]
-**** Serialize
+**** Serialize <<HR/Serialize>>
 - _Relies on_
   + [[HR]]
   + [[HR/Sexp]]
@@ -1602,12 +1602,16 @@ with any stage of the compiler while modifying the source code.
 *** Juvix
 **** Sexp <<Juvix/Sexp>>
 This module serves as the main sexpression import it contains the
-sexp type and all the various helper functionality one can need
+sexp type and all the various helper functionality one can need.
+The star affix stands for a play on a theme. In this case the theme
+is that they recurse on the structure itself calling itself on very
+nested structures.
 - _Relies on_
   + [[Library]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp/Parser]]
+  + [[Juvix/Sexp/Serialize]]
   + [[Sexp/Types]]
 ***** Parser <<Juvix/Sexp/Parser>>
 - _Relies on_
@@ -1616,6 +1620,11 @@ sexp type and all the various helper functionality one can need
   + [[Library/Parser]]
   + [[Internal]]
   + [[Token]]
+  + [[Sexp/Types]]
+***** Serialize <<Juvix/Sexp/Serialize>>
+- _Relies on_
+  + [[Library]]
+  + [[NameSymbol]]
   + [[Sexp/Types]]
 ***** Types <<Sexp/Types>>
 - _Relies on_
@@ -1750,6 +1759,10 @@ _TODO_
   + [[Library]]
   + [[Juvix/Sexp]]
 **** Parser <<test/Sexp/Parser>>
+- _Relies on_
+  + [[Library]]
+  + [[Juvix/Sexp]]
+**** Serialize <<test/Sexp/Serialize>>
 - _Relies on_
   + [[Library]]
   + [[Juvix/Sexp]]
@@ -2163,6 +2176,7 @@ done with no extra information needed. Thus we export the following passes
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
+  + [[Juvix/Sexp]]
 ***** Helpers <<Context/Helpers>>
 - _Relies on_
   + [[Juvix/Context]]
