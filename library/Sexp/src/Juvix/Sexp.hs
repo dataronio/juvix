@@ -1,8 +1,12 @@
 -- | This module serves as the main sexpression import it contains the
--- sexp type and all the various helper functionality one can need
+-- sexp type and all the various helper functionality one can need.
+-- The star affix stands for a play on a theme. In this case the theme
+-- is that they recurse on the structure itself calling itself on very
+-- nested structures.
 module Juvix.Sexp
   ( module Juvix.Sexp.Types,
     module Juvix.Sexp.Parser,
+    B,
     Opt (..),
 
     -- * Traversal Functionality
@@ -15,6 +19,13 @@ module Juvix.Sexp
     foldM,
     foldr,
     foldr1,
+
+    -- * Partial Serialization Functionality
+    Serialize (..),
+    partiallyDeserialize,
+    fullySerialize,
+    mapSerialize,
+    traverseSerialize,
 
     -- * General Functionality
     butLast,
@@ -181,6 +192,81 @@ foldr1 f (Cons x xs) = Just $ unsafe (Cons x xs)
         Atom a -> (Atom a)
         Nil -> error "doesn't happen"
 foldr1 _ _empty = Nothing
+
+--------------------------------------------------------------------------------
+-- Partial Serialization Functions
+--------------------------------------------------------------------------------
+
+class Serialize a where
+  serialize :: a -> T
+  deserialize :: T -> Maybe a
+
+-- | @partiallyDeserialize@ serializes a S-expression term with no
+-- serialization, into a de-serialization over a generic a. It is the
+-- responsibility of the partial deserializer itself to deal with the
+-- arguments.
+partiallyDeserialize :: forall a. Serialize a => T -> B a
+partiallyDeserialize Nil = Nil
+partiallyDeserialize sexp@Cons {} =
+  case deserialize sexp of
+    Just partial ->
+      Atom (P partial Nothing)
+    Nothing -> map partiallyDeserialize sexp
+partiallyDeserialize atom@(Atom p) =
+  case deserialize atom of
+    Just serialize ->
+      Atom (P serialize Nothing)
+    Nothing ->
+      case p of
+        -- this should never happen, as all P's have no meaning with T
+        P _ _ -> Nil
+        D n l -> Atom (D n l)
+        S n l -> Atom (S n l)
+        N n l -> Atom (N n l)
+        A n l -> Atom (A n l)
+
+-- | @fullySerialize@ removes the partial deserialization of a
+-- structure, into the fully serialized form.
+fullySerialize :: forall a. Serialize a => B a -> T
+fullySerialize Nil = Nil
+fullySerialize sexp@Cons {} =
+  map fullySerialize sexp
+fullySerialize (Atom p) =
+  case p of
+    P t _ -> serialize t
+    D n l -> Atom (D n l)
+    S n l -> Atom (S n l)
+    N n l -> Atom (N n l)
+    A n l -> Atom (A n l)
+
+-- | @mapSerialize@ traverses the list like a star function, searching
+-- for any constructor of the partial deserialization to apply the
+-- given function to. The function takes two arguments. the
+-- deserialized structure itself, and a recursive function to call for
+-- any nested Sexp structures that may exist in the partial deserialization
+mapSerialize :: B a -> (a -> (B a -> B b) -> b) -> B b
+mapSerialize xs@Cons {} f = map (`mapSerialize` f) xs
+mapSerialize Nil _______f = Nil
+mapSerialize (Atom a) f =
+  case a of
+    P t l -> Atom (P (f t (`mapSerialize` f)) l)
+    D n l -> Atom (D n l)
+    S n l -> Atom (S n l)
+    N n l -> Atom (N n l)
+    A n l -> Atom (A n l)
+
+-- | @traverseSerialize@ works just like @mapSerialize@ except the
+-- function is effectful
+traverseSerialize :: Monad m => B a -> (a -> (B a -> m (B b)) -> m b) -> m (B b)
+traverseSerialize xs@Cons {} f = traverse (`traverseSerialize` f) xs
+traverseSerialize Nil _______f = pure Nil
+traverseSerialize (Atom a) f =
+  case a of
+    P t l -> Atom . (`P` l) <$> f t (`traverseSerialize` f)
+    D n l -> pure $ Atom (D n l)
+    S n l -> pure $ Atom (S n l)
+    N n l -> pure $ Atom (N n l)
+    A n l -> pure $ Atom (A n l)
 
 --------------------------------------------------------------------------------
 -- General Functionality
