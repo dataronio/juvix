@@ -6,6 +6,7 @@
 module Juvix.Sexp
   ( module Juvix.Sexp.Types,
     module Juvix.Sexp.Parser,
+    module Juvix.Sexp.Serialize,
     B,
     Opt (..),
 
@@ -63,6 +64,7 @@ import Juvix.Library hiding (foldM, foldr, init, list, map, reverse, show, toLis
 import qualified Juvix.Library as Std
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Sexp.Parser
+import Juvix.Sexp.Serialize
 import Juvix.Sexp.Types hiding (double)
 import Prelude (error)
 
@@ -196,10 +198,6 @@ foldr1 _ _empty = Nothing
 --------------------------------------------------------------------------------
 -- Partial Serialization Functions
 --------------------------------------------------------------------------------
-
-class Serialize a where
-  serialize :: a -> T
-  deserialize :: T -> Maybe a
 
 -- | @partiallyDeserialize@ serializes a S-expression term with no
 -- serialization, into a de-serialization over a generic a. It is the
