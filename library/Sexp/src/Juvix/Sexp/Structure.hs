@@ -1,6 +1,7 @@
+{-# LANGUAGE UndecidableInstances #-}
+
 module Juvix.Sexp.Structure
-  ( Structure,
-    to,
+  ( to,
     from,
   )
 where
@@ -8,6 +9,8 @@ where
 import Juvix.Library (Maybe)
 import qualified Juvix.Sexp as Sexp
 
-class Structure a where
-  to :: Sexp.T -> Maybe a
-  from :: a -> Sexp.T
+to :: Sexp.Serialize a => Sexp.T -> Maybe a
+to = Sexp.deserialize
+
+from :: Sexp.Serialize a => a -> Sexp.T
+from = Sexp.serialize

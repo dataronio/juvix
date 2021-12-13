@@ -1,4 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
+
 module Juvix.Contextify.Passes
   ( resolveModule,
     inifixSoloPass,
@@ -65,9 +66,9 @@ resolveModule context =
 openResolution ::
   ExpressionIO m => Context.T term ty sumRep -> Sexp.T -> m Sexp.T
 openResolution _ctx (Structure.toOpenIn -> Just open) =
-    pure (open ^. body)
+  pure (open ^. body)
 openResolution ctx sexp =
-    atomResolution ctx sexp
+  atomResolution ctx sexp
 
 atomResolution ::
   ExpressionIO m => Context.T term ty sumRep -> Sexp.T -> m Sexp.T
@@ -208,7 +209,7 @@ figureRecord = Env.PassChange rec
           >>| Context.Def
           >>| \x -> Just (defName, x)
     rec _ _ _ =
-        pure Nothing
+      pure Nothing
 
 ------------------------------------------------------------
 -- Structure Conversion Helpers

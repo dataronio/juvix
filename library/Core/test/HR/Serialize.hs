@@ -1,7 +1,7 @@
 module HR.Serialize where
 
 import Juvix.Core.HR as HR
-import qualified Juvix.Core.HR.Sexp as Sexp
+import qualified Juvix.Core.HR.Sexp as SexpHR
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Usage
@@ -16,20 +16,20 @@ top =
     "HR pretty printing"
     [ T.testCase "app2" $
         app2
-          |> Sexp.serializeElim
-          |> (Sexp.deserializeElim :: Sexp.T -> Maybe (HR.Elim () ()))
+          |> SexpHR.serializeElim
+          |> (SexpHR.deserializeElim :: Sexp.T -> Maybe (HR.Elim () ()))
           |> isJust
           |> (T.@?= True),
       T.testCase "pair" $
         three
-          |> Sexp.serialize
-          |> (Sexp.deserialize :: Sexp.T -> Maybe (HR.Term () ()))
+          |> SexpHR.serialize
+          |> (SexpHR.deserialize :: Sexp.T -> Maybe (HR.Term () ()))
           |> isJust
           |> (T.@?= True),
       T.testCase "pi" $
         two'
-          |> Sexp.serialize
-          |> (Sexp.deserialize :: Sexp.T -> Maybe (HR.Term () ()))
+          |> SexpHR.serialize
+          |> (SexpHR.deserialize :: Sexp.T -> Maybe (HR.Term () ()))
           |> isJust
           |> (T.@?= True)
     ]

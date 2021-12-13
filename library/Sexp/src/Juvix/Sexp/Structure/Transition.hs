@@ -172,9 +172,9 @@ fromArgBody :: ArgBody -> Sexp.T
 fromArgBody (ArgBody sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
 
-instance Structure ArgBody where
-  to = toArgBody
-  from = fromArgBody
+instance Sexp.Serialize ArgBody where
+  deserialize = toArgBody
+  serialize = fromArgBody
 
 ----------------------------------------
 -- DefunMatch
@@ -203,9 +203,9 @@ fromDefunMatch :: DefunMatch -> Sexp.T
 fromDefunMatch (DefunMatch sexp1 argBody2) =
   Sexp.listStar [Sexp.atom nameDefunMatch, sexp1, fromArgBody `toStarList` argBody2]
 
-instance Structure DefunMatch where
-  to = toDefunMatch
-  from = fromDefunMatch
+instance Sexp.Serialize DefunMatch where
+  deserialize = toDefunMatch
+  serialize = fromDefunMatch
 
 ----------------------------------------
 -- If
@@ -233,9 +233,9 @@ fromIf :: If -> Sexp.T
 fromIf (If sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameIf, sexp1, sexp2, sexp3]
 
-instance Structure If where
-  to = toIf
-  from = fromIf
+instance Sexp.Serialize If where
+  deserialize = toIf
+  serialize = fromIf
 
 ----------------------------------------
 -- IfNoElse
@@ -263,9 +263,9 @@ fromIfNoElse :: IfNoElse -> Sexp.T
 fromIfNoElse (IfNoElse sexp1 sexp2) =
   Sexp.list [Sexp.atom nameIfNoElse, sexp1, sexp2]
 
-instance Structure IfNoElse where
-  to = toIfNoElse
-  from = fromIfNoElse
+instance Sexp.Serialize IfNoElse where
+  deserialize = toIfNoElse
+  serialize = fromIfNoElse
 
 ----------------------------------------
 -- DefunSigMatch
@@ -294,9 +294,9 @@ fromDefunSigMatch :: DefunSigMatch -> Sexp.T
 fromDefunSigMatch (DefunSigMatch sexp1 sexp2 argBody3) =
   Sexp.listStar [Sexp.atom nameDefunSigMatch, sexp1, sexp2, fromArgBody `toStarList` argBody3]
 
-instance Structure DefunSigMatch where
-  to = toDefunSigMatch
-  from = fromDefunSigMatch
+instance Sexp.Serialize DefunSigMatch where
+  deserialize = toDefunSigMatch
+  serialize = fromDefunSigMatch
 
 ----------------------------------------
 -- LetMatch
@@ -325,9 +325,9 @@ fromLetMatch :: LetMatch -> Sexp.T
 fromLetMatch (LetMatch sexp1 argBodys2 sexp3) =
   Sexp.list [Sexp.atom nameLetMatch, sexp1, fromArgBodys argBodys2, sexp3]
 
-instance Structure LetMatch where
-  to = toLetMatch
-  from = fromLetMatch
+instance Sexp.Serialize LetMatch where
+  deserialize = toLetMatch
+  serialize = fromLetMatch
 
 ----------------------------------------
 -- RecordNoPunned
@@ -356,9 +356,9 @@ fromRecordNoPunned :: RecordNoPunned -> Sexp.T
 fromRecordNoPunned (RecordNoPunned notPunnedGroup1) =
   Sexp.listStar [Sexp.atom nameRecordNoPunned, fromNotPunnedGroup notPunnedGroup1]
 
-instance Structure RecordNoPunned where
-  to = toRecordNoPunned
-  from = fromRecordNoPunned
+instance Sexp.Serialize RecordNoPunned where
+  deserialize = toRecordNoPunned
+  serialize = fromRecordNoPunned
 
 ----------------------------------------
 -- LambdaCase
@@ -387,9 +387,9 @@ fromLambdaCase :: LambdaCase -> Sexp.T
 fromLambdaCase (LambdaCase argBody1) =
   Sexp.listStar [Sexp.atom nameLambdaCase, fromArgBody `toStarList` argBody1]
 
-instance Structure LambdaCase where
-  to = toLambdaCase
-  from = fromLambdaCase
+instance Sexp.Serialize LambdaCase where
+  deserialize = toLambdaCase
+  serialize = fromLambdaCase
 
 ----------------------------------------
 -- LetHandler
@@ -417,9 +417,9 @@ fromLetHandler :: LetHandler -> Sexp.T
 fromLetHandler (LetHandler sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameLetHandler, sexp1, sexp2, sexp3]
 
-instance Structure LetHandler where
-  to = toLetHandler
-  from = fromLetHandler
+instance Sexp.Serialize LetHandler where
+  deserialize = toLetHandler
+  serialize = fromLetHandler
 
 ----------------------------------------
 -- Handler
@@ -449,6 +449,6 @@ fromHandler :: Handler -> Sexp.T
 fromHandler (Handler sexp1 letRet2 letOp3) =
   Sexp.listStar [Sexp.atom nameHandler, sexp1, fromLetRet letRet2, fromLetOp `toStarList` letOp3]
 
-instance Structure Handler where
-  to = toHandler
-  from = fromHandler
+instance Sexp.Serialize Handler where
+  deserialize = toHandler
+  serialize = fromHandler

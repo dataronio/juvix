@@ -320,9 +320,9 @@ fromNameBind :: NameBind -> Sexp.T
 fromNameBind (Pun pun) = fromPunned pun
 fromNameBind (NotPun notPun) = fromNotPunned notPun
 
-instance Structure NameBind where
-  to = toNameBind
-  from = fromNameBind
+instance Sexp.Serialize NameBind where
+  deserialize = toNameBind
+  serialize = fromNameBind
 
 --------------------
 -- Do Body Full
@@ -340,9 +340,9 @@ fromDoBodyFull (WithBinder name body) = Binder name body |> fromBinder
 binderToBody :: Binder -> DoBodyFull
 binderToBody (Binder name body) = WithBinder name body
 
-instance Structure DoBodyFull where
-  to = toDoBodyFull
-  from = fromDoBodyFull
+instance Sexp.Serialize DoBodyFull where
+  deserialize = toDoBodyFull
+  serialize = fromDoBodyFull
 
 ----------------------------------------
 -- Generated
@@ -374,9 +374,9 @@ fromType :: Type -> Sexp.T
 fromType (Type sexp1 sexp2 sexp3) =
   Sexp.listStar [Sexp.atom nameType, sexp1, sexp2, sexp3]
 
-instance Structure Type where
-  to = toType
-  from = fromType
+instance Sexp.Serialize Type where
+  deserialize = toType
+  serialize = fromType
 
 ----------------------------------------
 -- LetType
@@ -404,9 +404,9 @@ fromLetType :: LetType -> Sexp.T
 fromLetType (LetType sexp1 sexp2 sexp3 sexp4) =
   Sexp.list [Sexp.atom nameLetType, sexp1, sexp2, sexp3, sexp4]
 
-instance Structure LetType where
-  to = toLetType
-  from = fromLetType
+instance Sexp.Serialize LetType where
+  deserialize = toLetType
+  serialize = fromLetType
 
 ----------------------------------------
 -- Defun
@@ -434,9 +434,9 @@ fromDefun :: Defun -> Sexp.T
 fromDefun (Defun sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameDefun, sexp1, sexp2, sexp3]
 
-instance Structure Defun where
-  to = toDefun
-  from = fromDefun
+instance Sexp.Serialize Defun where
+  deserialize = toDefun
+  serialize = fromDefun
 
 ----------------------------------------
 -- Signature
@@ -464,9 +464,9 @@ fromSignature :: Signature -> Sexp.T
 fromSignature (Signature sexp1 sexp2) =
   Sexp.list [Sexp.atom nameSignature, sexp1, sexp2]
 
-instance Structure Signature where
-  to = toSignature
-  from = fromSignature
+instance Sexp.Serialize Signature where
+  deserialize = toSignature
+  serialize = fromSignature
 
 ----------------------------------------
 -- LetSignature
@@ -494,9 +494,9 @@ fromLetSignature :: LetSignature -> Sexp.T
 fromLetSignature (LetSignature sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameLetSignature, sexp1, sexp2, sexp3]
 
-instance Structure LetSignature where
-  to = toLetSignature
-  from = fromLetSignature
+instance Sexp.Serialize LetSignature where
+  deserialize = toLetSignature
+  serialize = fromLetSignature
 
 ----------------------------------------
 -- Let
@@ -524,9 +524,9 @@ fromLet :: Let -> Sexp.T
 fromLet (Let sexp1 sexp2 sexp3 sexp4) =
   Sexp.list [Sexp.atom nameLet, sexp1, sexp2, sexp3, sexp4]
 
-instance Structure Let where
-  to = toLet
-  from = fromLet
+instance Sexp.Serialize Let where
+  deserialize = toLet
+  serialize = fromLet
 
 ----------------------------------------
 -- PredAns
@@ -544,9 +544,9 @@ fromPredAns :: PredAns -> Sexp.T
 fromPredAns (PredAns sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
 
-instance Structure PredAns where
-  to = toPredAns
-  from = fromPredAns
+instance Sexp.Serialize PredAns where
+  deserialize = toPredAns
+  serialize = fromPredAns
 
 ----------------------------------------
 -- Cond
@@ -575,9 +575,9 @@ fromCond :: Cond -> Sexp.T
 fromCond (Cond predAns1) =
   Sexp.listStar [Sexp.atom nameCond, fromPredAns `toStarList` predAns1]
 
-instance Structure Cond where
-  to = toCond
-  from = fromCond
+instance Sexp.Serialize Cond where
+  deserialize = toCond
+  serialize = fromCond
 
 ----------------------------------------
 -- DeconBody
@@ -595,9 +595,9 @@ fromDeconBody :: DeconBody -> Sexp.T
 fromDeconBody (DeconBody sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
 
-instance Structure DeconBody where
-  to = toDeconBody
-  from = fromDeconBody
+instance Sexp.Serialize DeconBody where
+  deserialize = toDeconBody
+  serialize = fromDeconBody
 
 ----------------------------------------
 -- Case
@@ -626,9 +626,9 @@ fromCase :: Case -> Sexp.T
 fromCase (Case sexp1 deconBody2) =
   Sexp.listStar [Sexp.atom nameCase, sexp1, fromDeconBody `toStarList` deconBody2]
 
-instance Structure Case where
-  to = toCase
-  from = fromCase
+instance Sexp.Serialize Case where
+  deserialize = toCase
+  serialize = fromCase
 
 ----------------------------------------
 -- Arrow
@@ -656,9 +656,9 @@ fromArrow :: Arrow -> Sexp.T
 fromArrow (Arrow sexp1 sexp2) =
   Sexp.list [Sexp.atom nameArrow, sexp1, sexp2]
 
-instance Structure Arrow where
-  to = toArrow
-  from = fromArrow
+instance Sexp.Serialize Arrow where
+  deserialize = toArrow
+  serialize = fromArrow
 
 ----------------------------------------
 -- Lambda
@@ -686,9 +686,9 @@ fromLambda :: Lambda -> Sexp.T
 fromLambda (Lambda sexp1 sexp2) =
   Sexp.list [Sexp.atom nameLambda, sexp1, sexp2]
 
-instance Structure Lambda where
-  to = toLambda
-  from = fromLambda
+instance Sexp.Serialize Lambda where
+  deserialize = toLambda
+  serialize = fromLambda
 
 ----------------------------------------
 -- Punned
@@ -706,9 +706,9 @@ fromPunned :: Punned -> Sexp.T
 fromPunned (Punned sexp1) =
   Sexp.list [sexp1]
 
-instance Structure Punned where
-  to = toPunned
-  from = fromPunned
+instance Sexp.Serialize Punned where
+  deserialize = toPunned
+  serialize = fromPunned
 
 ----------------------------------------
 -- NotPunned
@@ -726,9 +726,9 @@ fromNotPunned :: NotPunned -> Sexp.T
 fromNotPunned (NotPunned sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
 
-instance Structure NotPunned where
-  to = toNotPunned
-  from = fromNotPunned
+instance Sexp.Serialize NotPunned where
+  deserialize = toNotPunned
+  serialize = fromNotPunned
 
 ----------------------------------------
 -- NameUsage
@@ -746,9 +746,9 @@ fromNameUsage :: NameUsage -> Sexp.T
 fromNameUsage (NameUsage sexp1 sexp2 sexp3) =
   Sexp.list [sexp1, sexp2, sexp3]
 
-instance Structure NameUsage where
-  to = toNameUsage
-  from = fromNameUsage
+instance Sexp.Serialize NameUsage where
+  deserialize = toNameUsage
+  serialize = fromNameUsage
 
 ----------------------------------------
 -- Record
@@ -777,9 +777,9 @@ fromRecord :: Record -> Sexp.T
 fromRecord (Record nameBind1) =
   Sexp.listStar [Sexp.atom nameRecord, fromNameBind `toStarList` nameBind1]
 
-instance Structure Record where
-  to = toRecord
-  from = fromRecord
+instance Sexp.Serialize Record where
+  deserialize = toRecord
+  serialize = fromRecord
 
 ----------------------------------------
 -- Infix
@@ -807,9 +807,9 @@ fromInfix :: Infix -> Sexp.T
 fromInfix (Infix sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameInfix, sexp1, sexp2, sexp3]
 
-instance Structure Infix where
-  to = toInfix
-  from = fromInfix
+instance Sexp.Serialize Infix where
+  deserialize = toInfix
+  serialize = fromInfix
 
 ----------------------------------------
 -- OpenIn
@@ -837,9 +837,9 @@ fromOpenIn :: OpenIn -> Sexp.T
 fromOpenIn (OpenIn sexp1 sexp2) =
   Sexp.list [Sexp.atom nameOpenIn, sexp1, sexp2]
 
-instance Structure OpenIn where
-  to = toOpenIn
-  from = fromOpenIn
+instance Sexp.Serialize OpenIn where
+  deserialize = toOpenIn
+  serialize = fromOpenIn
 
 ----------------------------------------
 -- Open
@@ -867,9 +867,9 @@ fromOpen :: Open -> Sexp.T
 fromOpen (Open sexp1) =
   Sexp.list [Sexp.atom nameOpen, sexp1]
 
-instance Structure Open where
-  to = toOpen
-  from = fromOpen
+instance Sexp.Serialize Open where
+  deserialize = toOpen
+  serialize = fromOpen
 
 ----------------------------------------
 -- Declare
@@ -897,9 +897,9 @@ fromDeclare :: Declare -> Sexp.T
 fromDeclare (Declare sexp1) =
   Sexp.list [Sexp.atom nameDeclare, sexp1]
 
-instance Structure Declare where
-  to = toDeclare
-  from = fromDeclare
+instance Sexp.Serialize Declare where
+  deserialize = toDeclare
+  serialize = fromDeclare
 
 ----------------------------------------
 -- Declaim
@@ -927,9 +927,9 @@ fromDeclaim :: Declaim -> Sexp.T
 fromDeclaim (Declaim sexp1 sexp2) =
   Sexp.list [Sexp.atom nameDeclaim, sexp1, sexp2]
 
-instance Structure Declaim where
-  to = toDeclaim
-  from = fromDeclaim
+instance Sexp.Serialize Declaim where
+  deserialize = toDeclaim
+  serialize = fromDeclaim
 
 ----------------------------------------
 -- DefModule
@@ -957,9 +957,9 @@ fromDefModule :: DefModule -> Sexp.T
 fromDefModule (DefModule sexp1 sexp2 sexp3) =
   Sexp.listStar [Sexp.atom nameDefModule, sexp1, sexp2, sexp3]
 
-instance Structure DefModule where
-  to = toDefModule
-  from = fromDefModule
+instance Sexp.Serialize DefModule where
+  deserialize = toDefModule
+  serialize = fromDefModule
 
 ----------------------------------------
 -- Do
@@ -987,9 +987,9 @@ fromDo :: Do -> Sexp.T
 fromDo (Do sexp1) =
   Sexp.listStar [Sexp.atom nameDo, sexp1]
 
-instance Structure Do where
-  to = toDo
-  from = fromDo
+instance Sexp.Serialize Do where
+  deserialize = toDo
+  serialize = fromDo
 
 ----------------------------------------
 -- LetModule
@@ -1017,9 +1017,9 @@ fromLetModule :: LetModule -> Sexp.T
 fromLetModule (LetModule sexp1 sexp2 sexp3 sexp4) =
   Sexp.list [Sexp.atom nameLetModule, sexp1, sexp2, sexp3, sexp4]
 
-instance Structure LetModule where
-  to = toLetModule
-  from = fromLetModule
+instance Sexp.Serialize LetModule where
+  deserialize = toLetModule
+  serialize = fromLetModule
 
 ----------------------------------------
 -- Effect
@@ -1047,9 +1047,9 @@ fromEffect :: Effect -> Sexp.T
 fromEffect (Effect sexp1 sexp2) =
   Sexp.list [Sexp.atom nameEffect, sexp1, sexp2]
 
-instance Structure Effect where
-  to = toEffect
-  from = fromEffect
+instance Sexp.Serialize Effect where
+  deserialize = toEffect
+  serialize = fromEffect
 
 ----------------------------------------
 -- DefHandler
@@ -1077,9 +1077,9 @@ fromDefHandler :: DefHandler -> Sexp.T
 fromDefHandler (DefHandler sexp1 sexp2) =
   Sexp.list [Sexp.atom nameDefHandler, sexp1, sexp2]
 
-instance Structure DefHandler where
-  to = toDefHandler
-  from = fromDefHandler
+instance Sexp.Serialize DefHandler where
+  deserialize = toDefHandler
+  serialize = fromDefHandler
 
 ----------------------------------------
 -- LetRet
@@ -1107,9 +1107,9 @@ fromLetRet :: LetRet -> Sexp.T
 fromLetRet (LetRet sexp1 sexp2) =
   Sexp.list [Sexp.atom nameLetRet, sexp1, sexp2]
 
-instance Structure LetRet where
-  to = toLetRet
-  from = fromLetRet
+instance Sexp.Serialize LetRet where
+  deserialize = toLetRet
+  serialize = fromLetRet
 
 ----------------------------------------
 -- LetOp
@@ -1137,9 +1137,9 @@ fromLetOp :: LetOp -> Sexp.T
 fromLetOp (LetOp sexp1 sexp2 sexp3) =
   Sexp.list [Sexp.atom nameLetOp, sexp1, sexp2, sexp3]
 
-instance Structure LetOp where
-  to = toLetOp
-  from = fromLetOp
+instance Sexp.Serialize LetOp where
+  deserialize = toLetOp
+  serialize = fromLetOp
 
 ----------------------------------------
 -- RecordDec
@@ -1168,9 +1168,9 @@ fromRecordDec :: RecordDec -> Sexp.T
 fromRecordDec (RecordDec nameUsage1) =
   Sexp.listStar [Sexp.atom nameRecordDec, fromNameUsage `toStarList` nameUsage1]
 
-instance Structure RecordDec where
-  to = toRecordDec
-  from = fromRecordDec
+instance Sexp.Serialize RecordDec where
+  deserialize = toRecordDec
+  serialize = fromRecordDec
 
 ----------------------------------------
 -- Primitive
@@ -1198,9 +1198,9 @@ fromPrimitive :: Primitive -> Sexp.T
 fromPrimitive (Primitive sexp1) =
   Sexp.list [Sexp.atom namePrimitive, sexp1]
 
-instance Structure Primitive where
-  to = toPrimitive
-  from = fromPrimitive
+instance Sexp.Serialize Primitive where
+  deserialize = toPrimitive
+  serialize = fromPrimitive
 
 ----------------------------------------
 -- Binder
@@ -1229,9 +1229,9 @@ fromBinder :: Binder -> Sexp.T
 fromBinder (Binder nameSymbol1 sexp2) =
   Sexp.list [Sexp.atom nameBinder, fromNameSymbol nameSymbol1, sexp2]
 
-instance Structure Binder where
-  to = toBinder
-  from = fromBinder
+instance Sexp.Serialize Binder where
+  deserialize = toBinder
+  serialize = fromBinder
 
 ----------------------------------------
 -- DoDeep
@@ -1260,9 +1260,9 @@ fromDoDeep :: DoDeep -> Sexp.T
 fromDoDeep (DoDeep doBodyFull1) =
   Sexp.listStar [Sexp.atom nameDoDeep, fromDoBodyFull `toStarList` doBodyFull1]
 
-instance Structure DoDeep where
-  to = toDoDeep
-  from = fromDoDeep
+instance Sexp.Serialize DoDeep where
+  deserialize = toDoDeep
+  serialize = fromDoDeep
 
 ----------------------------------------
 -- DoPure
@@ -1290,9 +1290,9 @@ fromDoPure :: DoPure -> Sexp.T
 fromDoPure (DoPure sexp1) =
   Sexp.list [Sexp.atom nameDoPure, sexp1]
 
-instance Structure DoPure where
-  to = toDoPure
-  from = fromDoPure
+instance Sexp.Serialize DoPure where
+  deserialize = toDoPure
+  serialize = fromDoPure
 
 ----------------------------------------
 -- DoOp
@@ -1320,9 +1320,9 @@ fromDoOp :: DoOp -> Sexp.T
 fromDoOp (DoOp sexp1 sexp2) =
   Sexp.list [Sexp.atom nameDoOp, sexp1, sexp2]
 
-instance Structure DoOp where
-  to = toDoOp
-  from = fromDoOp
+instance Sexp.Serialize DoOp where
+  deserialize = toDoOp
+  serialize = fromDoOp
 
 ----------------------------------------
 -- Via
@@ -1350,6 +1350,6 @@ fromVia :: Via -> Sexp.T
 fromVia (Via sexp1 sexp2) =
   Sexp.list [Sexp.atom nameVia, sexp1, sexp2]
 
-instance Structure Via where
-  to = toVia
-  from = fromVia
+instance Sexp.Serialize Via where
+  deserialize = toVia
+  serialize = fromVia

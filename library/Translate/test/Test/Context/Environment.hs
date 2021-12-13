@@ -4,10 +4,10 @@ import qualified Data.HashSet as Set
 import qualified Juvix.Closure as Closure
 import qualified Juvix.Contextify as Contextify
 import qualified Juvix.Contextify.Environment as Env
-import qualified Juvix.Sexp as Sexp
 import Juvix.Library
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
+import qualified Juvix.Sexp as Sexp
 import Test.Context.Helpers (contextualizeFoo, parseDesugarSexp)
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T

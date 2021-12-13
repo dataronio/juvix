@@ -273,13 +273,13 @@ and a rhs that may contain a guard, so no = is assumed for the rhs"
                        (body from-body))
                   ""
                   ;; Type class Instance
-                  (type-class-of "Structure"
+                  (type-class-of "Sexp.Serialize"
                                  con-name
-                                 (fun "to" nil (body (to-name con-name) nil))
-                                 (fun "from" nil (body (from-name con-name) nil)))
+                                 (fun "deserialize" nil (body (to-name con-name) nil))
+                                 (fun "serialize" nil (body (from-name con-name) nil)))
                   "")))))))
 
-(defun frontend-types ()
+(defun parsing-types ()
   (generate-haskell "Type" (repeat 3 "sexp") "type" :list-star t)
 
   (generate-haskell "LetType" (repeat 4 "sexp") ":let-type")

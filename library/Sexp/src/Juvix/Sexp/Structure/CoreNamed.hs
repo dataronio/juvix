@@ -210,9 +210,9 @@ fromStar :: Star -> Sexp.T
 fromStar (Star integer1) =
   Sexp.list [Sexp.atom nameStar, fromInteger integer1]
 
-instance Structure Star where
-  to = toStar
-  from = fromStar
+instance Sexp.Serialize Star where
+  deserialize = toStar
+  serialize = fromStar
 
 ----------------------------------------
 -- PrimTy
@@ -240,9 +240,9 @@ fromPrimTy :: PrimTy -> Sexp.T
 fromPrimTy (PrimTy sexp1) =
   Sexp.list [Sexp.atom namePrimTy, sexp1]
 
-instance Structure PrimTy where
-  to = toPrimTy
-  from = fromPrimTy
+instance Sexp.Serialize PrimTy where
+  deserialize = toPrimTy
+  serialize = fromPrimTy
 
 ----------------------------------------
 -- Prim
@@ -270,9 +270,9 @@ fromPrim :: Prim -> Sexp.T
 fromPrim (Prim sexp1) =
   Sexp.list [Sexp.atom namePrim, sexp1]
 
-instance Structure Prim where
-  to = toPrim
-  from = fromPrim
+instance Sexp.Serialize Prim where
+  deserialize = toPrim
+  serialize = fromPrim
 
 ----------------------------------------
 -- Pi
@@ -301,9 +301,9 @@ fromPi :: Pi -> Sexp.T
 fromPi (Pi binder1 sexp2) =
   Sexp.list [Sexp.atom namePi, fromBinder binder1, sexp2]
 
-instance Structure Pi where
-  to = toPi
-  from = fromPi
+instance Sexp.Serialize Pi where
+  deserialize = toPi
+  serialize = fromPi
 
 ----------------------------------------
 -- Binder
@@ -322,9 +322,9 @@ fromBinder :: Binder -> Sexp.T
 fromBinder (Binder nameSymbol1 sexp2 sexp3) =
   Sexp.list [fromNameSymbol nameSymbol1, sexp2, sexp3]
 
-instance Structure Binder where
-  to = toBinder
-  from = fromBinder
+instance Sexp.Serialize Binder where
+  deserialize = toBinder
+  serialize = fromBinder
 
 ----------------------------------------
 -- Lam
@@ -353,9 +353,9 @@ fromLam :: Lam -> Sexp.T
 fromLam (Lam nameSymbol1 sexp2) =
   Sexp.list [Sexp.atom nameLam, fromNameSymbol nameSymbol1, sexp2]
 
-instance Structure Lam where
-  to = toLam
-  from = fromLam
+instance Sexp.Serialize Lam where
+  deserialize = toLam
+  serialize = fromLam
 
 ----------------------------------------
 -- Sigma
@@ -384,9 +384,9 @@ fromSigma :: Sigma -> Sexp.T
 fromSigma (Sigma binder1 sexp2) =
   Sexp.list [Sexp.atom nameSigma, fromBinder binder1, sexp2]
 
-instance Structure Sigma where
-  to = toSigma
-  from = fromSigma
+instance Sexp.Serialize Sigma where
+  deserialize = toSigma
+  serialize = fromSigma
 
 ----------------------------------------
 -- Pair
@@ -414,9 +414,9 @@ fromPair :: Pair -> Sexp.T
 fromPair (Pair sexp1 sexp2) =
   Sexp.list [Sexp.atom namePair, sexp1, sexp2]
 
-instance Structure Pair where
-  to = toPair
-  from = fromPair
+instance Sexp.Serialize Pair where
+  deserialize = toPair
+  serialize = fromPair
 
 ----------------------------------------
 -- Let
@@ -445,9 +445,9 @@ fromLet :: Let -> Sexp.T
 fromLet (Let binder1 sexp2) =
   Sexp.list [Sexp.atom nameLet, fromBinder binder1, sexp2]
 
-instance Structure Let where
-  to = toLet
-  from = fromLet
+instance Sexp.Serialize Let where
+  deserialize = toLet
+  serialize = fromLet
 
 ----------------------------------------
 -- Var
@@ -466,9 +466,9 @@ fromVar :: Var -> Sexp.T
 fromVar (Var nameSymbol1) =
   Sexp.list [fromNameSymbol nameSymbol1]
 
-instance Structure Var where
-  to = toVar
-  from = fromVar
+instance Sexp.Serialize Var where
+  deserialize = toVar
+  serialize = fromVar
 
 ----------------------------------------
 -- App
@@ -486,9 +486,9 @@ fromApp :: App -> Sexp.T
 fromApp (App sexp1 sexp2) =
   Sexp.list [sexp1, sexp2]
 
-instance Structure App where
-  to = toApp
-  from = fromApp
+instance Sexp.Serialize App where
+  deserialize = toApp
+  serialize = fromApp
 
 ----------------------------------------
 -- Ann
@@ -516,9 +516,9 @@ fromAnn :: Ann -> Sexp.T
 fromAnn (Ann sexp1 sexp2) =
   Sexp.list [Sexp.atom nameAnn, sexp1, sexp2]
 
-instance Structure Ann where
-  to = toAnn
-  from = fromAnn
+instance Sexp.Serialize Ann where
+  deserialize = toAnn
+  serialize = fromAnn
 
 ----------------------------------------
 -- Meta
@@ -537,9 +537,9 @@ fromMeta :: Meta -> Sexp.T
 fromMeta (Meta sexp1 integer2) =
   Sexp.list [sexp1, fromInteger integer2]
 
-instance Structure Meta where
-  to = toMeta
-  from = fromMeta
+instance Sexp.Serialize Meta where
+  deserialize = toMeta
+  serialize = fromMeta
 
 ----------------------------------------
 -- Field
@@ -558,9 +558,9 @@ fromField :: Field -> Sexp.T
 fromField (Field nameSymbol1 sexp2 sexp3) =
   Sexp.list [fromNameSymbol nameSymbol1, sexp2, sexp3]
 
-instance Structure Field where
-  to = toField
-  from = fromField
+instance Sexp.Serialize Field where
+  deserialize = toField
+  serialize = fromField
 
 ----------------------------------------
 -- RecordTy
@@ -589,9 +589,9 @@ fromRecordTy :: RecordTy -> Sexp.T
 fromRecordTy (RecordTy field1) =
   Sexp.listStar [Sexp.atom nameRecordTy, fromField `toStarList` field1]
 
-instance Structure RecordTy where
-  to = toRecordTy
-  from = fromRecordTy
+instance Sexp.Serialize RecordTy where
+  deserialize = toRecordTy
+  serialize = fromRecordTy
 
 ----------------------------------------
 -- Lookup
@@ -620,9 +620,9 @@ fromLookup :: Lookup -> Sexp.T
 fromLookup (Lookup sexp1 symbol2) =
   Sexp.listStar [Sexp.atom nameLookup, sexp1, fromSymbol `toStarList` symbol2]
 
-instance Structure Lookup where
-  to = toLookup
-  from = fromLookup
+instance Sexp.Serialize Lookup where
+  deserialize = toLookup
+  serialize = fromLookup
 
 ----------------------------------------
 -- CatProduct
@@ -650,9 +650,9 @@ fromCatProduct :: CatProduct -> Sexp.T
 fromCatProduct (CatProduct sexp1 sexp2) =
   Sexp.list [Sexp.atom nameCatProduct, sexp1, sexp2]
 
-instance Structure CatProduct where
-  to = toCatProduct
-  from = fromCatProduct
+instance Sexp.Serialize CatProduct where
+  deserialize = toCatProduct
+  serialize = fromCatProduct
 
 ----------------------------------------
 -- CatProductIntro
@@ -680,9 +680,9 @@ fromCatProductIntro :: CatProductIntro -> Sexp.T
 fromCatProductIntro (CatProductIntro sexp1 sexp2) =
   Sexp.list [Sexp.atom nameCatProductIntro, sexp1, sexp2]
 
-instance Structure CatProductIntro where
-  to = toCatProductIntro
-  from = fromCatProductIntro
+instance Sexp.Serialize CatProductIntro where
+  deserialize = toCatProductIntro
+  serialize = fromCatProductIntro
 
 ----------------------------------------
 -- CatProductElimLeft
@@ -710,9 +710,9 @@ fromCatProductElimLeft :: CatProductElimLeft -> Sexp.T
 fromCatProductElimLeft (CatProductElimLeft sexp1 sexp2) =
   Sexp.list [Sexp.atom nameCatProductElimLeft, sexp1, sexp2]
 
-instance Structure CatProductElimLeft where
-  to = toCatProductElimLeft
-  from = fromCatProductElimLeft
+instance Sexp.Serialize CatProductElimLeft where
+  deserialize = toCatProductElimLeft
+  serialize = fromCatProductElimLeft
 
 ----------------------------------------
 -- CatProductElimRight
@@ -740,9 +740,9 @@ fromCatProductElimRight :: CatProductElimRight -> Sexp.T
 fromCatProductElimRight (CatProductElimRight sexp1 sexp2) =
   Sexp.list [Sexp.atom nameCatProductElimRight, sexp1, sexp2]
 
-instance Structure CatProductElimRight where
-  to = toCatProductElimRight
-  from = fromCatProductElimRight
+instance Sexp.Serialize CatProductElimRight where
+  deserialize = toCatProductElimRight
+  serialize = fromCatProductElimRight
 
 ----------------------------------------
 -- CatCoProduct
@@ -770,9 +770,9 @@ fromCatCoProduct :: CatCoProduct -> Sexp.T
 fromCatCoProduct (CatCoProduct sexp1 sexp2) =
   Sexp.list [Sexp.atom nameCatCoProduct, sexp1, sexp2]
 
-instance Structure CatCoProduct where
-  to = toCatCoProduct
-  from = fromCatCoProduct
+instance Sexp.Serialize CatCoProduct where
+  deserialize = toCatCoProduct
+  serialize = fromCatCoProduct
 
 ----------------------------------------
 -- CatCoproductIntroLeft
@@ -800,9 +800,9 @@ fromCatCoproductIntroLeft :: CatCoproductIntroLeft -> Sexp.T
 fromCatCoproductIntroLeft (CatCoproductIntroLeft sexp1) =
   Sexp.list [Sexp.atom nameCatCoproductIntroLeft, sexp1]
 
-instance Structure CatCoproductIntroLeft where
-  to = toCatCoproductIntroLeft
-  from = fromCatCoproductIntroLeft
+instance Sexp.Serialize CatCoproductIntroLeft where
+  deserialize = toCatCoproductIntroLeft
+  serialize = fromCatCoproductIntroLeft
 
 ----------------------------------------
 -- CatCoproductIntroRight
@@ -830,9 +830,9 @@ fromCatCoproductIntroRight :: CatCoproductIntroRight -> Sexp.T
 fromCatCoproductIntroRight (CatCoproductIntroRight sexp1) =
   Sexp.list [Sexp.atom nameCatCoproductIntroRight, sexp1]
 
-instance Structure CatCoproductIntroRight where
-  to = toCatCoproductIntroRight
-  from = fromCatCoproductIntroRight
+instance Sexp.Serialize CatCoproductIntroRight where
+  deserialize = toCatCoproductIntroRight
+  serialize = fromCatCoproductIntroRight
 
 ----------------------------------------
 -- CatCoproductElim
@@ -860,6 +860,6 @@ fromCatCoproductElim :: CatCoproductElim -> Sexp.T
 fromCatCoproductElim (CatCoproductElim sexp1 sexp2 sexp3 sexp4 sexp5) =
   Sexp.list [Sexp.atom nameCatCoproductElim, sexp1, sexp2, sexp3, sexp4, sexp5]
 
-instance Structure CatCoproductElim where
-  to = toCatCoproductElim
-  from = fromCatCoproductElim
+instance Sexp.Serialize CatCoproductElim where
+  deserialize = toCatCoproductElim
+  serialize = fromCatCoproductElim

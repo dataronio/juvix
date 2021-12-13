@@ -10,20 +10,20 @@ import qualified Juvix.Sexp.Structure as Structure
 import qualified Juvix.Sexp.Structure.CoreNamed as Named
 import Juvix.Sexp.Structure.Lens
 
-type Serialize = Structure.Structure
+type Serialize = Sexp.Serialize
 
-instance (Serialize primTy, Serialize primVal) => Structure.Structure (HR.Term primTy primVal) where
-  to = deserialize
-  from = serialize
+instance (Serialize primTy, Serialize primVal) => Sexp.Serialize (HR.Term primTy primVal) where
+  deserialize = deserialize
+  serialize = serialize
 
-instance (Serialize primTy, Serialize primVal) => Structure.Structure (HR.Elim primTy primVal) where
-  to = deserializeElim
-  from = serializeElim
+instance (Serialize primTy, Serialize primVal) => Sexp.Serialize (HR.Elim primTy primVal) where
+  deserialize = deserializeElim
+  serialize = serializeElim
 
-instance Structure.Structure () where
-  from () = Sexp.list []
-  to (Sexp.List []) = Just ()
-  to _ = Nothing
+instance Sexp.Serialize () where
+  serialize () = Sexp.list []
+  deserialize (Sexp.List []) = Just ()
+  deserialize _ = Nothing
 
 serialize ::
   (Serialize primTy, Serialize primVal) => HR.Term primTy primVal -> Sexp.T
