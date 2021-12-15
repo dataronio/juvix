@@ -20,11 +20,6 @@ instance (Serialize primTy, Serialize primVal) => Sexp.Serialize (HR.Elim primTy
   deserialize = deserializeElim
   serialize = serializeElim
 
-instance Sexp.Serialize () where
-  serialize () = Sexp.list []
-  deserialize (Sexp.List []) = Just ()
-  deserialize _ = Nothing
-
 serialize ::
   (Serialize primTy, Serialize primVal) => HR.Term primTy primVal -> Sexp.T
 serialize term =
