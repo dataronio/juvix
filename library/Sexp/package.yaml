@@ -27,6 +27,7 @@ dependencies:
 - text
 - megaparsec
 - hashable
+- word8
 
 default-extensions:
   - NoImplicitPrelude
