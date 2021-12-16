@@ -233,12 +233,10 @@ emptyCodegen =
     }
 
 execEnvState :: Codegen a -> SymbolTable -> CodegenState
-execEnvState (Types.CodeGen m) a =
-  execState (runExceptT m) (emptyCodegen {Types.symTab = a})
+execEnvState c = snd . runEnvState c
 
 evalEnvState :: Codegen a -> SymbolTable -> Either Errors a
-evalEnvState (Types.CodeGen m) a =
-  evalState (runExceptT m) (emptyCodegen {Types.symTab = a})
+evalEnvState c = fst . runEnvState c
 
 runEnvState :: Codegen a -> SymbolTable -> (Either Errors a, CodegenState)
 runEnvState (Types.CodeGen m) a =
@@ -527,8 +525,11 @@ externf :: Externf m => Name -> m Operand
 externf name = getvar (nameToSymbol name)
 
 nameToSymbol :: Name -> Symbol
-nameToSymbol (UnName n) = (intern (filter (/= '\"') (show n)))
-nameToSymbol (Name n) = (intern (filter (/= '\"') (show n)))
+nameToSymbol = intern . filter (/= '\"') . strName
+  where
+  strName nm = case nm of
+    UnName n -> show n
+    Name n -> show n
 
 local :: Type -> Name -> Operand
 local = LocalReference
@@ -660,7 +661,7 @@ globalString ::
   ( RetInstruction m,
     HasState "moduleDefinitions" [Definition] m
   ) =>
-  [Char] ->
+  String ->
   Name ->
   m Operand
 globalString str name = do
@@ -685,14 +686,14 @@ globalString str name = do
 -- | @cString@ given a haskell string, get the LLVM C style
 -- representation of the function. The result is a constant string in
 -- the generated LLVM
-cString :: [Char] -> C.Constant
+cString :: String -> C.Constant
 cString str = C.Array Type.i8 (C.Int 8 . fromIntegral . ord <$> terminatedStr)
   where
     terminatedStr = str <> "\00"
 
 -- | @cStringPointer@ like @cString@ however gives a pointer to a
 -- string, resulting in a non constant string to manipulate.
-cStringPointer :: RetInstruction m => [Char] -> m Operand
+cStringPointer :: RetInstruction m => String -> m Operand
 cStringPointer str = do
   t <- alloca (Type.ArrayType len Type.i8)
   store t (Operand.ConstantOperand vec)
@@ -707,7 +708,7 @@ cStringPointer str = do
 -- @
 --   Block.printCString "Allocating node %p \n" [nodePtr]
 -- @
-printCString :: Call m => [Char] -> [Operand] -> m Operand
+printCString :: Call m => String -> [Operand] -> m Operand
 printCString str args = do
   str <- cStringPointer str
   ptrIn <-

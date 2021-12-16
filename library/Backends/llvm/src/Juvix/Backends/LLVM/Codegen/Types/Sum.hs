@@ -50,13 +50,15 @@ sumSize variants
 -- | 'tagSize' takes a list of variants and figures out what the size of the tag should be
 tagSize :: [VariantInfo] -> Type
 tagSize variants
-  | len < 16 = Constants.i4
-  | len < 256 = i8
-  | len < 65536 = i16
-  | len < 4294967296 = i32
+  | len < pow2 4 = Constants.i4
+  | len < pow2 8 = i8
+  | len < pow2 16 = i16
+  | len < pow2 32 = i32
   | otherwise = i64
   where
-    len = length variants
+  pow2 :: Int -> Int
+  pow2 = (2^)
+  len = length variants
 
 -- | grabs the integer length from an IntegerType Type
 tagSizeIntExn :: Type -> Word32
@@ -86,10 +88,12 @@ createSum variants =
 
 -- | updates the type of the variant, to properly have the tag
 updateVariant :: Type -> VariantInfo -> VariantInfo
-updateVariant tagSize (Variant s n (StructureType p ele)) =
-  Variant s n (StructureType p (tagSize : ele))
-updateVariant tagSize (Variant s n t) =
-  Variant s n (StructureType sumPack [tagSize, t])
+updateVariant tagType (Variant s n t) =
+  Variant s n (StructureType packed fields)
+  where
+  (packed, fields) = case t of
+    StructureType p ele -> (p, tagType : ele)
+    _ -> (sumPack, [tagType, t])
 
 -- | 'insertSums' creates a sum type, and inserts the new types into the symbol table
 -- and the variant table for all the newly created variants
