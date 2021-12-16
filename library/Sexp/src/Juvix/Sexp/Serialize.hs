@@ -1,5 +1,6 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Juvix.Sexp.Serialize where
@@ -111,6 +112,75 @@ mlNameToReservedLispName (x : xs) =
         xs >>= upperToDash
    in NameSymbol.fromString (':' : Char8.toLower x : properName)
 
+----------------------------------------
+-- Base Instances
+----------------------------------------
+
+instance Serialize a => Serialize (Base a) where
+  serialize (Sexp.Cons x xs) = Sexp.Cons (serialize x) (serialize xs)
+  serialize Sexp.Nil = Sexp.Nil
+  serialize (Sexp.Atom a) = serialize a
+
+  deserialize sexp@(Sexp.Cons x xs) =
+    case deserialize sexp :: Serialize a => Maybe a of
+      Just ps -> Just (Atom (P ps Nothing))
+      Nothing -> Sexp.Cons <$> deserialize x <*> deserialize xs
+  deserialize Sexp.Nil = Just Sexp.Nil
+  deserialize (Atom i) =
+    Atom
+      <$>
+      -- why can't I dispatch to the atom call?
+      case i of
+        A n i -> Just $ A n i
+        N n i -> Just $ N n i
+        D n i -> Just $ D n i
+        S n i -> Just $ S n i
+        P () _ -> Nothing
+
+instance Serialize a => Serialize (Atom a) where
+  serialize i =
+    case i of
+      A n i -> Atom $ A n i
+      N n i -> Atom $ N n i
+      D n i -> Atom $ D n i
+      S n i -> Atom $ S n i
+      P n _ -> serialize n
+  deserialize (Atom i) =
+    case i of
+      A n i -> Just $ A n i
+      N n i -> Just $ N n i
+      D n i -> Just $ D n i
+      S n i -> Just $ S n i
+      P () _ -> Nothing
+  deserialize _ = Nothing
+
+instance Serialize a => Serialize [a] where
+  serialize xs = foldr' (Cons . serialize) Sexp.Nil xs
+  deserialize c@Cons {} =
+    foldr (\x xs -> flip (:) <$> xs <*> deserialize x) (Just []) c
+  deserialize Nil = Just []
+  deserialize _ = Nothing
+
+instance Serialize Text where
+  serialize i = Atom (S i Nothing)
+  deserialize (Atom (S i Nothing)) = Just i
+  deserialize _ = Nothing
+
+instance Serialize Double where
+  serialize i = Atom (D i Nothing)
+  deserialize (Atom (D i Nothing)) = Just i
+  deserialize _ = Nothing
+
+instance Serialize Symbol where
+  serialize i = Atom (A (NameSymbol.fromSym i) Nothing)
+  deserialize (Atom (A i Nothing)) = Just (NameSymbol.toSym i)
+  deserialize _ = Nothing
+
+instance Serialize NameSymbol.T where
+  serialize i = Atom (A i Nothing)
+  deserialize (Atom (A i Nothing)) = Just i
+  deserialize _ = Nothing
+
 instance Serialize Integer where
   serialize i = Atom (N i Nothing)
   deserialize (Atom (N i Nothing)) = Just i
@@ -120,6 +190,10 @@ instance Serialize () where
   serialize () = Nil
   deserialize Nil = Just ()
   deserialize _ = Nothing
+
+----------------------------------------
+-- Sexp helper functions
+----------------------------------------
 
 foldr :: (Base a -> p -> p) -> p -> Base a -> p
 foldr f acc ts =
