@@ -17,7 +17,8 @@ top =
       mapPredStarWorksAsExpted3,
       listWorksAsExpected,
       listStarWorksAsExpected,
-      traversePredWorksAsExpected
+      traversePredWorksAsExpected,
+      subsetSeralization
     ]
 
 --------------------------------------------------------------------------------
@@ -164,4 +165,41 @@ traversePredWorksAsExpected =
           _ <- Sexp.traversePredOptStar xs (== "let") (Sexp.autoRecurse f) mempty
           v <- IORef.readIORef y
           Sexp.parse "((let) (let let (let)))" T.@=? Right v
+    ]
+
+data SubSet
+  = Add (Sexp.B SubSet) (Sexp.B SubSet)
+  | Mul (Sexp.B SubSet) (Sexp.B SubSet)
+  deriving (Show, Generic, Eq)
+
+instance Sexp.Serialize SubSet
+
+subsetSeralization :: T.TestTree
+subsetSeralization =
+  T.testGroup
+    "partial serialization works"
+    [ T.testCase
+        "Deeply Nested Serializers work as one ought to expect"
+        $ do
+          let expected =
+                Sexp.list
+                  [ Sexp.atom ":sub",
+                    Sexp.primOp $
+                      Add
+                        (Sexp.primOp (Mul (Sexp.number 3) (Sexp.number 6)))
+                        (Sexp.primOp (Add (Sexp.number 4) (Sexp.number 5))),
+                    Sexp.primOp $
+                      Add
+                        ( Sexp.list
+                            [ Sexp.atom ":sub",
+                              Sexp.number 3,
+                              Sexp.primOp (Add (Sexp.number 5) (Sexp.number 6))
+                            ]
+                        )
+                        (Sexp.number 5)
+                  ]
+              Right term =
+                Sexp.parse
+                  "(:sub (:add (:mul 3 6) (:add 4 5)) (:add (:sub 3 (:add 5 6)) 5))"
+          expected T.@=? Sexp.partiallyDeserialize @SubSet term
     ]

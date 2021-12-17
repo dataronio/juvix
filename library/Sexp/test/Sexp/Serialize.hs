@@ -49,7 +49,7 @@ serializerTest =
     "Serialization form testing"
     [ T.testCase "name is expected" $
         Right (Sexp.serialize (TestRec (3 :: Integer) Test))
-          T.@=? Sexp.parse "(:test-rec 3 (:test))"
+          T.@=? Sexp.parse "(:test-rec 3 :test)"
     ]
 
 identityRec :: Test (Test Integer) -> Maybe (Test (Test Integer))
