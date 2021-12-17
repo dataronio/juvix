@@ -5,7 +5,7 @@ module Juvix.Sexp
     module Juvix.Sexp.Parser,
     Opt (..),
 
-    -- * Folding Functionality
+    -- * Traversal Functionality
     mapPredStar,
     traversePredStar,
     traversePredOptStar,
@@ -25,6 +25,7 @@ module Juvix.Sexp
     addMetaToCar,
     car,
     cdr,
+    primOp,
     atom,
     actualAtom,
     suffixAtom,
@@ -252,6 +253,10 @@ cdr (Atom a) = Atom a
 -- | @cadr@ grabs the second element of the list
 cadr :: B a -> B a
 cadr = car . cdr
+
+-- | @primOp@ creates a deserialized value in a @Sexp@
+primOp :: a -> B a
+primOp x = Atom $ P x Nothing
 
 -- | @atom@ creates a @Sexp@ @Atom@ from a @NameSymbol.T@
 atom :: NameSymbol.T -> B a
