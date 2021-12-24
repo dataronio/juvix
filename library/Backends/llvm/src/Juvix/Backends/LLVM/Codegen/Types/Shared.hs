@@ -2,6 +2,7 @@
 module Juvix.Backends.LLVM.Codegen.Types.Shared
   ( SymbolTable,
     TypeTable,
+    StringsTable,
     SumInfo (..),
     VariantToType,
     Names,
@@ -9,11 +10,14 @@ module Juvix.Backends.LLVM.Codegen.Types.Shared
   )
 where
 
+import qualified Juvix.Backends.LLVM.Codegen.Types.CString as CString
 import Juvix.Library hiding (Type)
 import qualified Juvix.Library.HashMap as Map
 import LLVM.AST
 
 type SymbolTable = Map.T Symbol Operand
+
+type StringsTable = Map.T CString.CString Operand
 
 type TypeTable = Map.T Symbol Type
 

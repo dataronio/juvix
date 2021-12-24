@@ -6,6 +6,7 @@ where
 import qualified Juvix.Backends.LLVM.Codegen.Block as Block
 import qualified Juvix.Backends.LLVM.Codegen.Closure as Closure
 import qualified Juvix.Backends.LLVM.Codegen.Types as Types
+import qualified Juvix.Backends.LLVM.Codegen.Types.CString as CString
 import qualified Juvix.Backends.LLVM.Pass.ClosureConversion as ClosureConversion
 import qualified Juvix.Backends.LLVM.Pass.Types as Types
 import Juvix.Backends.LLVM.Primitive
@@ -84,7 +85,7 @@ mkMain t@(Types.Ann _usage ty _t') = do
         zipWith
           (\l r -> Block.internName (l <> r))
           (replicate (length paramTys) "arg")
-          (fmap (intern . show) [1 ..])
+          (fmap (intern . show) [1 :: Int ..])
       params = zip paramTys paramNames
   Block.defineFunction returnTy "main" params $
     do
@@ -114,7 +115,8 @@ compileTerm (Types.Ann _usage ty t) =
       compileIndex ty index
     Types.Closure cap arg body ->
       compileClosure ty cap arg body
-    Types.Prim _t -> mkPrim t ty
+    Types.Prim _t -> mkPrim _t ty
+    _ -> P.error "TODO"
 
 -- | @compileTermForApplication@ like @compileTerm@ however it will
 -- promote lambdas to closures to make the calling convention for HOF proper.
@@ -276,23 +278,24 @@ compileIndex ty index = do
 -- | Write LLVM code for a primitive.
 -- TODO: implement other primitives.
 mkPrim ::
-  (Types.Define m) =>
+  Types.Define m =>
   Monad m =>
-  -- | Term that contains the primitive.
-  Types.TermClosure ->
+  -- | Primitive value.
+  RawPrimVal ->
   -- | Type of the primitive.
   ErasedAnn.Type PrimTy ->
   m LLVM.Operand
-mkPrim (Types.Prim prim) ty = case prim of
+mkPrim prim ty = case prim of
   LitInt i -> case ty of
     ErasedAnn.PrimTy (PrimTy LLVM.IntegerType {LLVM.typeBits}) ->
       return $
         LLVM.ConstantOperand $
           LLVM.Int {LLVM.integerBits = typeBits, LLVM.integerValue = i}
-  LitString s -> case ty of
-    ErasedAnn.PrimTy (PrimTy (LLVM.PointerType (LLVM.IntegerType 8) _)) -> do
-      name <- Block.generateUniqueName "LitString"
-      Block.globalString (toS s) name
+  LitString s -> do
+    -- case ty of
+    -- ErasedAnn.PrimTy (PrimTy (LLVM.PointerType (LLVM.IntegerType 8) _)) -> do
+    name <- Block.generateUniqueName "LitString"
+    Block.globalString (toS s) name
 
 --------------------------------------------------------------------------------
 -- Capture Conversion

@@ -46,6 +46,9 @@ data CompilationError
 
 -- | Arity of `RawPrimVal`.
 arityRaw :: RawPrimVal -> Natural
-arityRaw Add = 2
-arityRaw Sub = 2
-arityRaw Mul = 2
+arityRaw p = case p of
+  Add -> 2
+  Mul -> 2
+  Sub -> 2
+  LitInt {} -> 0
+  LitString {} -> 0

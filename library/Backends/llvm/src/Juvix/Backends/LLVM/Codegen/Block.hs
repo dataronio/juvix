@@ -99,7 +99,7 @@ module Juvix.Backends.LLVM.Codegen.Block
     definePrintf,
     printf,
     globalString,
-    cString,
+    cStringConstant,
     cStringPointer,
     printCString,
 
@@ -163,8 +163,11 @@ module Juvix.Backends.LLVM.Codegen.Block
   )
 where
 
+import qualified Data.ByteString as BS
 import Data.ByteString.Short hiding (length)
 import Juvix.Backends.LLVM.Codegen.Types as Types
+import Juvix.Backends.LLVM.Codegen.Types.CString (CString)
+import qualified Juvix.Backends.LLVM.Codegen.Types.CString as CString
 import Juvix.Library hiding (Type, local)
 import qualified Juvix.Library.HashMap as Map
 import LLVM.AST
@@ -227,6 +230,7 @@ emptyCodegen =
       Types.varTab = Map.empty,
       Types.count = 0,
       Types.names = Map.empty,
+      Types.strings = mempty,
       Types.blockCount = 1,
       Types.moduleAST = emptyModule "juvix-module",
       Types.debug = 0
@@ -655,52 +659,68 @@ printf args = do
   printf <- externf "printf"
   instr Type.i32 $ callConvention CC.C printf (emptyArgs args)
 
--- | @globalString@ creates a globally-defined string constant and
--- returns a pointer to it.
-globalString ::
+-- | @globalString@ creates a globally-defined string constant if it does not exist.
+-- Returns a pointer to it.
+globalString :: forall m.
   ( RetInstruction m,
-    HasState "moduleDefinitions" [Definition] m
+    HasState "moduleDefinitions" [Definition] m,
+    HasState "strings" StringsTable m
   ) =>
-  String ->
+  CString ->
   Name ->
   m Operand
-globalString str name = do
-  addDefn $
-    GlobalDefinition $
-      globalVariableDefaults
-        { Global.name = name,
-          Global.initializer = Just (cString str),
-          Global.type' = ArrayType (fromIntegral (length str + 1)) Type.i8
+globalString cstr name = do
+  stringsTable <- get @"strings"
+  case Map.lookup cstr stringsTable of
+    Just op -> return op
+    Nothing -> do
+      op <- addGlobalString
+      put @"strings" (Map.insert cstr op stringsTable)
+      return op
+  where
+  -- | @addGlobalString@ creates a globally-defined string constant and
+  -- returns a pointer to it.
+  addGlobalString :: m Operand
+  addGlobalString = do
+    addDefn $
+      GlobalDefinition $
+        globalVariableDefaults
+          { Global.name = name,
+            Global.initializer = Just (cStringConstant cstr),
+            Global.type' = stringTy
+          }
+    getElementPtr $
+      Types.Minimal
+        { Types.type' = Types.pointerOf Types.charTy,
+          Types.address' =
+            ConstantOperand $
+              C.GlobalReference
+                (Types.pointerOf stringTy)
+                name,
+          Types.indincies' = constant32List [0, 0]
         }
-  getElementPtr $
-    Types.Minimal
-      { Types.type' = Types.pointerOf Type.i8,
-        Types.address' =
-          ConstantOperand $
-            C.GlobalReference
-              (Types.pointerOf $ ArrayType (fromIntegral (length str + 1)) Type.i8)
-              name,
-        Types.indincies' = constant32List [0, 0]
-      }
+    where
+    stringTy = constStringTy cstr
 
--- | @cString@ given a haskell string, get the LLVM C style
+charConstant :: Word8 -> C.Constant
+charConstant = C.Int 8 . fromIntegral
+
+-- | @cStringConstant@ given a haskell string, get the LLVM C style
 -- representation of the function. The result is a constant string in
 -- the generated LLVM
-cString :: String -> C.Constant
-cString str = C.Array Type.i8 (C.Int 8 . fromIntegral . ord <$> terminatedStr)
-  where
-    terminatedStr = str <> "\00"
+cStringConstant :: CString -> C.Constant
+cStringConstant = C.Array Types.charTy . map charConstant . BS.unpack . CString.encodeUtf8
 
 -- | @cStringPointer@ like @cString@ however gives a pointer to a
 -- string, resulting in a non constant string to manipulate.
-cStringPointer :: RetInstruction m => String -> m Operand
+cStringPointer :: RetInstruction m => CString -> m Operand
 cStringPointer str = do
-  t <- alloca (Type.ArrayType len Type.i8)
+  t <- alloca (Type.ArrayType len Types.charTy)
   store t (Operand.ConstantOperand vec)
   pure t
   where
-    vec = cString str
-    len = fromIntegral (length str + 1)
+  vec = cStringConstant str
+  len = fromIntegral (CString.length str)
 
 -- | @printCString@ given a Haskell String and a list of operands to
 -- the printf string, call printf on the string.
@@ -708,14 +728,14 @@ cStringPointer str = do
 -- @
 --   Block.printCString "Allocating node %p \n" [nodePtr]
 -- @
-printCString :: Call m => String -> [Operand] -> m Operand
+printCString :: Call m => CString -> [Operand] -> m Operand
 printCString str args = do
-  str <- cStringPointer str
+  ptr <- cStringPointer str
   ptrIn <-
     getElementPtr $
       Types.Minimal
-        { Types.type' = Types.pointerOf Type.i8,
-          Types.address' = str,
+        { Types.type' = Types.pointerOf Types.charTy,
+          Types.address' = ptr,
           Types.indincies' = constant32List [0, 0]
         }
   printf (ptrIn : args)

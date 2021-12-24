@@ -23,8 +23,10 @@ dependencies:
   - aeson
   - base >= 4.7 && < 5
   - core
+  - hashable
   - pipeline
   - llvm-hs-pretty
+  - text
   - llvm-hs-pure >= 9.0 && < 9.1
   - standard-library
   - unordered-containers >= 0.2.13
@@ -33,30 +35,31 @@ dependencies:
   - data-structures
 
 default-extensions:
-  - TypeSynonymInstances
-  - FlexibleInstances
-  - NoImplicitPrelude
-  - TypeFamilies
-  - TypeApplications
-  - MultiParamTypeClasses
-  - OverloadedStrings
-  - DataKinds
-  - DerivingStrategies
-  - DerivingVia
-  - FlexibleContexts
-  - FlexibleInstances
-  - GeneralizedNewtypeDeriving
-  - MultiWayIf
-  - TypeFamilies
-  - NamedFieldPuns
-  - DisambiguateRecordFields
-  - TupleSections
-  - BlockArguments
-  - StandaloneDeriving
-  - QuasiQuotes
-  - TypeOperators
-  - TypeInType
-  - DeriveGeneric
+- BlockArguments
+- DataKinds
+- DeriveGeneric
+- DerivingStrategies
+- DerivingVia
+- DisambiguateRecordFields
+- FlexibleContexts
+- FlexibleInstances
+- FlexibleInstances
+- GeneralizedNewtypeDeriving
+- MultiParamTypeClasses
+- MultiWayIf
+- NamedFieldPuns
+- NoImplicitPrelude
+- OverloadedStrings
+- QuasiQuotes
+- ScopedTypeVariables
+- StandaloneDeriving
+- TupleSections
+- TypeApplications
+- TypeFamilies
+- TypeFamilies
+- TypeInType
+- TypeOperators
+- TypeSynonymInstances
 
 library:
   source-dirs: src

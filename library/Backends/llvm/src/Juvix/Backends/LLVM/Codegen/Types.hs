@@ -9,6 +9,8 @@ where
 import qualified Data.ByteString.Short as Short hiding (empty)
 import qualified Distribution.System as System
 import Juvix.Backends.LLVM.Codegen.Types.Shared
+import Juvix.Backends.LLVM.Codegen.Types.CString (CString)
+import qualified Juvix.Backends.LLVM.Codegen.Types.CString as CString
 import qualified Juvix.Backends.LLVM.Codegen.Types.Sum as Sum
 import Juvix.Library hiding (Type)
 import qualified Juvix.Library.HashMap as Map
@@ -38,6 +40,9 @@ data CodegenState = CodegenState
     count :: Word,
     -- | Name Supply
     names :: Names,
+    -- | Mapping from string literal to its storing point
+    strings :: StringsTable,
+    -- | Module AST
     moduleAST :: AST.Module,
     -- | Debug level
     debug :: Int
@@ -93,6 +98,12 @@ newtype Codegen a = CodeGen {runCodegen :: CodegenAlias a}
       HasSource "symTab" SymbolTable
     )
     via StateField "symTab" CodegenAlias
+  deriving
+    ( HasState "strings" StringsTable,
+      HasSink "strings" StringsTable,
+      HasSource "strings" StringsTable
+    )
+    via StateField "strings" CodegenAlias
   deriving
     ( HasState "varTab" VariantToType,
       HasSink "varTab" VariantToType,
@@ -192,7 +203,8 @@ newtype LLVM a = LLVM {runLLVM :: State AST.Module a}
 type Instruct m =
   ( HasThrow "err" Errors m,
     HasState "blocks" (Map.T Name BlockState) m,
-    HasState "currentBlock" Name m
+    HasState "currentBlock" Name m,
+    HasState "strings" StringsTable m
   )
 
 type RetInstruction m =
@@ -334,6 +346,18 @@ voidStarTy = pointerOf VoidType
 
 voidTy :: Type
 voidTy = VoidType
+
+constStringTy :: CString -> Type
+constStringTy = constStringTy' . fromIntegral . CString.length
+
+constStringTy' :: Word64 -> Type
+constStringTy' strLen = ArrayType strLen charTy
+
+int8Ty :: Type
+int8Ty = IntegerType 8
+
+charTy :: Type
+charTy = int8Ty
 
 size_t :: Type
 size_t = IntegerType addressSpace
