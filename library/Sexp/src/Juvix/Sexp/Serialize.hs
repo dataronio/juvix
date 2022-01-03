@@ -9,71 +9,93 @@ import qualified Data.Char8 as Char8
 import GHC.Generics as Generics
 -- import qualified GHC.Types as Types
 import Juvix.Library hiding (foldr)
+import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Sexp.Types as Sexp hiding (double)
 
 class Serialize a where
   serialize :: a -> T
-  default serialize :: (Generic a, GSerialize (Rep a)) => a -> T
+  default serialize :: (Generic a, GSerializeOptions (Rep a)) => a -> T
   serialize t = gput (from t)
 
   deserialize :: T -> Maybe a
-  default deserialize :: (Generic a, GSerialize (Rep a)) => T -> Maybe a
+  default deserialize :: (Generic a, GSerializeOptions (Rep a)) => T -> Maybe a
   deserialize t = to <$> gget t
 
-class GSerialize f where
-  gput :: f a -> T
-  gget :: T -> Maybe (f a)
+data Options = Options
+  { -- this decides if the constructors should be renamed
+    constructorMapping :: Map.T [Char] NameSymbol.T
+  }
+
+class GSerializeOptions f where
+  gputOpt :: Options -> f a -> T
+  ggetOpt :: Options -> T -> Maybe (f a)
+
+gput :: (GSerializeOptions f) => f a -> T
+gput = gputOpt (Options mempty)
+
+gget :: (GSerializeOptions f) => T -> Maybe (f a)
+gget = ggetOpt (Options mempty)
 
 ----------------------------------------
 -- U1
 ----------------------------------------
 
-instance GSerialize U1 where
-  gput U1 = Nil
-  gget _xs = Just U1
+instance GSerializeOptions U1 where
+  gputOpt __ U1 = Nil
+  ggetOpt _ _xs = Just U1
 
 ----------------------------------------
 -- M1
 ----------------------------------------
 
-instance (GSerialize a) => GSerialize (D1 i a) where
-  gput (M1 x) =
-    gput x
-  gget xs = M1 <$> gget xs
+instance (GSerializeOptions a) => GSerializeOptions (D1 i a) where
+  gputOpt opt (M1 x) =
+    gputOpt opt x
+  ggetOpt opt xs = M1 <$> ggetOpt opt xs
 
 -- Make an alternative version that cares about the selector
 -- constructor
-instance (Selector i, GSerialize a) => GSerialize (S1 i a) where
-  gput y@(M1 x) =
-    gput x
-  gget xs =
+instance (Selector i, GSerializeOptions a) => GSerializeOptions (S1 i a) where
+  gputOpt opt y@(M1 x) =
+    gputOpt opt x
+  ggetOpt opt xs =
     -- see if car is correct
-    M1 <$> gget (car xs)
+    M1 <$> ggetOpt opt (car xs)
 
 -- can we make consturctors with no arguments not be a list!?  for
 -- example if we have @| Test@ We want it not to be (:test), but :test
-instance (Constructor i, GSerialize a) => GSerialize (C1 i a) where
-  gput y@(M1 x) =
-    let name = mlNameToReservedLispName (conName y)
-     in case gput x of
+instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) where
+  gputOpt opt y@(M1 x) =
+    let name =
+          case constructorMapping opt Map.!? (conName y) of
+            Nothing ->
+              mlNameToReservedLispName (conName y)
+            Just name ->
+              name
+     in case gputOpt opt x of
           Sexp.Nil -> Sexp.Atom (A name Nothing)
           otherwis -> Cons (Sexp.Atom (A name Nothing)) otherwis
-  gget xs =
+  ggetOpt opt xs =
     case xs of
       Cons (Atom (A nameOf _)) _ -> logic nameOf
       Atom (A nameOfSingleCon _) -> logic nameOfSingleCon
       __________________________ -> Nothing
     where
       -- we need to cdr past the argument
-      maybeX = gget (cdr xs)
+      maybeX = ggetOpt opt (cdr xs)
       logic name1 =
         case maybeX of
           Just t ->
             let m1 = M1 t
-                name = conName m1
+                name =
+                  case constructorMapping opt Map.!? (conName m1) of
+                    Nothing ->
+                      mlNameToReservedLispName (conName m1)
+                    Just name ->
+                      name
              in if
-                    | name1 == mlNameToReservedLispName name -> Just m1
+                    | name1 == name -> Just m1
                     | otherwise -> Nothing
           Nothing -> Nothing
 
@@ -81,26 +103,26 @@ instance (Constructor i, GSerialize a) => GSerialize (C1 i a) where
 -- Sum
 ----------------------------------------
 
-instance (GSerialize a, GSerialize b) => GSerialize (a :+: b) where
-  gput (L1 x) = gput x
-  gput (R1 x) = gput x
+instance (GSerializeOptions a, GSerializeOptions b) => GSerializeOptions (a :+: b) where
+  gputOpt opt (L1 x) = gputOpt opt x
+  gputOpt opt (R1 x) = gputOpt opt x
 
   -- is this correct?
-  gget xs = (L1 <$> gget xs) <|> (R1 <$> gget xs)
+  ggetOpt opt xs = (L1 <$> ggetOpt opt xs) <|> (R1 <$> ggetOpt opt xs)
 
-instance (GSerialize a, GSerialize b) => GSerialize (a :*: b) where
-  gput (a :*: b) = append (gput a) (gput b)
+instance (GSerializeOptions a, GSerializeOptions b) => GSerializeOptions (a :*: b) where
+  gputOpt opt (a :*: b) = append (gputOpt opt a) (gputOpt opt b)
 
   -- is this correct also!?
-  gget xs = (:*:) <$> gget xs <*> gget (cdr xs)
+  ggetOpt opt xs = (:*:) <$> ggetOpt opt xs <*> ggetOpt opt (cdr xs)
 
 ----------------------------------------
 -- K1
 ----------------------------------------
 
-instance Serialize a => GSerialize (K1 i a) where
-  gput (K1 x) = Sexp.Cons (serialize x) Nil
-  gget xs = K1 <$> deserialize xs
+instance Serialize a => GSerializeOptions (K1 i a) where
+  gputOpt _ (K1 x) = Sexp.Cons (serialize x) Nil
+  ggetOpt _ xs = K1 <$> deserialize xs
 
 mlNameToReservedLispName :: [Char] -> NameSymbol.T
 mlNameToReservedLispName [] = NameSymbol.fromString ""

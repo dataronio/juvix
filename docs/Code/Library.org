@@ -369,6 +369,7 @@ Surface language
   + [[Block]]
   + [[Codegen/Closure]]
   + [[Codegen/Types]]
+  + [[CString]]
   + [[ClosureConversion]]
   + [[Pass/Types]]
   + [[Primitive]]
@@ -467,6 +468,8 @@ compile again, while the latter setups up the environment to
 compile a new top level declaration.
 - _Relies on_
   + [[Codegen/Types]]
+  + [[CString]]
+  + [[CString]]
   + [[Library]]
   + [[HashMap]]
 ******** Closure <<Codegen/Closure>>
@@ -480,13 +483,21 @@ Module for predefined constants
   + [[Library]]
 ******** Types <<Codegen/Types>>
 - _Relies on_
+  + [[CString]]
+  + [[CString]]
   + [[Shared]]
   + [[Sum]]
   + [[Library]]
   + [[HashMap]]
+********* CString
+Defines a type for \00 terminated strings
+- _Relies on_
+  + [[Library]]
+  + [[Library]]
 ********* Shared
 Shared between Types and Sum
 - _Relies on_
+  + [[CString]]
   + [[Library]]
   + [[HashMap]]
 ********* Sum
@@ -1624,6 +1635,7 @@ nested structures.
 ***** Serialize <<Juvix/Sexp/Serialize>>
 - _Relies on_
   + [[Library]]
+  + [[HashMap]]
   + [[NameSymbol]]
   + [[Sexp/Types]]
 ***** Types <<Sexp/Types>>
@@ -1765,6 +1777,7 @@ _TODO_
 **** Serialize <<test/Sexp/Serialize>>
 - _Relies on_
   + [[Library]]
+  + [[HashMap]]
   + [[Juvix/Sexp]]
 **** SimplifiedPasses
 - _Relies on_
