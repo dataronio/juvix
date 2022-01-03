@@ -16,11 +16,11 @@ import Juvix.Sexp.Types as Sexp hiding (double)
 class Serialize a where
   serialize :: a -> T
   default serialize :: (Generic a, GSerializeOptions (Rep a)) => a -> T
-  serialize t = gput (from t)
+  serialize = serializeOpt (Options mempty)
 
   deserialize :: T -> Maybe a
   default deserialize :: (Generic a, GSerializeOptions (Rep a)) => T -> Maybe a
-  deserialize t = to <$> gget t
+  deserialize = deserializeOpt (Options mempty)
 
 data Options = Options
   { -- this decides if the constructors should be renamed
@@ -30,6 +30,12 @@ data Options = Options
 class GSerializeOptions f where
   gputOpt :: Options -> f a -> T
   ggetOpt :: Options -> T -> Maybe (f a)
+
+serializeOpt :: (GSerializeOptions (Rep a), Generic a) => Options -> a -> T
+serializeOpt opt t = gputOpt opt (from t)
+
+deserializeOpt :: (Generic b, GSerializeOptions (Rep b)) => Options -> T -> Maybe b
+deserializeOpt opt t = to <$> ggetOpt opt t
 
 gput :: (GSerializeOptions f) => f a -> T
 gput = gputOpt (Options mempty)
