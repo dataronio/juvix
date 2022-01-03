@@ -27,6 +27,8 @@ module Juvix.Sexp
     fullySerialize,
     mapSerialize,
     traverseSerialize,
+    transformSerialize,
+    onSerialize,
 
     -- * General Functionality
     butLast,
@@ -247,28 +249,42 @@ fullySerialize (Atom p) =
 -- deserialized structure itself, and a recursive function to call for
 -- any nested Sexp structures that may exist in the partial deserialization
 mapSerialize :: B a -> (a -> (B a -> B b) -> b) -> B b
-mapSerialize xs@Cons {} f = map (`mapSerialize` f) xs
-mapSerialize Nil _______f = Nil
-mapSerialize (Atom a) f =
-  case a of
-    P t l -> Atom (P (f t (`mapSerialize` f)) l)
-    D n l -> Atom (D n l)
-    S n l -> Atom (S n l)
-    N n l -> Atom (N n l)
-    A n l -> Atom (A n l)
+mapSerialize xs f = transformSerialize xs newF
+  where
+    newF sexp rec' = Atom (P (f sexp rec') Nothing)
 
 -- | @traverseSerialize@ works just like @mapSerialize@ except the
 -- function is effectful
 traverseSerialize :: Monad m => B a -> (a -> (B a -> m (B b)) -> m b) -> m (B b)
-traverseSerialize xs@Cons {} f = traverse (`traverseSerialize` f) xs
-traverseSerialize Nil _______f = pure Nil
-traverseSerialize (Atom a) f =
+traverseSerialize xs f = onSerialize xs newF
+  where
+    newF x rec' = Atom . (`P` Nothing) <$> f x rec'
+
+-- | @onSerialize@ acts like @traverseSerialize@ however, instead of
+-- returning the deserialized it returns an arbitrary S-expression
+-- that contains the deserialization. Overall this function is more
+-- general than @traverseSerialize@ and should be used when one wants
+-- to potentially return an s-expression and not a deserialized form
+onSerialize :: Monad m => B a -> (a -> (B a -> m (B b)) -> m (B b)) -> m (B b)
+onSerialize xs@Cons {} f = traverse (`onSerialize` f) xs
+onSerialize Nil _______f = pure Nil
+onSerialize (Atom a) f =
   case a of
-    P t l -> Atom . (`P` l) <$> f t (`traverseSerialize` f)
+    P t _ -> f t (`onSerialize` f)
     D n l -> pure $ Atom (D n l)
     S n l -> pure $ Atom (S n l)
     N n l -> pure $ Atom (N n l)
     A n l -> pure $ Atom (A n l)
+
+-- | @transformSerialize@ acts like @mapSerialize@ however, instead of
+-- returning the deserialized it returns an arbitrary S-expression
+-- that contains the deserialization. Overall this function is more
+-- general than @mapSerialize@ and should be used when one wants to
+-- potentially return an s-expression and not a deserialized form
+transformSerialize :: B a -> (a -> (B a -> B b) -> B b) -> B b
+transformSerialize xs f = runIdentity (onSerialize xs newF)
+  where
+    newF sexp rec' = pure $ f sexp (runIdentity . rec')
 
 --------------------------------------------------------------------------------
 -- General Functionality
