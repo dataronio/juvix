@@ -25,10 +25,13 @@ module Juvix.Sexp
     Serialize (..),
     partiallyDeserialize,
     fullySerialize,
+    withSerialization,
     mapSerialize,
     traverseSerialize,
     transformSerialize,
     onSerialize,
+    traverseOnAtoms,
+    mapOnAtoms,
 
     -- * General Functionality
     butLast,
@@ -243,6 +246,19 @@ fullySerialize (Atom p) =
     N n l -> Atom (N n l)
     A n l -> Atom (A n l)
 
+-- | @withSerialization@ Temporarily de-serializes the given
+-- s-expression
+withSerialization ::
+  forall a m. (Monad m, Serialize a) => T -> (B a -> m (B a)) -> m T
+withSerialization sexp func =
+  partiallyDeserialize sexp
+    |> func
+    >>| fullySerialize
+
+---------------------------------------------
+-- Partial Serialization Mapping Functions
+---------------------------------------------
+
 -- | @mapSerialize@ traverses the list like a star function, searching
 -- for any constructor of the partial deserialization to apply the
 -- given function to. The function takes two arguments. the
@@ -266,15 +282,15 @@ traverseSerialize xs f = onSerialize xs newF
 -- general than @traverseSerialize@ and should be used when one wants
 -- to potentially return an s-expression and not a deserialized form
 onSerialize :: Monad m => B a -> (a -> (B a -> m (B b)) -> m (B b)) -> m (B b)
-onSerialize xs@Cons {} f = traverse (`onSerialize` f) xs
-onSerialize Nil _______f = pure Nil
-onSerialize (Atom a) f =
-  case a of
-    P t _ -> f t (`onSerialize` f)
-    D n l -> pure $ Atom (D n l)
-    S n l -> pure $ Atom (S n l)
-    N n l -> pure $ Atom (N n l)
-    A n l -> pure $ Atom (A n l)
+onSerialize xs f = traverseOnAtoms xs newF
+  where
+    newF a rec' =
+      case a of
+        P t _ -> f t rec'
+        D n l -> pure $ Atom (D n l)
+        S n l -> pure $ Atom (S n l)
+        N n l -> pure $ Atom (N n l)
+        A n l -> pure $ Atom (A n l)
 
 -- | @transformSerialize@ acts like @mapSerialize@ however, instead of
 -- returning the deserialized it returns an arbitrary S-expression
@@ -285,6 +301,23 @@ transformSerialize :: B a -> (a -> (B a -> B b) -> B b) -> B b
 transformSerialize xs f = runIdentity (onSerialize xs newF)
   where
     newF sexp rec' = pure $ f sexp (runIdentity . rec')
+
+-- | @traverseOnAtoms@ is like @onSerialize@, however it executes on
+-- all atoms instead of just the serialized data. This is useful for
+-- operating on Symbols, and partial de-serializations at the same
+-- time.
+traverseOnAtoms ::
+  Monad f => B a -> (Atom a -> (B a -> f (B b)) -> f (B b)) -> f (B b)
+traverseOnAtoms xs@Cons {} f = traverse (`traverseOnAtoms` f) xs
+traverseOnAtoms Nil _______f = pure Nil
+traverseOnAtoms (Atom a) f = f a (`traverseOnAtoms` f)
+
+-- | @mapOnAtoms@ is a pure vesrion of @traverseOnAtoms@
+mapOnAtoms :: B a -> (Atom a -> (B a -> B b) -> (B b)) -> B b
+mapOnAtoms t f =
+  runIdentity (traverseOnAtoms t newF)
+  where
+    newF xs rec' = pure (f xs (runIdentity . rec'))
 
 --------------------------------------------------------------------------------
 -- General Functionality
