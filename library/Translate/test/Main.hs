@@ -3,6 +3,7 @@ module Main where
 import Juvix.Library
 import qualified Test.Context.Environment as Environment
 import qualified Test.Contextify as Contextify
+import qualified Test.Contextify.Binders
 import qualified Test.Contextualise.Contextify as Contextualise
 import Test.Contextualise.Infix.ShuntYard (allInfixTests)
 import qualified Test.Desugar.Sexp as Sexp
@@ -21,7 +22,8 @@ allCheckedTests =
     "All tests that are checked"
     [ allInfixTests,
       Contextualise.top,
-      translationPasses
+      translationPasses,
+      Test.Contextify.Binders.top
     ]
 
 main :: IO ()
