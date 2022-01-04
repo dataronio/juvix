@@ -173,6 +173,7 @@ data SubSet
   deriving (Show, Generic, Eq)
 
 instance Sexp.DefaultOptions SubSet
+
 instance Sexp.Serialize SubSet
 
 subsetSeralization :: T.TestTree

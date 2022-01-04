@@ -100,9 +100,11 @@ deconToArg (DeconBody a b) = ArgBody a b
 --------------------------------------------------------------------------------
 
 instance Sexp.DefaultOptions (LetRet a)
+
 instance Sexp.Serialize a => Sexp.Serialize (LetRet a)
 
 instance Sexp.DefaultOptions (LetOp a)
+
 instance Sexp.Serialize a => Sexp.Serialize (LetOp a)
 
 --------------------------------------------------------------------------------

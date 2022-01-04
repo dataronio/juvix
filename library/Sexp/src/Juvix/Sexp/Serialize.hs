@@ -186,7 +186,7 @@ instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) wher
             Nothing ->
               -- Should never happen, as we bind all constructor names
               panic "we should never hit here"
-              -- mlNameToReservedLispName (conName y)
+            -- mlNameToReservedLispName (conName y)
             Just name ->
               name
      in case gputOpt opt x of
@@ -216,7 +216,7 @@ instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) wher
                     Nothing ->
                       -- Should never happen, as we bind all constructor names
                       panic "we should never hit here"
-                      -- mlNameToReservedLispName (conName m1)
+                    -- mlNameToReservedLispName (conName m1)
                     Just name ->
                       name
              in if

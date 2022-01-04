@@ -1,4 +1,4 @@
-* Backends
+ Backends
 ** Michelson
 *** Setup <<Michelson/Setup>>
 *** src
@@ -1634,6 +1634,65 @@ nested structures.
   + [[Token]]
   + [[Sexp/Types]]
 ***** Serialize <<Juvix/Sexp/Serialize>>
+@Juvix.Sexp.Serialize@ serves as the automatic serialization of
+Haskell Data-structures. One can derive a default instance by
+simply having
+@
+Data Foo = Foo deriving(Generic)
+@
+then writing
+@
+instance DefaultOptions Foo
+instance Serialize Foo
+@
+There are two parts to this derivation. The first is the
+@Serialize@ derivation, which gives on the ability to write
+@serialize@ and @deserialize@.
+However one needs to also derive @DefaultOptions@ as, in order to
+get an efficient serialization, default options are needed to
+inform the system how it ought to serialize the structre. An
+example of what the constructor renaming looks like as follows
+@
+data Foo = Foo Int | FooBar Int | Bar
+-- Gets turned into
+-- Foo 3
+(:foo 3)
+-- FooBar 5
+(:foo-bar 5)
+-- Bar
+:bar
+@
+An example of giving a renaming is as follows
+@
+data Infix
+  = Infix
+      { infixOp :: NameSymbol.T,
+        infixLt :: (Sexp.B (Bind.BinderPlus Infix)),
+        infixInf :: Infix
+      }
+  | InfixNoMore
+      { infixOp :: NameSymbol.T,
+        infixLt :: (Sexp.B (Bind.BinderPlus Infix)),
+        infixRt :: (Sexp.B (Bind.BinderPlus Infix))
+      }
+  deriving (Show, Generic, Eq)
+infixRename :: Sexp.Options
+infixRename =
+  Sexp.changeName
+    (Sexp.defaultOptions @Infix)
+    (Map.fromList [("InfixNoMore", ":infix")])
+instance Sexp.DefaultOptions Infix
+instance Sexp.Serialize Infix where
+  serialize = Sexp.serializeOpt infixRename
+  deserialize = Sexp.deserializeOpt infixRename
+@
+In this example, we make an @Infix@ data structure with two almost
+identical looking constructor and arguments. Indeed we state they
+stand for the same s-expression, with one just having a chain of
+infixs, we can see this by @infixRename@. Finally we derive the
+serialization based on these consturctors. And thus in practice the
+serializer will automatically give us a chain of @Infix@ before
+ending in an @InfixNoMore@
 - _Relies on_
   + [[Library]]
   + [[HashMap]]
@@ -2017,26 +2076,35 @@ TODO ∷ determine what has changed in the rebasing of this algo
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
+***** Binders <<Juvix/Contextify/Binders>>
+@Juvix.Contextify.Binders@ covers matching binders and the users
+patterns for means of processing. See examples of how partial
+serialization works in Test.Contextify.Binders
+- _Relies on_
+  + [[Library]]
+  + [[Juvix/Sexp]]
+  + [[Structure/Parsing]]
+  + [[Transition]]
 ***** Environment <<Contextify/Environment>>
 - _Relies on_
   + [[Juvix/Closure]]
   + [[Juvix/Context]]
   + [[NameSpace]]
   + [[Traversal]]
+  + [[Juvix/Contextify/Binders]]
   + [[InfixPrecedence/ShuntYard]]
   + [[Library]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
-  + [[Lens]]
-  + [[Structure/Parsing]]
-  + [[Transition]]
 ***** Passes <<Contextify/Passes>>
 - _Relies on_
   + [[Juvix/Closure]]
   + [[Juvix/Context]]
+  + [[Juvix/Contextify/Binders]]
   + [[Contextify/Environment]]
   + [[InfixPrecedence/ShuntYard]]
   + [[Library]]
+  + [[HashMap]]
   + [[NameSymbol]]
   + [[Juvix/Sexp]]
   + [[CoreNamed]]
@@ -2153,14 +2221,6 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[Library]]
 *** Test
-**** Contextify <<Test/Contextify>>
-- _Relies on_
-  + [[Juvix/Context]]
-  + [[Juvix/Contextify]]
-  + [[Contextify/Environment]]
-  + [[ResolveOpenInfo]]
-  + [[Library]]
-  + [[Juvix/Sexp]]
 **** Golden <<Translate/test/Test/Golden>>
 - _Relies on_
   + [[Juvix/Context]]
@@ -2186,10 +2246,10 @@ done with no extra information needed. Thus we export the following passes
 - _Relies on_
   + [[Juvix/Closure]]
   + [[Juvix/Contextify]]
+  + [[Juvix/Contextify/Binders]]
   + [[Contextify/Environment]]
   + [[Library]]
   + [[HashMap]]
-  + [[NameSymbol]]
   + [[Juvix/Sexp]]
 ***** Helpers <<Context/Helpers>>
 - _Relies on_
@@ -2203,6 +2263,21 @@ done with no extra information needed. Thus we export the following passes
   + [[Parsing/Types/Base]]
   + [[Juvix/Sexp]]
   + [[TopLevel]]
+**** Contextify <<Test/Contextify>>
+- _Relies on_
+  + [[Juvix/Context]]
+  + [[Juvix/Contextify]]
+  + [[Contextify/Environment]]
+  + [[ResolveOpenInfo]]
+  + [[Library]]
+  + [[Juvix/Sexp]]
+***** Binders <<Test/Contextify/Binders>>
+- _Relies on_
+  + [[Juvix/Contextify/Binders]]
+  + [[Library]]
+  + [[HashMap]]
+  + [[NameSymbol]]
+  + [[Juvix/Sexp]]
 **** Contextualise
 ***** Contextify <<Contextualise/Contextify>>
 - _Relies on_
