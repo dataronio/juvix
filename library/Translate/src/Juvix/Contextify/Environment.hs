@@ -10,19 +10,22 @@ module Juvix.Contextify.Environment
     HasClosure,
     contextPassStar,
     contextPassChange,
-    contextPassManaulStar,
     extractInformation,
     lookupPrecedence,
+    handleAtomNoCtx,
+    handleAtom,
+    singlePass,
     Minimal (..),
     MinimalAlias,
     MinimalAliasIO,
     MinimalM (..),
     MinimalMIO (..),
+    Pass,
+    PassNoCtx,
     runMIO,
     runM,
     namedForms,
     onExpression,
-    singlePassAuto,
     PassChange (..),
   )
 where
@@ -32,13 +35,11 @@ import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Context
 import qualified Juvix.Context.NameSpace as NameSpace
 import qualified Juvix.Context.Traversal as Context
+import qualified Juvix.Contextify.Binders as Bind
 import qualified Juvix.Contextify.InfixPrecedence.ShuntYard as Shunt
 import Juvix.Library hiding (on)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
-import Juvix.Sexp.Structure.Lens
-import qualified Juvix.Sexp.Structure.Parsing as Structure
-import qualified Juvix.Sexp.Structure.Transition as Structure
 import Prelude (error)
 
 data ErrorS
@@ -47,8 +48,8 @@ data ErrorS
   | ImproperForm Sexp.T
   | ImpossibleMoreEles
   | Clash
-      (Shunt.Precedence Sexp.T)
-      (Shunt.Precedence Sexp.T)
+      (Shunt.Precedence NameSymbol.T)
+      (Shunt.Precedence NameSymbol.T)
   deriving (Show, Eq)
 
 type HasClosure m = HasReader "closure" Closure.T m
@@ -104,6 +105,10 @@ runM (Ctx c) = runState (runExceptT c) (Minimal Closure.empty)
 -- Type aliases
 ------------------------------------------------------------
 
+type BindSexp a = Sexp.B (Bind.BinderPlus a)
+
+type BindAtom a = Sexp.Atom (Bind.BinderPlus a)
+
 type SexpContext = Context.T Sexp.T Sexp.T Sexp.T
 
 type SexpForms m =
@@ -114,11 +119,15 @@ type SexpFormsGeneral m =
 
 type Pred = NameSymbol.T -> Bool
 
-type PassAuto m =
-  SexpContext -> Sexp.T -> m (Sexp.T)
+type Pass m a = PassSig m (Bind.BinderPlus a)
 
-type PassManual m =
-  SexpContext -> Sexp.T -> (Sexp.T -> m (Sexp.T)) -> m (Sexp.T)
+type PassNoCtx m a = PassNoCtxSig m (Bind.BinderPlus a)
+
+type PassSig m a =
+  SexpContext -> Sexp.Atom a -> (Sexp.B a -> m (Sexp.B a)) -> m (Sexp.B a)
+
+type PassNoCtxSig m a =
+  Sexp.Atom a -> (Sexp.B a -> m (Sexp.B a)) -> m (Sexp.B a)
 
 -- | @PassChange@ Instead of recursing on the sexp structure, we check
 -- the top form and see if it needs to be changed.
@@ -138,14 +147,9 @@ newtype PassChange m
 -- | @passContext@ like @passContextSingle@ but we supply a different
 -- function for each type term and sum representation form.
 contextPassStar ::
-  HasSearch m => SexpContext -> Pred -> Sexp.Opt () () -> PassAuto m -> m SexpContext
-contextPassStar ctx trigger opt pass =
-  Context.mapWithContext ctx (singlePassAuto trigger opt pass)
-
-contextPassManaulStar ::
-  HasSearch m => SexpContext -> Pred -> Sexp.Opt () () -> PassManual m -> m SexpContext
-contextPassManaulStar ctx trigger opt pass =
-  Context.mapWithContext ctx (singlePassManual trigger opt pass)
+  forall a m. (Sexp.Serialize a, HasSearch m) => SexpContext -> Pass m a -> m SexpContext
+contextPassStar ctx pass =
+  Context.mapWithContext ctx (singlePass pass)
 
 contextPassChange ::
   Monad m => SexpContext -> Pred -> PassChange m -> m SexpContext
@@ -157,26 +161,23 @@ contextPassChange ctx trigger pass =
 -- to have the closure work properly, please run this after :open-in is
 -- gone
 onExpression ::
-  HasClosure f => Sexp.T -> Pred -> Sexp.Opt () () -> (Sexp.T -> f Sexp.T) -> f Sexp.T
-onExpression form trigger opt func =
-  Sexp.traversePredOptStar form trig (binderDispatchWithNoCtxF (trigger, func)) opt
-  where
-    trig x = trigger x || bindingForms x
+  forall a f. (Sexp.Serialize a, HasClosure f) => Sexp.T -> PassNoCtx f a -> f Sexp.T
+onExpression form func =
+  Sexp.withSerialization form (`Sexp.traverseOnAtoms` func)
 
 ------------------------------------------------------------
 -- Pass infrastructure
 ------------------------------------------------------------
 
-singlePassManual ::
-  HasSearch m => Pred -> Sexp.Opt () () -> PassManual m -> SexpForms m
-singlePassManual trig opt pass =
-  Context.CtxSingle (traverseBinderStar pass trig opt)
+singlePass :: forall a m. (Sexp.Serialize a, HasSearch m) => Pass m a -> SexpForms m
+singlePass function =
+  Context.CtxSingle
+    ( \sexp ctx ->
+        Sexp.withSerialization
+          sexp
+          (`Sexp.traverseOnAtoms` (function ctx))
+    )
     |> Context.promote
-
-singlePassAuto ::
-  HasSearch m => Pred -> Sexp.Opt () () -> PassAuto m -> SexpForms m
-singlePassAuto trig opt pass =
-  singlePassManual trig opt (Sexp.autoRecurse . pass)
 
 singlePassChange ::
   Monad m => Pred -> PassChange m -> SexpFormsGeneral m
@@ -188,33 +189,9 @@ singlePassChange trigger (PassChange f) =
         | otherwise = pure Nothing
    in Context.CtxChangeSumRep onRepresentation |> Context.promote
 
-traverseBinderStar ::
-  HasSearch f => PassManual f -> Pred -> Sexp.Opt () () -> Sexp.T -> SexpContext -> f Sexp.T
-traverseBinderStar func trigger opt form ctx =
-  Sexp.traversePredOptStar form trig (binderDispatchWith (trigger, func) ctx) opt
-  where
-    trig x = trigger x || bindingForms x
-
 ------------------------------------------------------------
 -- Binding form infrastructure
 ------------------------------------------------------------
-
--- | @bindingForms@ is a predicate that answers true for every form
--- that instantiates a new variable
-bindingForms :: (Eq a, IsString a) => a -> Bool
-bindingForms x =
-  x
-    `elem` [ "type",
-             ":open-in",
-             ":let-type",
-             ":let-match",
-             "case",
-             ":lambda-case",
-             ":declaim",
-             ":lambda",
-             ":primitive",
-             ":defop"
-           ]
 
 -- | @namedForms@ a list of all named special forms
 namedForms :: [NameSymbol.T]
@@ -244,78 +221,71 @@ namedForms =
     ":via"
   ]
 
--- | @binderDispatchWith@ is responsible for properly updating the
--- closure based on any binders we may encounter as well as matching
--- and dispatching on any form the user wishes to
--- match. @binderDispatchWith@ does this by taking a tuple of the data
--- the user wishes to match on and the transformation function. This
--- function takes president over the matches.
-binderDispatchWith ::
-  (HasClosure f, ErrS f) =>
-  -- | The tuple represents the closure match function
-  (Pred, PassManual f) ->
+handleAtom ::
+  (HasClosure m, ErrS m, Sexp.Serialize a) =>
+  -- | the function for the user transformation
   -- | The Context, an extra function that is required the by the
   -- :open-in case.
   SexpContext ->
   -- | The sexp form in which the atom is called on
-  Sexp.T ->
+  (BindAtom a) ->
   -- | the continuation of continuing the changes
-  (Sexp.T -> f Sexp.T) ->
-  f Sexp.T
-binderDispatchWith (trig, func) ctx sexp@(atom Sexp.:> _) cont
-  | Just a <- Sexp.nameFromT atom,
-    trig a =
-    func ctx sexp cont
-  | Structure.isOpenIn sexp =
-    openIn ctx sexp cont
-binderDispatchWith (_trig, func) ctx atom@(Sexp.Atom _) cont =
-  func ctx atom cont
-binderDispatchWith _ _ sexp cont =
-  binderDispatchWithNoCtx sexp cont
+  (BindSexp a -> m (BindSexp a)) ->
+  m (BindAtom a)
+handleAtom ctx (Sexp.P bind line) cont =
+  Sexp.P <$> (handleBinder ctx bind cont) <*> pure line
+handleAtom _ xs _ = pure xs
 
--- | @binderDispatchWithNoF@ works like @binderDispatch@ however the function passed
-binderDispatchWithNoCtxF ::
-  HasClosure f =>
-  -- | The tuple represents the closure match function
-  (Pred, (Sexp.T -> f Sexp.T)) ->
+handleAtomNoCtx ::
+  (HasClosure m) =>
   -- | The sexp form in which the atom is called on
-  Sexp.T ->
+  (BindAtom a) ->
   -- | the continuation of continuing the changes
-  (Sexp.T -> f Sexp.T) ->
-  f Sexp.T
-binderDispatchWithNoCtxF (trig, func) sexp@(atom Sexp.:> _as) cont
-  | Just a <- Sexp.nameFromT atom,
-    trig a =
-    (Sexp.autoRecurse func) sexp cont
-binderDispatchWithNoCtxF (_trig, func) atom@(Sexp.Atom _) cont =
-  (Sexp.autoRecurse func) atom cont
-binderDispatchWithNoCtxF _ sexp cont =
-  binderDispatchWithNoCtx sexp cont
+  (BindSexp a -> m (BindSexp a)) ->
+  m (BindAtom a)
+handleAtomNoCtx (Sexp.P bind line) cont =
+  Sexp.P <$> (handleBinderNoCtx bind cont) <*> pure line
+handleAtomNoCtx xs _ =
+  pure xs
 
--- | @binderDispatchWithNoCtx@ like @binderDispatchWith@ but does not rely on
--- a context, thus the open pass can't be done.
-binderDispatchWithNoCtx ::
-  HasClosure f =>
+handleBinder ::
+  (HasClosure m, ErrS m, Sexp.Serialize a) =>
+  -- | the function for the user transformation
+  -- | The Context, an extra function that is required the by the
+  -- :open-in case.
+  SexpContext ->
   -- | The sexp form in which the atom is called on
-  Sexp.T ->
+  (Bind.BinderPlus a) ->
   -- | the continuation of continuing the changes
-  (Sexp.T -> f Sexp.T) ->
-  f Sexp.T
-binderDispatchWithNoCtx sexp cont
-  | Structure.isCase sexp = case' sexp cont
-  -- this case happens at the start of every defun
-  | Structure.isLambdaCase sexp = lambdaCase sexp cont
-  -- This case is a bit special, as we must check the context for
-  -- various names this may introduce to the
-  | Structure.isType sexp = type' sexp cont
-  | Structure.isLambda sexp = lambda sexp cont
-  | Structure.isHandler sexp = handler sexp cont
-  | Structure.isDeclaim sexp = declaim sexp cont
-  | Structure.isLetType sexp = letType sexp cont
-  | Structure.isLetMatch sexp = letMatch sexp cont
-  | Structure.isPrimitive sexp = primitive sexp cont
--- TODO ∷ defop handler!??!?
-binderDispatchWithNoCtx _ _ = error "improper closure call"
+  (Sexp.B (Bind.BinderPlus a) -> m (Sexp.B (Bind.BinderPlus a))) ->
+  m (Bind.BinderPlus a)
+handleBinder ctx binder cont =
+  case binder of
+    Bind.OpenIn arg body -> openIn ctx arg body cont
+    _ -> handleBinderNoCtx binder cont
+
+handleBinderNoCtx ::
+  (HasClosure m) =>
+  -- | The sexp form in which the atom is called on
+  (Bind.BinderPlus a) ->
+  -- | the continuation of continuing the changes
+  (Sexp.B (Bind.BinderPlus a) -> m (Sexp.B (Bind.BinderPlus a))) ->
+  m (Bind.BinderPlus a)
+handleBinderNoCtx binder cont =
+  case binder of
+    Bind.Other userWanted -> pure (Bind.Other userWanted)
+    Bind.OpenIn name body -> pure (Bind.OpenIn name body)
+    --
+    Bind.Primitive prim -> primitive prim cont
+    Bind.Lambda arg body -> lambda arg body cont
+    Bind.Declaim claim body -> declaim claim body cont
+    Bind.LetMatch name args body -> letMatch name args body cont
+    Bind.Case (Bind.Case' on body) -> case' on body cont
+    Bind.LetType nameSig args body rest -> letType nameSig args body rest cont
+    Bind.Type (Bind.Type' name args body) -> type' name args body cont
+    Bind.LambdaCase (Bind.LambdaCase' args) -> lambdaCase args cont
+    -- TODO ∷ Make work
+    Bind.LetHandler form -> pure (Bind.LetHandler form)
 
 ------------------------------------------------------------
 -- Environment functionality
@@ -353,9 +323,10 @@ lookupPrecedence name ctx = do
 -- binderDispatchWith function dispatch table
 ------------------------------------------------------------
 
-primitive :: HasClosure m => Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
-primitive (Structure.toPrimitive -> Just prim) cont
-  | Just Sexp.A {atomName} <- Sexp.atomFromT (prim ^. name) = do
+primitive ::
+  (HasClosure m) => BindSexp a -> (BindSexp a -> m (BindSexp a)) -> m (Bind.BinderPlus a)
+primitive name cont
+  | Just Sexp.A {atomName} <- Sexp.atomFromT name = do
     -- this is bad, however it's FINE, as we only have the primitive
     -- which no operation should disrupt.
     -- Namely if it's (:primitive Michelson.Foo)
@@ -364,49 +335,62 @@ primitive (Structure.toPrimitive -> Just prim) cont
     -- can't have any other symbol named Michelson in this scope, so
     -- it's not an actual issue.
     local @"closure" (Closure.insertGeneric (NameSymbol.hd atomName)) $ do
-      prim <- cont (prim ^. name)
-      pure $ Structure.fromPrimitive $ Structure.Primitive prim
+      Bind.Primitive <$> cont name
 primitive _ _ = error "malformed primitive"
 
-lambda :: HasClosure m => Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
-lambda (Structure.toLambda -> Just lam) cont =
-  local @"closure" (\c -> foldr Closure.insertGeneric c (nameStar (lam ^. args))) $
-    mapMOf body cont lam
-      >>= mapMOf args cont
-      >>| Structure.fromLambda
-lambda _ _ = error "malformed lambda"
+lambda ::
+  (HasClosure m) =>
+  BindSexp a ->
+  BindSexp a ->
+  (BindSexp a -> m (BindSexp a)) ->
+  m (Bind.BinderPlus a)
+lambda args body cont =
+  local @"closure" (\c -> foldr Closure.insertGeneric c (nameStar args)) $
+    Bind.Lambda <$> cont args <*> cont body
 
-letType :: HasClosure m => Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
-letType (Structure.toLetType -> Just let') cont = do
-  let bindings = nameStar (let' ^. args)
-      consturctors = nameGather (let' ^. body)
+letType ::
+  (HasClosure m) =>
+  BindSexp a ->
+  BindSexp a ->
+  BindSexp a ->
+  BindSexp a ->
+  (BindSexp a -> m (BindSexp a)) ->
+  m (Bind.BinderPlus a)
+letType nameAndSig args body rest cont = do
+  let bindings = nameStar args
+      consturctors = nameGather body
       closureUpdate cnt =
         foldr Closure.insertGeneric cnt (bindings <> consturctors)
   local @"closure" closureUpdate $
-    mapMOf body cont let'
-      >>= mapMOf nameAndSig cont
-      >>= mapMOf rest cont
-      >>| Structure.fromLetType
-letType _ _ = error "malformed let-type"
+    Bind.LetType <$> cont nameAndSig <*> pure args <*> cont body <*> cont rest
 
-type' :: HasClosure m => Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
-type' (Structure.toType -> Just type') cont =
-  let grabBindings = nameStar (type' ^. args)
+type' ::
+  (HasClosure m) =>
+  BindSexp a ->
+  BindSexp a ->
+  BindSexp a ->
+  (BindSexp a -> m (BindSexp a)) ->
+  m (Bind.BinderPlus a)
+type' nameAndSig args body cont =
+  let grabBindings = nameStar args
    in local @"closure" (\cnt -> foldr Closure.insertGeneric cnt grabBindings) $
-        mapMOf body cont type'
-          >>= mapMOf nameAndSig cont
-          >>| Structure.fromType
-type' s _ = panic $ "malformed type: " <> show s
+        Bind.Type' <$> cont nameAndSig <*> pure args <*> cont body
+          >>| Bind.Type
 
 -- | @openIn@ opens @mod@, adding the contents to the closure of
 -- @body@. Note that we first =resolve= what mod is by calling the
 -- continuation, @cont@, in case any transformations want to change
 -- what the @mod@ is.
 openIn ::
-  (ErrS f, HasClosure f) => SexpContext -> Sexp.T -> (Sexp.T -> f Sexp.T) -> f Sexp.T
-openIn ctx (Structure.toOpenIn -> Just open) cont = do
+  (ErrS m, HasClosure m, Sexp.Serialize a) =>
+  SexpContext ->
+  BindSexp a ->
+  BindSexp a ->
+  (BindSexp a -> m (BindSexp a)) ->
+  m (Bind.BinderPlus a)
+openIn ctx name body cont = do
   -- Fully run what we need to on mod
-  newMod <- cont (open ^. name)
+  newMod <- cont name
   -- Now let us open up the box
   case Sexp.atomFromT newMod of
     Just Sexp.A {atomName} ->
@@ -420,68 +404,65 @@ openIn ctx (Structure.toOpenIn -> Just open) cont = do
                 Closure.insert symbol (Closure.Info Nothing [] (Just atomName))
            in --
               local @"closure" (\cnt -> foldr addSymbolInfo cnt newSymbs) $
-                mapMOf body cont open
-                  >>| set name newMod
-                  >>| Structure.fromOpenIn
+                Bind.OpenIn newMod <$> cont body
         _ ->
-          throw @"error" (CantResolve [newMod])
+          throw @"error" (CantResolve [Sexp.serialize newMod])
     _ ->
-      throw @"error" (CantResolve [newMod])
-openIn _ _ _ = error "malformed open-in"
+      throw @"error" (CantResolve [Sexp.serialize newMod])
 
 -- | @lambdaCase@ we encounter a @:lambda-case@ at the start of every
 -- Definition in the context. This ensures the arguments are properly
 -- bound for the inner computation.
-lambdaCase :: HasClosure f => Sexp.T -> (Sexp.T -> f Sexp.T) -> f Sexp.T
-lambdaCase (Structure.toLambdaCase -> Just (Structure.LambdaCase args)) cont =
-  traverse (`matchMany` cont) args
-    >>| Structure.LambdaCase
-    >>| Structure.fromLambdaCase
-lambdaCase _ _ = error "malformed lambda case"
+lambdaCase ::
+  (HasClosure f) =>
+  [Bind.DeconBody (Bind.BinderPlus a)] ->
+  (BindSexp a -> f (BindSexp a)) ->
+  f (Bind.BinderPlus a)
+lambdaCase args cont =
+  Bind.LambdaCase . Bind.LambdaCase' <$> traverse (`matchMany` cont) args
 
-letMatch :: HasClosure m => Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
-letMatch (Structure.toLetMatch -> Just let') cont
-  | Just nameSymb <- eleToSymbol (let' ^. name) =
-    local @"closure" (Closure.insertGeneric nameSymb) $
-      mapMOf args (traverse (`matchMany` cont)) let'
-        >>= mapMOf body cont
-        >>| Structure.fromLetMatch
-letMatch _ _ = error "malformed let-match"
+letMatch ::
+  (HasClosure m) =>
+  Symbol ->
+  [Bind.ArgBody (Bind.BinderPlus a)] ->
+  BindSexp a ->
+  (BindSexp a -> m (BindSexp a)) ->
+  m (Bind.BinderPlus a)
+letMatch name args body cont =
+  local @"closure" (Closure.insertGeneric name) $
+    Bind.LetMatch name
+      <$> traverse (fmap Bind.deconToArg . (`matchMany` cont) . Bind.argToDecon) args
+      <*> cont body
 
--- is the structure the same? seems like there is an error here
-
--- | @handler@ follows the exact same logic as @let-match@
-handler :: HasClosure m => Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
-handler sexp cont =
-  letMatch (Sexp.Cons (Sexp.atom Structure.nameLetModule) (Sexp.cdr sexp)) cont
-    >>| Sexp.Cons (Sexp.atom Structure.nameLetHandler) . Sexp.cdr
-
--- | @case'@ is similar to @lambdaCase@ except that it has a term it's
--- matching on that it must first change without having an extra
--- binders around it
-case' :: HasClosure f => Sexp.T -> (Sexp.T -> f Sexp.T) -> f Sexp.T
-case' (Structure.toCase -> Just case') cont =
-  mapMOf on cont case'
-    >>= mapMOf implications (traverse (`match` cont))
-    >>| Structure.fromCase
-case' _ _ = error "malformed case"
+case' ::
+  (HasClosure f) =>
+  BindSexp a ->
+  [Bind.DeconBody (Bind.BinderPlus a)] ->
+  (BindSexp a -> f (BindSexp a)) ->
+  f (Bind.BinderPlus a)
+case' on bodies cont =
+  Bind.Case' <$> cont on <*> traverse (`match` cont) bodies
+    >>| Bind.Case
 
 -- This works as we should only do a declaration after the function
 -- locally, so if it gets overwritten its' not a big deal
 
 -- | @declaim@ takes a declaration and adds the declaration information
 -- to the context
-declaim :: HasClosure f => Sexp.T -> (Sexp.T -> f Sexp.T) -> f Sexp.T
-declaim (Structure.toDeclaim -> Just declaim) cont
-  | Just (name, information) <- declaration (declaim ^. claim) =
+declaim ::
+  (HasClosure f) =>
+  BindSexp a ->
+  BindSexp a ->
+  (BindSexp a -> f (BindSexp a)) ->
+  f (Bind.BinderPlus a)
+declaim claim body cont
+  | Just (name, information) <- declaration claim =
     local @"closure" (Closure.insert name information) $
       -- safe to do dec here, as if we modify the declaration it
       -- would be fine to do it after, as all a pass would do is to
       -- make it a namesymbol, meaning it wouldn't work as is ☹
-      mapMOf claim cont declaim
-        >>= mapMOf body cont
-        >>| Structure.fromDeclaim
-declaim _ _ = error "malformed declaim"
+      Bind.Declaim <$> cont claim <*> cont body
+declaim _ _ _ = error "malformed declaim"
 
 ------------------------------------------------------------
 -- Helpers for the various Search and Closure dispatch
@@ -491,34 +472,23 @@ declaim _ _ = error "malformed declaim"
 -- proper continues the transformation on the body, and the bindings
 -- after making sure to register that they are indeed bound terms
 matchMany ::
-  HasClosure m => Structure.ArgBody -> (Sexp.T -> m Sexp.T) -> m Structure.ArgBody
+  (HasClosure m) => Bind.DeconBody a -> (Sexp.B a -> m (Sexp.B a)) -> m (Bind.DeconBody a)
 matchMany = matchGen nameStar
 
--- | @match@ deals with a @(bindings body)@ term coming down, see
--- @matchMany@ for more details
 match ::
-  HasClosure m => Structure.DeconBody -> (Sexp.T -> m Sexp.T) -> m Structure.DeconBody
-match arg f = matchGen nameStarSingle (fromDecon arg) f >>| toDecon
-  where
-    fromDecon arg =
-      case Structure.toArgBody (Structure.fromDeconBody arg) of
-        Nothing -> error "deconToArgBody failed... how?"
-        Just v -> v
-    toDecon arg =
-      case Structure.toDeconBody (Structure.fromArgBody arg) of
-        Nothing -> error "argBodyToDecon failed... how?"
-        Just v -> v
+  (HasClosure m) => Bind.DeconBody a -> (Sexp.B a -> m (Sexp.B a)) -> m (Bind.DeconBody a)
+match = matchGen nameStarSingle
 
 -- | @matchGen@ is a generic/general version of match and matchMany as
 -- the form that comes in may be a list of binders or a single term
 -- being bound.
 matchGen ::
   (HasClosure m, Foldable t) =>
-  (Sexp.T -> t Symbol) ->
-  Structure.ArgBody ->
-  (Sexp.T -> m Sexp.T) ->
-  m Structure.ArgBody
-matchGen nameStarFunc argbody cont =
+  (Sexp.B a -> t Symbol) ->
+  Bind.DeconBody a ->
+  (Sexp.B a -> m (Sexp.B a)) ->
+  m (Bind.DeconBody a)
+matchGen nameStarFunc (Bind.DeconBody args body) cont =
   -- Important we must do this first!
   local @"closure" (\cnt -> foldr Closure.insertGeneric cnt grabBindings) $
     -- THIS MUST happen in the local, as we don't want to have a pass
@@ -526,18 +496,17 @@ matchGen nameStarFunc argbody cont =
     -- are doing a pass which resolves symbols, then we'd try to
     -- resolve the variables we bind. However for constructors and what
     -- not they need to be ran through this pass
-    mapMOf args cont argbody
-      >>= mapMOf body cont
+    Bind.DeconBody <$> cont args <*> cont body
   where
-    grabBindings = nameStarFunc (argbody ^. args)
+    grabBindings = nameStarFunc args
 
 -- | @nameStarSingle@ like @nameStar@ but we are matching on a single
 -- element
-nameStarSingle :: Sexp.T -> [Symbol]
+nameStarSingle :: Sexp.B a -> [Symbol]
 nameStarSingle = nameStar . (\x -> Sexp.list [x])
 
 -- | @nameStar@ grabs names recursively
-nameStar :: Sexp.T -> [Symbol]
+nameStar :: Sexp.B a -> [Symbol]
 nameStar ((_caar Sexp.:> cadr) Sexp.:> cdr) =
   -- we ignore the _caar as it's a cosntructor!
   nameStar cadr <> nameStar cdr
@@ -554,7 +523,7 @@ nameStar Sexp.Nil = []
 -- Sexp.parse "((Cons (:arrow (:infix -> Int Int))) (Nil))" >>| nameGather
 
 -- | @nameGather@ takes an adt sexp and extracts the constructors from it
-nameGather :: Sexp.T -> [Symbol]
+nameGather :: Sexp.B a -> [Symbol]
 nameGather ((caar Sexp.:> _cdar) Sexp.:> cdr)
   | Just symb <- eleToSymbol caar,
     symb /= ":" || symb /= ":record-d" =
@@ -570,7 +539,7 @@ nameGather _ = []
 -- along with the name from it.
 -- - Note :: we can only get symbol declarations to update, as we rely
 --   on closure semantics whicich only work on symbols unfortunately.
-declaration :: Sexp.T -> Maybe (Symbol, Closure.Information)
+declaration :: Sexp.B a -> Maybe (Symbol, Closure.Information)
 declaration (Sexp.List [inf, n, i])
   | Just Sexp.N {atomNum} <- Sexp.atomFromT i,
     Just atomName <- eleToSymbol n =
@@ -596,7 +565,7 @@ declaration _ = Nothing
 -- Move to Sexp library
 ------------------------------------------------------------
 
-eleToSymbol :: Sexp.T -> Maybe Symbol
+eleToSymbol :: Sexp.B a -> Maybe Symbol
 eleToSymbol x
   | Just Sexp.A {atomName} <- Sexp.atomFromT x =
     Just (NameSymbol.toSymbol atomName)
