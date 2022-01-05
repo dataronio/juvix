@@ -56,9 +56,9 @@ tagSize variants
   | len < pow2 32 = i32
   | otherwise = i64
   where
-  pow2 :: Int -> Int
-  pow2 = (2^)
-  len = length variants
+    pow2 :: Int -> Int
+    pow2 = (2 ^)
+    len = length variants
 
 -- | grabs the integer length from an IntegerType Type
 tagSizeIntExn :: Type -> Word32
@@ -91,9 +91,9 @@ updateVariant :: Type -> VariantInfo -> VariantInfo
 updateVariant tagType (Variant s n t) =
   Variant s n (StructureType packed fields)
   where
-  (packed, fields) = case t of
-    StructureType p ele -> (p, tagType : ele)
-    _ -> (sumPack, [tagType, t])
+    (packed, fields) = case t of
+      StructureType p ele -> (p, tagType : ele)
+      _ -> (sumPack, [tagType, t])
 
 -- | 'insertSums' creates a sum type, and inserts the new types into the symbol table
 -- and the variant table for all the newly created variants

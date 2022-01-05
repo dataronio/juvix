@@ -27,6 +27,27 @@ testRenameConsturoctrs ::
 testRenameConsturoctrs =
   Map.fromList [("TestRename", ":test"), ("TestRename1", ":test-1")]
 
+data Infix a =
+  Infix { infixOp :: (Sexp.B (Infix a)),
+          infixLt :: (Sexp.B (Infix a)),
+          infixInf :: (Infix a)
+        }
+  | InfixNoMore { infixOp :: (Sexp.B (Infix a)),
+                  infixLt :: (Sexp.B (Infix a)),
+                  infixRt :: (Sexp.B (Infix a))
+                }
+  deriving (Show, Generic, Eq)
+
+-- Right xs = Sexp.parse "(+ 2 (:infix + 2 (:infix * (:infix * 5 (:infix - 2 3)) (:infix * 6 7 8))))"
+-- λ> Sexp.partiallyDeserialize @(Infix Integer) xs
+
+infixRename =
+  Map.fromList [("InfixNoMore", ":infix")]
+
+instance Sexp.Serialize a => Sexp.Serialize (Infix a) where
+  serialize = Sexp.serializeOpt (Sexp.Options infixRename)
+  deserialize = Sexp.deserializeOpt (Sexp.Options infixRename)
+
 instance Sexp.Serialize TestRename where
   serialize t = Sexp.gputOpt (Sexp.Options testRenameConsturoctrs) (from t)
   deserialize t = to <$> Sexp.ggetOpt (Sexp.Options testRenameConsturoctrs) t

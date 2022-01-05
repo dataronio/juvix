@@ -531,9 +531,9 @@ externf name = getvar (nameToSymbol name)
 nameToSymbol :: Name -> Symbol
 nameToSymbol = intern . filter (/= '\"') . strName
   where
-  strName nm = case nm of
-    UnName n -> show n
-    Name n -> show n
+    strName nm = case nm of
+      UnName n -> show n
+      Name n -> show n
 
 local :: Type -> Name -> Operand
 local = LocalReference
@@ -661,7 +661,8 @@ printf args = do
 
 -- | @globalString@ creates a globally-defined string constant if it does not exist.
 -- Returns a pointer to it.
-globalString :: forall m.
+globalString ::
+  forall m.
   ( RetInstruction m,
     HasState "moduleDefinitions" [Definition] m,
     HasState "strings" StringsTable m
@@ -678,29 +679,27 @@ globalString cstr name = do
       put @"strings" (Map.insert cstr op stringsTable)
       return op
   where
-  -- | @addGlobalString@ creates a globally-defined string constant and
-  -- returns a pointer to it.
-  addGlobalString :: m Operand
-  addGlobalString = do
-    addDefn $
-      GlobalDefinition $
-        globalVariableDefaults
-          { Global.name = name,
-            Global.initializer = Just (cStringConstant cstr),
-            Global.type' = stringTy
+    addGlobalString :: m Operand
+    addGlobalString = do
+      addDefn $
+        GlobalDefinition $
+          globalVariableDefaults
+            { Global.name = name,
+              Global.initializer = Just (cStringConstant cstr),
+              Global.type' = stringTy
+            }
+      getElementPtr $
+        Types.Minimal
+          { Types.type' = Types.pointerOf Types.charTy,
+            Types.address' =
+              ConstantOperand $
+                C.GlobalReference
+                  (Types.pointerOf stringTy)
+                  name,
+            Types.indincies' = constant32List [0, 0]
           }
-    getElementPtr $
-      Types.Minimal
-        { Types.type' = Types.pointerOf Types.charTy,
-          Types.address' =
-            ConstantOperand $
-              C.GlobalReference
-                (Types.pointerOf stringTy)
-                name,
-          Types.indincies' = constant32List [0, 0]
-        }
-    where
-    stringTy = constStringTy cstr
+      where
+        stringTy = constStringTy cstr
 
 charConstant :: Word8 -> C.Constant
 charConstant = C.Int 8 . fromIntegral
@@ -719,8 +718,8 @@ cStringPointer str = do
   store t (Operand.ConstantOperand vec)
   pure t
   where
-  vec = cStringConstant str
-  len = fromIntegral (CString.length str)
+    vec = cStringConstant str
+    len = fromIntegral (CString.length str)
 
 -- | @printCString@ given a Haskell String and a list of operands to
 -- the printf string, call printf on the string.

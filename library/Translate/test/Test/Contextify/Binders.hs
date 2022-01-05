@@ -5,12 +5,32 @@ import Juvix.Library
 import qualified Juvix.Sexp as Sexp
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
+import qualified Juvix.Library.NameSymbol as NameSymbol
+import qualified Juvix.Library.HashMap as Map
 
 --   + (:let-match f ((args-match-11 … args-match-1n) body-1
 --                    (args-match-21 … args-match-2n) body-2
 --                    …
 --                    (args-match-n1 … args-match-nn) body-n)
 --        rest)
+
+data Infix =
+  Infix { infixOp :: NameSymbol.T,
+          infixLt :: (Sexp.B (Bind.BinderPlus Infix)),
+          infixInf :: Infix
+        }
+  | InfixNoMore { infixOp :: NameSymbol.T,
+                  infixLt :: (Sexp.B (Bind.BinderPlus Infix)),
+                  infixRt :: (Sexp.B (Bind.BinderPlus Infix))
+                }
+  deriving (Show, Generic, Eq)
+
+infixRename =
+  Map.fromList [("InfixNoMore", ":infix")]
+
+instance Sexp.Serialize Infix where
+  serialize = Sexp.serializeOpt (Sexp.Options infixRename)
+  deserialize = Sexp.deserializeOpt (Sexp.Options infixRename)
 
 top :: T.TestTree
 top =

@@ -8,9 +8,9 @@ where
 
 import qualified Data.ByteString.Short as Short hiding (empty)
 import qualified Distribution.System as System
-import Juvix.Backends.LLVM.Codegen.Types.Shared
 import Juvix.Backends.LLVM.Codegen.Types.CString (CString)
 import qualified Juvix.Backends.LLVM.Codegen.Types.CString as CString
+import Juvix.Backends.LLVM.Codegen.Types.Shared
 import qualified Juvix.Backends.LLVM.Codegen.Types.Sum as Sum
 import Juvix.Library hiding (Type)
 import qualified Juvix.Library.HashMap as Map
