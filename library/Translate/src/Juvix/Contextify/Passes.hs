@@ -109,13 +109,17 @@ data Infix
       }
   deriving (Show, Generic, Eq)
 
-infixRename :: (Eq k, Hashable k, IsString k, IsString v) => Map.HashMap k v
+infixRename :: Sexp.Options
 infixRename =
-  Map.fromList [("InfixNoMore", ":infix")]
+  Sexp.changeName
+    (Sexp.defaultOptions @Infix)
+    (Map.fromList [("InfixNoMore", ":infix")])
+
+instance Sexp.DefaultOptions Infix
 
 instance Sexp.Serialize Infix where
-  serialize = Sexp.serializeOpt (Sexp.Options infixRename)
-  deserialize = Sexp.deserializeOpt (Sexp.Options infixRename)
+  serialize = Sexp.serializeOpt infixRename
+  deserialize = Sexp.deserializeOpt infixRename
 
 -- TODO ∷ add comment about infixl vs infix vs infixr, and explain how
 -- this isn't a real bnf

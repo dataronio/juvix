@@ -28,6 +28,8 @@ dependencies:
 - megaparsec
 - hashable
 - word8
+- generic-deriving
+- unordered-containers
 
 default-extensions:
   - NoImplicitPrelude
@@ -58,6 +60,7 @@ default-extensions:
   - StandaloneDeriving
   - BlockArguments
   - FunctionalDependencies
+  - ScopedTypeVariables
 
 ghc-options:
   - -ferror-spans

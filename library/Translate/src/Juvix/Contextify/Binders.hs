@@ -99,13 +99,17 @@ deconToArg (DeconBody a b) = ArgBody a b
 -- Derivation No Changes
 --------------------------------------------------------------------------------
 
+instance Sexp.DefaultOptions (LetRet a)
 instance Sexp.Serialize a => Sexp.Serialize (LetRet a)
 
+instance Sexp.DefaultOptions (LetOp a)
 instance Sexp.Serialize a => Sexp.Serialize (LetOp a)
 
 --------------------------------------------------------------------------------
 -- Main Derivation
 --------------------------------------------------------------------------------
+
+instance Sexp.DefaultOptions (BinderPlus a)
 
 -- We give an explicit derivation to namely make the @Other@
 -- constructor not take a spot and win any ambiguities
@@ -118,7 +122,8 @@ instance Sexp.Serialize a => Sexp.Serialize (BinderPlus a) where
     Sexp.serialize case'
   serialize (LetHandler handler) =
     Sexp.serialize handler
-  serialize other = Sexp.gput (Juvix.Library.from other)
+  serialize other =
+    Sexp.serializeOpt (Sexp.defaultOptions @(BinderPlus ())) other
 
   deserialize xs =
     -- we want to try deserializing the generic first, as it may
@@ -127,7 +132,7 @@ instance Sexp.Serialize a => Sexp.Serialize (BinderPlus a) where
       <|> (Case <$> Sexp.deserialize @(Case (BinderPlus a)) xs)
       <|> (LambdaCase <$> Sexp.deserialize @(LambdaCase (BinderPlus a)) xs)
       <|> (LetHandler <$> Sexp.deserialize @(LetHandler (BinderPlus a)) xs)
-      <|> Juvix.Library.to <$> Sexp.gget xs
+      <|> Sexp.deserializeOpt (Sexp.defaultOptions @(BinderPlus ())) xs
 
 --------------------------------------------------------------------------------
 -- No Constructor Derivations

@@ -6,7 +6,6 @@ import qualified Juvix.Contextify as Contextify
 import qualified Juvix.Contextify.Environment as Env
 import Juvix.Library
 import qualified Juvix.Library.HashMap as Map
-import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import Test.Context.Helpers (contextualizeFoo, parseDesugarSexp)
 import qualified Test.Tasty as T
@@ -80,11 +79,23 @@ atomClosure ctx t rec' =
     _ -> Env.handleAtom ctx t rec' >>| Sexp.Atom
 
 
+
+printRename :: Sexp.Options
+printRename =
+  Sexp.changeName
+    (Sexp.defaultOptions @PrintClosure)
+    (Map.fromList [("PrintClosure", "print-closure")])
+
+
 data PrintClosure
   = PrintClosure (Sexp.B (Bind.BinderPlus PrintClosure))
   deriving (Show, Eq, Generic)
 
-instance Sexp.Serialize PrintClosure
+instance Sexp.DefaultOptions PrintClosure
+
+instance Sexp.Serialize PrintClosure where
+  serialize = Sexp.serializeOpt printRename
+  deserialize = Sexp.deserializeOpt printRename
 
 --------------------------------------------------------------------------------
 -- PassContext Tests
@@ -115,12 +126,12 @@ letTest =
         Closure.keys y T.@=? secondClosure,
       --
       T.testCase "let binds for its own arguments" $ do
-        [a, x, y, three, foo] <-
-          captureOnAtom "let f a = let foo x y = 3 in foo"
+        [a, x, y, b, foo] <-
+          captureOnAtom "let f a = let foo x y = b in foo"
         Closure.keys a T.@=? Set.fromList ["a"]
         Closure.keys x T.@=? argumentBinding
         Closure.keys y T.@=? argumentBinding
-        Closure.keys three T.@=? argumentBinding
+        Closure.keys b T.@=? argumentBinding
         Closure.keys foo T.@=? Set.fromList ["a", "foo"]
     ]
   where

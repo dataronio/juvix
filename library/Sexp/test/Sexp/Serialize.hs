@@ -15,42 +15,54 @@ data Test a
   deriving (Show, Generic)
 
 -- let's turn this to deriving via
+instance Sexp.DefaultOptions (Test a)
+
 instance (Sexp.Serialize a) => Sexp.Serialize (Test a)
 
 data TestRename
   = TestRename
   | TestRename1 Integer
-  deriving (Show, Generic)
+  deriving (Show, Generic, Data)
 
-testRenameConsturoctrs ::
-  (Eq k, Hashable k, IsString k, IsString v) => Map.HashMap k v
+testRenameConsturoctrs :: Sexp.Options
 testRenameConsturoctrs =
-  Map.fromList [("TestRename", ":test"), ("TestRename1", ":test-1")]
+  Sexp.changeName
+    (Sexp.defaultOptions @TestRename)
+    (Map.fromList [("TestRename", ":test"), ("TestRename1", ":test-1")])
 
-data Infix a =
-  Infix { infixOp :: (Sexp.B (Infix a)),
-          infixLt :: (Sexp.B (Infix a)),
-          infixInf :: (Infix a)
-        }
-  | InfixNoMore { infixOp :: (Sexp.B (Infix a)),
-                  infixLt :: (Sexp.B (Infix a)),
-                  infixRt :: (Sexp.B (Infix a))
-                }
+data Infix a
+  = Infix
+      { infixOp :: (Sexp.B (Infix a)),
+        infixLt :: (Sexp.B (Infix a)),
+        infixInf :: (Infix a)
+      }
+  | InfixNoMore
+      { infixOp :: (Sexp.B (Infix a)),
+        infixLt :: (Sexp.B (Infix a)),
+        infixRt :: (Sexp.B (Infix a))
+      }
   deriving (Show, Generic, Eq)
 
 -- Right xs = Sexp.parse "(+ 2 (:infix + 2 (:infix * (:infix * 5 (:infix - 2 3)) (:infix * 6 7 8))))"
 -- λ> Sexp.partiallyDeserialize @(Infix Integer) xs
 
+infixRename :: Sexp.Options
 infixRename =
-  Map.fromList [("InfixNoMore", ":infix")]
+  Sexp.changeName
+    (Sexp.defaultOptions @(Infix ()))
+    (Map.fromList [("InfixNoMore", ":infix")])
+
+instance Sexp.DefaultOptions (Infix a)
 
 instance Sexp.Serialize a => Sexp.Serialize (Infix a) where
-  serialize = Sexp.serializeOpt (Sexp.Options infixRename)
-  deserialize = Sexp.deserializeOpt (Sexp.Options infixRename)
+  serialize = Sexp.serializeOpt infixRename
+  deserialize = Sexp.deserializeOpt infixRename
+
+instance Sexp.DefaultOptions TestRename
 
 instance Sexp.Serialize TestRename where
-  serialize t = Sexp.gputOpt (Sexp.Options testRenameConsturoctrs) (from t)
-  deserialize t = to <$> Sexp.ggetOpt (Sexp.Options testRenameConsturoctrs) t
+  serialize = Sexp.serializeOpt testRenameConsturoctrs
+  deserialize = Sexp.deserializeOpt testRenameConsturoctrs
 
 top :: T.TestTree
 top =
@@ -101,9 +113,9 @@ identityRename = Sexp.deserialize . Sexp.serialize
 identity :: TInt -> Maybe TInt
 identity = Sexp.deserialize . Sexp.serialize
 
-test ::
-  Maybe (C1 ('MetaCons "Test" 'PrefixI 'False) U1 p)
-test = do
-  let M1 t = from (Test :: Test ())
-      L1 t2 = t
-  (Sexp.gput t2 |> Sexp.gget :: Maybe (C1 ('MetaCons "Test" 'PrefixI 'False) U1 p))
+-- test ::
+--   Maybe (C1 ('MetaCons "Test" 'PrefixI 'False) U1 p)
+-- test = do
+--   let M1 t = from (Test :: Test ())
+--       L1 t2 = t
+--   (Sexp.gput t2 |> Sexp.gget :: Maybe (C1 ('MetaCons "Test" 'PrefixI 'False) U1 p))
