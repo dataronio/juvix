@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
@@ -6,8 +7,11 @@
 module Juvix.Sexp.Serialize where
 
 import qualified Data.Char8 as Char8
-import GHC.Generics as Generics
 -- import qualified GHC.Types as Types
+
+import qualified Data.HashSet as Set
+import GHC.Generics as Generics
+import qualified Generics.Deriving.ConNames as ConNames
 import Juvix.Library hiding (foldr)
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
@@ -15,33 +19,57 @@ import Juvix.Sexp.Types as Sexp hiding (double)
 
 class Serialize a where
   serialize :: a -> T
-  default serialize :: (Generic a, GSerializeOptions (Rep a)) => a -> T
-  serialize = serializeOpt (Options mempty)
+  default serialize :: (Generic a, GSerializeOptions (Rep a), DefaultOptions a) => a -> T
+  serialize = serializeOpt (defaultOptions @a)
 
   deserialize :: T -> Maybe a
-  default deserialize :: (Generic a, GSerializeOptions (Rep a)) => T -> Maybe a
-  deserialize = deserializeOpt (Options mempty)
+  default deserialize :: (Generic a, GSerializeOptions (Rep a), DefaultOptions a) => T -> Maybe a
+  deserialize = deserializeOpt (defaultOptions @a)
 
 data Options = Options
-  { -- this decides if the constructors should be renamed
-    constructorMapping :: Map.T [Char] NameSymbol.T
+  { -- this decides if the constructors should be renamed, by default
+    -- it maps them all to the lisp variants
+    constructorMapping :: Map.T [Char] NameSymbol.T,
+    consturctorNameSet :: Set.HashSet NameSymbol.T
   }
+  deriving (Show)
+
+class DefaultOptions a where
+  defaultOptions :: Options
+  default defaultOptions :: (Generic a, ConNames.ConNames (Rep a)) => Options
+  defaultOptions = defaultOptions' @a
+
+defaultOptions' :: forall a. (Generic a, ConNames.ConNames (Rep a)) => Options
+defaultOptions' =
+  Options map nameSet
+  where
+    nameMapping =
+      ConNames.conNames @a undefined
+    namesList =
+      nameMapping
+        |> fmap mlNameToReservedLispName
+    nameSet =
+      namesList
+        |> Set.fromList
+    map = Map.fromList (zip nameMapping namesList)
+
+changeName :: Options -> Map.T [Char] NameSymbol.T -> Options
+changeName (Options hashMapOpt _) hashmap =
+  Options newMap (Map.elems newMap |> Set.fromList)
+  where
+    newMap = hashmap <> hashMapOpt
 
 class GSerializeOptions f where
   gputOpt :: Options -> f a -> T
   ggetOpt :: Options -> T -> Maybe (f a)
 
 serializeOpt :: (GSerializeOptions (Rep a), Generic a) => Options -> a -> T
-serializeOpt opt t = gputOpt opt (from t)
+serializeOpt opt t =
+  gputOpt opt (from t)
 
 deserializeOpt :: (Generic b, GSerializeOptions (Rep b)) => Options -> T -> Maybe b
-deserializeOpt opt t = to <$> ggetOpt opt t
-
-gput :: (GSerializeOptions f) => f a -> T
-gput = gputOpt (Options mempty)
-
-gget :: (GSerializeOptions f) => T -> Maybe (f a)
-gget = ggetOpt (Options mempty)
+deserializeOpt opt t =
+  to <$> ggetOpt opt t
 
 ----------------------------------------
 -- U1
@@ -77,7 +105,9 @@ instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) wher
     let name =
           case constructorMapping opt Map.!? (conName y) of
             Nothing ->
-              mlNameToReservedLispName (conName y)
+              -- Should never happen, as we bind all constructor names
+              panic "we should never hit here"
+              -- mlNameToReservedLispName (conName y)
             Just name ->
               name
      in case gputOpt opt x of
@@ -85,10 +115,19 @@ instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) wher
           otherwis -> Cons (Sexp.Atom (A name Nothing)) otherwis
   ggetOpt opt xs =
     case xs of
-      Cons (Atom (A nameOf _)) _ -> logic (ggetOpt opt (cdr xs)) nameOf
-      Atom (A nameOfSingleCon _) -> logic (ggetOpt opt Nil) nameOfSingleCon
-      __________________________ -> Nothing
+      Cons (Atom (A nameOf _)) _
+        | check nameOf ->
+          logic (ggetOpt opt (cdr xs)) nameOf
+      Atom (A nameOfSingleCon _)
+        | check nameOfSingleCon ->
+          logic (ggetOpt opt Nil) nameOfSingleCon
+      _ ->
+        Nothing
     where
+      -- still slow, we should check the M1 constructed agrees before
+      -- even trying.
+      check name =
+        Set.member name (consturctorNameSet opt)
       logic caseOn name1 =
         case caseOn of
           Just t ->
@@ -96,7 +135,9 @@ instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) wher
                 name =
                   case constructorMapping opt Map.!? (conName m1) of
                     Nothing ->
-                      mlNameToReservedLispName (conName m1)
+                      -- Should never happen, as we bind all constructor names
+                      panic "we should never hit here"
+                      -- mlNameToReservedLispName (conName m1)
                     Just name ->
                       name
              in if
