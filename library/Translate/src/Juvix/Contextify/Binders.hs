@@ -122,6 +122,8 @@ instance Sexp.Serialize a => Sexp.Serialize (BinderPlus a) where
     Sexp.serialize case'
   serialize (LetHandler handler) =
     Sexp.serialize handler
+  serialize (Type type') =
+    Sexp.serialize type'
   serialize other =
     Sexp.serializeOpt (Sexp.defaultOptions @(BinderPlus ())) other
 
@@ -132,6 +134,7 @@ instance Sexp.Serialize a => Sexp.Serialize (BinderPlus a) where
       <|> (Case <$> Sexp.deserialize @(Case (BinderPlus a)) xs)
       <|> (LambdaCase <$> Sexp.deserialize @(LambdaCase (BinderPlus a)) xs)
       <|> (LetHandler <$> Sexp.deserialize @(LetHandler (BinderPlus a)) xs)
+      <|> (Type <$> Sexp.deserialize @(Type (BinderPlus a)) xs)
       <|> Sexp.deserializeOpt (Sexp.defaultOptions @(BinderPlus ())) xs
 
 --------------------------------------------------------------------------------
@@ -214,7 +217,7 @@ instance Sexp.Serialize a => Sexp.Serialize (LambdaCase a) where
   -- old auto generated deserialize by hand... need to update it to
   -- generate this!
   deserialize form
-    | Structure.isCase form =
+    | Structure.isLambdaCase form =
       case form of
         _name Sexp.:> decons ->
           LambdaCase' <$> Sexp.deserialize @[DeconBody a] decons
@@ -233,7 +236,7 @@ instance Sexp.Serialize a => Sexp.Serialize (Type a) where
   -- old auto generated deserialize by hand... need to update it to
   -- generate this!
   deserialize form
-    | Structure.isCase form =
+    | Structure.isType form =
       case form of
         _nameType Sexp.:> sexp1 Sexp.:> sexp2 Sexp.:> sexp3 ->
           Type' <$> Sexp.deserialize sexp1 <*> Sexp.deserialize sexp2 <*> Sexp.deserialize sexp3
