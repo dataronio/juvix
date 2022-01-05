@@ -58,7 +58,8 @@ instance GSerializeOptions U1 where
 instance (GSerializeOptions a) => GSerializeOptions (D1 i a) where
   gputOpt opt (M1 x) =
     gputOpt opt x
-  ggetOpt opt xs = M1 <$> ggetOpt opt xs
+  ggetOpt opt xs =
+    M1 <$> ggetOpt opt xs
 
 -- Make an alternative version that cares about the selector
 -- constructor
@@ -84,14 +85,12 @@ instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) wher
           otherwis -> Cons (Sexp.Atom (A name Nothing)) otherwis
   ggetOpt opt xs =
     case xs of
-      Cons (Atom (A nameOf _)) _ -> logic nameOf
-      Atom (A nameOfSingleCon _) -> logic nameOfSingleCon
+      Cons (Atom (A nameOf _)) _ -> logic (ggetOpt opt (cdr xs)) nameOf
+      Atom (A nameOfSingleCon _) -> logic (ggetOpt opt Nil) nameOfSingleCon
       __________________________ -> Nothing
     where
-      -- we need to cdr past the argument
-      maybeX = ggetOpt opt (cdr xs)
-      logic name1 =
-        case maybeX of
+      logic caseOn name1 =
+        case caseOn of
           Just t ->
             let m1 = M1 t
                 name =
