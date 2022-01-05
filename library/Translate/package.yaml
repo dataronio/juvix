@@ -31,24 +31,32 @@ default-extensions:
   - LambdaCase
   - UnicodeSyntax
   - GADTs
-  - DerivingVia
-  - MultiWayIf
-  - DataKinds
-  - TypeApplications
-  - ConstraintKinds
-  - PatternSynonyms
+  - ScopedTypeVariables
+  - DeriveDataTypeable
+  - DeriveGeneric
+  - DerivingStrategies
   - FlexibleContexts
   - FlexibleInstances
+  - DataKinds
+  - GeneralizedNewtypeDeriving
+  - DefaultSignatures
   - QuasiQuotes
-  - TemplateHaskell
+  - TypeOperators
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - TypeInType
+  - DerivingVia
+  - TypeApplications
+  - StandaloneDeriving
+  - FunctionalDependencies
+  - PatternSynonyms
   - TypeFamilies
+  - ConstraintKinds
+  - EmptyDataDeriving
+  - TemplateHaskell
   - NamedFieldPuns
   - DisambiguateRecordFields
   - TupleSections
-  - DeriveGeneric
-  - DeriveDataTypeable
-  - GeneralizedNewtypeDeriving
-  - StandaloneDeriving
   - BlockArguments
 
 ghc-options:

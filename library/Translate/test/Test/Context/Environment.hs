@@ -11,6 +11,7 @@ import qualified Juvix.Sexp as Sexp
 import Test.Context.Helpers (contextualizeFoo, parseDesugarSexp)
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
+import qualified Juvix.Contextify.Binders as Bind
 
 --------------------------------------------------------------------------------
 -- Top Level Test
@@ -56,13 +57,34 @@ runCtx (Ctx c) = runState (runExceptT c)
 emptyClosure :: Capture
 emptyClosure = Cap (Closure.T Map.empty) []
 
-recordClosure ::
-  (HasReader "closure" a m, HasWriter "report" [a] m) => c -> b -> m b
-recordClosure _ t = do
-  c <- ask @"closure"
-  tell @"report" [c]
-  -- Just drop the given atom
-  pure t
+-- recordClosure ::
+--   (HasReader "closure" a m, HasWriter "report" [a] m) => Env.Pass m 
+recordClosure ctx t rec' =
+  case t of
+    Sexp.P (Bind.Other (PrintClosure _)) _ -> do
+      c <- ask @"closure"
+      tell @"report" [c]
+      -- Just drop the given atom
+      pure t >>| Sexp.Atom
+    _ -> Env.handleAtom ctx t rec' >>| Sexp.Atom
+
+atomClosure ctx t rec' =
+  case t of
+    Sexp.A a _ -> do
+      c <- ask @"closure"
+      tell @"report" [c]
+      -- Just drop the given atom
+      pure t >>| Sexp.Atom
+    Sexp.P (Bind.Other (PrintClosure _)) _ ->
+      Env.handleAtom ctx t rec' >>| Sexp.Atom
+    _ -> Env.handleAtom ctx t rec' >>| Sexp.Atom
+
+
+data PrintClosure
+  = PrintClosure (Sexp.B (Bind.BinderPlus PrintClosure))
+  deriving (Show, Eq, Generic)
+
+instance Sexp.Serialize PrintClosure
 
 --------------------------------------------------------------------------------
 -- PassContext Tests
@@ -89,13 +111,12 @@ letTest =
             \ let foo (Nil x)      = print-closure 0 in \
             \ let foo (Cons a y) z = print-closure 0 in \
             \ 3"
-            trigger
         Closure.keys x T.@=? firstClosure
         Closure.keys y T.@=? secondClosure,
       --
       T.testCase "let binds for its own arguments" $ do
         [a, x, y, three, foo] <-
-          captureOnAtom "let f a = let foo x y = 3 in foo" (== ":atom")
+          captureOnAtom "let f a = let foo x y = 3 in foo"
         Closure.keys a T.@=? Set.fromList ["a"]
         Closure.keys x T.@=? argumentBinding
         Closure.keys y T.@=? argumentBinding
@@ -109,8 +130,6 @@ letTest =
       Set.fromList ["g", "foo", "a", "y", "z"]
     argumentBinding =
       Set.fromList ["a", "foo", "x", "y"]
-    trigger =
-      (== "print-closure")
 
 typeTest :: T.TestTree
 typeTest =
@@ -118,7 +137,7 @@ typeTest =
     "Types properly add all to to the closure"
     [ T.testCase "top level type" $ do
         [print] <-
-          capture "type foo a b c = Cons (print-closure 3)" trigger
+          capture "type foo a b c = Cons (print-closure 3)"
         Closure.keys print T.@=? Set.fromList ["a", "b", "c"],
       --
       T.testCase "let-type properly adds constructors" $ do
@@ -129,15 +148,12 @@ typeTest =
             \  | Cons (print-closure 3) \
             \  | Nil \
             \ in print-closure 4"
-            trigger
         Closure.keys inside T.@=? constructors
         Closure.keys body T.@=? constructors
     ]
   where
     constructors =
       Set.fromList ["a", "b", "c", "Nil", "Cons"]
-    trigger =
-      (== "print-closure")
 
 caseTest :: T.TestTree
 caseTest =
@@ -150,13 +166,9 @@ caseTest =
             \ case foo of \
             \  | Cons a b -> (print-closure 3) \
             \  | Nil -> (print-closure 3)"
-            trigger
         Closure.keys cons T.@=? Set.fromList ["a", "b"]
         Closure.keys nil T.@=? Set.fromList []
     ]
-  where
-    trigger =
-      (== "print-closure")
 
 lambdaTest :: T.TestTree
 lambdaTest =
@@ -166,12 +178,8 @@ lambdaTest =
         [lamb] <-
           capture
             "let f = \\(Cons a b) -> (print-closure 3)"
-            trigger
         Closure.keys lamb T.@=? Set.fromList ["a", "b"]
     ]
-  where
-    trigger =
-      (== "print-closure")
 
 declaimTest :: T.TestTree
 declaimTest =
@@ -181,14 +189,10 @@ declaimTest =
         [lamb] <-
           capture
             "let f = declare infixl (+) 7 in print-closure 2"
-            trigger
         -- we could check for info, but this is sufficient for it
         -- properly working
         Closure.keys lamb T.@=? Set.fromList ["+"]
     ]
-  where
-    trigger =
-      (== "print-closure")
 
 openTest :: T.TestTree
 openTest =
@@ -201,30 +205,25 @@ openTest =
                 :| [("A", parseDesugarSexp "let bar = 3")]
             )
         let (_, Cap _ [Closure.T capture]) =
-              runCtx (Env.contextPassStar ctx trigger mempty recordClosure) emptyClosure
+              runCtx (Env.contextPassStar ctx recordClosure) emptyClosure
         Map.toList capture T.@=? [("bar", Closure.Info Nothing [] (Just "A"))]
     ]
-  where
-    trigger =
-      (== "print-closure")
 
-capture :: ByteString -> (NameSymbol.T -> Bool) -> IO [Closure.T]
-capture str trigger = do
+capture :: ByteString -> IO [Closure.T]
+capture str = do
   Right (ctx, _) <-
     contextualizeFoo str
   let (_, Cap _ capture) =
-        runCtx (Env.contextPassStar ctx trigger mempty recordClosure) emptyClosure
+        runCtx (Env.contextPassStar ctx recordClosure) emptyClosure
   pure capture
 
-captureOnAtom :: ByteString -> (NameSymbol.T -> Bool) -> IO [Closure.T]
-captureOnAtom str trigger = do
+captureOnAtom :: ByteString -> IO [Closure.T]
+captureOnAtom str = do
   Right (ctx, _) <-
     contextualizeFoo str
   let (_, Cap _ capture) =
-        runCtx
-          (Env.contextPassStar ctx trigger mempty {Sexp.onAtom = True} recordClosure)
-          emptyClosure
+        runCtx (Env.contextPassStar ctx atomClosure) emptyClosure
   pure capture
 
 -- Right (ctx,_) <- contextualizeFoo "let f = 3"
--- (_, capture) = runCtx (Env.passContextSingle ctx (== "print-closure") recordClosure) emptyClosure
+-- (_, capture) = runCtx (Env.passContextSingle ctx recordClosure) emptyClosure

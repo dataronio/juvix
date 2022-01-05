@@ -12,9 +12,11 @@ import Control.Lens hiding (op, (|>))
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Juvix.Closure as Closure
 import qualified Juvix.Context as Context
+import qualified Juvix.Contextify.Binders as Bind
 import qualified Juvix.Contextify.Environment as Env
 import qualified Juvix.Contextify.InfixPrecedence.ShuntYard as Shunt
 import Juvix.Library
+import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 import qualified Juvix.Sexp.Structure.CoreNamed as CoreNamed
@@ -59,39 +61,61 @@ resolveModule ::
 resolveModule context =
   Env.contextPassStar
     context
-    (== Structure.nameOpenIn)
-    (mempty {Sexp.onAtom = True})
     openResolution
 
 openResolution ::
-  ExpressionIO m => Context.T term ty sumRep -> Sexp.T -> m Sexp.T
-openResolution _ctx (Structure.toOpenIn -> Just open) =
-  pure (open ^. body)
-openResolution ctx sexp =
-  atomResolution ctx sexp
+  ExpressionIO m => Env.Pass m ()
+openResolution ctx atom rec' = do
+  -- this will do the job for openIn, and nothing to NameSymbol
+  res <- Env.handleAtom ctx atom rec'
+  case res of
+    Sexp.P (Bind.OpenIn _mod body) _ -> pure body
+    Sexp.A _symbol _________________ -> atomResolution ctx res
+    ________________________________ -> pure (Sexp.Atom res)
 
 atomResolution ::
-  ExpressionIO m => Context.T term ty sumRep -> Sexp.T -> m Sexp.T
-atomResolution context sexpAtom@(Sexp.Atom (atom@Sexp.A {atomName = name})) = do
+  ExpressionIO m => Context.T term ty sumRep -> Sexp.Atom a -> m (Sexp.B a)
+atomResolution context (atom@Sexp.A {atomName = name}) = do
   closure <- ask @"closure"
   let symbolName = NameSymbol.hd name
   case Closure.lookup symbolName closure of
     Just Closure.Info {mOpen = Just prefix} ->
       -- we qualified it to a module which is already qualified
       pure (Sexp.addMetaToCar atom (Sexp.atom (prefix <> name)))
-    Just Closure.Info {} -> pure sexpAtom
+    Just Closure.Info {} -> pure (Sexp.Atom atom)
     Nothing -> do
       let qualified = context ^. Context._currentNameSpace . Context.qualifiedMap
       looked <- liftIO $ atomically $ STM.lookup symbolName qualified
       case looked of
         Just Context.SymInfo {mod = prefix} ->
           pure $ Sexp.addMetaToCar atom (Sexp.atom (prefix <> name))
-        Nothing -> pure sexpAtom
-atomResolution _ s = pure s
+        Nothing -> pure (Sexp.Atom atom)
+atomResolution _ s = pure (Sexp.Atom s)
 
 --------------------------------------------------------------------------------
 -- Infix Form Transformation
 --------------------------------------------------------------------------------
+
+data Infix
+  = Infix
+      { infixOp :: NameSymbol.T,
+        infixLt :: (Sexp.B (Bind.BinderPlus Infix)),
+        infixInf :: Infix
+      }
+  | InfixNoMore
+      { infixOp :: NameSymbol.T,
+        infixLt :: (Sexp.B (Bind.BinderPlus Infix)),
+        infixRt :: (Sexp.B (Bind.BinderPlus Infix))
+      }
+  deriving (Show, Generic, Eq)
+
+infixRename :: (Eq k, Hashable k, IsString k, IsString v) => Map.HashMap k v
+infixRename =
+  Map.fromList [("InfixNoMore", ":infix")]
+
+instance Sexp.Serialize Infix where
+  serialize = Sexp.serializeOpt (Sexp.Options infixRename)
+  deserialize = Sexp.deserializeOpt (Sexp.Options infixRename)
 
 -- TODO ∷ add comment about infixl vs infix vs infixr, and explain how
 -- this isn't a real bnf
@@ -106,47 +130,51 @@ atomResolution _ s = pure s
 inifixSoloPass ::
   Expression m => Env.SexpContext -> m Env.SexpContext
 inifixSoloPass context =
-  Env.contextPassStar context (== Structure.nameInfix) mempty infixConversion
+  Env.contextPassStar @Infix context infixConversion
 
 infixConversion ::
-  (Env.ErrS m, Env.HasClosure m) => Context.T t y s -> Sexp.T -> m Sexp.T
-infixConversion context sexp = do
-  grouped <- groupInfix context sexp
-  case Shunt.shunt grouped of
-    Right shunted ->
-      pure $ convertShunt shunted
-    Left (Shunt.Clash pred1 pred2) ->
-      throw @"error" (Env.Clash pred1 pred2)
-    Left Shunt.MoreEles ->
-      throw @"error" Env.ImpossibleMoreEles
+  (Env.ErrS m, Env.HasClosure m) => Env.Pass m Infix
+infixConversion context atom rec' =
+  case atom of
+    Sexp.P (Bind.Other inf) _ -> do
+      grouped <- groupInfix context inf
+      case Shunt.shunt grouped of
+        Right shunted ->
+          rec' (convertShunt shunted)
+        Left (Shunt.Clash pred1 pred2) ->
+          throw @"error" (Env.Clash pred1 pred2)
+        Left Shunt.MoreEles ->
+          throw @"error" Env.ImpossibleMoreEles
+    _ -> Env.handleAtom context atom rec' >>| Sexp.Atom
 
 ------------------------------------------------------------
 -- Helpers for infix conversion
 ------------------------------------------------------------
 
+data InfFlat a = Inf NameSymbol.T | Ele a
+
+infixToInfFlat ::
+  Infix -> NonEmpty (InfFlat (Sexp.B (Bind.BinderPlus Infix)))
+infixToInfFlat (InfixNoMore op lt rt) =
+  NonEmpty.fromList [Ele lt, Inf op, Ele rt]
+infixToInfFlat (Infix op lt rt) =
+  NonEmpty.fromList [Ele lt, Inf op] <> infixToInfFlat rt
+
 groupInfix ::
-  (Env.ErrS m, Env.HasClosure m) =>
+  (Env.ErrS f, Env.HasClosure f) =>
   Context.T t y s ->
-  Sexp.T ->
-  m (NonEmpty (Shunt.PredOrEle Sexp.T Sexp.T))
-groupInfix context xs
-  | Just inf <- Structure.toInfix xs,
-    Just Sexp.A {atomName = opSym} <- Sexp.atomFromT (inf ^. op) = do
-    prec <- Env.lookupPrecedence opSym context
-    moreInfixs <- groupInfix context (inf ^. right)
-    precedenceConversion (inf ^. op) prec
-      |> Shunt.Precedence
-      |> flip NonEmpty.cons moreInfixs
-      -- we cons l and not r, as "3 + 4 + 5 * 6"
-      -- parses as "3 + (4 + (5 * 6))"
-      -- thus the left is always an element
-      |> NonEmpty.cons (Shunt.Ele (inf ^. left))
-      |> pure
-  | otherwise =
-    pure (Shunt.Ele xs :| [])
+  Infix ->
+  f (NonEmpty (Shunt.PredOrEle NameSymbol.T (Sexp.B (Bind.BinderPlus Infix))))
+groupInfix context inf =
+  traverse f (infixToInfFlat inf)
+  where
+    f (Ele a) = pure (Shunt.Ele a)
+    f (Inf op) = do
+      prec <- Env.lookupPrecedence op context
+      pure (Shunt.Precedence (precedenceConversion op prec))
 
 precedenceConversion ::
-  Sexp.T -> Context.Precedence -> Shunt.Precedence Sexp.T
+  NameSymbol.T -> Context.Precedence -> Shunt.Precedence NameSymbol.T
 precedenceConversion s (Context.Pred Context.Left i) =
   Shunt.Pred s Shunt.Left' i
 precedenceConversion s (Context.Pred Context.Right i) =
@@ -154,10 +182,10 @@ precedenceConversion s (Context.Pred Context.Right i) =
 precedenceConversion s (Context.Pred Context.NonAssoc i) =
   Shunt.Pred s Shunt.NonAssoc i
 
-convertShunt :: Shunt.Application Sexp.T Sexp.T -> Sexp.T
+convertShunt :: Shunt.Application NameSymbol.T (Sexp.B a) -> Sexp.B a
 convertShunt (Shunt.Single e) = e
 convertShunt (Shunt.App s app1 app2) =
-  Sexp.list [s, convertShunt app1, convertShunt app2]
+  Sexp.list [Sexp.atom s, convertShunt app1, convertShunt app2]
 
 --------------------------------------------------------------------------------
 -- Record Recognition Transformation
@@ -253,23 +281,23 @@ sexpToNameSymbolErr sexp =
 notFoundSymbolToLookup ::
   ExpressionIO m => Env.SexpContext -> m Env.SexpContext
 notFoundSymbolToLookup context =
-  Env.contextPassManaulStar
+  Env.contextPassStar
     context
-    (== Structure.namePrimitive)
-    mempty {Sexp.onAtom = True}
     (primiveOrSymbol)
 
 primiveOrSymbol ::
-  ExpressionIO m => Env.SexpContext -> Sexp.T -> (Sexp.T -> m Sexp.T) -> m Sexp.T
-primiveOrSymbol context sexp _rec'
-  | Just _struct <- Structure.toPrimitive sexp =
-    pure sexp
-  | otherwise =
-    notFoundAtomRes context sexp
+  (ExpressionIO m) => Env.Pass m ()
+primiveOrSymbol context atom rec' =
+  case atom of
+    Sexp.P (Bind.Primitive _) _ ->
+      Sexp.Atom atom |> pure
+    Sexp.A {} ->
+      notFoundAtomRes context atom
+    _ -> Env.handleAtom context atom rec' >>| Sexp.Atom
 
 notFoundAtomRes ::
-  ExpressionIO m => Env.SexpContext -> Sexp.T -> m Sexp.T
-notFoundAtomRes context sexpAtom@(Sexp.Atom atom@Sexp.A {atomName = name}) = do
+  (Sexp.Serialize a, ExpressionIO m) => Env.SexpContext -> Sexp.Atom a -> m (Sexp.B a)
+notFoundAtomRes context atom@Sexp.A {atomName = name} = do
   -- we need to check if the first part of the var is in our
   closure <- ask @"closure"
   let firstQualification :| symbols = NameSymbol.toNonEmptySymbol name
@@ -279,6 +307,7 @@ notFoundAtomRes context sexpAtom@(Sexp.Atom atom@Sexp.A {atomName = name}) = do
             termInQuestion
           syms ->
             CoreNamed.Lookup termInQuestion syms |> CoreNamed.fromLookup
+          |> Sexp.partiallyDeserialize
           |> Sexp.addMetaToCar atom
           |> pure
   case Closure.lookup firstQualification closure of
@@ -327,5 +356,5 @@ notFoundAtomRes context sexpAtom@(Sexp.Atom atom@Sexp.A {atomName = name}) = do
             -- seems to be not defined at all, as it's not in the
             -- Context nor the closure, let's just return back what is given to us!
             Nothing ->
-              pure sexpAtom
-notFoundAtomRes _ s = pure s
+              pure (Sexp.Atom atom)
+notFoundAtomRes _ a = pure (Sexp.Atom a)

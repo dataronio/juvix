@@ -96,20 +96,19 @@ freeVarPass ::
   Sexp.T ->
   f Sexp.T
 freeVarPass form =
-  Env.onExpression form (const False) mempty {Sexp.onAtom = True} freeVarRes
+  Env.onExpression form freeVarRes
 
 freeVarRes ::
   ( HasReader "closure" Closure.T m,
     HasState "free" (Set.HashSet NameSymbol.T) m
   ) =>
-  Sexp.T ->
-  m Sexp.T
-freeVarRes sexpAtom@(Sexp.Atom Sexp.A {atomName = name}) = do
+  Env.PassNoCtx m ()
+freeVarRes sexpAtom@(Sexp.A {atomName = name}) _rec = do
   closure <- ask @"closure"
   let symbolName = NameSymbol.hd name
   case Closure.lookup symbolName closure of
-    Just _ -> pure sexpAtom
+    Just _ -> pure (Sexp.Atom sexpAtom)
     Nothing -> do
       modify @"free" (Set.insert name)
-      pure sexpAtom
-freeVarRes s = pure s
+      pure (Sexp.Atom sexpAtom)
+freeVarRes s _rec = pure (Sexp.Atom s)
