@@ -61,7 +61,7 @@ changeName (Options hashMapOpt _) hashmap =
 
 class GSerializeOptions f where
   gputOpt :: Options -> f a -> T
-  ggetOpt :: Options -> T -> Maybe (f a)
+  ggetOpt :: Options -> T -> Maybe (T, (f a))
 
 serializeOpt :: (GSerializeOptions (Rep a), Generic a) => Options -> a -> T
 serializeOpt opt t =
@@ -69,7 +69,7 @@ serializeOpt opt t =
 
 deserializeOpt :: (Generic b, GSerializeOptions (Rep b)) => Options -> T -> Maybe b
 deserializeOpt opt t =
-  to <$> ggetOpt opt t
+  to . snd <$> ggetOpt opt t
 
 ----------------------------------------
 -- U1
@@ -77,7 +77,7 @@ deserializeOpt opt t =
 
 instance GSerializeOptions U1 where
   gputOpt __ U1 = Nil
-  ggetOpt _ _xs = Just U1
+  ggetOpt _ xs = Just (xs, U1)
 
 ----------------------------------------
 -- M1
@@ -87,7 +87,7 @@ instance (GSerializeOptions a) => GSerializeOptions (D1 i a) where
   gputOpt opt (M1 x) =
     gputOpt opt x
   ggetOpt opt xs =
-    M1 <$> ggetOpt opt xs
+    second M1 <$> ggetOpt opt xs
 
 -- Make an alternative version that cares about the selector
 -- constructor
@@ -96,7 +96,7 @@ instance (Selector i, GSerializeOptions a) => GSerializeOptions (S1 i a) where
     gputOpt opt x
   ggetOpt opt xs =
     -- see if car is correct
-    M1 <$> ggetOpt opt (car xs)
+    second M1 <$> ggetOpt opt xs
 
 -- can we make consturctors with no arguments not be a list!?  for
 -- example if we have @| Test@ We want it not to be (:test), but :test
@@ -130,7 +130,7 @@ instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) wher
         Set.member name (consturctorNameSet opt)
       logic caseOn name1 =
         case caseOn of
-          Just t ->
+          Just (rest, t) ->
             let m1 = M1 t
                 name =
                   case constructorMapping opt Map.!? (conName m1) of
@@ -141,7 +141,7 @@ instance (Constructor i, GSerializeOptions a) => GSerializeOptions (C1 i a) wher
                     Just name ->
                       name
              in if
-                    | name1 == name -> Just m1
+                    | name1 == name -> Just (rest, m1)
                     | otherwise -> Nothing
           Nothing -> Nothing
 
@@ -154,13 +154,16 @@ instance (GSerializeOptions a, GSerializeOptions b) => GSerializeOptions (a :+: 
   gputOpt opt (R1 x) = gputOpt opt x
 
   -- is this correct?
-  ggetOpt opt xs = (L1 <$> ggetOpt opt xs) <|> (R1 <$> ggetOpt opt xs)
+  ggetOpt opt xs = (second L1 <$> ggetOpt opt xs) <|> (second R1 <$> ggetOpt opt xs)
 
 instance (GSerializeOptions a, GSerializeOptions b) => GSerializeOptions (a :*: b) where
   gputOpt opt (a :*: b) = append (gputOpt opt a) (gputOpt opt b)
 
   -- is this correct also!?
-  ggetOpt opt xs = (:*:) <$> ggetOpt opt xs <*> ggetOpt opt (cdr xs)
+  ggetOpt opt xs = do
+    (ret, firstSetOfSlot) <- ggetOpt opt xs
+    (rest, secondSetOfSlot) <- ggetOpt opt ret
+    Just (rest, firstSetOfSlot :*: secondSetOfSlot)
 
 ----------------------------------------
 -- K1
@@ -168,7 +171,8 @@ instance (GSerializeOptions a, GSerializeOptions b) => GSerializeOptions (a :*: 
 
 instance Serialize a => GSerializeOptions (K1 i a) where
   gputOpt _ (K1 x) = Sexp.Cons (serialize x) Nil
-  ggetOpt _ xs = K1 <$> deserialize xs
+  ggetOpt _ xs =
+    deserialize (car xs) >>| \des -> (cdr xs, K1 des)
 
 mlNameToReservedLispName :: [Char] -> NameSymbol.T
 mlNameToReservedLispName [] = NameSymbol.fromString ""
