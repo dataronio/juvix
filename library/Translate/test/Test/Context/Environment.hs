@@ -3,6 +3,7 @@ module Test.Context.Environment (top) where
 import qualified Data.HashSet as Set
 import qualified Juvix.Closure as Closure
 import qualified Juvix.Contextify as Contextify
+import qualified Juvix.Contextify.Binders as Bind
 import qualified Juvix.Contextify.Environment as Env
 import Juvix.Library
 import qualified Juvix.Library.HashMap as Map
@@ -10,7 +11,6 @@ import qualified Juvix.Sexp as Sexp
 import Test.Context.Helpers (contextualizeFoo, parseDesugarSexp)
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
-import qualified Juvix.Contextify.Binders as Bind
 
 --------------------------------------------------------------------------------
 -- Top Level Test
@@ -57,7 +57,7 @@ emptyClosure :: Capture
 emptyClosure = Cap (Closure.T Map.empty) []
 
 -- recordClosure ::
---   (HasReader "closure" a m, HasWriter "report" [a] m) => Env.Pass m 
+--   (HasReader "closure" a m, HasWriter "report" [a] m) => Env.Pass m
 recordClosure ctx t rec' =
   case t of
     Sexp.P (Bind.Other (PrintClosure _)) _ -> do
@@ -78,14 +78,11 @@ atomClosure ctx t rec' =
       Env.handleAtom ctx t rec' >>| Sexp.Atom
     _ -> Env.handleAtom ctx t rec' >>| Sexp.Atom
 
-
-
 printRename :: Sexp.Options
 printRename =
   Sexp.changeName
     (Sexp.defaultOptions @PrintClosure)
     (Map.fromList [("PrintClosure", "print-closure")])
-
 
 data PrintClosure
   = PrintClosure (Sexp.B (Bind.BinderPlus PrintClosure))

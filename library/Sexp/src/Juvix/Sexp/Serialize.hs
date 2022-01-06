@@ -4,11 +4,90 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Juvix.Sexp.Serialize where
+-- | @Juvix.Sexp.Serialize@ serves as the automatic serialization of
+-- Haskell Data-structures. One can derive a default instance by
+-- simply having
+--
+-- @
+-- Data Foo = Foo deriving(Generic)
+-- @
+--
+-- then writing
+--
+-- @
+-- instance DefaultOptions Foo
+-- instance Serialize Foo
+-- @
+--
+-- There are two parts to this derivation. The first is the
+-- @Serialize@ derivation, which gives on the ability to write
+-- @serialize@ and @deserialize@.
+--
+-- However one needs to also derive @DefaultOptions@ as, in order to
+-- get an efficient serialization, default options are needed to
+-- inform the system how it ought to serialize the structre. An
+-- example of what the constructor renaming looks like as follows
+-- @
+-- data Foo = Foo Int | FooBar Int | Bar
+--
+-- -- Gets turned into
+-- -- Foo 3
+-- (:foo 3)
+--
+-- -- FooBar 5
+-- (:foo-bar 5)
+--
+-- -- Bar
+-- :bar
+-- @
+--
+-- An example of giving a renaming is as follows
+--
+-- @
+-- data Infix
+--   = Infix
+--       { infixOp :: NameSymbol.T,
+--         infixLt :: (Sexp.B (Bind.BinderPlus Infix)),
+--         infixInf :: Infix
+--       }
+--   | InfixNoMore
+--       { infixOp :: NameSymbol.T,
+--         infixLt :: (Sexp.B (Bind.BinderPlus Infix)),
+--         infixRt :: (Sexp.B (Bind.BinderPlus Infix))
+--       }
+--   deriving (Show, Generic, Eq)
+--
+-- infixRename :: Sexp.Options
+-- infixRename =
+--   Sexp.changeName
+--     (Sexp.defaultOptions @Infix)
+--     (Map.fromList [("InfixNoMore", ":infix")])
+--
+-- instance Sexp.DefaultOptions Infix
+--
+-- instance Sexp.Serialize Infix where
+--   serialize = Sexp.serializeOpt infixRename
+--   deserialize = Sexp.deserializeOpt infixRename
+-- @
+--
+-- In this example, we make an @Infix@ data structure with two almost
+-- identical looking constructor and arguments. Indeed we state they
+-- stand for the same s-expression, with one just having a chain of
+-- infixs, we can see this by @infixRename@. Finally we derive the
+-- serialization based on these consturctors. And thus in practice the
+-- serializer will automatically give us a chain of @Infix@ before
+-- ending in an @InfixNoMore@
+module Juvix.Sexp.Serialize
+  ( Serialize (..),
+    DefaultOptions (..),
+    Options (..),
+    changeName,
+    serializeOpt,
+    deserializeOpt,
+  )
+where
 
 import qualified Data.Char8 as Char8
--- import qualified GHC.Types as Types
-
 import qualified Data.HashSet as Set
 import GHC.Generics as Generics
 import qualified Generics.Deriving.ConNames as ConNames
