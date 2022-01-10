@@ -557,6 +557,7 @@ Provides a mechanism for defining Sum types
 ***** CircularList
 - _Relies on_
   + [[Library]]
+  + [[NameSymbol]]
 ***** Env <<BerlinPipeline/Env>>
 - _Relies on_
   + [[CircularList]]

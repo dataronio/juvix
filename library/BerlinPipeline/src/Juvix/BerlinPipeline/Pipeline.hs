@@ -10,21 +10,37 @@ import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Sexp as Sexp
 
-data Env
+data EnvOrSexp
   = InContext NameSymbol.T
   | SExp Sexp.T
   deriving (Show, Eq, Generic)
 
 data WorkingEnv = WorkingEnv
-  { currentExp :: [Env],
+  { currentExp :: [EnvOrSexp],
     context :: Context.T Sexp.T Sexp.T Sexp.T
   }
   deriving (Show, Eq, Generic)
 
-data ComputationalInput = ComputationalInput
-  { languageData :: WorkingEnv
+-- | Computational Input
+data CIn = CIn
+  { languageData :: WorkingEnv,
+    surroundingData :: SurroundingEnv
   }
   deriving (Show, Eq, Generic)
+
+nameCIn :: NameSymbol.T -> CIn -> CIn
+nameCIn n cIn =
+  cIn
+    { surroundingData =
+        let d = surroundingData cIn in d {currentStepName = Just n}
+    }
+
+metaCIn :: Meta.T -> CIn -> CIn
+metaCIn meta cIn =
+  cIn
+    { surroundingData =
+        let d = surroundingData cIn in d {metaInfo = meta}
+    }
 
 data SurroundingEnv = SurroundingEnv
   { currentStepName :: Maybe NameSymbol.T,
@@ -32,19 +48,14 @@ data SurroundingEnv = SurroundingEnv
   }
   deriving (Show, Eq, Generic)
 
-data Success a = Success
-  { meta :: Meta.T,
-    result :: a
-  }
-  deriving (Eq, Functor)
-
-data Failure a = Failure
-  { meta :: Meta.T,
-    partialResult :: Maybe a
-  }
-  deriving (Eq, Functor)
-
-data ComputationalOutput a
-  = OutSuccess (Success a)
-  | OutFailure (Failure a)
-  deriving (Eq, Generic, Functor, Applicative, Monad)
+-- | Computational Output
+data COut a
+  = Success
+      { meta :: Meta.T,
+        result :: a
+      }
+  | Failure
+      { meta :: Meta.T,
+        partialResult :: Maybe a
+      }
+  deriving (Eq, Generic)
