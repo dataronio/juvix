@@ -6,9 +6,9 @@ import qualified Juvix.Backends.Michelson.Compilation.VirtualStack as VStack
 import qualified Juvix.Backends.Michelson.DSL.Untyped as Untyped
 import Juvix.Library
 import qualified Juvix.Library.Usage as Usage
-import qualified Michelson.Untyped as Untype
-import qualified Michelson.Untyped.Type as T
-import qualified Michelson.Untyped.Value as Untyped
+import qualified Morley.Michelson.Untyped as Untype
+import qualified Morley.Michelson.Untyped.Type as T
+import qualified Morley.Michelson.Untyped.Value as Untyped
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 

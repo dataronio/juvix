@@ -1,3 +1,18 @@
+;;; ----------------------------------------------------------------------
+;;; Nix defaults
+;;; ----------------------------------------------------------------------
+
+(defparameter *nix-zlib* "zlib")
+
+(defparameter *nix-llvm-9* "llvm_9")
+
+(defparameter *nix-curl* "curl")
+
+(defparameter *nix-time* "time")
+
+(defparameter *nix-ldb* "ldb")
+
+;;; ----------------------------------------------------------------------
 ;;; Dependencies for YAML generation
 ;;; ----------------------------------------------------------------------
 
@@ -22,6 +37,22 @@
   (make-dependency-git :name   "https://github.com/serokell/pairing.git"
                        :commit "cf86cf1f6b03f478a439703b050c520a9d455353"))
 
+(defparameter *bit-vec*
+  (string->dep-sha
+   "bitvec-1.0.3.0@sha256:f69ed0e463045cb497a7cf1bc808a2e84ea0ce286cf9507983bb6ed8b4bd3993,3977"))
+
+;; --------------------------------------
+;; STM Containers Dependencies
+;; --------------------------------------
+
+(defparameter *stm-container*
+  (string->dep-sha
+   "stm-containers-1.2@sha256:a887f2e7692b7cf20e0b081e2d66e21076e2bd4b57016ec59c484edfa2d29397,3244"))
+
+(defparameter *stm-hamt*
+  (string->dep-sha
+   "stm-hamt-1.2.0.6@sha256:fba86ccb4b45c5706c19b0e1315ba63dcac3b5d71de945ec001ba921fae80061,3972"))
+
 ;; --------------------------------------
 ;; Tezos Style Dependencies
 ;; --------------------------------------
@@ -39,23 +70,20 @@
 
 ;; It seems we were directed to grab these when the system failed to load
 (defparameter *morley*
-  (string->dep-sha
-   "morley-1.14.0@sha256:70a9fc646bae3a85967224c7c42b2e49155461d6124c487bbcc1d825111a189d,9682"))
+  (make-dependency-git :name "https://gitlab.com/morley-framework/morley.git"
+                       :commit "6eb73a0cb8d97039d0706aa3f836cc22fe030f96"
+                       :subdirs (list "code/morley")))
 
 (defparameter *morley-prelude*
-  (string->dep-sha
-   "morley-prelude-0.4.0@sha256:7234db1acac9a5554d01bdbf22d63b598c69b9fefaeace0fb6f765bf7bf738d4,2176"))
+  (make-dependency-git :name "https://gitlab.com/morley-framework/morley.git"
+                       :commit "3584852e68c70cdcf0b346ac9001f8e22f620f35"
+                       :subdirs (list "code/morley-prelude")))
 
 
-(defparameter *base-no-prelude-standard*
-  (string->dep-sha
-   "base-noprelude-4.13.0.0@sha256:3cccbfda38e1422ca5cc436d58858ba51ff9114d2ed87915a6569be11e4e5a90,6842")
-  "this is the standard version of base no prelude")
-
-(defparameter *base-no-prelude-special*
+(defparameter *base-no-prelude*
   (make-dependency-git :name "https://github.com/serokell/base-noprelude.git"
-                       :commit "87df0899801dcdffd08ef7c3efd3c63e67e623c2")
-  "this is a special version of base no prelude we have to use with Michelson backend")
+                       :commit "1282e0b992b00089d55228a2aa9edc4a3581c319")
+  "this is the standard version of base no prelude")
 
 ;; --------------------------------------
 ;; Stadnard Library Style Dependencies
@@ -76,10 +104,6 @@
 (defparameter *tasty*
   (string->dep-sha "tasty-1.4.1@sha256:69e90e965543faf0fc2c8e486d6c1d8cf81fd108e2c4541234c41490f392f94f,2638"))
 
-(defparameter *fmt*
-  (string->dep-sha
-   "fmt-0.6.1.2@sha256:405a1bfc0ba0fd99f6eb1ee71f100045223f79204f961593012f28fd99cd1237,5319"))
-
 (defparameter *aeson-options*
   (string->dep-sha
    "aeson-options-0.1.0@sha256:2d0c25afbb2d038bd5b57de8d042e319ea1a5ec7d7b92810d8a0cf0777882b6a,1244"))
@@ -95,6 +119,16 @@
 ;;; ----------------------------------------------------------------------
 ;;; Groups for YAML generation
 ;;; ----------------------------------------------------------------------
+
+
+;; --------------------------------------
+;; STM Containers Dependency Groups
+;; --------------------------------------
+(defparameter *stm-container-group*
+  (make-groups :comment "Stm Containers Dependencies"
+               :deps (list
+                      *stm-container*
+                      *stm-hamt*)))
 
 ;; --------------------------------------
 ;; Tezos Dependency Groups
@@ -113,6 +147,8 @@
           *morley-prelude*
           (make-dependency-bare :name "base58-bytestring-0.1.0")
           (make-dependency-bare :name "hex-text-0.1.0.0")
+          (string->dep-sha
+           "base16-bytestring-0.1.1.7@sha256:0021256a9628971c08da95cb8f4d0d72192f3bb8a7b30b55c080562d17c43dd3,2231")
           (make-dependency-bare :name "show-type-0.1.1")
           (string->dep-sha
            "named-0.3.0.1@sha256:2975d50c9c5d88095026ffc1303d2d9be52e5f588a8f8bcb7003a04b79f10a06,2312")
@@ -129,7 +165,7 @@
    :deps (list
           (make-dependency-git :name "https://github.com/int-index/caps.git"
                                :commit "c5d61837eb358989b581ed82b1e79158c4823b1b")
-          *base-no-prelude-special*))
+          *base-no-prelude*))
   "like *morley-sub-deps* but is an extra layer of dependency that is not used elsewhere")
 
 (defparameter *morley-deps-testing*
@@ -229,11 +265,6 @@
                       (string->dep-sha
                        "witherable-class-0@sha256:91f05518f9f4af5b02424f13ee7dcdab5d6618e01346aa2f388a72ff93e2e501,775"))))
 
-(defparameter *fmt-withdraw*
-  (merge-group (make-groups :comment "Fmt witherable" :deps (list *fmt*))
-               *withdraw*))
-
-
 (defparameter *graph-visualizer*
   (make-groups
    :comment "Visualizing graphs"
@@ -262,18 +293,18 @@
   "For the packages with lots of dependecies, these tend to be the
 common ones to include"
   (list (make-general-dependencies *capability*
-                                *prettiest*
-                                *extensible*
-                                *aeson-options*
-                                *un-exceptionalio*
-                                *sr-extra*)
+                                   *prettiest*
+                                   *extensible*
+                                   *aeson-options*
+                                   *un-exceptionalio*
+                                   *sr-extra*)
         *withdraw*
         *graph-visualizer*
         *standard-library-extra-deps*
         *morley-sub-deps*
-        (make-groups
-         :comment "For special deps that are similar to Michelson but not quite the same"
-         :deps (list *base-no-prelude-standard*))
+        *morley-sub-deps-extra*
+        ;; Context Dependencies
+        *stm-container-group*
         *interaction-net-extra-deps*
         ;; no morley plonk given as plonk wants a different one
         (if plonk
@@ -290,8 +321,28 @@ common ones to include"
          (append (list *capability*
                        *prettiest*
                        *galois-field*
+                       *bit-vec*
                        *elliptic-curve*)
                  more-deps)))
+
+(defun nix-enable-with (&rest packages)
+  (make-nix :enabled t
+            :packages packages
+            :shell-options (list "--keep" "NIX_SSL_CERT_FILE" "--keep" "STACK_ROOT")
+            :pure t))
+
+(defun nix-disable ()
+  (make-nix :enabled nil
+            :pure t))
+
+(defun nix-enable-zlib (&rest packages)
+  (apply #'nix-enable-with *nix-zlib* packages))
+
+(defun nix-enable-llvm (&rest packages)
+  (apply #'nix-enable-with *nix-llvm-9* packages))
+
+(defun nix-enable-all (&rest packages)
+  (apply #'nix-enable-with *nix-llvm-9* *nix-zlib* *nix-curl* *nix-time* *nix-ldb* packages))
 
 (defparameter *standard-library*
   (make-stack-yaml
@@ -301,36 +352,42 @@ common ones to include"
 (defparameter *sexp*
   (make-stack-yaml
    :name "Sexp"
-   :packages (list *standard-library*)
+   :nix-build  (nix-disable)
+   :packages   (list *standard-library*)
    :extra-deps (list (general-dependencies)
                      *standard-library-extra-deps*)))
 
 (defparameter *parsing*
   (make-stack-yaml
-   ;; why is this one ahead again!?
-   :resolver   17.9
    :name       "Parsing"
+   :nix-build  (nix-disable)
    :packages   (list *standard-library*)
    :extra-deps (list (general-dependencies) *standard-library-extra-deps*)))
 
 (defparameter *context*
   (make-stack-yaml
    :name     "Context"
+   :nix-build  (nix-disable)
    :packages   (list *standard-library* *sexp*)
    :extra-deps (list (general-dependencies)
-                     *standard-library-extra-deps*)))
+                     *standard-library-extra-deps*
+                     *stm-container-group*)))
 
 (defparameter *data-structures*
   (make-stack-yaml
    :name     "Test/DataStructures"
    :path-to-other "../../"
+   :nix-build  (nix-disable)
    :packages   (list *standard-library* *sexp* *context*)
    :extra-deps (list (general-dependencies)
-                     *standard-library-extra-deps*)))
+                     *standard-library-extra-deps*
+                     ;; Context Dependencies
+                     *stm-container-group*)))
 
 (defparameter *core*
   (make-stack-yaml
    :name       "Core"
+   :nix-build  (nix-disable)
    :packages   (list *standard-library* *sexp*)
    :extra-deps (list (general-dependencies *extensible*)
                       *standard-library-extra-deps*
@@ -339,6 +396,7 @@ common ones to include"
 (defparameter *translate*
   (make-stack-yaml
    :name "Translate"
+   :nix-build  (nix-disable)
    :packages   (list *core*
                      *parsing*
                      *standard-library*
@@ -347,7 +405,9 @@ common ones to include"
                      *data-structures*)
    :extra-deps (list (general-dependencies *extensible*)
                      *standard-library-extra-deps*
-                     *eac-solver*)))
+                     *eac-solver*
+                     ;; Context Dependencies
+                     *stm-container-group*)))
 
 
 
@@ -362,13 +422,13 @@ common ones to include"
                    *context*)
    ;; hack name, for sub dirs
    :name "Pipeline"
+   :nix-build  (nix-disable) ;; (nix-enable-zlib *nix-curl*)
    :extra-deps (big-dep-list)
    :extra "allow-newer: true"))
 
 (defparameter *llvm*
   (make-stack-yaml
    :name "Backends/llvm"
-   :resolver 17.3
    :path-to-other "../../"
    :packages (list *standard-library* *core* *context* *pipeline* *parsing* *sexp* *translate* *data-structures*)
    :extra-deps (list (make-general-dependencies *capability* *extensible* *prettiest*)
@@ -380,8 +440,12 @@ common ones to include"
                      *morley-sub-deps-extra*
                      *morley-arithmetic-circuit-deps*
 
+                     ;; Context Dependencies
+                     *stm-container-group*
+
                      ;; for standard-library
                      *standard-library-extra-deps*)
+   :nix-build (nix-disable) ;; (nix-enable-llvm *nix-zlib*)
    :extra "allow-newer: true"))
 
 (defparameter *michelson*
@@ -389,25 +453,32 @@ common ones to include"
    ;; hack name, for sub dirs
    :name "Backends/Michelson"
    :path-to-other "../../"
+   :nix-build     (nix-enable-zlib *nix-curl*)
    :packages      (list *standard-library* *core* *pipeline* *context*
                         ;; this is needed due to pipeline additions
                         ;; have left it unable to build. I think due to cyclic dependencies
                         *parsing*
-                        *sexp*)
+                        *sexp*
+                        *data-structures*
+                        *translate*)
    :extra-deps    (list (make-general-dependencies *capability* *extensible* *prettiest*)
-                        *fmt-withdraw*
+                        *withdraw*
                         *eac-solver*
                         *morley-arithmetic-circuit-deps*
                         *morley-deps*
                         *morley-sub-deps*
                         *morley-sub-deps-extra*
+                        ;; Context Dependencies
+                        *stm-container-group*
                         *graph-visualizer*
-                        *standard-library-extra-deps*)))
+                        *standard-library-extra-deps*)
+   :extra "allow-newer: true"))
 
 (defparameter *plonk*
   (make-stack-yaml
    :name "Backends/Plonk"
    :path-to-other "../../"
+   :nix-build  (nix-disable) ;; (nix-enable-zlib)
    :packages (list *standard-library*
                    *translate*
                    *parsing*
@@ -421,6 +492,7 @@ common ones to include"
 (defparameter *easy*
   (make-stack-yaml
    :path-to-other "../../"
+   :nix-build  (nix-disable) ;; (nix-enable-all)
    :packages (list *standard-library*
                    *parsing*
                    *core*
@@ -439,14 +511,18 @@ common ones to include"
 
 (defparameter *berlin-pipeline*
   (make-stack-yaml
-   :packages (list *standard-library* *context* *sexp*)
    :name "BerlinPipeline"
+   :nix-build  (nix-disable) ;; (nix-enable-zlib)
+   :packages   (list *standard-library* *context* *sexp*)
    :extra-deps (big-dep-list)
-   :extra "allow-newer: true"))
+   :extra      "allow-newer: true"))
 
 (defparameter *http*
   (make-stack-yaml
+   ;; hack name, for sub dirs
+   :name "Playground/HTTP"
    :path-to-other "../../"
+   :nix-build (nix-disable) ;; (nix-enable-all)
    :packages (list *standard-library*
                    *parsing*
                    *core*
@@ -474,7 +550,9 @@ common ones to include"
                      *sexp*
                      *pipeline*
                      *plonk*
+                     *data-structures*
                      *michelson*)
+   :nix-build  (nix-disable) ;; (nix-enable-zlib)
    :extra-deps (big-dep-list)
    :extra "allow-newer: true"))
 
@@ -496,7 +574,7 @@ common ones to include"
                    *context*
                    *sexp*
                    *data-structures*)
+   :nix-build  (nix-disable) ;; (nix-enable-all)
+   :extra-deps (cons *servant-deps* (cons *llvm-hs-deps* (big-dep-list)))
    :path-to-other "./library/"
-   :extra-deps
-   (cons *servant-deps* (cons *llvm-hs-deps* (big-dep-list)))
    :extra "allow-newer: true"))

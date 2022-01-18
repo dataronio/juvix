@@ -27,9 +27,9 @@ import Juvix.Library hiding (abs, and, or, xor)
 import qualified Juvix.Library (abs)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
-import qualified Michelson.Untyped.Instr as Instr
-import qualified Michelson.Untyped.Type as MT
-import qualified Michelson.Untyped.Value as V
+import qualified Morley.Michelson.Untyped.Instr as Instr
+import qualified Morley.Michelson.Untyped.Type as MT
+import qualified Morley.Michelson.Untyped.Value as V
 import Prelude (error)
 
 --------------------------------------------------------------------------------

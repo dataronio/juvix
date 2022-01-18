@@ -8,17 +8,17 @@ import qualified Fmt
 import qualified Juvix.Backends.Michelson.Compilation.Types as Types
 import qualified Juvix.Backends.Michelson.DSL.Contract as Contract
 import Juvix.Library
-import qualified Michelson.Interpret as Interpret
-import qualified Michelson.Text as Text
-import qualified Michelson.Typed.Aliases as TAlias
-import qualified Michelson.Typed.Convert as Convert
-import qualified Michelson.Typed.Entrypoints as Entry
-import qualified Michelson.Typed.Instr as Instr
-import qualified Michelson.Typed.Value as TValue
-import qualified Michelson.Untyped.Aliases as Alias
-import qualified Michelson.Untyped.Value as Value
-import qualified Tezos.Core as Core
-import qualified Tezos.Crypto as Crypto
+import qualified Morley.Michelson.Interpret as Interpret
+import qualified Morley.Michelson.Text as Text
+import qualified Morley.Michelson.Typed.Aliases as TAlias
+import qualified Morley.Michelson.Typed.Convert as Convert
+import qualified Morley.Michelson.Typed.Entrypoints as Entry
+import qualified Morley.Michelson.Typed.Instr as Instr
+import qualified Morley.Michelson.Typed.Value as TValue
+import qualified Morley.Michelson.Untyped.Aliases as Alias
+import qualified Morley.Michelson.Untyped.Value as Value
+import qualified Morley.Tezos.Core as Core
+import qualified Morley.Tezos.Crypto as Crypto
 
 dummyInterpret ::
   Types.EmptyInstr ->
@@ -52,7 +52,7 @@ untypeValue val =
     TValue.VKeyHash h ->
       Right (Value.ValueString (Crypto.mformatKeyHash h))
     TValue.VTimestamp t ->
-      Right (Value.ValueString (Text.mkMTextUnsafe (Fmt.pretty t)))
+      Right (Value.ValueString (Text.unsafeMkMText (Fmt.pretty t)))
     TValue.VAddress a ->
       Right (Value.ValueString (Entry.mformatEpAddress a))
     TValue.VKey b ->
@@ -102,7 +102,7 @@ untypeValue val =
           )
           (Map.toList m)
       pure (vList Value.ValueMap x)
-    TValue.VBigMap m -> do
+    TValue.VBigMap _ m -> do
       x <-
         traverse
           ( \(k, v) ->

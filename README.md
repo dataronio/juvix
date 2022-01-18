@@ -14,11 +14,11 @@ Juvix is a dependently functional programming language for writing
 efficient formally-verified [validity predicates](https://anoma.network/blog/validity-predicates/), which can be
 deployed to various distributed ledgers. Juvix addresses many issues that we have
 experienced while trying to write and deploy decentralised
-applications present in the ecosystem of smart-contracts: 
+applications present in the ecosystem of smart-contracts:
 - the difficulty of
-adequate program verification, 
+adequate program verification,
 - the ceiling of compositional
-complexity, 
+complexity,
 - the illegibility of execution costs, and
 - the lock-in to
 particular backends.
@@ -39,10 +39,26 @@ Prerequisites
   - For macOS : `brew install haskell-stack`
   - For Windows, following the instructions
   [here](https://docs.haskellstack.org/en/stable/install_and_upgrade/#windows).
-  
-  It is required at least 8GB RAM for `stack` installation.
 
+  It is required at least 8GB RAM for `stack` installation.
 * You might need to install the following third-party libraries.
+
+
+  - [libff](https://github.com/scipr-lab/libff),
+  - [libsecp256k1](https://github.com/bitcoin-core/secp256k1), and
+  - [openssl libssl](https://wiki.openssl.org/index.php/Libssl_API).
+
+
+
+* And run the following Nix commands:
+
+  ```bash
+  nix-channel --add https://nixos.org/channels/nixpkgs-unstable
+  nix-channel --update
+  nix-env -u
+  ```
+
+* Nix might install the following packages:
 
   - [libff](https://github.com/scipr-lab/libff),
   - [libsecp256k1](https://github.com/bitcoin-core/secp256k1), and
@@ -62,10 +78,10 @@ Installation
    $ cd juvix
    $ make install
    ````
-   
+
    If the installation succeeds, you must be able to run the juvix command
    from any location. To get the complete list of commands, please run `juvix --help`.
-   
+
    ```
    $  juvix version
    Juvix version 0.1.1.19-a2111a3
@@ -81,7 +97,7 @@ Installation
 
    For Windows users, to use the command *make*, please visit [this
    link](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows).
-   
+
 
 Examples
 --------
@@ -118,7 +134,7 @@ type storage = {
 sig accept-withdraws-from : key -> storage -> storage -> bool
 let accept-withdraws-from key {transaction = initial} {transaction = final}
   | key == final.account-to =
-    let difference = initial.account-from.balance - final.account-from.balance 
+    let difference = initial.account-from.balance - final.account-from.balance
     in difference < 10
   | else = false
 ```
@@ -137,7 +153,7 @@ let accept-withdraws-from key {transaction = initial} {transaction = final}
   $ juvix compile vp.ju vp.ll -b llvm
   ()
   ```
-  
+
 More examples of Juvix programs can be found in the [`examples`](./test/examples) folder.
 
 
@@ -157,7 +173,7 @@ To open a REPL , you can run one the following commands:
 $ make repl-lib    # REPL with the library scoped
 $ make repl-exe    # REPL with the executable scoped
 ```
-    
+
 Known limitations
 -----------------
 

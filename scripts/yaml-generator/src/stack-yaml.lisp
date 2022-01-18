@@ -1,11 +1,19 @@
 ;; -----------------------------------
 ;; Configuration variables
 ;; -----------------------------------
-(defparameter *default-resolver* 17.3)
+(defparameter *default-resolver* 18.16)
 
 ;; -----------------------------------
 ;; General Abstractions Types
 ;; -----------------------------------
+(defstruct nix
+  "This is the config for nix, it contains if it is enabled and a list
+of strings that determine what the valid packages are for it"
+  (enabled nil :type boolean)
+  (packages nil :type list)
+  (shell-options nil :type list)
+  (pure nil :type boolean))
+
 (defstruct stack-yaml
   "this is the main data type of the stack yaml file. We include
 relative pathing, so we can properly depend on other stack-yaml
@@ -23,7 +31,9 @@ packages."
   ;; by default this is in their sistor directories
   (path-to-other "../" :type string)
   ;; extra is typically used for allow-newer: true
-  extra)
+  extra
+  ;; nix-build is used to determine if stack should use nix and if so what packages
+  (nix-build (make-nix) :type nix))
 
 (defstruct groups
   "Groups are the main way we group dependencies, often 1 dependency
@@ -214,11 +224,29 @@ lists are indented by an extra 2 each"
       (format nil "~%~a" extra)
       ""))
 
+(defun format-nix (nix)
+  (if (nix-enabled nix)
+      (format nil "~%~a"
+              (indent-new-lines-by
+               2
+               (format nil "nix:~%~a~%~a~a~a"
+                       (format nil "enable: ~a" "true")
+                       (format nil "packages: [~{~a~^, ~}]" (nix-packages nix))
+                       (if (nix-shell-options nix)
+                           (format nil "~%nix-shell-options: [~{~a~^, ~}]" (nix-shell-options nix))
+                           "")
+                       (if (nix-pure nix)
+                           ""
+                           (format nil "~%pure: false")))))
+      ""))
+
+
 (defun stack-yaml->string (yaml-config)
-  (format nil "~a~%~%~a~%~%~a~a"
+  (format nil "~a~%~%~a~%~a~%~%~a~a"
           (format-resolver (stack-yaml-resolver yaml-config))
           ;; TODO
           (format-packages yaml-config)
+          (format-nix (stack-yaml-nix-build yaml-config))
           (format-extra-deps (stack-yaml-extra-deps yaml-config))
           (format-extra (stack-yaml-extra yaml-config))))
 

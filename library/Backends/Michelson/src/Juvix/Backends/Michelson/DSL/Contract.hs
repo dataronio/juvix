@@ -8,11 +8,11 @@ module Juvix.Backends.Michelson.DSL.Contract
 where
 
 import Juvix.Library
-import qualified Michelson.Interpret as Interpret
-import Michelson.Runtime.Dummy as Dummy
-import qualified Michelson.TypeCheck.TypeCheck as Type
-import qualified Tezos.Address as Address
-import qualified Tezos.Core as Core
+import qualified Morley.Michelson.Interpret as Interpret
+import Morley.Michelson.Runtime.Dummy as Dummy
+import qualified Morley.Michelson.TypeCheck.TypeCheck as Type
+import qualified Morley.Tezos.Address as Address
+import qualified Morley.Tezos.Core as Core
 
 dummyStamp :: Core.Timestamp
 dummyStamp = Core.timestampFromSeconds 1234
@@ -34,9 +34,6 @@ dummySend = Core.toMutez 10000
 
 dummyChainId :: Core.ChainId
 dummyChainId = Core.dummyChainId
-
-dummyOperationHash :: Maybe Address.OperationHash
-dummyOperationHash = Nothing
 
 dummyGlobalCounter :: Address.GlobalCounter
 dummyGlobalCounter = Address.GlobalCounter 12345678

@@ -32,10 +32,10 @@ import qualified Juvix.Core.IR.Types as IR
 import qualified Juvix.Core.Parameterisation as P
 import Juvix.Library hiding (Type)
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import qualified Michelson.TypeCheck as M
-import qualified Michelson.Typed as MT
-import qualified Michelson.Untyped as M
-import qualified Michelson.Untyped.Instr as Instr
+import qualified Morley.Michelson.TypeCheck as M
+import qualified Morley.Michelson.Typed as MT
+import qualified Morley.Michelson.Untyped as M
+import qualified Morley.Michelson.Untyped.Instr as Instr
 
 data RawPrimTy
   = PrimTy M.Ty

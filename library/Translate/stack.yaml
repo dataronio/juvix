@@ -1,4 +1,4 @@
-resolver: lts-17.3
+resolver: lts-18.16
 
 packages:
 - .
@@ -8,6 +8,7 @@ packages:
 - ../Sexp
 - ../Context
 - ../Test/DataStructures
+
 
 extra-deps:
 
@@ -19,6 +20,7 @@ extra-deps:
   commit: e5ce6cd6b4da71860c3d97da84bed4a827fa00ef
 - git: https://github.com/serokell/galois-field.git
   commit: 576ba98ec947370835a1f308895037c7aa7f8b71
+- bitvec-1.0.3.0@sha256:f69ed0e463045cb497a7cf1bc808a2e84ea0ce286cf9507983bb6ed8b4bd3993,3977
 - git: https://github.com/serokell/elliptic-curve.git
   commit: b8a3d0cf8f7bacfed77dc3b697f5d08bd33396a8
 - github: metastatedev/extensible-data
@@ -36,4 +38,10 @@ extra-deps:
 ######################
 - github: cwgoes/haskell-z3
   commit: 889597234bcdf5620c5a69d3405ab4d607ba4d71
+
+###############################
+# Stm Containers Dependencies #
+###############################
+- stm-containers-1.2@sha256:a887f2e7692b7cf20e0b081e2d66e21076e2bd4b57016ec59c484edfa2d29397,3244
+- stm-hamt-1.2.0.6@sha256:fba86ccb4b45c5706c19b0e1315ba63dcac3b5d71de945ec001ba921fae80061,3972
 

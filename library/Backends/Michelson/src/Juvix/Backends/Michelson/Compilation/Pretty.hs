@@ -16,9 +16,9 @@ import qualified Juvix.Core.HR.Pretty as HR
 import Juvix.Library hiding (Option, Type, const)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.PrettyPrint as PP
-import qualified Michelson.Text as M
-import qualified Michelson.Untyped as M
-import qualified Michelson.Untyped.Instr as Instr
+import qualified Morley.Michelson.Text as M
+import qualified Morley.Michelson.Untyped as M
+import qualified Morley.Michelson.Untyped.Instr as Instr
 import Numeric (showHex)
 import Text.Show (showChar, showString)
 

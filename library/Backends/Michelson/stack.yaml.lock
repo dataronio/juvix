@@ -34,13 +34,6 @@ packages:
   original:
     url: https://github.com/jyp/prettiest/archive/e5ce6cd6b4da71860c3d97da84bed4a827fa00ef.tar.gz
 - completed:
-    hackage: fmt-0.6.1.2@sha256:405a1bfc0ba0fd99f6eb1ee71f100045223f79204f961593012f28fd99cd1237,5319
-    pantry-tree:
-      size: 1004
-      sha256: 45fad678e9b54ef4d7872ff052a4cfe6d49912b9c7fb9fc4af881587f0713f6b
-  original:
-    hackage: fmt-0.6.1.2@sha256:405a1bfc0ba0fd99f6eb1ee71f100045223f79204f961593012f28fd99cd1237,5319
-- completed:
     hackage: witherable-0.3.5@sha256:6590a15735b50ac14dcc138d4265ff1585d5f3e9d3047d5ebc5abf4cd5f50084,1476
     pantry-tree:
       size: 271
@@ -112,19 +105,31 @@ packages:
     git: https://gitlab.com/obsidian.systems/tezos-bake-monitor-lib.git
     commit: 9356f64a6dfc5cf9b108ad84d1f89bcdc1f08174
 - completed:
-    hackage: morley-1.14.0@sha256:70a9fc646bae3a85967224c7c42b2e49155461d6124c487bbcc1d825111a189d,9682
+    subdir: code/morley
+    name: morley
+    version: 1.15.1
+    git: https://gitlab.com/morley-framework/morley.git
     pantry-tree:
-      size: 9369
-      sha256: b10da4c7da93a4caf440f29ec3b66782bb5d480a9be93bfc2fba31e0a7aacff4
+      size: 10691
+      sha256: 6082c17fdf610d734fc0d323c32a41a121bb134d2b6fceba536c4318abd05d6e
+    commit: 6eb73a0cb8d97039d0706aa3f836cc22fe030f96
   original:
-    hackage: morley-1.14.0@sha256:70a9fc646bae3a85967224c7c42b2e49155461d6124c487bbcc1d825111a189d,9682
+    subdir: code/morley
+    git: https://gitlab.com/morley-framework/morley.git
+    commit: 6eb73a0cb8d97039d0706aa3f836cc22fe030f96
 - completed:
-    hackage: morley-prelude-0.4.0@sha256:7234db1acac9a5554d01bdbf22d63b598c69b9fefaeace0fb6f765bf7bf738d4,2176
+    subdir: code/morley-prelude
+    name: morley-prelude
+    version: 0.4.2
+    git: https://gitlab.com/morley-framework/morley.git
     pantry-tree:
-      size: 269
-      sha256: 5ef63d068139d79b4bd5832822447ee0a9313da368c70245a79b13e1bc44a2dd
+      size: 518
+      sha256: 233e0f40533a37b6b42248f4f1cc5a644de8286b5b5784842fa35348c4ed3ebc
+    commit: 3584852e68c70cdcf0b346ac9001f8e22f620f35
   original:
-    hackage: morley-prelude-0.4.0@sha256:7234db1acac9a5554d01bdbf22d63b598c69b9fefaeace0fb6f765bf7bf738d4,2176
+    subdir: code/morley-prelude
+    git: https://gitlab.com/morley-framework/morley.git
+    commit: 3584852e68c70cdcf0b346ac9001f8e22f620f35
 - completed:
     hackage: base58-bytestring-0.1.0@sha256:a1da72ee89d5450bac1c792d9fcbe95ed7154ab7246f2172b57bd4fd9b5eab79,1913
     pantry-tree:
@@ -139,6 +144,13 @@ packages:
       sha256: 3a5b60f43c0dc4c3d5db342e23fded691065abd316af6124c8c55973367a4ef4
   original:
     hackage: hex-text-0.1.0.0
+- completed:
+    hackage: base16-bytestring-0.1.1.7@sha256:0021256a9628971c08da95cb8f4d0d72192f3bb8a7b30b55c080562d17c43dd3,2231
+    pantry-tree:
+      size: 454
+      sha256: 2dc99cd67293b09204098202d0bdcdcf89d2b8c69ce6c8f4e31deadbdab2a7f9
+  original:
+    hackage: base16-bytestring-0.1.1.7@sha256:0021256a9628971c08da95cb8f4d0d72192f3bb8a7b30b55c080562d17c43dd3,2231
 - completed:
     hackage: show-type-0.1.1@sha256:24f681a3481b3f9630e619d816054804ba1bd6cc05b5978ddd2cece8499ff2fa,1154
     pantry-tree:
@@ -194,15 +206,29 @@ packages:
     commit: c5d61837eb358989b581ed82b1e79158c4823b1b
 - completed:
     name: base-noprelude
-    version: 4.14.1.0
+    version: 4.14.3.0
     git: https://github.com/serokell/base-noprelude.git
     pantry-tree:
       size: 823
-      sha256: be322fd116817b527a3a391ba3c24d9252e4f03fd5b1b6abb815ccc78218e50f
-    commit: 87df0899801dcdffd08ef7c3efd3c63e67e623c2
+      sha256: 1f7bf8a841bc840b332d409dfeee4b68edd192291f76530faceddcfd61dfc429
+    commit: 1282e0b992b00089d55228a2aa9edc4a3581c319
   original:
     git: https://github.com/serokell/base-noprelude.git
-    commit: 87df0899801dcdffd08ef7c3efd3c63e67e623c2
+    commit: 1282e0b992b00089d55228a2aa9edc4a3581c319
+- completed:
+    hackage: stm-containers-1.2@sha256:a887f2e7692b7cf20e0b081e2d66e21076e2bd4b57016ec59c484edfa2d29397,3244
+    pantry-tree:
+      size: 761
+      sha256: 20b1076bdb121347ccc512a67df697eed34815a8e35279b6b9a0951963b1eba2
+  original:
+    hackage: stm-containers-1.2@sha256:a887f2e7692b7cf20e0b081e2d66e21076e2bd4b57016ec59c484edfa2d29397,3244
+- completed:
+    hackage: stm-hamt-1.2.0.6@sha256:fba86ccb4b45c5706c19b0e1315ba63dcac3b5d71de945ec001ba921fae80061,3972
+    pantry-tree:
+      size: 1009
+      sha256: 1920790535af832b76e7583c33ecf51f8b0b0c3615ef1db1c8ed9be19622c1db
+  original:
+    hackage: stm-hamt-1.2.0.6@sha256:fba86ccb4b45c5706c19b0e1315ba63dcac3b5d71de945ec001ba921fae80061,3972
 - completed:
     hackage: fgl-visualize-0.1.0.1@sha256:e682066053a6e75478a08fd6822dd0143a3b8ea23244bdb01dd389a266447c5e,995
     pantry-tree:
@@ -230,7 +256,7 @@ packages:
     hackage: tasty-1.4.1@sha256:69e90e965543faf0fc2c8e486d6c1d8cf81fd108e2c4541234c41490f392f94f,2638
 snapshots:
 - completed:
-    size: 563099
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/17/3.yaml
-    sha256: 1e9f31ec160a144f796bc49b91dfc2bab5eca88b1dcc93da569108febaf5b382
-  original: lts-17.3
+    size: 586286
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/16.yaml
+    sha256: cdead65fca0323144b346c94286186f4969bf85594d649c49c7557295675d8a5
+  original: lts-18.16

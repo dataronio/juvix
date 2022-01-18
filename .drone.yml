@@ -5,12 +5,12 @@ name: juvix-ci-build-pr
 node: {project: juvix}
 steps:
 - commands: [echo "49db3ec988197ca77f7384b1b1ae2e45266943d7ff54e0dcd21fb515d298461d  Makefile"
-      | sha256sum -c -, echo "5a98fa83fad2edecfd48d18aed2adbd5ceccf6afee1594a3ed3f2e26932dbdbb  scripts/push-changes.sh"
+      | sha256sum -c -, echo "3316642c7c435c6d2000e9cd2896c1413e456e9290cffebece8c588cac96e638  scripts/push-changes.sh"
       | sha256sum -c -, echo "d04e32c725b9316805e85d2e8d26d9aaa7010f00e98cd933e4a16c64c0533a6f  scripts/format-and-org-gen.sh"
       | sha256sum -c -, echo "b6ad65e92d1f6f47516586281d55b27794f3bc368d06473781925397f27e7932  scripts/check-formatting.sh"
-      | sha256sum -c -, echo "4b2678ee3159c1ee1d4879384163af17d388f0ce1f716bbc6f891e2b32483d3e  scripts/check-org-gen.sh"
+      | sha256sum -c -, echo "bc61d2cdaf46935ff2ebb2e85cbfdc106629b5d8c8589dfb5dbdc171c2ecfe92  scripts/check-org-gen.sh"
       | sha256sum -c -, echo "59e7ec32dc65c1668ca90cb0b825f4d86215cd2b1382babeabaedde8d6d61347  scripts/pre-run.sh"
-      | sha256sum -c -, echo "a21061245694da5b3b7e2a6d01c000dd6a4273901ffbf523233e103d005023c3  scripts/build-and-publish-docs.sh"
+      | sha256sum -c -, echo "9a6e36300c3620e23f0bb3faf488b87aca323d9730302b6f0f4bdc3b672bf036  scripts/build-and-publish-docs.sh"
       | sha256sum -c -, echo "c0ca1a8cc30da0759ed2baf0ce6e596c27b01be51ac1beeaa6754e95c6725093  scripts/generate-checksums.py"
       | sha256sum -c -, sh scripts/pre-run.sh]
   image: alpine/git:v2.30.1
@@ -100,12 +100,12 @@ name: juvix-ci-build-push-develop
 node: {project: juvix}
 steps:
 - commands: [echo "49db3ec988197ca77f7384b1b1ae2e45266943d7ff54e0dcd21fb515d298461d  Makefile"
-      | sha256sum -c -, echo "5a98fa83fad2edecfd48d18aed2adbd5ceccf6afee1594a3ed3f2e26932dbdbb  scripts/push-changes.sh"
+      | sha256sum -c -, echo "3316642c7c435c6d2000e9cd2896c1413e456e9290cffebece8c588cac96e638  scripts/push-changes.sh"
       | sha256sum -c -, echo "d04e32c725b9316805e85d2e8d26d9aaa7010f00e98cd933e4a16c64c0533a6f  scripts/format-and-org-gen.sh"
       | sha256sum -c -, echo "b6ad65e92d1f6f47516586281d55b27794f3bc368d06473781925397f27e7932  scripts/check-formatting.sh"
-      | sha256sum -c -, echo "4b2678ee3159c1ee1d4879384163af17d388f0ce1f716bbc6f891e2b32483d3e  scripts/check-org-gen.sh"
+      | sha256sum -c -, echo "bc61d2cdaf46935ff2ebb2e85cbfdc106629b5d8c8589dfb5dbdc171c2ecfe92  scripts/check-org-gen.sh"
       | sha256sum -c -, echo "59e7ec32dc65c1668ca90cb0b825f4d86215cd2b1382babeabaedde8d6d61347  scripts/pre-run.sh"
-      | sha256sum -c -, echo "a21061245694da5b3b7e2a6d01c000dd6a4273901ffbf523233e103d005023c3  scripts/build-and-publish-docs.sh"
+      | sha256sum -c -, echo "9a6e36300c3620e23f0bb3faf488b87aca323d9730302b6f0f4bdc3b672bf036  scripts/build-and-publish-docs.sh"
       | sha256sum -c -, echo "c0ca1a8cc30da0759ed2baf0ce6e596c27b01be51ac1beeaa6754e95c6725093  scripts/generate-checksums.py"
       | sha256sum -c -, sh scripts/pre-run.sh]
   image: alpine/git:v2.30.1
@@ -177,12 +177,12 @@ name: juvix-ci-docs-pr-push-develop
 node: {project: juvix}
 steps:
 - commands: [echo "49db3ec988197ca77f7384b1b1ae2e45266943d7ff54e0dcd21fb515d298461d  Makefile"
-      | sha256sum -c -, echo "5a98fa83fad2edecfd48d18aed2adbd5ceccf6afee1594a3ed3f2e26932dbdbb  scripts/push-changes.sh"
+      | sha256sum -c -, echo "3316642c7c435c6d2000e9cd2896c1413e456e9290cffebece8c588cac96e638  scripts/push-changes.sh"
       | sha256sum -c -, echo "d04e32c725b9316805e85d2e8d26d9aaa7010f00e98cd933e4a16c64c0533a6f  scripts/format-and-org-gen.sh"
       | sha256sum -c -, echo "b6ad65e92d1f6f47516586281d55b27794f3bc368d06473781925397f27e7932  scripts/check-formatting.sh"
-      | sha256sum -c -, echo "4b2678ee3159c1ee1d4879384163af17d388f0ce1f716bbc6f891e2b32483d3e  scripts/check-org-gen.sh"
+      | sha256sum -c -, echo "bc61d2cdaf46935ff2ebb2e85cbfdc106629b5d8c8589dfb5dbdc171c2ecfe92  scripts/check-org-gen.sh"
       | sha256sum -c -, echo "59e7ec32dc65c1668ca90cb0b825f4d86215cd2b1382babeabaedde8d6d61347  scripts/pre-run.sh"
-      | sha256sum -c -, echo "a21061245694da5b3b7e2a6d01c000dd6a4273901ffbf523233e103d005023c3  scripts/build-and-publish-docs.sh"
+      | sha256sum -c -, echo "9a6e36300c3620e23f0bb3faf488b87aca323d9730302b6f0f4bdc3b672bf036  scripts/build-and-publish-docs.sh"
       | sha256sum -c -, echo "c0ca1a8cc30da0759ed2baf0ce6e596c27b01be51ac1beeaa6754e95c6725093  scripts/generate-checksums.py"
       | sha256sum -c -, sh scripts/pre-run.sh]
   image: alpine/git:v2.30.1
@@ -452,7 +452,7 @@ steps:
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
     AWS_SECRET_ACCESS_KEY: {from_secret: aws_secret_access_key}
-    BACKEND_OPERATION_TIMEOUT: 8m
+    BACKEND_OPERATION_TIMEOUT: 16m
   image: meltwater/drone-cache:latest
   name: restore-cache-llvm
   pull: never
@@ -497,7 +497,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -537,7 +537,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -557,7 +557,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -577,7 +577,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -597,7 +597,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -617,7 +617,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -637,7 +637,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -657,7 +657,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -677,7 +677,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -697,7 +697,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -717,7 +717,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
@@ -737,12 +737,12 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 - depends_on: [build-docs]
   environment:
     AWS_ACCESS_KEY_ID: {from_secret: aws_access_key_id}
     AWS_SECRET_ACCESS_KEY: {from_secret: aws_secret_access_key}
-    BACKEND_OPERATION_TIMEOUT: 8m
+    BACKEND_OPERATION_TIMEOUT: 16m
   image: meltwater/drone-cache:latest
   name: rebuild-cache-llvm
   pull: never
@@ -757,7 +757,7 @@ steps:
     region: eu-west-1
     restore: false
   when:
-    status: [success, failure]
+    status: [success]
 trigger:
   branch: [develop]
   event: [push, pull_request]
@@ -770,12 +770,12 @@ name: juvix-ci-update-artifacts-push-develop
 node: {project: juvix}
 steps:
 - commands: [echo "49db3ec988197ca77f7384b1b1ae2e45266943d7ff54e0dcd21fb515d298461d  Makefile"
-      | sha256sum -c -, echo "5a98fa83fad2edecfd48d18aed2adbd5ceccf6afee1594a3ed3f2e26932dbdbb  scripts/push-changes.sh"
+      | sha256sum -c -, echo "3316642c7c435c6d2000e9cd2896c1413e456e9290cffebece8c588cac96e638  scripts/push-changes.sh"
       | sha256sum -c -, echo "d04e32c725b9316805e85d2e8d26d9aaa7010f00e98cd933e4a16c64c0533a6f  scripts/format-and-org-gen.sh"
       | sha256sum -c -, echo "b6ad65e92d1f6f47516586281d55b27794f3bc368d06473781925397f27e7932  scripts/check-formatting.sh"
-      | sha256sum -c -, echo "4b2678ee3159c1ee1d4879384163af17d388f0ce1f716bbc6f891e2b32483d3e  scripts/check-org-gen.sh"
+      | sha256sum -c -, echo "bc61d2cdaf46935ff2ebb2e85cbfdc106629b5d8c8589dfb5dbdc171c2ecfe92  scripts/check-org-gen.sh"
       | sha256sum -c -, echo "59e7ec32dc65c1668ca90cb0b825f4d86215cd2b1382babeabaedde8d6d61347  scripts/pre-run.sh"
-      | sha256sum -c -, echo "a21061245694da5b3b7e2a6d01c000dd6a4273901ffbf523233e103d005023c3  scripts/build-and-publish-docs.sh"
+      | sha256sum -c -, echo "9a6e36300c3620e23f0bb3faf488b87aca323d9730302b6f0f4bdc3b672bf036  scripts/build-and-publish-docs.sh"
       | sha256sum -c -, echo "c0ca1a8cc30da0759ed2baf0ce6e596c27b01be51ac1beeaa6754e95c6725093  scripts/generate-checksums.py"
       | sha256sum -c -, sh scripts/pre-run.sh]
   image: alpine/git:v2.30.1
@@ -797,6 +797,6 @@ type: docker
 workspace: {path: /drone/workspace}
 ---
 kind: signature
-hmac: 63190a73fc731a1e5d12b0bc7793b82ea3ace6a660c2f70c535a7a67029aa7b2
+hmac: 7f787bbe0b5f9f4c180e4131b9b9372a67d7c8bdee8850f242df231a3b2718b1
 
 ...

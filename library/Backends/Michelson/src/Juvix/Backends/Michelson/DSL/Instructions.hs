@@ -8,10 +8,10 @@ module Juvix.Backends.Michelson.DSL.Instructions where
 import qualified Juvix.Backends.Michelson.Compilation.Types as Types
 import qualified Juvix.Backends.Michelson.DSL.Untyped as Untyped
 import Juvix.Library
-import qualified Michelson.Untyped.Contract as Contract
-import qualified Michelson.Untyped.Ext as Ext
-import qualified Michelson.Untyped.Instr as Instr
-import qualified Michelson.Untyped.Value as Value
+import qualified Morley.Michelson.Untyped.Contract as Contract
+import qualified Morley.Michelson.Untyped.Ext as Ext
+import qualified Morley.Michelson.Untyped.Instr as Instr
+import qualified Morley.Michelson.Untyped.Value as Value
 import Prelude (error)
 
 -- | 'toNewPrim' removes the implicit Instr.PrimEx from the instruction

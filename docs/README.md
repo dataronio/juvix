@@ -40,6 +40,39 @@ make html
 make latexpdf
 ```
 
+### Nix Stack Instructions
+
+* Stack Nix Install [Nix](https://github.com/NixOS/nix):
+
+  - For Arch Linux
+    + [ArchLinux Nix](https://aur.archlinux.org/packages/archlinux-nix/)
+    + and the nix package `pacman -S nix`
+
+  - For Debian
+    + Install the nix packages:
+
+      ```bash
+      sudo apt install nix-bin nix-setup-systemd
+      ```
+
+    + Add your user to the `nix-users` group:
+
+      ```bash
+      sudo adduser <username> nix-users
+      ```
+
+    + Add the nix environment variables:
+
+      ```bash
+      # In .bashrc, or .zshenv, or similar
+      source /usr/share/doc/nix-bin/examples/nix-profile.sh
+      ```
+
+    + (Log out and back in, for the group change to take effect)
+
+  - Building From Source
+    + https://github.com/NixOS/nix
+
 ### Layout
 
 - The [language reference](./reference) section holds the official language reference.

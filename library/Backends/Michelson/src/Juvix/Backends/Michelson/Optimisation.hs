@@ -17,9 +17,9 @@ module Juvix.Backends.Michelson.Optimisation where
 
 import Juvix.Backends.Michelson.Compilation.Types
 import Juvix.Library
-import qualified Michelson.Optimizer as MO
-import qualified Michelson.Typed as MT
-import Michelson.Untyped
+import qualified Morley.Michelson.Optimizer as MO
+import qualified Morley.Michelson.Typed as MT
+import Morley.Michelson.Untyped
 
 optimiseWithMorley ::
   forall m inp out.

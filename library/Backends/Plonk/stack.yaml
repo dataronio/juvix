@@ -1,4 +1,4 @@
-resolver: lts-17.3
+resolver: lts-18.16
 
 packages:
 - .
@@ -9,6 +9,7 @@ packages:
 - ../../Context
 - ../../Pipeline
 - ../../Sexp
+
 
 extra-deps:
 
@@ -46,10 +47,17 @@ extra-deps:
 #########################################################
 # Git depdencies caused by Morley specific dependencies #
 #########################################################
-- morley-1.14.0@sha256:70a9fc646bae3a85967224c7c42b2e49155461d6124c487bbcc1d825111a189d,9682
-- morley-prelude-0.4.0@sha256:7234db1acac9a5554d01bdbf22d63b598c69b9fefaeace0fb6f765bf7bf738d4,2176
+- git: https://gitlab.com/morley-framework/morley.git
+  commit: 6eb73a0cb8d97039d0706aa3f836cc22fe030f96
+  subdirs:
+    - code/morley
+- git: https://gitlab.com/morley-framework/morley.git
+  commit: 3584852e68c70cdcf0b346ac9001f8e22f620f35
+  subdirs:
+    - code/morley-prelude
 - base58-bytestring-0.1.0
 - hex-text-0.1.0.0
+- base16-bytestring-0.1.1.7@sha256:0021256a9628971c08da95cb8f4d0d72192f3bb8a7b30b55c080562d17c43dd3,2231
 - show-type-0.1.1
 - named-0.3.0.1@sha256:2975d50c9c5d88095026ffc1303d2d9be52e5f588a8f8bcb7003a04b79f10a06,2312
 - cryptonite-0.27
@@ -57,10 +65,19 @@ extra-deps:
 - tasty-hunit-compat-0.2.0.1
 - with-utf8-1.0.2.2@sha256:42eed140390b3e93d9482b084d1d0150e8774667f39c33bd47e84815751fad09,3057
 
-#########################################################################
-# For special deps that are similar to Michelson but not quite the same #
-#########################################################################
-- base-noprelude-4.13.0.0@sha256:3cccbfda38e1422ca5cc436d58858ba51ff9114d2ed87915a6569be11e4e5a90,6842
+#########################################################################################
+# Git depdencies caused by Morley specific dependencies that are speicific to Michelson #
+#########################################################################################
+- git: https://github.com/int-index/caps.git
+  commit: c5d61837eb358989b581ed82b1e79158c4823b1b
+- git: https://github.com/serokell/base-noprelude.git
+  commit: 1282e0b992b00089d55228a2aa9edc4a3581c319
+
+###############################
+# Stm Containers Dependencies #
+###############################
+- stm-containers-1.2@sha256:a887f2e7692b7cf20e0b081e2d66e21076e2bd4b57016ec59c484edfa2d29397,3244
+- stm-hamt-1.2.0.6@sha256:fba86ccb4b45c5706c19b0e1315ba63dcac3b5d71de945ec001ba921fae80061,3972
 
 ####################################
 # For Interaction Nets json-schema #

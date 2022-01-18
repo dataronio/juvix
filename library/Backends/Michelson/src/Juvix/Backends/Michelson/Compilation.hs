@@ -13,10 +13,11 @@ import qualified Juvix.Backends.Michelson.DSL.Untyped as Untyped
 import qualified Juvix.Backends.Michelson.Optimisation as Optimisation
 import qualified Juvix.Core.Erased.Ann.Types as Ann
 import Juvix.Library hiding (Type)
-import qualified Michelson.Printer as M
-import qualified Michelson.TypeCheck as M
-import qualified Michelson.Typed as MT
-import qualified Michelson.Untyped as M
+import qualified Morley.Michelson.Printer as M
+import qualified Morley.Michelson.TypeCheck as M
+import qualified Morley.Michelson.Typed as MT
+import qualified Morley.Michelson.Untyped as M
+import qualified Morley.Michelson.Typed.Existential as M
 
 typedContractToSource :: M.SomeContract -> Text
 typedContractToSource (M.SomeContract (MT.Contract {cCode = instr})) =
@@ -71,14 +72,13 @@ compileToMichelsonContract term = do
         let michelsonOp = michelsonOp'
         --
         let contract = M.Contract paramTy' storageTy [michelsonOp] M.PSC
-        let tcOpts = M.TypeCheckOptions {tcVerbose = False}
         --
-        case M.typeCheckContract contract tcOpts of
+        case runTypeCheck (M.typeCheckContract contract) strictOptions of
           Right _ -> do
             optimised <- Optimisation.optimise michelsonOp
             let optimisedContract =
                   M.Contract paramTy' storageTy [optimised] M.PSC
-            case M.typeCheckContract optimisedContract tcOpts of
+            case runTypeCheck (M.typeCheckContract optimisedContract) strictOptions of
               Right c ->
                 pure (optimisedContract, c)
               Left err ->
@@ -96,11 +96,18 @@ compileToMichelsonExpr ::
 compileToMichelsonExpr term = do
   _ <- DSL.instOuter term
   michelsonOp <- mconcat |<< get @"ops"
-  case M.runTypeCheckIsolated (M.typeCheckList [michelsonOp] M.SNil) of
+  case runTypeCheck (M.runTypeCheckIsolated (M.typeCheckList [michelsonOp] M.SNil)) nonStrictOptions of
     Right (_ M.:/ (s M.::: _)) -> pure (EmptyInstr s)
     -- TODO ∷ Figure out what this case should be
     Right (_ M.:/ (M.AnyOutInstr _)) -> undefined
     Left err -> throw @"compilationError" (DidNotTypecheck michelsonOp err)
 
+nonStrictOptions = M.TypeCheckOptions {tcVerbose = False, tcStrict = False}
+
+strictOptions = M.TypeCheckOptions {tcVerbose = False, tcStrict = True}
+
 runMichelsonExpr :: DSL.Reduction m => Term -> m M.ExpandedOp
 runMichelsonExpr = DSL.instOuter
+
+runTypeCheck checked options =
+  runExcept (runReaderT checked options)

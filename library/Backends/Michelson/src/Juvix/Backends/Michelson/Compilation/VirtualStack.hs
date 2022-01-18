@@ -24,10 +24,10 @@ import Juvix.Library hiding (Type, drop, take)
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
-import qualified Michelson.Untyped as Untyped
-import qualified Michelson.Untyped.Instr as Instr
-import qualified Michelson.Untyped.Type as T
-import qualified Michelson.Untyped.Value as V
+import qualified Morley.Michelson.Untyped as Untyped
+import qualified Morley.Michelson.Untyped.Instr as Instr
+import qualified Morley.Michelson.Untyped.Type as T
+import qualified Morley.Michelson.Untyped.Value as V
 import Prelude (error)
 
 -- TODO ∷ consolidate the various recursions into a generic combinator

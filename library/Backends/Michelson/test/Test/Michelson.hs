@@ -15,7 +15,7 @@ import qualified Juvix.Core.Parameterisation as P
 import Juvix.Library hiding (Type, show)
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import Juvix.Library.Usage
-import Michelson.Untyped as M
+import Morley.Michelson.Untyped as M
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as T
 import Prelude (String, foldr1)

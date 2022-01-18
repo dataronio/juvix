@@ -4,7 +4,7 @@ import qualified Juvix.Backends.Michelson.DSL.Instructions as Instructions
 import qualified Juvix.Backends.Michelson.DSL.Untyped as Untyped
 import Juvix.Library
 import qualified Juvix.Library.NameSymbol as NameSymbol
-import qualified Michelson.Untyped.Instr as Instr
+import qualified Morley.Michelson.Untyped.Instr as Instr
 
 unpackTuple :: Instr.ExpandedOp
 unpackTuple =

@@ -9,7 +9,7 @@ import Juvix.Backends.Michelson.Compilation.Types
 import Juvix.Backends.Michelson.DSL.Untyped (blank)
 import Juvix.Backends.Michelson.Parameterisation (michelson)
 import Juvix.Core.Parameterisation (PrimType (PrimType), hasType)
-import qualified Michelson.Untyped as MU
+import qualified Morley.Michelson.Untyped as MU
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 

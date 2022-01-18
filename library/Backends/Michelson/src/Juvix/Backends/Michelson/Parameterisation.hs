@@ -31,9 +31,9 @@ import Juvix.Library hiding (many, try)
 import qualified Juvix.Library.HashMap as Map
 import qualified Juvix.Library.NameSymbol as NameSymbol
 import qualified Juvix.Library.Usage as Usage
-import qualified Michelson.Text as M
-import qualified Michelson.Untyped as M
-import qualified Michelson.Untyped.Type as Untyped
+import qualified Morley.Michelson.Text as M
+import qualified Morley.Michelson.Untyped as M
+import qualified Morley.Michelson.Untyped.Type as Untyped
 import Prelude (Show (..), error)
 
 -- | Can the given type be used as a boolean? Note that in addition to
@@ -304,7 +304,7 @@ michelson =
          in ans,
       builtinTypes,
       builtinValues,
-      stringVal = Just . Constant . M.ValueString . M.mkMTextUnsafe, -- TODO ?
+      stringVal = Just . Constant . M.ValueString . M.unsafeMkMText, -- TODO ?
       intVal = integerToPrimVal,
       floatVal = const Nothing
     }

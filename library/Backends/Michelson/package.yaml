@@ -30,6 +30,7 @@ dependencies:
 - vinyl
 - fmt
 - bytestring
+- data-structures
 
 default-extensions:
   - NoImplicitPrelude

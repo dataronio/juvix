@@ -1,8 +1,8 @@
 module Juvix.Backends.Michelson.DSL.Untyped where
 
 import Juvix.Library (flip, (.), (...))
-import qualified Michelson.Untyped.Annotation as Annotate
-import qualified Michelson.Untyped.Type as Untyped
+import qualified Morley.Michelson.Untyped.Annotation as Annotate
+import qualified Morley.Michelson.Untyped.Type as Untyped
 
 type T = Untyped.Ty
 

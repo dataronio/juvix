@@ -5,7 +5,7 @@ for folder in library/*; do
     if [ -d "$folder" ] && [ "$folder" != "library/Backends" ] && [ "$folder" != "library/Playground" ] && [ "$folder" != "library/Test" ]; then
         echo "Starting ${folder}..."
         cd "$folder"
-	    stack haddock &> /dev/null
+	    stack haddock --fast &> /dev/null
 	    cd -
         echo "Done ${folder}."
     fi
@@ -15,7 +15,7 @@ for folder in library/Backends/*; do
     if [ -d "$folder" ]; then
         echo "Starting ${folder}..."
         cd "$folder"
-	    stack haddock &> /dev/null
+	    stack haddock --fast &> /dev/null
 	    cd -
         echo "Done ${folder}."
     fi
@@ -25,7 +25,7 @@ for folder in library/Playground/*; do
     if [ -d "$folder" ]; then
         echo "Starting ${folder}..."
         cd "$folder"
-	    stack haddock &> /dev/null
+	    stack haddock --fast &> /dev/null
 	    cd -
         echo "Done ${folder}."
     fi
@@ -35,7 +35,7 @@ for folder in library/Test/*; do
     if [ -d "$folder" ]; then
         echo "Starting ${folder}..."
         cd "$folder"
-	    stack haddock &> /dev/null
+	    stack haddock --fast &> /dev/null
 	    cd -
         echo "Done ${folder}."
     fi

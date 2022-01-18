@@ -655,6 +655,9 @@ Traversals serves as generic Context Traversal modules.
   + [[NameSymbol]]
   + [[Library/Usage]]
 ** test
+*** Main <<Context/test/Main>>
+- _Relies on_
+  + [[Fetch]]
 *** Context <<test/Context>>
 - _Relies on_
   + [[Juvix/Context]]
@@ -662,9 +665,6 @@ Traversals serves as generic Context Traversal modules.
   + [[Library]]
   + [[HashMap]]
   + [[NameSymbol]]
-*** Main <<Context/test/Main>>
-- _Relies on_
-  + [[Fetch]]
 * Core
 ** Setup <<Core/Setup>>
 ** src

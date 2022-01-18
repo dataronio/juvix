@@ -9,6 +9,8 @@ fi
 REMOTE=$(git remote get-url origin | cut -c 9-)
 PUSH_URL="https://${GITHUB_TOKEN}@${REMOTE}"
 
+git stash
+
 git fetch --all
 CHECKOUT_OUTPUT=$(git checkout $DRONE_SOURCE_BRANCH  2>&1)
 
@@ -18,6 +20,7 @@ if [ $? -ne 0 ]; then
     then
         echo "Can't checkout $DRONE_SOURCE_BRANCH, because $DRONE_SOURCE_BRANCH is probably not part of $REMOTE. You should manually run org-gen and formatting."
     else
+        git checkout $DRONE_SOURCE_BRANCH 
         echo "Can't checkout $DRONE_SOURCE_BRANCH. Unknown reason. Manually run org-gen and formatting."
     fi
     exit 1
@@ -25,6 +28,7 @@ fi
 
 git remote set-url origin $PUSH_URL
 
+git stash pop
 git add -A
 git status
 git commit -m "[ci] changes from CI"
